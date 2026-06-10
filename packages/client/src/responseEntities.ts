@@ -64,9 +64,9 @@ export interface FolderInfo extends ApiEditableEntity {
   path: string;
   slug: string;
   name: string;
-  description: string | null;
+  description: string | null,
   thumb: string | null,
-  meta: Record<string, any>;
+  meta: Record<string, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
   lrc_count: number;
   protected: boolean;
   may_have_files?: boolean;
@@ -189,7 +189,7 @@ export type TreeItem = {
   lrc_count: number,
   protected: boolean,
   may_have_files: boolean,
-  metadata: Record<string, any>,
+  metadata: Record<string, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
   subfolders: TreeItem[]
 }
 

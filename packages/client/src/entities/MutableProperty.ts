@@ -4,7 +4,7 @@ type MutablePropertyType = string | number | boolean;
 
 /** A property that may accept changes and generates its report when changed */
 export class MutableProperty<
-    E extends AbstractEntity<any, any>,
+    E extends AbstractEntity<any, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
     T extends MutablePropertyType
 > {
 

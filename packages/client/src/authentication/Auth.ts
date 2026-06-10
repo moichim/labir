@@ -19,7 +19,6 @@ export class Auth {
         return this.identity !== undefined;
     }
 
-
     public login(
         identity: Identity,
         userFolders?: FolderInfo[]

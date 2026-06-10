@@ -1,5 +1,9 @@
 import { CallbacksManager } from "@labirthermal/core";
 
+//#region package.json
+var version = "1.3.4";
+
+//#endregion
 //#region src/authentication/Auth.ts
 var Auth = class {
 	identity;
@@ -311,7 +315,7 @@ var RequestFactory = class {
 			...options,
 			body: formData
 		};
-		if (finaleOptions.headers && typeof finaleOptions.headers === "object") delete finaleOptions.headers["Content-Type"];
+		if (finaleOptions.headers && typeof finaleOptions.headers === "object" && !Array.isArray(finaleOptions.headers) && "Content-Type" in finaleOptions.headers) delete finaleOptions.headers["Content-Type"];
 		return new Request(url, finaleOptions);
 	}
 	createRequest() {
@@ -1027,6 +1031,7 @@ var UpdateFolder = class extends OperationWithPath {
 	}
 	setMetadata(value) {
 		this.request.addBodyParameter("meta", value);
+		return this;
 	}
 	async execute() {
 		return await this.client.fetch(this.request);
@@ -1196,6 +1201,10 @@ var Routes = class {
 * 
 */
 var ApiClient = class {
+	/**
+	* Version of the API === version of the NPM package.
+	*/
+	static VERSION = version;
 	/** 
 	* The core server URL ending with a slash 
 	*/

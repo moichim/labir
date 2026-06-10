@@ -86,9 +86,10 @@ export class UpdateFolder extends OperationWithPath<PostUpdateFolderDataType> {
     }
 
     public setMetadata(
-        value: Record<string, any>
-    ) {
+        value: Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
+    ): this {
         this.request.addBodyParameter("meta", value);
+        return this;
     }
 
 

@@ -14,25 +14,17 @@ describe( "Entities", () => {
         expect( client.isConnected() ).toBe( true );
 
         const observer1 = await client.entities.connectToFolder( "access/accessible", {
-            onFolderChanged( folder, change ) {
-                // console.log( "OBSERVER1", "Folder changed:", folder, change );
-            }
+            onFolderChanged() {}
         } );
 
         const observer2 = await client.entities.connectToFolder( "access/accessible", {
-            onFolderChanged( folder, change ) {
-                // console.log( "OBSERVER2", "Folder changed:", folder, change );
-            }
+            onFolderChanged() {}
         } );
-
-        // expect( zihle.current()?.name ).toBe("Root update");
 
         observer1.update.name.enqueue( "Entity update name ABCD" );
         observer2.update.description.enqueue( "Nějaká popiska prde" );
 
         await observer1.persist();
-
-        // console.log( changed );
 
     } );
 

@@ -21,7 +21,7 @@ export class RequestFactory {
     protected method: AvailableMethod = "GET";
     protected action?: string = undefined;
     protected query: Map<string, string> = new Map<string, string>();
-    protected body: { [key: string]: any } = {};
+    protected body: { [key: string]: any } = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
     protected headers: { [key: string]: string } = {};
     protected files: { [key: string]: File } = {};
 
@@ -62,7 +62,7 @@ export class RequestFactory {
 
     public addBodyParameter(
         key: string,
-        value: any
+        value: any // eslint-disable-line @typescript-eslint/no-explicit-any
     ): RequestFactory {
         this.body[key] = value;
         return this;
@@ -204,7 +204,12 @@ export class RequestFactory {
             body: formData,
         };
         // Pokud by v headers zůstal Content-Type, odstraníme ho (pro jistotu)
-        if (finaleOptions.headers && typeof finaleOptions.headers === 'object') {
+        if (
+            finaleOptions.headers 
+            && typeof finaleOptions.headers === 'object' 
+            && !Array.isArray(finaleOptions.headers) 
+            && "Content-Type" in finaleOptions.headers 
+        ) {
             delete finaleOptions.headers["Content-Type"];
         }
 

@@ -7,7 +7,7 @@ export type CreateDataType = {
         slug?: string,
         name?: string,
         description?: string,
-        info?: any,
+        info?: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     }
 }
 
@@ -20,7 +20,7 @@ export type CreateDataType = {
 export class CreateFolder extends OperationWithPath<CreateDataType> {
 
     // Tag buffer for accumulating tags one by one
-    protected tagBuffer: Record<string, any> = {};
+    protected tagBuffer: Record<string, any> = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
     protected accessBuffer: { show?: boolean; may_have_files?: boolean } = {};
 
 
@@ -42,7 +42,7 @@ export class CreateFolder extends OperationWithPath<CreateDataType> {
         return this;
     }
 
-    public setMeta(meta: Record<string, any>): this {
+    public setMeta(meta: Record<string, any>): this { // eslint-disable-line @typescript-eslint/no-explicit-any
         this.request.addBodyParameter("meta", meta);
         return this;
     }
@@ -50,7 +50,7 @@ export class CreateFolder extends OperationWithPath<CreateDataType> {
     /**
      * Přidej jeden tag (klíčem je název, hodnotou objekt s name, description, color)
      */
-    public addTag(name: string, description?: string, color?: string): this {
+    public addTag(name: string, description?: string, color?: string): this { 
         this.tagBuffer[name] = { name };
         if (description !== undefined) this.tagBuffer[name].description = description;
         if (color !== undefined) this.tagBuffer[name].color = color;

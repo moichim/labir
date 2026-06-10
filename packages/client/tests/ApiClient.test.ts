@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { ApiClient } from "./ApiClient";
+import { ApiClient } from "../src/ApiClient";
 
 describe("Client", () => {
 

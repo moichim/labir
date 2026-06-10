@@ -2,12 +2,11 @@ import { ApiClient } from "../ApiClient";
 import { ApiEditableEntity } from "../responseEntities";
 
 
-export interface EntityObserver<E extends ApiEditableEntity> {
-}
+export interface EntityObserver {}
 
 export abstract class AbstractEntity<
     E extends ApiEditableEntity, 
-    C extends EntityObserver<E>
+    C extends EntityObserver
 > {
 
     protected observers: Set<C> = new Set();
@@ -20,7 +19,7 @@ export abstract class AbstractEntity<
     public abstract connect(): Promise<boolean>;
     public abstract disconnect(): void;
 
-    public abstract persist(): Promise<E|void>;
+    public abstract persist(): Promise< E | void >;
 
     public abstract current(): E | undefined;
 
@@ -44,7 +43,7 @@ export abstract class AbstractEntity<
     protected emit(
         message: string,
         includeState: boolean = false,
-        customData?: {[key: string]: any; }
+        customData?: {[key: string]: any; } // eslint-disable-line @typescript-eslint/no-explicit-any
     ) {
 
         this.onEmit( message, includeState, customData );
@@ -54,7 +53,7 @@ export abstract class AbstractEntity<
     protected abstract onEmit(
         message: string,
         includeState: boolean,
-        customData?: { [key: string]: any; }
+        customData?: { [key: string]: any; } // eslint-disable-line @typescript-eslint/no-explicit-any
     ): void;
 
 }

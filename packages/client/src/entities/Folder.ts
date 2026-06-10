@@ -3,11 +3,11 @@ import { FolderInfo } from "../responseEntities";
 import { AbstractEntity, EntityObserver } from "./AbstractEntity";
 import { MutableProperty } from "./MutableProperty";
 
-export type ConnectsToFolder = EntityObserver<FolderInfo> & {
+export type ConnectsToFolder = EntityObserver & {
     onFolderChanged(
         message: string,
         currentState?: FolderInfo,
-        changes?: { [key: string]: any; }
+        changes?: { [key: string]: any; } // eslint-disable-line @typescript-eslint/no-explicit-any
     ): void;
 }
 
@@ -19,6 +19,7 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
         name: MutableProperty<Folder, string>,
         description: MutableProperty<Folder, string>,
     };
+
 
     public constructor(
         client: ApiClient,
@@ -33,15 +34,18 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
 
     }
 
+
     private forEveryUpdate(
-        fn: (property: MutableProperty<any, any>) => void
+        fn: (property: MutableProperty<any, any>) => void // eslint-disable-line @typescript-eslint/no-explicit-any
     ): void {
         Object.values(this.update).forEach(fn);
     }
 
+
     public resetUpdaates() {
         this.forEveryUpdate(property => property.reset());
     }
+
 
     public async persist(): Promise<FolderInfo|void> {
 
@@ -72,7 +76,7 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
             this.info = result.data!.result.info;
 
             // 4.2. Assamble changes
-            const mutations: [string, any][] = [];
+            const mutations: [string, any][] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
 
             this.forEveryUpdate(property => {
 
@@ -93,8 +97,6 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
 
             const report = Object.fromEntries( mutations );
 
-            // console.log( "report", report );
-
             this.emit("updated", true, report);
 
             return this.info;
@@ -106,10 +108,10 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
     }
 
 
-
     public current(): FolderInfo | undefined {
         return this.info;
     }
+
 
     public async connect(): Promise<boolean> {
 
@@ -132,15 +134,17 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
 
     }
 
+
     public disconnect() {
         this.connected = false;
         this.emit("disconnected", false);
     }
 
+
     protected onEmit(
         message: string,
         includeState: boolean,
-        customData?: { [key: string]: any; }
+        customData?: { [key: string]: any; } // eslint-disable-line @typescript-eslint/no-explicit-any
     ): void {
 
         this.observers.forEach(observer => {
@@ -154,5 +158,6 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
         });
 
     }
+
 
 }

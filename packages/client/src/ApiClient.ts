@@ -1,3 +1,5 @@
+import { CallbacksManager } from "@labirthermal/core";
+import { version } from "../package.json";
 import { Auth } from "./authentication/Auth";
 import { Entities } from "./entities/Entities";
 import { RequestFactory } from "./request/RequestFactory";
@@ -5,7 +7,6 @@ import { ServerInfo } from "./responseEntities";
 import { Routes } from "./routes/factories/Routes";
 import { GetConnectDataType } from "./routes/get/GetConnect";
 import { ApiResponseDataType, ApiResponseType } from "./routes/ResponseTypes";
-import { CallbacksManager } from "@labirthermal/core";
 
 /**
  * The client for accessing a remote LabIR server.
@@ -20,6 +21,11 @@ import { CallbacksManager } from "@labirthermal/core";
  * 
  */
 export class ApiClient {
+
+    /**
+     * Version of the API === version of the NPM package.
+     */
+    public static readonly VERSION: string = version;
 
     /** 
      * The core server URL ending with a slash 
@@ -214,13 +220,13 @@ export class ApiClient {
      * @returns The API root path with slashes (e.g. '/api/')
      */
     public getApiRoot(): string {
-        if ( this.apiRoot.endsWith("/") && this.apiRoot.startsWith("/") ) {
+        if (this.apiRoot.endsWith("/") && this.apiRoot.startsWith("/")) {
             return this.apiRoot;
         }
-        else if ( this.apiRoot.endsWith("/") ) {
+        else if (this.apiRoot.endsWith("/")) {
             return "/" + this.apiRoot;
         }
-        else if ( this.apiRoot.startsWith("/") ) {
+        else if (this.apiRoot.startsWith("/")) {
             return this.apiRoot + "/";
         }
         return "/" + this.apiRoot + "/";
@@ -228,8 +234,8 @@ export class ApiClient {
 
     public getPublicUrl(): string {
 
-        if ( this.serverUrl.endsWith( this.apiRoot ) ) {
-            return this.serverUrl.slice( 0, -this.apiRoot.length );
+        if (this.serverUrl.endsWith(this.apiRoot)) {
+            return this.serverUrl.slice(0, -this.apiRoot.length);
         }
 
         return this.serverUrl;
@@ -327,11 +333,11 @@ export class ApiClient {
 
             const text = await response.clone().text();
 
-            console.error( "API Call ended with an error!", {
+            console.error("API Call ended with an error!", {
                 request: request.url,
                 JSerror: error,
                 responseText: text
-            } );
+            });
 
             return {
                 success: false

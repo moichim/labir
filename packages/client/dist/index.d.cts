@@ -204,8 +204,8 @@ declare class Auth {
 }
 //#endregion
 //#region src/entities/AbstractEntity.d.ts
-interface EntityObserver<E extends ApiEditableEntity> {}
-declare abstract class AbstractEntity<E extends ApiEditableEntity, C extends EntityObserver<E>> {
+interface EntityObserver {}
+declare abstract class AbstractEntity<E extends ApiEditableEntity, C extends EntityObserver> {
   protected readonly client: ApiClient;
   protected observers: Set<C>;
   protected connected: boolean;
@@ -227,7 +227,8 @@ declare abstract class AbstractEntity<E extends ApiEditableEntity, C extends Ent
 //#region src/entities/MutableProperty.d.ts
 type MutablePropertyType = string | number | boolean;
 /** A property that may accept changes and generates its report when changed */
-declare class MutableProperty<E extends AbstractEntity<any, any>, T extends MutablePropertyType> {
+declare class MutableProperty<E extends AbstractEntity<any, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+T extends MutablePropertyType> {
   protected entity: E;
   readonly name: string;
   constructor(entity: E, name: string);
@@ -245,7 +246,7 @@ declare class MutableProperty<E extends AbstractEntity<any, any>, T extends Muta
 }
 //#endregion
 //#region src/entities/Folder.d.ts
-type ConnectsToFolder = EntityObserver<FolderInfo> & {
+type ConnectsToFolder = EntityObserver & {
   onFolderChanged(message: string, currentState?: FolderInfo, changes?: {
     [key: string]: any;
   }): void;
@@ -880,7 +881,7 @@ declare class UpdateFolder extends OperationWithPath<PostUpdateFolderDataType> {
   addTag(key: string, name: string, description?: string, color?: string): this;
   removeTags(tags: string[]): this;
   setMayHaveFiles(value: boolean): this;
-  setMetadata(value: Record<string, any>): void;
+  setMetadata(value: Record<string, any>): this;
   execute(): Promise<ApiResponseType<PostUpdateFolderDataType>>;
 }
 //#endregion
@@ -986,6 +987,10 @@ declare class Routes {
  */
 declare class ApiClient {
   private readonly apiRoot;
+  /**
+   * Version of the API === version of the NPM package.
+   */
+  static readonly VERSION: string;
   /**
    * The core server URL ending with a slash
    */
