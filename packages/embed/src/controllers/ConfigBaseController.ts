@@ -2,6 +2,7 @@ import { ReactiveController } from "lit";
 import { IBaseElement } from "./IBaseElement";
 import { createContext } from "@lit/context";
 import { SubscriberManager } from "./SubscriberManager";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
 /**
  * Application that provides the `ConfigBaseController` needs to implement this service. It is necessary that the fields of this interface are implemented using `@state` or `@property` decorators. Updates of these reactive properties will trigger all necessary updates and hooks.
@@ -78,6 +79,29 @@ export class ConfigBaseController implements ReactiveController {
     public get pngExportsThermalScale(): boolean { return this.host.configBasePngExportsThermalScale; }
     public get pngExportsFileDate(): boolean { return this.host.configBasePngExportsFileDate; }
     public get pngExportLicense(): string | undefined { return this.host.configBasePngExportLicense; }
+
+
+    /**
+     * Subscribe an element with an optional callback to changes of values in this responsive controller. Whenever a value is is changed, the `SubscriberManager.notifyUpdates` is called.
+     */
+    public subscribe(
+        element: AbstractThermalElement,
+        optionalCallback?: ( element: AbstractThermalElement ) => void
+    ): void {
+        this._subscribers.subscribe(
+            element,
+            optionalCallback
+        );
+    }
+
+    /**
+     * Unsubscribe an element from the configuration changes.
+     */
+    public ubsubscribe(
+        element: AbstractThermalElement
+    ): void {
+        this._subscribers.delete(element.UUID);
+    }
 
     public setPngExportWidth(
         value: number

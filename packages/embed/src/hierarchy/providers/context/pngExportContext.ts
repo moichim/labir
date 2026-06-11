@@ -63,6 +63,7 @@ export abstract class BaseAppWithPngExportContext extends AbstractControlledApp 
 
     @provide({ context: pngExportWidthContext })
     public pngWidth: number = 1200;
+    
     @provide({ context: pngExportWidthSetterContext })
     public pngWidthSetter = (value: number) => {
         this.pngWidth = value;
