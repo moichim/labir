@@ -130,6 +130,9 @@ importers:
       '@google-web-components/google-chart':
         specifier: ^5.1.0
         version: 5.1.0
+      '@labirthermal/client':
+        specifier: workspace:*
+        version: link:../client
       '@labirthermal/core':
         specifier: workspace:*
         version: link:../core

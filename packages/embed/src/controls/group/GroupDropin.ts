@@ -1,12 +1,10 @@
-import { customElement, state } from "lit/decorators.js";
-
 import { ThermalFileReader } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html, PropertyValues } from "lit";
+import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { T } from "../../translations/Languages";
-
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
 
 @customElement("group-dropin")
@@ -20,8 +18,6 @@ export class GroupDropin extends AbstractGroupDropin {
 
     @state()
     protected uploading: boolean = false;
-
-
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);

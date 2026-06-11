@@ -334,8 +334,6 @@ export class DisplayController extends AbstractConnectedController implements Re
     /** Will take the current parameters of the application, load it and set the required app state */
     public async reloadCurrentState(): Promise<void> {
 
-        // this.navigateToLoadingState("Načítám obsah");
-
         // Načítáme soubor, pokud jsou vyplněné parametry
         if (this.host.folderPath !== undefined && this.host.fileName !== undefined) {
 
@@ -350,6 +348,7 @@ export class DisplayController extends AbstractConnectedController implements Re
             return;
 
         }
+
         // Načítám složku, pokud je vyplněná
         else if (this.host.folderPath !== undefined) {
 
@@ -368,8 +367,6 @@ export class DisplayController extends AbstractConnectedController implements Re
             return;
 
         }
-
-        this.log("Mám tady toto");
 
         this.navigateToLoginState();
 

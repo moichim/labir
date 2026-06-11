@@ -127,7 +127,6 @@ import "./controls/file/FileDownloadDropdown";
 import "./controls/file/FileInfoButton";
 import "./controls/file/fileLabel";
 import "./controls/file/FilePlaybackSpeedDropdown";
-import "./controls/file/FileShareButton";
 import "./controls/file/FileTimeline";
 import "./controls/file/FileVideo";
 // File analysis

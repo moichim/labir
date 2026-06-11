@@ -163,8 +163,6 @@ export class FileSelectionController implements ReactiveController {
         element: AbstractThermalElement
     ): void {
 
-        console.log( element );
-
         this._onSelectionChange.add(
             element.UUID, 
             () => {
