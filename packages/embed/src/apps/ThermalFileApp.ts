@@ -333,16 +333,6 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
         else return t(T.file);
     }
 
-    protected setLayout(value: Layout) {
-        this.layout = value;
-        setTimeout(() => {
-            if (this.fileProviderRef.value && this.file) {
-                this.fileProviderRef.value.redraw();
-                // this.updateNotationsMs(0);
-            }
-        }, 0);
-    }
-
 
 
     protected renderNogui() {
@@ -416,9 +406,6 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
                 ? html`<file-analysis-complex class="complex"></file-abnalysis-complex>` : html`<file-analysis-table class="analysis"></file-analysis-table>
                         <file-analysis-graph class="graph"></file-analysis-graph>` }
                 </div>
-
-
-                ${this.layout === Layout.SIMPLE ? html`<aside slot="pre">${this.renderScale()}</aside>` : nothing}
 
 
             </thermal-app>`;

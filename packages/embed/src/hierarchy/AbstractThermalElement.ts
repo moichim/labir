@@ -52,5 +52,10 @@ export abstract class AbstractThermalElement extends LitElement {
         return t( T[key] );
     }
 
+    // Turn this method into a public one
+    public requestUpdate(): void {
+        super.requestUpdate();
+    }
+
 
 }

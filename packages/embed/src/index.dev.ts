@@ -173,7 +173,7 @@ import "./controls/independent/ConfigDialog";
 
 // 7. Complex apps go last
 import "./apps/ThermalDropinApp";
-import "./apps/ThermalFileApp";
+// import "./apps/ThermalFileApp";
 import "./apps/ThermalGroupApp";
 
 
