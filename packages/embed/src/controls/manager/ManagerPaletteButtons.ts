@@ -1,11 +1,9 @@
 import { AvailableThermalPalette, ThermalPaletteType } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html } from "lit";
-import { customElement } from "lit/decorators.js";
 import { T } from "../../translations/Languages";
 import { AbstractPaletteSwitch } from "./AbstractPaletteSwitch";
 
-@customElement("manager-palette-buttons")
 export class ManagerPaletteButtons extends AbstractPaletteSwitch {
 
     static styles = css`

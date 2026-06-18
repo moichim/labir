@@ -1,21 +1,20 @@
-import { customElement, property } from "lit/decorators.js";
-import { AbstractFileButton } from "./AbstractFileButton";
-import { t } from "i18next";
-import { T } from "../../../translations/Languages";
-import { consume } from "@lit/context";
-import { setRegistryHighlightContext } from "../../../hierarchy/providers/context/RegistryContext";
 import { Instance, ThermalRangeOrUndefined } from "@labirthermal/core";
+import { consume } from "@lit/context";
+import { t } from "i18next";
+import { property } from "lit/decorators.js";
+import { setRegistryHighlightContext } from "../../../hierarchy/providers/context/RegistryContext";
+import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { AbstractFileButton } from "./AbstractFileButton";
 
-@customElement("file-range-propagator")
 export class FileRangePropagator extends AbstractFileButton {
 
-    @consume( { context: setRegistryHighlightContext, subscribe: true } )
-    protected setter?: ( value?: ThermalRangeOrUndefined ) => void;
+    @consume({ context: setRegistryHighlightContext, subscribe: true })
+    protected setter?: (value?: ThermalRangeOrUndefined) => void;
 
     protected tooltip: string = t(T.range)
 
-    @property({type: String, converter: booleanConverter(false)})
+    @property({ type: String, converter: booleanConverter(false) })
     public hideLabel: boolean = false;
 
     public onInstanceCreated(file: Instance): void {
@@ -24,28 +23,28 @@ export class FileRangePropagator extends AbstractFileButton {
             "—",
             file.max.toFixed(2),
             "°C"
-        ].join( " " );
+        ].join(" ");
     }
 
     enter() {
 
-        if ( this.setter && this.file) {
-            this.setter( {
+        if (this.setter && this.file) {
+            this.setter({
                 from: this.file.min,
                 to: this.file.max
-            } );
+            });
         }
 
     }
     leave() {
-        if ( this.setter ) {
-            this.setter( undefined );
+        if (this.setter) {
+            this.setter(undefined);
         }
     }
 
     action() {
-        if ( this.file ) {
-            this.log( this.file.min, this.file.max );
+        if (this.file) {
+            this.log(this.file.min, this.file.max);
             this.file.group.registry.range.imposeRange({
                 from: this.file.min,
                 to: this.file.max
@@ -54,10 +53,10 @@ export class FileRangePropagator extends AbstractFileButton {
     }
 
     getDefaultLabel(): string {
-        if ( this.hideLabel ) return "";
+        if (this.hideLabel) return "";
         return t(T.range).toLowerCase();
     }
 
-    
+
 
 }

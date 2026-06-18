@@ -1,11 +1,10 @@
 import { css, html, nothing, PropertyValueMap } from "lit";
 
 import { ThermalRegistry } from "@labirthermal/core";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 
-@customElement("registry-histogram")
 export class RegistryHistogram extends AbstractRegistryConsumer {
 
     @state()

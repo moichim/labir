@@ -19,7 +19,6 @@ enum STATE {
     DETAIL
 }
 
-@customElement("thermal-group-app")
 export class ThermalGroupAppElement extends AbstractMultipleApp implements IWithlocale {
 
 

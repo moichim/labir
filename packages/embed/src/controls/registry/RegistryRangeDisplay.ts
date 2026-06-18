@@ -1,10 +1,9 @@
 import { consume } from "@lit/context";
 import { html, nothing } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
 
-@customElement("registry-range-display")
 export class RegistryRangeDisplay extends AbstractRegistryConsumer {
 
     @consume( {context: registryRangeFromContext, subscribe: true} )

@@ -1,7 +1,7 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-@customElement("thermal-field")
+// @customElement("thermal-field")
 export class ThermalFieldElement extends LitElement {
 
     @property({type: String})

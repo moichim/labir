@@ -5,7 +5,7 @@ import { booleanConverter } from "../utils/converters/booleanConverter";
 import { BtnSizes, BtnVariants } from "./Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
 
-@customElement("thermal-expandable")
+// @customElement("thermal-expandable")
 export class ThermalExpandableElement extends AbstractThermalElement {
 
     @property({ type: String})

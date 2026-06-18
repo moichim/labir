@@ -1,7 +1,5 @@
-import { customElement } from "lit/decorators.js";
 import { AbstractFileButton } from "./AbstractFileButton";
 
-@customElement("file-download-lrc")
 export class FileLrcButton extends AbstractFileButton {
 
     tooltip: undefined = undefined;

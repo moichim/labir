@@ -1,7 +1,7 @@
 import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValueMap } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { registryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
@@ -11,7 +11,6 @@ type TickType = {
     value: number
 }
 
-@customElement("registry-ticks-bar")
 export class RegistryTicksBar extends AbstractRegistryConsumer {
 
     static TICK_WIDTH = 40;

@@ -7,7 +7,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { BtnSizes, BtnVariants } from "./Btn";
 
-@customElement("thermal-dropdown")
+// @customElement("thermal-dropdown")
 export class ThermalDropdownElement extends AbstractThermalElement {
 
     static shadowRootOptions: ShadowRootInit = {

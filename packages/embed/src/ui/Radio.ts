@@ -2,7 +2,7 @@ import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-@customElement("thermal-radio")
+// @customElement("thermal-radio")
 export class ThermalRadioElement extends AbstractThermalElement {
 
     @property({ type: String, reflect: true })

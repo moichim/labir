@@ -5,7 +5,6 @@ import { customElement, property, state } from "lit/decorators.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileContext, fileMsContext, fileProviderContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext } from "./context/FileContexts";
 
-@customElement("file-copy")
 export class FileCopyElement extends AbstractFileProvider {
 
     @provide({ context: fileProviderContext })

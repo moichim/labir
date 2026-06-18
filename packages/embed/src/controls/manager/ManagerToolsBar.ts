@@ -2,7 +2,7 @@ import { ThermalManager, ThermalTool } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
@@ -13,7 +13,6 @@ import { T } from "../../translations/Languages";
 /**
  * A standard toolbar that is either horizontal or vertical.
  */
-@customElement("manager-tool-bar")
 export class ManagerToolBar extends AbstractManagerConsumer {
 
     @consume({ context: toolContext, subscribe: true })

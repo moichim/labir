@@ -1,6 +1,6 @@
 import { consume } from "@lit/context";
 import { PropertyValues, css, html } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import 'toolcool-range-slider';
 import { RangeSlider } from "toolcool-range-slider";
@@ -13,9 +13,6 @@ import { registryMaxContext, registryMinContext, registryRangeFromContext, regis
 
 
 
-
-
-@customElement("registry-range-slider")
 export class RegistryRangeSlider extends AbstractRegistryConsumer {
 
     @consume({ context: registryMinContext, subscribe: true })

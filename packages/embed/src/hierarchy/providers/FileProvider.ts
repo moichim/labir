@@ -6,7 +6,6 @@ import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileMsContext, fileProviderContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext } from "./context/FileContexts";
 
-@customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
 
     @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })

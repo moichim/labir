@@ -4,7 +4,6 @@ import { customElement, property } from "lit/decorators.js";
 import { AbstractManagerProvider } from "../abstraction/AbstractManagerProvider";
 import { managerContext, managerGraphFunctionContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, toolContext, toolsContext } from "./context/ManagerContext";
 
-@customElement("manager-provider")
 export class ManagerProviderElement extends AbstractManagerProvider {
 
     protected UUIDManagerListeners = this.UUID + "__manager-listener";

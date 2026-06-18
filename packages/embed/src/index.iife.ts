@@ -1,6 +1,6 @@
 import { elementsAll } from "./iifeCatalog";
 import { defineAllWebcomponents } from "./utils/iife";
-import { version } from "../package.json";
+import { name, version } from "../package.json";
 
 // This is the main entry file for the IIFE build
 // This file is executed withg after it is loaded by the browser.
@@ -10,9 +10,11 @@ import { version } from "../package.json";
  * @package `@labirthermal/webcomponents`
  */
 
+console.info( name, version );
 
+/**
+ * Define all included webcomponents right away.
+ */
 defineAllWebcomponents( elementsAll );
 
-
-// Log the start info
-console.info("@labirthermal/webcomponents", version);
+console.info( name, version, "All webcomponents defined." );

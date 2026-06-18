@@ -1,12 +1,11 @@
+import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
+import { pngExportAnalysisContext, pngExportColumnsContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportGroupNameContext, pngExportScaleContext, pngExportWidthContext } from "../../hierarchy/providers/context/pngExportContext";
 import { T } from "../../translations/Languages";
-import { consume } from "@lit/context";
-import { pngExportWidthContext, pngExportFsContext, pngExportAnalysisContext, pngExportScaleContext, pngExportFileNameContext, pngExportFileDateContext, pngExportColumnsContext, pngExportGroupNameContext } from "../../hierarchy/providers/context/pngExportContext";
 
-@customElement("group-download-buttons")
 export class GroupDownloadButtons extends AbstractGroupConsumer {
 
     @property({type: String})

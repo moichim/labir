@@ -1,14 +1,13 @@
 import { ThermalFileReader } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { T } from "../../translations/Languages";
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
 
-@customElement("group-dropin")
-export class GroupDropin extends AbstractGroupDropin {
+export class GroupDropinElement extends AbstractGroupDropin {
 
     @state()
     protected container: Ref<HTMLVideoElement> = createRef();

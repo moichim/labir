@@ -2,7 +2,7 @@ import { customElement, property } from "lit/decorators.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { css, CSSResultGroup, html } from "lit";
 
-@customElement( "thermal-dropin" )
+// @customElement( "thermal-dropin" )
 export class ThermalDropinElement extends AbstractThermalElement {
 
     @property({type: String})

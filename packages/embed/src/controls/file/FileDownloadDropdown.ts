@@ -1,16 +1,15 @@
 import { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { T } from "../../translations/Languages";
+import { html, nothing } from "lit";
+import { state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
+import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportScaleContext, pngExportWidthContext } from "../../hierarchy/providers/context/pngExportContext";
+import { T } from "../../translations/Languages";
 import { ThermalDialogElement } from "../../ui/Dialog";
 import { ThermalDropdownElement } from "../../ui/Dropdown";
-import { pngExportWidthContext, pngExportFsContext, pngExportAnalysisContext, pngExportScaleContext, pngExportFileNameContext, pngExportFileDateContext } from "../../hierarchy/providers/context/pngExportContext";
 
-@customElement("file-download-dropdown")
 export class FileDownloadButton extends AbstractFileConsumer {
 
     @consume({ context: pngExportWidthContext, subscribe: true })

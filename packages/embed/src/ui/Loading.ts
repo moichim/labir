@@ -2,8 +2,8 @@ import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-@customElement( "thermal-poster" )
-export class ThermalLoadingElement extends AbstractThermalElement {
+// @customElement( "thermal-poster" )
+export class ThermalPosterElement extends AbstractThermalElement {
 
     @state()
     protected loaded: boolean = false;

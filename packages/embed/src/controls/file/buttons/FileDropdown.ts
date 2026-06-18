@@ -2,7 +2,6 @@ import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 
-@customElement("file-dropdown")
 export class FileDropdown extends AbstractThermalElement {
 
     @property({type: String, reflect: true})

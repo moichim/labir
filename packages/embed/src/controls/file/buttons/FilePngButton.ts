@@ -1,9 +1,8 @@
-import { customElement, state } from "lit/decorators.js";
-import { AbstractFileButton } from "./AbstractFileButton";
 import { consume } from "@lit/context";
+import { state } from "lit/decorators.js";
 import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportScaleContext, pngExportWidthContext } from "../../../hierarchy/providers/context/pngExportContext";
+import { AbstractFileButton } from "./AbstractFileButton";
 
-@customElement("file-download-png")
 export class FilePngButton extends AbstractFileButton {
 
     tooltip: undefined = undefined;
@@ -17,19 +16,19 @@ export class FilePngButton extends AbstractFileButton {
     protected pngFs!: number;
 
     @state()
-    @consume({context: pngExportAnalysisContext, subscribe: true})
+    @consume({ context: pngExportAnalysisContext, subscribe: true })
     protected pngAnalyses!: boolean;
 
     @state()
-    @consume({context: pngExportScaleContext, subscribe: true})
+    @consume({ context: pngExportScaleContext, subscribe: true })
     protected pngExportScale!: boolean;
 
     @state()
-    @consume({context: pngExportFileNameContext, subscribe: true})
+    @consume({ context: pngExportFileNameContext, subscribe: true })
     protected pngFileName!: boolean;
 
     @state()
-    @consume({context: pngExportFileDateContext, subscribe: true})
+    @consume({ context: pngExportFileDateContext, subscribe: true })
     protected pngFileDate!: boolean;
 
     enter() { }

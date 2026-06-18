@@ -1,12 +1,10 @@
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
-import { T } from "../../translations/Languages";
 import { ContextSetter, IWithPngExportContext, pngExportAnalysisContext, pngExportAnalysisSetterContext, pngExportColumnsContext, pngExportColumnsSetterContext, pngExportFileDateContext, pngExportFileDateSetterContext, pngExportFileNameContext, pngExportFileNameSetterContext, pngExportFsContext, pngExportFsSetterContext, pngExportGroupNameContext, pngExportGroupNameSetterContext, pngExportLicenseContext, pngExportLicenseSetterContext, pngExportScaleContext, pngExportScaleSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../hierarchy/providers/context/pngExportContext";
+import { T } from "../../translations/Languages";
 
-@customElement("manager-export-panel")
 export class ManagerExportPanel extends AbstractThermalElement implements IWithPngExportContext {
 
     @consume({ context: pngExportWidthContext, subscribe: true })

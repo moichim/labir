@@ -1,11 +1,9 @@
 import { consume } from "@lit/context";
 import { css, html } from "lit";
-import { customElement } from "lit/decorators.js";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { registryOpacityContext } from "../../hierarchy/providers/context/RegistryContext";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
 
-@customElement("registry-opacity-slider")
 export class RegistryOpacitySlider extends AbstractRegistryConsumer {
 
     @consume({context: registryOpacityContext, subscribe: true})

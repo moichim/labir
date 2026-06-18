@@ -58,7 +58,7 @@ export { ThermalDropinElement } from "./ui/Dropin";
 export { ThermalExpandableElement } from "./ui/Expandable";
 export { ThermalFieldElement } from "./ui/Field";
 export { ThermalIconElement } from "./ui/Icon";
-export { ThermalLoadingElement } from "./ui/Loading";
+export { ThermalPosterElement as ThermalLoadingElement } from "./ui/Loading";
 export { ThermalRadioElement } from "./ui/Radio";
 export { ThermalSlotElement } from "./ui/Slot";
 export { ThermalSpinnerElement } from "./ui/Spinner";
@@ -106,18 +106,18 @@ export { ManagerToolBar } from "./controls/manager/ManagerToolsBar";
 export { RegistryRangeForm } from "./controls/registry/RegistryRangeForm";
 export { RegistryTicksBar } from "./controls/registry/RegistryTicksBar";
 export { RegistryRangeSlider } from "./controls/registry/RegistryRangeSlider";
-export { RegistrySetFullRangeElement } from "./controls/registry/RangeFullButton";
-export { RegistrySetAutoRangeElement } from "./controls/registry/RangeAutoButton";
+export { RegistryRangeFullButton as RegistrySetFullRangeElement } from "./controls/registry/RegistryRangeFullButton";
+export { RegistryRangeAutoButton as RegistrySetAutoRangeElement } from "./controls/registry/RegistryRangeAutoButton";
 export { RegistryRangeDisplay } from "./controls/registry/RegistryRangeDisplay";
 export { RegistryOpacitySlider } from "./controls/registry/RegistryOpacitySlider";
 
 // Group controls
 
-export { GroupChart } from "./controls/group/GroupChart";
+export { GroupChartElement as GroupChart } from "./controls/group/GroupChartElement";
 export { GroupAnalysisSyncButton } from "./controls/group/GroupAnalysisSyncButton";
 export { GroupDownloadDropdown } from "./controls/group/GroupDownloadDropdown";
 export { GroupDownloadButtons } from "./controls/group/GroupDownloadButtons";
-export { GroupDropin } from "./controls/group/GroupDropin";
-export { GroupDropinInput } from "./controls/group/GroupDropinInput";
-export { GroupRangePropagator } from "./controls/group/GroupRangePropagator";
-export { GroupTimeline } from "./controls/group/GroupTimeline";
+export { GroupDropinElement as GroupDropin } from "./controls/group/GroupDropinElement";
+export { GroupDropinInputElement as GroupDropinInput } from "./controls/group/GroupDropinInput";
+export { GroupRangePropagatorElement as GroupRangePropagator } from "./controls/group/GroupRangePropagator";
+export { GroupTimelineElement as GroupTimeline } from "./controls/group/GroupTimeline";

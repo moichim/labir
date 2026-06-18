@@ -4,7 +4,6 @@ import { customElement, property } from "lit/decorators.js";
 import { AbstractGroupProvider } from "../abstraction/AbstractGroupProvider";
 import { groupContext } from "./context/GroupContext";
 
-@customElement("group-provider")
 export class GroupProviderElement extends AbstractGroupProvider {
 
     @property({

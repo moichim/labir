@@ -37,7 +37,6 @@ const converters = {
     },
 };
 
-@customElement("apparent-temperature-aat")
 export class AatAppElement extends AbstractThermalElement implements IWithlocale {
 
     tRef: Ref<HTMLInputElement> = createRef();

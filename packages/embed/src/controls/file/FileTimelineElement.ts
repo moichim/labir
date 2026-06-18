@@ -1,20 +1,19 @@
 import { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { format } from "date-fns";
+import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { fileCurrentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, filaMayStopContext, filePlayingContext } from "../../hierarchy/providers/context/FileContexts";
-import { t } from "i18next";
+import { CurrentFrameContext, durationContext, DurationContext, filaMayStopContext, fileCurrentFrameContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, filePlayingContext } from "../../hierarchy/providers/context/FileContexts";
 import { T } from "../../translations/Languages";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
 
 const isChromium = "chrome" in window;
 
-@customElement("file-timeline")
-export class TimelineElement extends AbstractFileConsumer {
+export class FileTimelineElement extends AbstractFileConsumer {
 
     @consume({ context: filePlayingContext, subscribe: true })
     @state()
@@ -91,7 +90,7 @@ export class TimelineElement extends AbstractFileConsumer {
                 if (this.file)
                     this.ticks = calculateTicks(entry.contentRect.width, this.file.duration);
 
-                if (entry.contentRect.width < TimelineElement.collapseWidth) {
+                if (entry.contentRect.width < FileTimelineElement.collapseWidth) {
                     if (this.collapsed === false) {
                         this.collapsed = true;
                     }
@@ -329,8 +328,8 @@ export class TimelineElement extends AbstractFileConsumer {
     <thermal-btn 
         disabled="${disabled}"
         @click=${() => {
-            file.timeline.prev();
-        }}
+                file.timeline.prev();
+            }}
     >${t(T.prev)}</thermal-btn>
 
 
@@ -348,7 +347,7 @@ export class TimelineElement extends AbstractFileConsumer {
     >${t(T.next)}</thermal-btn>
 
     <thermal-btn 
-        @click=${()=>file.timeline.setRelativeTime(0)}
+        @click=${() => file.timeline.setRelativeTime(0)}
         disabled="${disabled}"
     >${t(T.back)}</thermal-btn>
 
@@ -420,22 +419,22 @@ export class TimelineElement extends AbstractFileConsumer {
 
 
 ${(this.currentFrame)
-    ? renderTicks(
-        file.duration,
-        this.ticks,
-        this.currentFrame.ms,
-        this.pointerMs
-    )
-: nothing }
+                ? renderTicks(
+                    file.duration,
+                    this.ticks,
+                    this.currentFrame.ms,
+                    this.pointerMs
+                )
+                : nothing}
 
 
 ${this.hasPlayButton === true
-    ? this.renderControls(
-        file,
-        disabled,
-        playButtonClasses
-    )
-: nothing }
+                ? this.renderControls(
+                    file,
+                    disabled,
+                    playButtonClasses
+                )
+                : nothing}
 
         </div>
 
@@ -446,7 +445,7 @@ ${this.hasPlayButton === true
 
 
 ${this.currentFrame !== undefined && this.hasInfo === true
-    ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
+                ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
         <div>
             <span class="label">${t(T.date)}:</span> 
             <span class="inline" data-video-dynamic>${format(this.currentFrame.absolute, "d. L. y")}</span>
@@ -460,7 +459,7 @@ ${this.currentFrame !== undefined && this.hasInfo === true
             <span class="inline" data-video-dynamic>${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
         </div>
     </div>`
-: nothing }
+                : nothing}
     `;
     }
 }

@@ -3,16 +3,14 @@ import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
+import { when } from 'lit/directives/when.js';
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
+import { T } from "../../translations/Languages";
 import { BtnSizes, BtnVariants } from "../../ui/Btn";
 import { ThermalDialogElement } from "../../ui/Dialog";
-import {when} from 'lit/directives/when.js';
 import { FileVideoExportPanel } from "./video/FileVideoExportPanel";
-import { T } from "../../translations/Languages";
-import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 
-@customElement("file-video-export-button")
-export class FileVideoExport extends AbstractFileConsumer {
+export class FileVideoExportButton extends AbstractFileConsumer {
 
     @property({ type: String, reflect: true })
     public variant?: BtnVariants;
@@ -43,7 +41,7 @@ export class FileVideoExport extends AbstractFileConsumer {
 
     protected slug: string = this.UUID + "__file-export";
 
-    @state() 
+    @state()
     protected isOpen: boolean = false;
 
 
@@ -88,11 +86,11 @@ export class FileVideoExport extends AbstractFileConsumer {
 
     private renderVideoExportButton(): unknown {
 
-        if ( 
-            ! this.file 
+        if (
+            !this.file
             || (
-                this.file 
-                && this.file.timeline.isSequence === false 
+                this.file
+                && this.file.timeline.isSequence === false
             )
         ) {
             return nothing;
@@ -104,25 +102,25 @@ export class FileVideoExport extends AbstractFileConsumer {
                 icon="download"
                 iconStyle="micro"
                 @click=${() => {
-                    if ( this.panelRef?.value ) {
-                        ( this.panelRef?.value as FileVideoExportPanel).record();
-                    }
-                }}
+                if (this.panelRef?.value) {
+                    (this.panelRef?.value as FileVideoExportPanel).record();
+                }
+            }}
             >${this.t(T.exportvideo)} (MP4)</thermal-btn>`;
 
     }
 
     private renderCurrentFrameExportButton(): unknown {
 
-        if ( 
-            ! this.file
+        if (
+            !this.file
         ) {
             return nothing;
         }
 
         const label = this.file.timeline.isSequence
             ? "Současný snímek"
-            : this.t( T.exportpng );
+            : this.t(T.exportpng);
 
         return html`<thermal-btn
                 variant="primary"
@@ -130,10 +128,10 @@ export class FileVideoExport extends AbstractFileConsumer {
                 icon="download"
                 iconStyle="micro"
                 @click=${() => {
-                    if ( this.panelRef?.value ) {
-                        ( this.panelRef?.value as FileVideoExportPanel).currentFrame();
-                    }
-                }}
+                if (this.panelRef?.value) {
+                    (this.panelRef?.value as FileVideoExportPanel).currentFrame();
+                }
+            }}
             >${label} (PNG)</thermal-btn>`;
 
 

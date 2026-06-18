@@ -7,8 +7,7 @@ import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { T } from "../../translations/Languages";
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
 
-@customElement("group-dropin-input")
-export class GroupDropinInput extends AbstractGroupDropin {
+export class GroupDropinInputElement extends AbstractGroupDropin {
 
   @state()
   protected container: Ref<HTMLVideoElement> = createRef();

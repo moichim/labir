@@ -1,15 +1,14 @@
 import { Instance } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 
-@customElement("file-canvas")
-export class FileCanvas extends AbstractFileConsumer {
+export class FileCanvasElement extends AbstractFileConsumer {
 
     public container: Ref<HTMLDivElement> = createRef();
 
@@ -49,7 +48,7 @@ export class FileCanvas extends AbstractFileConsumer {
 
         if (_changedProperties.has("prefers-gpu")) {
             if (this.file) {
-                this.file.setPreferWebGl( this.prefersGpu );
+                this.file.setPreferWebGl(this.prefersGpu);
                 this.file.draw();
             }
         }
@@ -75,7 +74,7 @@ export class FileCanvas extends AbstractFileConsumer {
         // Mount the new instance to the DOM
         if (nextInstance !== undefined && this.container.value) {
             nextInstance.mountToDom(this.container.value);
-            nextInstance.setPreferWebGl( this.prefersGpu );
+            nextInstance.setPreferWebGl(this.prefersGpu);
             nextInstance.draw();
         }
 

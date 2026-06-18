@@ -1,12 +1,11 @@
-import { css, CSSResultGroup, html } from "lit";
-import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
-import { t } from "i18next";
-import { T } from "../../translations/Languages";
-import { customElement, state } from "lit/decorators.js";
 import { consume } from "@lit/context";
-import { pngExportColumnsContext, pngExportGroupNameContext, pngExportFsContext, pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportWidthContext, pngExportScaleContext } from "../../hierarchy/providers/context/pngExportContext";
+import { t } from "i18next";
+import { css, CSSResultGroup, html } from "lit";
+import { state } from "lit/decorators.js";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
+import { pngExportAnalysisContext, pngExportColumnsContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportGroupNameContext, pngExportScaleContext, pngExportWidthContext } from "../../hierarchy/providers/context/pngExportContext";
+import { T } from "../../translations/Languages";
 
-@customElement("group-download-dropdown")
 export class GroupDownloadDropdown extends AbstractGroupConsumer {
 
     static styles?: CSSResultGroup | undefined = css`

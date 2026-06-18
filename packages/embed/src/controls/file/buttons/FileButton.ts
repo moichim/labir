@@ -2,8 +2,8 @@ import { customElement, property } from "lit/decorators.js";
 import { AbstractFileButton } from "./AbstractFileButton";
 import { Instance } from "@labirthermal/core";
 
-@customElement("file-button")
-export class FileButton extends AbstractFileButton {
+/** @deprecated Who knows what that is? */
+export class FileButtonElement extends AbstractFileButton {
 
 
     tooltip: undefined = undefined;
@@ -25,9 +25,7 @@ export class FileButton extends AbstractFileButton {
 
     action() {
         if ( this.onAction && this.file ) {
-
             this.onAction( this.file );
-
         }
     }
 

@@ -5,13 +5,12 @@ import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { publicIpv4 } from "public-ip";
-import { GroupDropin } from "../controls/group/GroupDropin";
+import { GroupDropinElement } from "../controls/group/GroupDropinElement";
 import { GroupProviderElement } from "../index.export";
 import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { BaseAppWithPngExportContext, pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../hierarchy/providers/context/pngExportContext";
 
-@customElement("thermal-dropin-app")
 export class DropinAppElement extends BaseAppWithPngExportContext implements IWithlocale {
     
     public get manager(): ThermalManager {
@@ -19,7 +18,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
     }
 
     @state()
-    protected dropinRef: Ref<GroupDropin> = createRef();
+    protected dropinRef: Ref<GroupDropinElement> = createRef();
 
     @state()
     protected groupRef: Ref<GroupProviderElement> = createRef();

@@ -7,10 +7,7 @@ import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelin
 
 
 
-
-
-@customElement("group-timeline")
-export class GroupTimeline extends AbstractGroupConsumer {
+export class GroupTimelineElement extends AbstractGroupConsumer {
 
     public static TICK_WIDTH = 50;
     public static TICK_POINTER_HEIGHT = 3;

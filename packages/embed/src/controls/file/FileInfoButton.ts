@@ -1,14 +1,11 @@
 import { TimeFormat } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";
-import { customElement } from "lit/decorators.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../translations/Languages";
 
-@customElement("file-info-button")
 export class FileInfoButton extends AbstractFileConsumer {
-
 
     protected onFileLoaded(): void {}
 

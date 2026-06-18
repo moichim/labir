@@ -1,12 +1,11 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labirthermal/core";
 import { t } from "i18next";
+import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import { property, state } from "lit/decorators.js";
+import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 
-@customElement("registry-range-form")
 export class RegistryRangeForm extends AbstractRegistryConsumer {
 
     @property({reflect: true, converter: booleanConverter(true)})

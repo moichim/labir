@@ -8,8 +8,7 @@ import { setRegistryHighlightContext } from "../../hierarchy/providers/context/R
 import { T } from "../../translations/Languages";
 import { AbstractFileButton } from "../file/buttons/AbstractFileButton";
 
-@customElement("group-range-propagator")
-export class GroupRangePropagator extends AbstractGroupConsumer {
+export class GroupRangePropagatorElement extends AbstractGroupConsumer {
 
     public static styles = AbstractFileButton.styles;
 

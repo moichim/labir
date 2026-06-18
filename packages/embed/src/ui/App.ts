@@ -10,7 +10,7 @@ import { classMap } from "lit/directives/class-map.js";
 import { map } from "lit/directives/map.js";
 import { cache } from "lit/directives/cache.js";
 
-@customElement("thermal-app")
+// @customElement("thermal-app")
 export class ThermalAppElement extends AbstractThermalElement {
 
     @state()

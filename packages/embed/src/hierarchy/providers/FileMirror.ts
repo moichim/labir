@@ -6,7 +6,6 @@ import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileContext, fileProviderContext } from "./context/FileContexts";
 
 /** @deprecated Investigate why is this here. */
-@customElement("file-mirror")
 export class FileMirrorElement extends AbstractFileProvider {
 
     @provide({ context: fileProviderContext })

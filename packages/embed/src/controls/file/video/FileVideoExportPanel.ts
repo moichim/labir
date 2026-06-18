@@ -10,7 +10,6 @@ import { RecordingPhase } from "./ISingleVideoExportElement";
 import {nothing} from "lit";
 import { T } from "../../../translations/Languages";
 
-@customElement("file-video-export-panel")
 export class FileVideoExportPanel extends AbstractSingleVideoExport {
 
     /** Reference na preview sekci pro měření výšky */

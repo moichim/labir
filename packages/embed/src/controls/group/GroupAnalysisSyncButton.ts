@@ -1,27 +1,26 @@
-import { customElement, property } from "lit/decorators.js";
-import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
-import { css, CSSResultGroup, html } from "lit";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { t } from "i18next";
+import { css, CSSResultGroup, html } from "lit";
+import { property } from "lit/decorators.js";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { T } from "../../translations/Languages";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
-@customElement("group-analysis-sync-button")
 export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
 
-    @property({type: Boolean, reflect: true, converter: booleanConverter(false)})
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
     public on!: boolean;
 
     connectedCallback(): void {
         super.connectedCallback();
 
-        if ( this.on ) {
+        if (this.on) {
             const id = this.UUID + "__initial";
-            this.group.files.addListener( id, value => {
-                if ( value.length > 0 ) {
+            this.group.files.addListener(id, value => {
+                if (value.length > 0) {
                     this.group.analysisSync.turnOn(value[0]);
                     this.group.files.removeListener(id);
                 }
-            } );
+            });
         } else {
             this.on = this.group.analysisSync.value;
         }
@@ -36,7 +35,7 @@ export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
     }
 
     public turnOn() {
-        if ( this.group.files.value.length > 0 ) {
+        if (this.group.files.value.length > 0) {
             this.group.analysisSync.turnOn(this.group.files.value[0]);
         }
     }

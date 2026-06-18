@@ -2,7 +2,7 @@ import { LitElement, PropertyValueMap, css, html, nothing } from "lit";
 import { customElement, state } from 'lit/decorators.js';
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 
-@customElement("thermal-bar")
+// @customElement("thermal-bar")
 export class ThermalBarElement extends LitElement {
 
     static styles = css`

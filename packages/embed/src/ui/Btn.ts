@@ -11,7 +11,7 @@ export type BtnVariants = "primary" | "foreground" | "background" | "default" | 
 
 export type BtnSizes = "sm" | "md" | "lg" | "xl";
 
-@customElement( "thermal-btn" )
+// @customElement( "thermal-btn" )
 export class ThermalBtnElement extends AbstractThermalElement {
 
     @property({type: String, attribute: "tooltip-placement"})

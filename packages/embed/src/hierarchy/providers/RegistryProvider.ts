@@ -4,7 +4,6 @@ import { AbstractRegistryProvider } from "../abstraction/AbstractRegistryProvide
 import { registryContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "./context/RegistryContext";
 import { ThermalRegistry } from "@labirthermal/core";
 
-@customElement("registry-provider")
 export class RegistryProviderElement extends AbstractRegistryProvider {
 
     @property({ type: String, reflect: true, attribute: true })

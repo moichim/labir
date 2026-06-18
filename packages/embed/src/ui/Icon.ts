@@ -7,7 +7,7 @@ import icons from "../utils/icons";
 // Define the type for the icon factory functions
 type IconFactory = Record<string, (classes?: string, css?: string) => string>;
 
-@customElement("thermal-icon")
+// @customElement("thermal-icon")
 export class ThermalIconElement extends AbstractThermalElement {
 
 

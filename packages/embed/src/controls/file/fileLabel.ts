@@ -5,8 +5,7 @@ import { css, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 
-@customElement("file-label")
-export class FileLabel extends AbstractFileConsumer {
+export class FileLabelElement extends AbstractFileConsumer {
 
     @property({ type: String })
     public grouping?: GridGrouping;

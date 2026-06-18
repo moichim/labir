@@ -5,7 +5,7 @@ import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 
-@customElement( "thermal-dialog" )
+// @customElement( "thermal-dialog" )
 export class ThermalDialogElement extends LitElement {
 
     static shadowRootOptions: ShadowRootInit = {

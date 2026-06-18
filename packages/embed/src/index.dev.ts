@@ -1,5 +1,6 @@
 import { version } from "../package.json";
 
+// @ts-ignore
 import "./styles/styles.css";
 
 import "./translations/i18n";
@@ -78,7 +79,7 @@ import "./utils/multipleFiles/ThermalGroup";
 
 
 // 2. Providers
-import "./controls/group/GroupDropin";
+import "./controls/group/GroupDropinElement";
 import "./controls/group/GroupDropinInput";
 import "./hierarchy/providers/FileProvider";
 import "./hierarchy/providers/GroupProvider";
@@ -103,9 +104,9 @@ import "./controls/manager/ManagerImageSmoothSwitch";
 // 4. Registry controls
 import "./controls/registry/RegistryHistogram";
 import "./controls/registry/RegistryOpacitySlider";
-import "./controls/registry/RangeAutoButton";
+import "./controls/registry/RegistryRangeAutoButton";
 import "./controls/registry/RegistryRangeDisplay";
-import "./controls/registry/RangeFullButton";
+import "./controls/registry/RegistryRangeFullButton";
 import "./controls/registry/RegistryRangeSlider";
 import "./controls/registry/RegistryRangeForm";
 import "./controls/registry/RegistryTicksBar";
@@ -113,7 +114,7 @@ import "./controls/registry/RegistryTicksBar";
 
 // 5. Group controls
 import "./controls/group/GroupAnalysisSyncButton";
-import "./controls/group/GroupChart";
+import "./controls/group/GroupChartElement";
 import "./controls/group/GroupDownloadButtons";
 import "./controls/group/GroupDownloadDropdown";
 import "./controls/group/GroupRangePropagator";
@@ -127,7 +128,7 @@ import "./controls/file/FileDownloadDropdown";
 import "./controls/file/FileInfoButton";
 import "./controls/file/fileLabel";
 import "./controls/file/FilePlaybackSpeedDropdown";
-import "./controls/file/FileTimeline";
+import "./controls/file/FileTimelineElement";
 import "./controls/file/FileVideo";
 // File analysis
 import "./controls/file/analysis/edit/analysisColor";

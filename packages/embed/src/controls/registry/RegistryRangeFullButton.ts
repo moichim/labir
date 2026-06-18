@@ -1,15 +1,13 @@
-import { html } from "lit";
-import { customElement } from "lit/decorators.js";
-import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { t } from "i18next";
-import { T } from "../../translations/Languages";
 import { ThermalRangeOrUndefined } from "@labirthermal/core";
-import { setRegistryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
 import { consume } from "@lit/context";
+import { t } from "i18next";
+import { html } from "lit";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
+import { setRegistryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
+import { T } from "../../translations/Languages";
 
-@customElement("registry-range-full-button")
-export class RegistrySetFullRangeElement extends AbstractRegistryConsumer {
+export class RegistryRangeFullButton extends AbstractRegistryConsumer {
 
     protected buttonRef: Ref<HTMLElement> = createRef();
 
