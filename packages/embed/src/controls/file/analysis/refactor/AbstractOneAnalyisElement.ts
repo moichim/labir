@@ -262,9 +262,12 @@ export abstract class AbstractOneAnalysisElement extends AbstractFileConsumer {
         const color = this.initialColor;
 
         return html`<thermal-dropdown>
+            <div slot="invoker">${color}</slot>
 
-
-            
+            ${colors.map(c => html`<button
+                @click=${() => this.setInitialColor(c)}
+                .selected=${c === color}
+            >${c}</button>`)}
         </thermal-dropdown>`;
     }
 

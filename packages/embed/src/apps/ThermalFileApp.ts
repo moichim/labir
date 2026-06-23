@@ -359,8 +359,6 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
                 recorded="${ifDefined(this.recorded)}"
             >
 
-                ${this.showlayout ? this.renderLayoutSwitch() : nothing}
-
                 <file-info-button slot="bar-pre"></file-info-button>
 
                 ${cache(html`<manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
@@ -391,20 +389,18 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
                 <file-download-dropdown slot="bar-pre"></file-download-dropdown>
                 
     
-                <div class="layout layout__${this.layout}">
+                <div class="layout layout__advanced">
                     <aside class="toolbar">
                         <manager-tool-bar></manager-tool-bar>
                     </aside>
                     <main class="thermogram">
-                        ${this.layout === Layout.ADVANCED || this.layout === Layout.LESSON ? this.renderScale() : nothing}
+                        ${ this.renderScale() }
                         ${cache(html`<file-canvas></file-canvas>`)}
                         <file-timeline></file-timeline>
                     </main>
                     <notation-content class="notations"></notation-content>
 
-                    ${this.layout === Layout.ADVANCED
-                ? html`<file-analysis-complex class="complex"></file-abnalysis-complex>` : html`<file-analysis-table class="analysis"></file-analysis-table>
-                        <file-analysis-graph class="graph"></file-analysis-graph>` }
+                    <file-analysis-complex class="complex"></file-abnalysis-complex>
                 </div>
 
 
@@ -425,38 +421,6 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
         ${unsafeSVG(icon)}
         ${hasLabel ? html`<span>${t(T[`layout_${key}` as keyof typeof T])}</span>` : nothing}
     </div>`;
-    }
-
-    protected renderLayoutSwitch() {
-
-        const currentLayout = layouts.find(layout => layout.key === this.layout);
-
-        if (!currentLayout) {
-            return nothing;
-        }
-
-        const otherLayouts = layouts.map(layout => {
-            return {
-                ...layout,
-                action: layout.key !== this.layout
-                    ? () => this.setLayout(layout.key as Layout)
-                    : undefined
-            }
-        });
-
-        return html`<thermal-dropdown slot="bar-post">
-        <div slot="invoker">
-            ${this.renderOneLayoutItem(currentLayout.icon, currentLayout.key, false)}
-        </div>
-        
-        ${otherLayouts.map(l => html`<div 
-            slot="option" 
-            class="layout-option ${l.action ? "current" : "available"}"
-            @click=${l.action}
-        >${this.renderOneLayoutItem(l.icon, l.key, true)}</div>`)}
-
-    </thermal-dropdown>`;
-
     }
 
 
@@ -639,10 +603,7 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
                         <slot name="notation" slot="notation"></slot>
 
-                        ${this.layout === Layout.NOGUI 
-                            ? this.renderNogui() 
-                            : this.renderApp()
-                        }
+                        
 
                     </notation-provider>
 
