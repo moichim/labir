@@ -1,6 +1,6 @@
 import { AatAppElement } from "./apps/AustralianApparentTemperature";
+import { ThermalFileAppElement } from "./apps/single/ThermalFileApp";
 import { DropinAppElement } from "./apps/ThermalDropinApp";
-import { ThermalFileAppElement } from "./apps/ThermalFileApp";
 import { ThermalGroupAppElement } from "./apps/ThermalGroupApp";
 import { FileButtonElement } from "./controls/file/buttons/FileButton";
 import { FileDropdown } from "./controls/file/buttons/FileDropdown";

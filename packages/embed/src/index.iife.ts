@@ -12,6 +12,17 @@ import { name, version } from "../package.json";
 
 console.info( name, version );
 
+import "./translations/i18n";
+
+// Initialise dark mode
+import { initialiseMode } from "./styles/mode";
+// initialiseMode();
+
+// Append default styles
+import { addInlineStyles } from "./styles/defaultStyles";
+
+addInlineStyles();
+
 /**
  * Define all included webcomponents right away.
  */

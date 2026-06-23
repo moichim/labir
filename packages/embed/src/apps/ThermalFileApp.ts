@@ -7,7 +7,6 @@ import { cache } from 'lit/directives/cache.js';
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { version } from "../../package.json";
 import { FileProviderElement } from "../hierarchy/providers/FileProvider";
 import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../translations/localeContext";
@@ -16,8 +15,6 @@ import { BaseAppWithPngExportContext, pngExportWidthContext, pngExportWidthSette
 
 const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4", "analysis5", "analysis6", "analysis7"];
 
-
-@customElement("thermal-file-app")
 export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();
@@ -131,9 +128,6 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
 
     protected _file?: Instance;
-
-    @state()
-    protected outerHTMLSnapshot?: string;
 
 
 
@@ -318,7 +312,6 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
         }
 
-        this.outerHTMLSnapshot = this.outerHTML;
     }
 
 
@@ -599,13 +592,7 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
                     analysis7="${ifDefined(this.analysis7)}"
                     autoclear="true"
                 >
-                    <notation-provider>
-
-                        <slot name="notation" slot="notation"></slot>
-
-                        
-
-                    </notation-provider>
+                    ${this.renderApp()}
 
                 </file-provider>
 
