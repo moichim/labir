@@ -1,4 +1,4 @@
-import { ThermalManager, ThermalTool } from "@labirthermal/core";
+import { ThermalTool } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";
@@ -6,7 +6,7 @@ import { state } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
-import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
+import { toolContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
 
 
@@ -18,10 +18,6 @@ export class ManagerToolBar extends AbstractManagerConsumer {
     @consume({ context: toolContext, subscribe: true })
     @state()
     protected value!: ThermalTool;
-
-    @consume({ context: toolsContext, subscribe: true })
-    @state()
-    protected tools!: ThermalManager["tool"]["tools"];
 
     /** Handle user input events */
     protected onSelect(tool: ThermalTool) {

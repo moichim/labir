@@ -12,16 +12,19 @@ import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 import { BaseAppWithPngExportContext, pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../hierarchy/providers/context/pngExportContext";
+import { AbstractAppWithFiles } from "./AbstractAppWithFiles";
+import { AbstractAppWithThermalDisplay } from "./AbstractAppWithThermalDisplay";
+import { AbstractAppWithSingleFile } from "./AbstractAppWithSingleFile";
 
 const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4", "analysis5", "analysis6", "analysis7"];
 
-export class ThermalFileAppElement extends BaseAppWithPngExportContext {
+export class ThermalFileAppElement extends AbstractAppWithSingleFile {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();
 
     public get manager(): ThermalManager {
         if (!this.fileProviderRef.value) {
-            throw new Error( "Not yet loaded" );
+            throw new Error("Not yet loaded");
         }
         return this.fileProviderRef.value.manager;
     }
@@ -31,18 +34,6 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
     @property({ type: String, reflect: true })
     visible?: string;
-
-    @property({ type: String, reflect: true, attribute: true })
-    palette: AvailableThermalPalette = "jet";
-
-    @property({ type: Number, reflect: true })
-    from?: number;
-
-    @property({ type: Number, reflect: true })
-    to?: number;
-
-    @property({ type: Number, reflect: true })
-    opacity?: number = 1;
 
     @property()
     author?: string;
@@ -70,27 +61,6 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
     @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
     showshare: boolean = false;
-
-    @property({ type: String, reflect: true })
-    analysis1?: string;
-
-    @property({ type: String, reflect: true })
-    analysis2?: string;
-
-    @property({ type: String, reflect: true })
-    analysis3?: string;
-
-    @property({ type: String, reflect: true })
-    analysis4?: string;
-
-    @property({ type: String, reflect: true })
-    analysis5?: string;
-
-    @property({ type: String, reflect: true })
-    analysis6?: string;
-
-    @property({ type: String, reflect: true })
-    analysis7?: string;
 
     @provide({ context: localeContext })
     @property({ reflect: true, converter: localeConverter })
@@ -315,37 +285,13 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
     }
 
 
-
-    protected getLabel() {
-        if (this.loading === true)
-            return t(T.loading);
-        else if (this.label !== undefined)
-            return this.label;
-        else if (this.label === undefined && this.file !== undefined)
-            return this.file.fileName;
-        else return t(T.file);
-    }
-
-
-
-    protected renderNogui() {
-        return html`
-            ${this.renderScale()}
-            <file-canvas></file-canvas>
-            <file-timeline></file-timeline>
-            <file-analysis-table ></file-analysis-table>
-            <file-analysis-graph></file-analysis-graph>
-    `;
-    }
-
-
     /** Render the */
     protected renderApp() {
 
         return html`
         
             <thermal-app
-                label="${this.getLabel()}"
+                label="${this.label}"
                 author="${ifDefined(this.author)}"
                 license="${ifDefined(this.license)}"
                 showfullscreen="${this.showfullscreen}"
@@ -387,7 +333,7 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
                         <manager-tool-bar></manager-tool-bar>
                     </aside>
                     <main class="thermogram">
-                        ${ this.renderScale() }
+                        ${this.renderScale()}
                         ${cache(html`<file-canvas></file-canvas>`)}
                         <file-timeline></file-timeline>
                     </main>
@@ -561,44 +507,14 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 `;
 
 
-
     protected render(): unknown {
 
-        return html`
+        return this.renderProviders(
+            this.renderSingleAppFileProviders(
+                this.renderApp()
+            )
+        );
 
-    <manager-provider 
-        slug="${this.UUID}"
-        palette="${this.palette}"
-    >
-        <registry-provider 
-            slug="${this.UUID}"
-            from="${ifDefined(this.from)}"
-            to="${ifDefined(this.to)}"
-            opacity="${this.opacity}"
-        >
-            <group-provider slug="${this.UUID}">
-
-                <file-provider 
-                    ${ref(this.fileProviderRef)} 
-                    thermal="${this.url}"
-                    visible="${ifDefined(this.visible)}"
-                    batch="true"
-                    analysis1="${ifDefined(this.analysis1)}"
-                    analysis2="${ifDefined(this.analysis2)}"
-                    analysis3="${ifDefined(this.analysis3)}"
-                    analysis4="${ifDefined(this.analysis4)}"
-                    analysis5="${ifDefined(this.analysis5)}"
-                    analysis6="${ifDefined(this.analysis6)}"
-                    analysis7="${ifDefined(this.analysis7)}"
-                    autoclear="true"
-                >
-                    ${this.renderApp()}
-
-                </file-provider>
-
-            </group-provider>
-        </registry-provider>
-    </manager-provider>`;
     }
 
 

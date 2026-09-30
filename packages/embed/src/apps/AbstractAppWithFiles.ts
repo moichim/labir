@@ -17,8 +17,10 @@ export abstract class AbstractAppWithFiles extends AbstractApp implements IAppWi
     /** The manager is used for external interaction with the internal API of the `@labirthermal/core` */
     public abstract get manager(): ThermalManager;
 
-    @provide({ 
-        context: pngExportContext 
+
+
+    @provide({
+        context: pngExportContext
     })
     public pngExportController: PngExportController = new PngExportController(this);
 
@@ -27,7 +29,7 @@ export abstract class AbstractAppWithFiles extends AbstractApp implements IAppWi
 
     @state()
     public pngExportFontSize: number = 14;
-    
+
     @state()
     public pngExportsAnalysis: boolean = true;
 
@@ -51,14 +53,14 @@ export abstract class AbstractAppWithFiles extends AbstractApp implements IAppWi
     public advancedPalettes: boolean = false;
 
     /** The author of the file is an optional information, but every variant of thermal file should display it in its own way. */
-    @property({ 
-        type: String 
+    @property({
+        type: String
     })
     public author?: string;
 
     /** The licence under which the file is published is an optional information. But every variant of thermal file should display it in its own way. */
-    @property({ 
-        type: String 
+    @property({
+        type: String
     })
     public license?: string;
 

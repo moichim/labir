@@ -27,7 +27,7 @@ export class ControllerApp extends AbstractConnectedApp {
         if (!this.managerProviderRef.value) {
             throw new Error("Method not implemented.");
         }
-        return this.managerProviderRef.value.manager;
+        return this.managerProviderRef.value.managerObject;
     }
 
 

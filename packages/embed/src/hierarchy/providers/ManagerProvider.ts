@@ -1,56 +1,44 @@
-import { AvailableThermalPalette, ThermalManager, ThermalPalettes, ThermalTool } from "@labirthermal/core";
-import { provide } from "@lit/context";
-import { customElement, property } from "lit/decorators.js";
+import { AvailableThermalPalette } from "@labirthermal/core";
+import { property } from "lit/decorators.js";
 import { AbstractManagerProvider } from "../abstraction/AbstractManagerProvider";
-import { managerContext, managerGraphFunctionContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, toolContext, toolsContext } from "./context/ManagerContext";
 
 export class ManagerProviderElement extends AbstractManagerProvider {
 
-    protected UUIDManagerListeners = this.UUID + "__manager-listener";
+    @property({ 
+        type: String, 
+        reflect: true, 
+        attribute: true 
+    })
+    public slug!: string;
 
-    @provide({ context: managerContext })
-    public manager!: ThermalManager;
-
-    @property({ type: String, reflect: true, attribute: true })
-    slug!: string;
-
-    @provide({ context: managerPaletteContext })
     @property({
         type: String,
-        attribute: true,
-        reflect: true,
-        converter: {
-            fromAttribute: (value: AvailableThermalPalette): ManagerPaletteContext => {
-                return {
-                    key: value,
-                    data: ThermalPalettes[value]
-                };
-            },
-            toAttribute: (value: ManagerPaletteContext): string => {
-                return value.key.toString();
-            }
-        }
+        reflect: true
     })
-    public palette: ManagerPaletteContext = {
-        key: "jet",
-        data: ThermalPalettes["jet"]
-    }
+    public palette: AvailableThermalPalette = "jet";
 
-    @provide({ context: managerSmoothContext })
-    @property({ type: String, reflect: true, attribute: true })
-    smooth: boolean = false;
+    @property({ 
+        type: Boolean, 
+        reflect: true 
+    })
+    public advancedPalettes: boolean = false;
 
-    @provide({ context: managerGraphFunctionContext })
-    @property({ type: String, reflect: true, attribute: true })
-    graphSmooth: boolean = false;
+    @property({ 
+        type: String, 
+        reflect: true 
+    })
+    public smoothThermograms: boolean = false;
 
-    @property({type: Boolean, reflect: true})
-    autoclear: boolean = false;
+    @property({ 
+        type: String, 
+        reflect: true 
+    })
+    public smoothGraph: boolean = false;
 
-    @provide({ context: toolContext })
-    tool!: ThermalTool;
-
-    @provide({ context: toolsContext })
-    tools!: ThermalManager["tool"]["tools"]
+    @property({
+        type: Boolean, 
+        reflect: true
+    })
+    public autoclear: boolean = false;
 
 }
