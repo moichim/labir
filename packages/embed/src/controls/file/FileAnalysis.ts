@@ -4,14 +4,14 @@ import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { map } from 'lit/directives/map.js';
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { AnalysisList, fileAnalysisList } from "../../hierarchy/providers/context/FileContexts";
+import { AnalysisList, fileAnalysisListContext } from "../../hierarchy/providers/context/FileContexts";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 
 /** @deprecated */
 @customElement("file-analysis-list")
 export class FileAnalysisList extends AbstractFileConsumer {
 
-    @consume({ context: fileAnalysisList, subscribe: true })
+    @consume({ context: fileAnalysisListContext, subscribe: true })
     analysis: AnalysisList = [];
 
     @state()

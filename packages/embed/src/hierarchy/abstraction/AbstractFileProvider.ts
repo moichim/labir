@@ -4,7 +4,7 @@ import { html, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { AbstractGroupConsumer } from "../consumers/AbstractGroupConsumer";
-import { fileAnalysisList, AnalysisList, fileCurrentFrameContext, CurrentFrameContext, durationContext, DurationContext, fileFailureContext, fileContext, fileCursorContext, FileCursorContext, fileMsContext, loadedContext, loadingContext, filaMayStopContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext } from "../providers/context/FileContexts";
+import { fileAnalysisListContext, AnalysisList, fileCurrentFrameContext, CurrentFrameContext, durationContext, DurationContext, fileFailureContext, fileContext, fileCursorContext, FileCursorContext, fileMsContext, readyContext, loadingContext, filaMayStopContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext } from "../providers/context/FileContexts";
 import { registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
 
 export abstract class AbstractFileProvider extends AbstractGroupConsumer {
@@ -21,7 +21,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer {
     @state()
     public loading: boolean = false;
 
-    @provide({ context: loadedContext })
+    @provide({ context: readyContext })
     @state()
     protected ready = false;
 
@@ -69,7 +69,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer {
     protected mayStop: boolean = true;
 
     /** List of all analyses taken from the `Instance.analysis.layers.all` */
-    @provide({ context: fileAnalysisList }) private analyses: AnalysisList = [];
+    @provide({ context: fileAnalysisListContext }) private analyses: AnalysisList = [];
 
 
     public analysis1?: string;

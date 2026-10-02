@@ -13,8 +13,7 @@ export const fileFailureContext = createContext<ThermalFileFailure|undefined>( "
 export const loadingContext = createContext<boolean>( "file-loading" );
 
 
-/** @deprecated Not used - remove */
-export const loadedContext = createContext<boolean>( "file-loaded" );
+export const readyContext = createContext<boolean>( "file-ready-context" );
 
 
 export const fileProviderContext = createContext<AbstractFileProvider>( "file-provider-element" );
@@ -57,8 +56,7 @@ export const durationContext = createContext<DurationContext|undefined>( "durati
 
 
 
-type PlayingContext = boolean;
-export const filePlayingContext = createContext<PlayingContext>( "file-playing-context" );
+export const filePlayingContext = createContext<boolean>( "file-playing-context" );
 
 
 
@@ -81,4 +79,4 @@ export const filaMayStopContext = createContext<MayStopContext>( "mayStop" );
 
 
 export type AnalysisList = AbstractAnalysis[];
-export const fileAnalysisList = createContext<AnalysisList>( "analysislist" );
+export const fileAnalysisListContext = createContext<AnalysisList>( "analysislist" );
