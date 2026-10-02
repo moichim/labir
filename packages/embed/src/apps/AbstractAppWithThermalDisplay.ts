@@ -87,11 +87,13 @@ export class AbstractAppWithThermalDisplay extends AbstractApp implements IAppWi
     }
 
     public get registry(): ThermalRegistry | undefined {
-        return this.registryRef.value?.registry;
+        return this.registryRef.value?.registryObject;
     }
 
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
+
+        super.firstUpdated(_changedProperties);
 
         const manager = this.manager;
         const registry = this.registry;
@@ -114,7 +116,9 @@ export class AbstractAppWithThermalDisplay extends AbstractApp implements IAppWi
     }
 
 
-    protected update(changedProperties: PropertyValues<AbstractAppWithThermalDisplay>): void {
+    protected updated(changedProperties: PropertyValues<AbstractAppWithThermalDisplay>): void {
+
+        super.updated(changedProperties);
 
         this.thermalDisplayController.hostUpdated(changedProperties);
 
@@ -124,11 +128,15 @@ export class AbstractAppWithThermalDisplay extends AbstractApp implements IAppWi
         children: unknown
     ) {
 
-        return html`<manager-provider
+        return html`
+        Provajdrz
+        <manager-provider
             slug=${this.UUID}
             ${ref(this.managerRef)}
             palette=${this.palette}
+            desktop="true"
         >
+            
             <registry-provider
                 slug=${this.UUID}
                 ${ref(this.registryRef)}

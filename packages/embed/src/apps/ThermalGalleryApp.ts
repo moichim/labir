@@ -38,7 +38,7 @@ enum STATE {
 export class ThermalGalleryApp extends BaseAppWithPngExportContext {
 
     public get manager(): ThermalManager {
-        return this.registryRef.value!.registry.manager;
+        return this.registryRef.value!.registryObject.manager;
     }
 
 
@@ -117,18 +117,18 @@ export class ThermalGalleryApp extends BaseAppWithPngExportContext {
 
         if (this.registryRef.value) {
 
-            this.registryRef.value?.registry.palette.setPalette(this.palette);
+            this.registryRef.value?.registryObject.palette.setPalette(this.palette);
 
-            this.registryRef.value.registry.batch.onBatchComplete.set(this.UUID, () => {
+            this.registryRef.value.registryObject.batch.onBatchComplete.set(this.UUID, () => {
                 if (this.registryRef.value) {
-                    const registry = this.registryRef.value.registry;
+                    const registry = this.registryRef.value.registryObject;
                     registry.range.applyMinmax();
                 }
             });
 
-            this.registryRef.value.registry.groups.addListener(this.UUID, () => {
+            this.registryRef.value.registryObject.groups.addListener(this.UUID, () => {
                 if (this.registryRef.value) {
-                    const registry = this.registryRef.value.registry;
+                    const registry = this.registryRef.value.registryObject;
                     registry.range.applyMinmax();
                 }
             });
@@ -217,12 +217,12 @@ export class ThermalGalleryApp extends BaseAppWithPngExportContext {
     protected resetRegistry() {
         if (this.registryRef.value) {
 
-            this.registryRef.value.registry.forEveryInstance(instance => instance.unmountFromDom());
+            this.registryRef.value.registryObject.forEveryInstance(instance => instance.unmountFromDom());
 
             // this.registryRef.value.registry.reset();
 
-            this.registryRef.value.registry.batch.onBatchComplete.set(this.UUID, () => {
-                this.registryRef.value?.registry.range.applyMinmax();
+            this.registryRef.value.registryObject.batch.onBatchComplete.set(this.UUID, () => {
+                this.registryRef.value?.registryObject.range.applyMinmax();
             });
         }
     }

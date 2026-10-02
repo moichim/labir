@@ -11,29 +11,11 @@ export class ManagerProviderElement extends AbstractManagerProvider {
     })
     public slug!: string;
 
-    @property({
-        type: String,
-        reflect: true
-    })
-    public palette: AvailableThermalPalette = "jet";
+    
 
-    @property({ 
-        type: Boolean, 
-        reflect: true 
-    })
-    public advancedPalettes: boolean = false;
+    
 
-    @property({ 
-        type: String, 
-        reflect: true 
-    })
-    public smoothThermograms: boolean = false;
-
-    @property({ 
-        type: String, 
-        reflect: true 
-    })
-    public smoothGraph: boolean = false;
+    
 
     @property({
         type: Boolean, 

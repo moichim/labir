@@ -203,6 +203,10 @@ export class AppDisplayController extends AbstractReactiveController<IAppWithThe
         values: PropertyValues<IAppWithThermalDisplayController>
     ): void {
 
+        if (values === undefined) {
+            return;
+        }
+
         if (values.has("palette")) {
             this._paletteChangedInElement(this.host.palette);
         }

@@ -1,30 +1,23 @@
 import { ThermalGroup } from "@labirthermal/core";
-import { html } from "lit";
+import { html, PropertyValues } from "lit";
 import { AbstractRegistryConsumer } from "../consumers/AbstractRegistryConsumer";
+import { GroupController, IElementWithGroupController } from "../controllers/GroupController";
 
-export abstract class AbstractGroupProvider extends AbstractRegistryConsumer {
+export abstract class AbstractGroupProvider extends AbstractRegistryConsumer implements IElementWithGroupController {
+    
+    public groupSlug!: string;
 
-    protected UUIDGroupListeners = this.UUID + "__group-listener";
+    public groupController: GroupController = new GroupController(this)
 
-    public slug!: string;
+    public groupObject!: ThermalGroup;
 
-    group!: ThermalGroup;
+    public autoclearGroup: boolean = true;
 
-    public autoclear: boolean = false;
-
-    connectedCallback(): void {
-        super.connectedCallback();
-
-        this.group = this.registry.groups.addOrGetGroup(this.slug);
-
-    }
-
-    disconnectedCallback(): void {
-        super.disconnectedCallback();
-
-        if (this.autoclear === true && this.group !== undefined) {
-            this.registry.groups.removeGroup(this.group.id);
-        }
+    updated(
+        values: PropertyValues<AbstractGroupProvider>
+    ): void {
+        super.updated(values);
+        this.groupController.hostUpdatedWatcher(values);
     }
 
     protected render(): unknown {

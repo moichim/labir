@@ -4,8 +4,15 @@ export const numberRangeConverter = (
     max: number
 ) => {
 
-    const fromAttribute = (value: string | null) => {
-        if (value === undefined || value === null) {
+    const fromAttribute = (value: unknown) => {
+        if (
+            value === undefined 
+            || value === null
+            || ( 
+                typeof value === "string"
+                || typeof value === "number"
+            )
+        ) {
             return emptyValue;
         }
 

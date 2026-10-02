@@ -1,6 +1,7 @@
 import { AatAppElement } from "./apps/AustralianApparentTemperature";
 import { ThermalFileAppElement } from "./apps/single/ThermalFileApp";
 import { DropinAppElement } from "./apps/ThermalDropinApp";
+import { ThermalFileAppNewElement } from "./apps/ThermalFileAppNew";
 import { ThermalGroupAppElement } from "./apps/ThermalGroupApp";
 import { FileButtonElement } from "./controls/file/buttons/FileButton";
 import { FileDropdown } from "./controls/file/buttons/FileDropdown";
@@ -150,7 +151,8 @@ const elementsApplications = {
     "apparent-temperature-aat": AatAppElement,
     "thermal-dropin-app": DropinAppElement,
     "thermal-file-app": ThermalFileAppElement,
-    "thermal-group-app": ThermalGroupAppElement
+    "thermal-group-app": ThermalGroupAppElement,
+    "thermal-new-app": ThermalFileAppNewElement
 } as const;
 
 

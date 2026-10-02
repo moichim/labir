@@ -1,23 +1,23 @@
-import { html, PropertyValues } from "lit";
-import { AbstractManagerConsumer } from "../consumers/AbstractManagerConsumer";
-import { registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
 import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { provide } from "@lit/context";
+import { html, PropertyValues } from "lit";
+import { AbstractManagerConsumer } from "../consumers/AbstractManagerConsumer";
+import { IElementWithRegistryController, RegistryController } from "../controllers/RegistryController";
+import { setRegistryHighlightContext } from "../providers/context/RegistryContext";
 import { property } from "lit/decorators.js";
 
-export abstract class AbstractRegistryProvider extends AbstractManagerConsumer {
+export abstract class AbstractRegistryProvider extends AbstractManagerConsumer implements IElementWithRegistryController {
 
-    protected UUIDRegistryListeners = this.UUID + "__registry-listener";
 
-    slug!: string;
-
-    public registry!: ThermalRegistry;
+    registrySlug!: string;
+    registryObject!: ThermalRegistry;
+    registryController: RegistryController = new RegistryController(this);
 
     public opacity: number = 1;
 
-    protected min?: number;
+    public min?: number;
 
-    protected max?: number;
+    public max?: number;
 
     public from?: number;
 
@@ -27,121 +27,30 @@ export abstract class AbstractRegistryProvider extends AbstractManagerConsumer {
 
     public autoclear: boolean = false;
 
-    @property({ type: Boolean, reflect: true })
-    public forceNew: boolean = false;
+    public highlight: ThermalRangeOrUndefined;
 
-    @provide( {context: registryHighlightContext} )
-    protected highlight: ThermalRangeOrUndefined;
+    @property({reflect: true, type: String})
+    public testProperty: string = "something";
 
-    @provide( {context: setRegistryHighlightContext} )
-    public setHighlight = ( value: ThermalRangeOrUndefined ) => {
+    @provide({ context: setRegistryHighlightContext })
+    public setHighlight = (value: ThermalRangeOrUndefined) => {
         this.highlight = value;
-    }
-
-    protected createRegistry( slug: string ): ThermalRegistry {
-
-        // Create
-        const registry = this.manager.addOrGetRegistry(slug);
-        // Set the palette
-        registry.palette.setPalette( this.manager.palette.value );
-        // Set the range if necessary
-        if (this.from !== undefined && this.to !== undefined) {
-            registry.range.imposeRange({
-                from: this.from,
-                to: this.to
-            });
-        }
-        // Return
-        return registry;
-    }
-
-    protected hydrateRegistry( registry: ThermalRegistry ): void {
-
-        // Bind opacity to the element property
-        registry.opacity.addListener(this.UUIDRegistryListeners, value => {
-            this.opacity = value;
-        });
-
-        // Bind minmax changes to the element state
-        registry.minmax.addListener(this.UUIDRegistryListeners, value => {
-            if (value === undefined) {
-                this.min = undefined;
-                this.max = undefined;
-            } else {
-                this.min = value.min;
-                this.max = value.max;
-            }
-        });
-
-        // Bind range changes to the element property
-        registry.range.addListener(this.UUIDRegistryListeners, value => {
-
-            if (value === undefined) {
-                this.from = undefined;
-                this.to = undefined;
-            } else {
-                this.from = value.from;
-                this.to = value.to;
-            }
-        });
-
-        // Bind loading changes to the element property
-        registry.loading.addListener(this.UUIDRegistryListeners, value => {
-            this.loading = value;
-        });
-
-    }
-
-
-    connectedCallback(): void {
-
-        super.connectedCallback();
-
-        this.registry = this.createRegistry(this.slug);
-
     }
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
 
-        if (this.autoclear === true && this.registry !== undefined) {
-            this.manager.removeRegistry(this.registry.id);
+        if (this.autoclear === true && this.registryObject !== undefined) {
+            this.manager.removeRegistry(this.registryObject.id);
         }
     }
 
 
-
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
-
-        this.hydrateRegistry(this.registry);
-
-
-    }
-
-    protected updated(_changedProperties: PropertyValues): void {
+    protected updated(_changedProperties: PropertyValues<AbstractRegistryProvider>): void {
 
         super.updated(_changedProperties);
 
-        if (_changedProperties.has("from") || _changedProperties.has("to")) {
-
-            if (this.from !== undefined && this.to !== undefined) {
-
-                this.registry.range.imposeRange({
-                    from: this.from,
-                    to: this.to
-                })
-
-            }
-
-        }
-
-        if (_changedProperties.has("opacity")) {
-            const sanitisedOpacity = Math.min(1, Math.max(0, this.opacity));
-            if (sanitisedOpacity !== this.registry.opacity.value) {
-                this.registry.opacity.imposeOpacity(sanitisedOpacity);
-            }
-        }
+        this.registryController.hostUpdatedWatcher(_changedProperties);
 
     }
 

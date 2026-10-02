@@ -2,18 +2,15 @@ import { AvailableThermalPalette, Instance, ThermalManager, TimeFormat } from "@
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { cache } from 'lit/directives/cache.js';
 import { ifDefined } from "lit/directives/if-defined.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { createRef, Ref } from "lit/directives/ref.js";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../hierarchy/providers/context/pngExportContext";
 import { FileProviderElement } from "../hierarchy/providers/FileProvider";
 import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { booleanConverter } from "../utils/converters/booleanConverter";
-import { BaseAppWithPngExportContext, pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../hierarchy/providers/context/pngExportContext";
-import { AbstractAppWithFiles } from "./AbstractAppWithFiles";
-import { AbstractAppWithThermalDisplay } from "./AbstractAppWithThermalDisplay";
 import { AbstractAppWithSingleFile } from "./AbstractAppWithSingleFile";
 
 const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4", "analysis5", "analysis6", "analysis7"];
@@ -289,7 +286,7 @@ export class ThermalFileAppElement extends AbstractAppWithSingleFile {
     protected renderApp() {
 
         return html`
-        
+        ap
             <thermal-app
                 label="${this.label}"
                 author="${ifDefined(this.author)}"
@@ -353,13 +350,6 @@ export class ThermalFileAppElement extends AbstractAppWithSingleFile {
         return html`${this.showhistogram ? cache(html`<registry-histogram expandable="true"></registry-histogram>`) : nothing}
     ${this.showscale ? html`<registry-range-slider></registry-range-slider>` : nothing}
     ${this.showhistogram || this.showscale ? html`<registry-ticks-bar placement="top"></registry-ticks-bar>` : nothing}`;
-    }
-
-    protected renderOneLayoutItem(icon: string, key: string, hasLabel: boolean = false) {
-        return html`<div class="layout-item">
-        ${unsafeSVG(icon)}
-        ${hasLabel ? html`<span>${t(T[`layout_${key}` as keyof typeof T])}</span>` : nothing}
-    </div>`;
     }
 
 
@@ -507,7 +497,9 @@ export class ThermalFileAppElement extends AbstractAppWithSingleFile {
 `;
 
 
-    protected render(): unknown {
+    render(): unknown {
+
+        return this.renderSingleAppFileProviders( this.renderApp() );
 
         return this.renderProviders(
             this.renderSingleAppFileProviders(

@@ -1,13 +1,16 @@
 import { AvailableThermalPalette, ThermalManager, ThermalManagerOptions, ThermalPalettes } from "@labirthermal/core";
 import { IBaseElement } from "../../controllers/IBaseElement";
 import { managerAdvancedPalettesContext, managerContext, managerGraphFunctionContext, managerPaletteContext, ManagerPaletteContext, managerSmoothContext, toolContext } from "../providers/context/ManagerContext";
-import { AbstractHierarchyController } from "./AbstractHierarchyController";
+import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { createOrGetManager } from "../providers/getters";
 import { ContextProvider, createContext } from "@lit/context";
 import { PropertyValues } from "lit";
 import { ThermalTool } from "@labirthermal/core";
+import { ThermalRegistry } from "@labirthermal/core";
+import { paletteConverter } from "../../utils/converters/paletteConverter";
+import { booleanConverter } from "../../index.export";
 
-export interface IElementWithManagerController extends IBaseElement {
+interface IHostProperties {
 
     /** Element property for the manager slug. It is absolutely required. Recommended property name: manager-slug */
     managerSlug: string;
@@ -35,28 +38,49 @@ export interface IElementWithManagerController extends IBaseElement {
 
 }
 
+export interface IElementWithManagerController extends IBaseElement, IHostProperties {}
+
 /** Exposes the main manager controller with all its setters and direct access to the host element values. */
 export const managerControllerContext = createContext<ManagerController>("manager-controller-context");
 
 export class ManagerController extends AbstractHierarchyController<IElementWithManagerController> {
 
+    private _UUID: string;
+
+    public get UUID(): string {
+        return this._UUID;
+    }
+
+    public static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties> = {
+        managerSlug: { type: String, reflect: false, attribute: "manager-slug" },
+        managerObject: INTERNAL_STATE_DECLARATION,
+        managerController: INTERNAL_STATE_DECLARATION,
+        palette: { type: String, reflect: true, attribute: "palette", converter: paletteConverter },
+        advancedPalettes: { reflect: true, attribute: "advanced-palettes", converter: booleanConverter(false) },
+        smoothThermograms: { reflect: true, attribute: "smooth-thermograms", converter: booleanConverter(false) },
+        smoothGraph: { reflect: true, attribute: "smooth-graph", converter: booleanConverter(false) },
+        tool: { type: String, reflect: true, attribute: "tool"}
+    }
+
+
+
     /** Accessor to the manageer slug from the host */
     public get slug(): string { return this.host.managerSlug; }
 
 
-    private readonly managerControllerContextProvider: ContextProvider< typeof managerControllerContext, IElementWithManagerController >;
+    private readonly managerControllerContextProvider: ContextProvider<typeof managerControllerContext, IElementWithManagerController>;
 
 
     /** Accessor to the manager object from the host */
     public get managerObject(): ThermalManager { return this.host.managerObject; }
 
-    private readonly managerObjectContextPtovider: ContextProvider< typeof managerContext, IElementWithManagerController >;
+    private readonly managerObjectContextPtovider: ContextProvider<typeof managerContext, IElementWithManagerController>;
 
 
     /** Palette property value accessed from the host element */
     public get palette(): AvailableThermalPalette { return this.host.palette; }
 
-    private readonly paletteContextProvider: ContextProvider< typeof managerPaletteContext, IElementWithManagerController >;
+    private readonly paletteContextProvider: ContextProvider<typeof managerPaletteContext, IElementWithManagerController>;
 
 
     public readonly advancedPalettesContextProvider: ContextProvider<typeof managerAdvancedPalettesContext, IElementWithManagerController>;
@@ -84,6 +108,8 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     constructor(host: IElementWithManagerController) {
 
         super(host);
+
+        this._UUID = host.UUID + "_manager-controller";
 
         // Create the manager controller context provider
         this.managerControllerContextProvider = new ContextProvider(
@@ -133,26 +159,25 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     }
 
 
-
-    public hostConnected(): void {
+    hostConnected(): void {
 
         // Make sure the slug is set for the host element
-        const slug = this.host.getAttribute( "slug" ) ?? this.UUID;
+        const slug = this._getDefaultSlugFromHost("manager-slug");
         this.host.managerSlug = slug;
 
         // Create or get the manager object and set it in the context provider
-        this.host.managerObject = createOrGetManager( this.slug );
+        this.host.managerObject = createOrGetManager(slug);
         this.managerObjectContextPtovider.setValue(this.host.managerObject);
 
 
         // Palette
 
         // Set the initial palette value
-        const initialPaletteValue = this._sanitizePalette( this.host.palette );
+        const initialPaletteValue = paletteConverter.fromAttribute(this.host.palette);
         this.setPalette(initialPaletteValue);
 
         // Add the palette listeners
-        this.managerObject.palette.addListener( this.UUID, this.setPalette.bind(this) );
+        this.managerObject.palette.addListener(this.UUID, this.setPalette.bind(this));
 
 
         // Advanced palette
@@ -167,7 +192,7 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         this.setSmoothThermograms(this.host.smoothThermograms);
 
         // Add the smooth thermograms listener
-        this.managerObject.smooth.addListener( this.UUID, this.setSmoothThermograms.bind(this) );
+        this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
 
 
         // Smooth graph flag
@@ -176,22 +201,23 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         this.setSmoothGraph(this.host.smoothGraph);
 
         // Add the listener to the internal property
-        this.managerObject.graphSmooth.addListener( this.UUID, this.setSmoothGraph.bind(this) );
+        this.managerObject.graphSmooth.addListener(this.UUID, this.setSmoothGraph.bind(this));
 
 
         // Tool
 
         // Set the initial tool value
-        this._setToolByKey( this.host.tool );
+        this._setToolByKey(this.host.tool);
 
         // Add the tool listener
-        this.managerObject.tool.addListener( this.UUID, this.setTool.bind(this) );
+        this.managerObject.tool.addListener(this.UUID, this.setTool.bind(this));
 
 
 
     }
 
-    public hostDisconnected(): void {
+
+    hostDisconnected(): void {
 
         this.managerObject.palette.removeListener(this.UUID);
         this.managerObject.smooth.removeListener(this.UUID);
@@ -200,53 +226,64 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
 
     }
 
-    public hostUpdated(
+    hostUpdate(): void {
+
+        // 1. Změnila se paleta na hostiteli oproti manažeru?
+        if (this.host.palette && this.host.palette !== this.managerObject.palette.value) {
+            this.setPalette(this.host.palette);
+        }
+
+        // Update the advanced palettes if they have changed on the host
+        if (this.host.advancedPalettes && this.host.advancedPalettes !== this.advancedPalettesContextProvider.value) {
+            this.setAdvancedPalettes(this.host.advancedPalettes);
+        }
+
+    }
+
+
+    hostUpdatedWatcher(
         value: PropertyValues<IElementWithManagerController>
     ): void {
 
-        if ( !value ) {
+        if (!value) {
             return;
         }
 
         // If the palette property changed in the element, update it internally
-        if ( value.has( "palette" ) ) {
+        if (value.has("palette")) {
             this.setPalette(this.host.palette);
         }
 
         // If the advanced paletttes flag changed in the element, update it internally
-        if ( value.has( "advancedPalettes" ) ) {
+        if (value.has("advancedPalettes")) {
             this.setAdvancedPalettes(this.host.advancedPalettes);
         }
 
         // If the smooth thermograms flag changed in the element, update it internally
-        if ( value.has( "smoothThermograms" ) ) {
+        if (value.has("smoothThermograms")) {
             this.setSmoothThermograms(this.host.smoothThermograms);
         }
 
         /// If the smooth graph option changed in the element, update it internally
-        if ( value.has( "smoothGraph" ) ) {
+        if (value.has("smoothGraph")) {
             this.setSmoothGraph(this.host.smoothGraph);
         }
 
         // If the tool property changed in the element, update it internally
-        if ( value.has("tool") ) {
+        if (value.has("tool")) {
             this._setToolByKey(this.host.tool);
         }
 
     }
 
-    private _sanitizePalette(
-        input: string | null | undefined
-    ): AvailableThermalPalette {
 
-        if (
-            input === undefined
-            || input === null
-            || !(input in ThermalPalettes)
-        ) {
-            return "iron";
-        }
-        return input as AvailableThermalPalette;
+    /** 
+     * Create or get a registry by its slug from the internal manager object. 
+     */
+    public createRegistry(
+        slug: string
+    ): ThermalRegistry {
+        return this.managerObject.addOrGetRegistry(slug);
     }
 
 
@@ -261,7 +298,6 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     }
 
 
-
     /** 
      * This is the recommended way to set the advanced palettes flag - updates the value in the context provider and the host element. All updates are performed only when the new value differs from the current one. 
      */
@@ -269,12 +305,12 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         value: boolean
     ): void {
 
-        if ( this.host.advancedPalettes !== value ) {
+        if (this.host.advancedPalettes !== value) {
             this.host.advancedPalettes = value;
         }
 
-        if ( this.advancedPalettesContextProvider.value !== value ) {
-            this.advancedPalettesContextProvider.setValue( value );
+        if (this.advancedPalettesContextProvider.value !== value) {
+            this.advancedPalettesContextProvider.setValue(value);
         }
 
     }
@@ -287,22 +323,25 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         value: AvailableThermalPalette
     ): void {
 
-        const sanitizedValue = this._sanitizePalette( value );
-        
+        const sanitizedValue = paletteConverter.fromAttribute(value);
+
         // If the internal value differs, set it
-        if ( this.managerObject.palette.value !== sanitizedValue ) {
-            this.managerObject.palette.setPalette( sanitizedValue );
+        if (this.managerObject.palette.value !== sanitizedValue) {
+            this.managerObject.palette.setPalette(sanitizedValue);
         }
 
-        // If the context value differs, set it in the context provider
-        if ( this.paletteContextProvider.value && ( this.paletteContextProvider.value.key !== sanitizedValue ) ) {
+        if ( !this.paletteContextProvider.value ) {
             this.paletteContextProvider.setValue(
-                this._paletteStringToContextValue( sanitizedValue )
+                this._paletteStringToContextValue(sanitizedValue)
+            );
+        } else if ( this.paletteContextProvider.value.key !== sanitizedValue ) {
+            this.paletteContextProvider.setValue(
+                this._paletteStringToContextValue(sanitizedValue)
             );
         }
 
         // If the host's parameter differs, set it
-        if ( this.host.palette !== sanitizedValue ) {
+        if (this.host.palette !== sanitizedValue) {
             this.host.palette = sanitizedValue;
         }
 
@@ -317,18 +356,18 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     ): void {
 
         // If the host value differs, do change it
-        if ( this.host.smoothThermograms !== value ) {
+        if (this.host.smoothThermograms !== value) {
             this.host.smoothThermograms = value;
         }
 
         // If the context value differs, set it in the context provider
-        if ( this.smoothThermogramsContextProvider.value !== value ) {
-            this.smoothThermogramsContextProvider.setValue( value );
+        if (this.smoothThermogramsContextProvider.value !== value) {
+            this.smoothThermogramsContextProvider.setValue(value);
         }
 
         // If the internal manager object's value differs, set it
-        if ( this.managerObject.smooth.value !== value ) {
-            this.managerObject.smooth.setSmooth( value );
+        if (this.managerObject.smooth.value !== value) {
+            this.managerObject.smooth.setSmooth(value);
         }
 
     }
@@ -342,18 +381,18 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     ): void {
 
         // If the host's property differs from the new tool, update it
-        if ( value && value.key !== this.host.tool ) {
+        if (value && value.key !== this.host.tool) {
             this.host.tool = value.key;
         }
 
         // If the context value differs, set it in the context provider
-        if ( this.toolContextProvider.value !== value ) {
-            this.toolContextProvider.setValue( value );
+        if (this.toolContextProvider.value !== value) {
+            this.toolContextProvider.setValue(value);
         }
 
         // If the internal manager object's value differs, set it
-        if ( this.managerObject.tool.value !== value ) {
-            this.managerObject.tool.selectTool( value );
+        if (this.managerObject.tool.value !== value) {
+            this.managerObject.tool.selectTool(value);
         }
 
     }
@@ -362,8 +401,8 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     private _setToolByKey(
         value?: string
     ): void {
-        const toolObject = this._toolStringToObject( value );
-        this.setTool( toolObject );
+        const toolObject = this._toolStringToObject(value);
+        this.setTool(toolObject);
     }
 
 
@@ -371,11 +410,11 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         value: string = "inspect"
     ): ThermalTool {
 
-        const selectedTool = this.managerObject.tool.tools[ value ];
+        const selectedTool = this.managerObject.tool.tools[value];
 
         // If the invalid tool was selected, return the current tool instead
-        if ( !selectedTool ) {
-            this.managerObject.tool.tools[ "inspect" ];
+        if (!selectedTool) {
+            this.managerObject.tool.tools["inspect"];
         }
 
         return selectedTool;
@@ -391,13 +430,13 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     ): void {
 
         // If the host value differs, do change it
-        if ( this.host.smoothGraph !== value ) {
+        if (this.host.smoothGraph !== value) {
             this.host.smoothGraph = value;
         }
 
         // If the context value differs, set it in the context provider
-        if ( this.smoothGraphContextProvider.value !== value ) {
-            this.smoothGraphContextProvider.setValue( value );
+        if (this.smoothGraphContextProvider.value !== value) {
+            this.smoothGraphContextProvider.setValue(value);
         }
 
     }

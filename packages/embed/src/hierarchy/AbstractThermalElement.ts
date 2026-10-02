@@ -1,6 +1,6 @@
 import { consume } from "@lit/context";
 import i18next, { t } from "i18next";
-import { html, LitElement } from "lit";
+import { html, LitElement, PropertyDeclaration } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { v4 as uuid } from "uuid";
 import { localeContext } from "../translations/localeContext";
@@ -8,6 +8,8 @@ import { T } from "../translations/Languages";
 
 /** All the webcomponents of \@labirthermal/embed (and its extensions) should be based on the abstract class `AbstractThermalElement`. */
 export abstract class AbstractThermalElement extends LitElement {
+
+    declare public requestUpdate
 
     private _UUID?: string
 
@@ -52,10 +54,7 @@ export abstract class AbstractThermalElement extends LitElement {
         return t( T[key] );
     }
 
-    // Turn this method into a public one
-    public requestUpdate(): void {
-        super.requestUpdate();
-    }
+    
 
 
 }
