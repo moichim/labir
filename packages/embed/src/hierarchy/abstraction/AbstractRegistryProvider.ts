@@ -1,12 +1,16 @@
 import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
+import { property } from "lit/decorators.js";
 import { AbstractManagerConsumer } from "../consumers/AbstractManagerConsumer";
 import { IElementWithRegistryController, RegistryController } from "../controllers/RegistryController";
 import { setRegistryHighlightContext } from "../providers/context/RegistryContext";
-import { property } from "lit/decorators.js";
 
 export abstract class AbstractRegistryProvider extends AbstractManagerConsumer implements IElementWithRegistryController {
+
+    public static properties = {
+        ...RegistryController.HOST_PROPERTIES,
+    };
 
 
     registrySlug!: string;
@@ -28,9 +32,6 @@ export abstract class AbstractRegistryProvider extends AbstractManagerConsumer i
     public autoclear: boolean = false;
 
     public highlight: ThermalRangeOrUndefined;
-
-    @property({reflect: true, type: String})
-    public testProperty: string = "something";
 
     @provide({ context: setRegistryHighlightContext })
     public setHighlight = (value: ThermalRangeOrUndefined) => {

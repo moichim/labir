@@ -1,22 +1,20 @@
 import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { t } from "i18next";
-import { T } from "../../../translations/Languages";
 import { consume } from "@lit/context";
-import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { t } from "i18next";
+import { css, html, nothing, PropertyValues } from "lit";
+import { property, state } from "lit/decorators.js";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { interactiveAnalysisContext } from "../../../hierarchy/providers/context/ManagerContext";
+import { T } from "../../../translations/Languages";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
-@customElement("file-analysis-table")
-export class FileAnalysisTable extends AbstractFileConsumer {
+/** @deprecated */
+export class FileAnalysisTableElement extends AbstractFileConsumer {
 
     @consume({ context: interactiveAnalysisContext, subscribe: true })
     interactiveanalysis: boolean = false;
 
-    @property({type: Boolean, converter: booleanConverter(false)})
+    @property({ type: Boolean, converter: booleanConverter(false) })
     forceinteractiveanalysis: boolean = false;
 
     @state()
@@ -200,11 +198,11 @@ export class FileAnalysisTable extends AbstractFileConsumer {
 
     private renderTableRows(): unknown {
 
-        if ( this.analysis.length === 0 || this.file === undefined) {
+        if (this.analysis.length === 0 || this.file === undefined) {
             return nothing;
         }
 
-        return this.analysis.map( analysis => html`<file-analysis-table-row
+        return this.analysis.map(analysis => html`<file-analysis-table-row
             .analysis=${analysis}
             interactiveanalysis=${this.interactiveanalysis === true || this.forceinteractiveanalysis === true}
         ></file-analysis-table-row>`);
@@ -237,7 +235,7 @@ export class FileAnalysisTable extends AbstractFileConsumer {
                     this.file?.analysis.layers.selectAll();
             }}
                         >
-                            ${interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing }
+                            ${interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing}
                             <thermal-btn variant="text" tooltip="${this.allSelected ? "Deaktivovat všechny" : "Aktivovat všechny"}" tooltip-placement="right">${t(T.analysis)}</thermal-btn>
                         </th>
                         <th>${t(T.avg)}</th>

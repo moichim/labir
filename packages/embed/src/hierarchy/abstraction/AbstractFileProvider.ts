@@ -1,75 +1,40 @@
-import { AbstractAnalysis, CallbacksManager, Instance, ParsedTimelineFrame, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalRangeOrUndefined } from "@labirthermal/core";
-import { consume, provide } from "@lit/context";
+import { Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
-import { property, state } from "lit/decorators.js";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
+import { state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../consumers/AbstractGroupConsumer";
-import { fileAnalysisListContext, AnalysisList, fileCurrentFrameContext, CurrentFrameContext, durationContext, DurationContext, fileFailureContext, fileContext, fileCursorContext, FileCursorContext, fileMsContext, readyContext, loadingContext, filaMayStopContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext } from "../providers/context/FileContexts";
-import { registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
+import type { IElementWithFileController } from "../controllers/FileController";
+import { FileController } from "../controllers/FileController";
+import { AnalysisList, loadingContext } from "../providers/context/FileContexts";
 
-export abstract class AbstractFileProvider extends AbstractGroupConsumer {
+export abstract class AbstractFileProvider extends AbstractGroupConsumer implements IElementWithFileController {
 
-    @provide({ context: fileContext })
-    @state()
+    public static properties = {
+        ...FileController.HOST_PROPERTIES
+    };
+
+    public fileController: FileController = new FileController(this);
+
     public file?: Instance;
 
-    @provide({ context: fileFailureContext })
-    @state()
-    protected failure?: ThermalFileFailure;
+    public failure?: ThermalFileFailure;
 
     @provide({ context: loadingContext })
     @state()
     public loading: boolean = false;
 
-    @provide({ context: readyContext })
-    @state()
-    protected ready = false;
+    protected ready: boolean = false;
 
-    @provide({ context: durationContext })
-    @state()
-    protected duration?: DurationContext;
-
-    @provide({ context: fileCurrentFrameContext })
-    @state()
-    protected currentFrame?: CurrentFrameContext;
-
-    @provide({ context: fileCursorContext })
-    protected cursor: FileCursorContext = undefined;
-
-    protected cursorSetter = (percent: number | undefined) => {
-        if (percent === undefined) {
-            if (this.cursor !== undefined) {
-                this.cursor = undefined;
-            }
-        } else if (this.file) {
-            const relativeTime = this.file.timeline._convertPercenttRelative(percent);
-            const frame = this.file.timeline.findPreviousRelative(relativeTime);
-            this.cursor = {
-                absolute: frame.absolute,
-                ms: frame.relative,
-                percentage: percent
-            }
-        }
-    };
-
-    @provide({ context: fileMsContext })
     public ms: number = 0;
 
-    @provide({ context: filePlaybackSpeedContext })
-    public speed?: PlaybackSpeeds = 1;
+    public playbackSpeed: PlaybackSpeeds = 1;
 
-    @provide({ context: fileRecordingContext })
     public recording: boolean = false;
 
-    @provide({ context: filePlayingContext })
     public playing: boolean = false;
 
-    @state()
-    @provide({ context: filaMayStopContext })
-    protected mayStop: boolean = true;
-
     /** List of all analyses taken from the `Instance.analysis.layers.all` */
-    @provide({ context: fileAnalysisListContext }) private analyses: AnalysisList = [];
+    public analyses: AnalysisList = [];
 
 
     public analysis1?: string;
@@ -80,236 +45,36 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer {
     public analysis6?: string;
     public analysis7?: string;
 
-
-    /** Actions taken when a file starts loading */
-    public readonly onLoadingStart = new CallbacksManager<() => void>;
-
-    /** Actions taken when a file is loaded successfully */
-    public readonly onSuccess = new CallbacksManager<(instance: Instance) => void>;
-
-    /** Actions taken when loading ends with error */
-    public readonly onFailure = new CallbacksManager<(error: ThermalFileFailure) => void>;
-
-    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
     public autoHighlight: boolean = false;
-
-    @consume({ context: registryHighlightContext, subscribe: true })
-    protected highlight?: ThermalRangeOrUndefined;
-
-    @consume({ context: setRegistryHighlightContext, subscribe: true })
-    protected highlightSetter?: (highlight: ThermalRangeOrUndefined) => void;
 
 
 
     public updated(_changedProperties: PropertyValues<AbstractFileProvider>): void {
         super.updated(_changedProperties);
 
-        if (_changedProperties.has("ms")) {
-            if (this.file && this.duration && this.currentFrame) {
-                const newMs = Math.min(this.duration.ms, Math.max(0, this.ms));
-                if (newMs !== this.currentFrame.ms) {
-                    this.file.timeline.setRelativeTime(newMs);
-                }
-            }
-        }
-
-        if (_changedProperties.has("speed")) {
-            if (this.file && this.speed) {
-                if (this.speed !== this.file.timeline.playbackSpeed) {
-                    this.file.timeline.playbackSpeed = this.speed;
-                }
-            }
-        }
-
-        if (_changedProperties.has("playing")) {
-            if (this.file) {
-                if (
-                    this.playing
-                    && !this.file.timeline.isPlaying
-                ) {
-                    this.file.timeline.play();
-                } else if (
-                    !this.playing
-                    && this.file.timeline.isPlaying
-                ) {
-                    this.file.timeline.pause();
-                }
-            }
-        }
-
-
-        this.handleAnalysisUpdate(1, _changedProperties);
-        this.handleAnalysisUpdate(2, _changedProperties);
-        this.handleAnalysisUpdate(3, _changedProperties);
-        this.handleAnalysisUpdate(4, _changedProperties);
-        this.handleAnalysisUpdate(5, _changedProperties);
-        this.handleAnalysisUpdate(6, _changedProperties);
-        this.handleAnalysisUpdate(7, _changedProperties);
+        this.fileController.hostUpdatedWatcher(_changedProperties);
 
     }
 
 
-    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
-        super.attributeChangedCallback(name, _old, value);
-
-        // Recording
-        if (name === "recording") {
-            if (this.file) {
-                if (this.recording === true && value === "false") {
-                    this.file.recording.end();
-                }
-                else if (this.recording === false && value === "true") {
-                    this.file.recording.start();
-                }
-            }
-        }
-
-    }
-
-
-    public readonly onInstanceCreated = new CallbacksManager<(instance: Instance) => void>();
-
-
-    /** Register instance callback listeners */
+    /** Register instance callback listeners. @deprecated */
     public recieveInstance(
         instance: Instance
     ) {
 
-        // Store internal state
-
-        this.file = instance;
-        this.failure = undefined;
-        this.loading = false;
-        this.ready = true;
-
-        // Update internal state
-
-        this.duration = {
-            ms: instance.timeline.duration,
-            time: instance.timeline.formatDuration(instance.timeline.duration)
-        }
-
-        this.currentFrame = {
-            ms: instance.timeline.currentMs,
-            time: instance.timeline.currentTime,
-            percentage: instance.timeline.currentPercentage,
-            index: instance.timeline.currentStep.index,
-            absolute: instance.timeline.currentStep.absolute
-        }
-
-        this.analyses = instance.analysis.layers.all;
-
-
-        // Project properties to cthe core
-        if (this.speed) {
-            instance.timeline.playbackSpeed = this.speed;
-        }
-
-
-
-        // Create listeners
-
-        this.playCallback = () => { this.playing = true; }
-        this.stopCallback = () => { this.playing = false; }
-
-        this.currentFrameChangeCallback = frame => {
-
-            this.currentFrame = {
-                ms: frame.relative,
-                time: instance.timeline.currentTime,
-                percentage: instance.timeline.currentPercentage,
-                index: frame.index,
-                absolute: frame.absolute
-            }
-            this.ms = frame.relative;
-        }
-
-        this.playbackSpeedCallback = value => { this.speed = value };
-
-        this.recordingCallback = value => { this.recording = value; }
-
-        this.mayStopCallback = value => { this.mayStop = value; }
-
-        this.analysisCallback = value => { this.analyses = value; }
-
-
-        // Bind listeners
-
-        instance.timeline.callbacksPlay.add(this.UUID, this.playCallback);
-        instance.timeline.callbacksPause.add(this.UUID, this.stopCallback);
-        instance.timeline.callbacksStop.add(this.UUID, this.stopCallback);
-        instance.timeline.callbacksEnd.add(this.UUID, this.stopCallback);
-        instance.timeline.callbacksChangeFrame.add(this.UUID, this.currentFrameChangeCallback);
-        instance.timeline.callbackdPlaybackSpeed.add(this.UUID, this.playbackSpeedCallback);
-        instance.recording.addListener(this.UUID, this.recordingCallback);
-        instance.recording.callbackMayStop.add(this.UUID, this.mayStopCallback);
-        instance.analysis.addListener(this.UUID, this.analysisCallback);
-
-        this.onInstanceCreated.call(instance);
-
-        // Draw the instance in the end
-        // instance.draw();
-
-
-        this.addEventListener("mouseenter", () => {
-
-            if (this.autoHighlight && this.file && this.highlightSetter) {
-
-                this.highlightSetter({
-                    from: this.file.min,
-                    to: this.file.max
-                });
-
-            }
-
-        });
-
-
-        this.addEventListener("mouseleave", () => {
-            if (this.autoHighlight && this.highlightSetter) {
-                this.highlightSetter(undefined);
-            }
-        });
+        this.fileController.receiveInstance(instance);
 
     }
 
 
+    /** @deprecated */
     public removeInstance(
         instance: Instance
     ) {
 
-        instance.unmountFromDom();
-
-
-        // Mark internal state
-        this.file = undefined;
-        this.loading = false;
-        this.ready = false;
-
-        // Set default values
-        this.duration = undefined;
-        this.currentFrame = undefined;
-        this.analyses = [];
-
-        // Remove all listeners
-        instance.timeline.callbacksPlay.delete(this.UUID);
-        instance.timeline.callbacksPause.delete(this.UUID);
-        instance.timeline.callbacksStop.delete(this.UUID);
-        instance.timeline.callbacksEnd.delete(this.UUID);
-        instance.timeline.callbacksChangeFrame.delete(this.UUID);
-        instance.timeline.callbackdPlaybackSpeed.delete(this.UUID);
-        instance.recording.removeListener(this.UUID);
-        instance.analysis.removeListener(this.UUID);
+        this.fileController.removeInstance();
 
     }
-
-    protected playCallback?: () => void;
-    protected stopCallback?: () => void;
-    protected currentFrameChangeCallback?: (frame: ParsedTimelineFrame) => void;
-    protected playbackSpeedCallback?: (value: PlaybackSpeeds) => void;
-    protected recordingCallback?: (value: boolean) => void;
-    protected mayStopCallback?: (value: boolean) => void;
-    protected analysisCallback?: (value: AbstractAnalysis[]) => void;
 
 
     public deleteFile() {
@@ -318,111 +83,6 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer {
         }
     }
 
-
-
-    /**
-     * Initialise slots & their listeners
-     */
-    protected initAnalysesSync(
-        instance: Instance
-    ) {
-        // listen to changes
-        instance.slots.onSlot1Serialize.set(this.UUID, value => this.analysis1 = value);
-        instance.slots.onSlot2Serialize.set(this.UUID, value => this.analysis2 = value);
-        instance.slots.onSlot3Serialize.set(this.UUID, value => this.analysis3 = value);
-        instance.slots.onSlot4Serialize.set(this.UUID, value => this.analysis4 = value);
-        instance.slots.onSlot5Serialize.set(this.UUID, value => this.analysis5 = value);
-        instance.slots.onSlot6Serialize.set(this.UUID, value => this.analysis6 = value);
-        instance.slots.onSlot7Serialize.set(this.UUID, value => this.analysis7 = value);
-
-        // Create the initial analysis
-        this.createInitialAnalysis(instance, 1, this.analysis1);
-        this.createInitialAnalysis(instance, 2, this.analysis2);
-        this.createInitialAnalysis(instance, 3, this.analysis3);
-        this.createInitialAnalysis(instance, 4, this.analysis4);
-        this.createInitialAnalysis(instance, 5, this.analysis5);
-        this.createInitialAnalysis(instance, 6, this.analysis6);
-        this.createInitialAnalysis(instance, 7, this.analysis7);
-
-    }
-
-
-    protected handleAnalysisUpdate(
-        index: SlotNumber,
-        _changedProperties: PropertyValues<AbstractFileProvider>
-    ) {
-
-        const field = `analysis${index}` as keyof AbstractFileProvider;
-
-
-        if (_changedProperties.has(field)) {
-
-            const oldValue = _changedProperties.get(field) as string | undefined | null;
-            const newValue = this[field] as string | undefined | null;
-
-
-            if (this.file) {
-
-                const slot = this.file.slots.getSlot(index);
-
-                // If slot had not exist before and sould create, do so
-                if (
-                    slot === undefined
-                    && newValue
-                    && newValue.trim().length > 0
-                    && (
-                        !oldValue
-                        || oldValue?.trim().length > 0
-                    )
-                ) {
-                    const analysis = this.file.slots.createAnalysisFromSerialized(newValue, index);
-                    analysis?.setSelected(false, true);
-                }
-                // If the slot ceased to exist
-                else if (
-                    slot !== undefined
-                    && oldValue
-                    && (!newValue
-                        || newValue?.trim().length === 0
-                    )
-                ) {
-                    this.file.slots.removeSlotAndAnalysis(index);
-                } else if (slot && newValue) {
-                    slot?.recieveSerialized(newValue);
-                }
-
-            }
-
-        }
-
-    }
-
-
-
-    protected createInitialAnalysis(
-        instance: Instance,
-        index: number,
-        value?: string
-    ) {
-
-        if (value !== undefined && value !== null && value.trim().length > 0) {
-            if (instance.slots.hasSlot(index)) {
-
-                const analysis = instance.slots.getSlot(index);
-                analysis?.recieveSerialized(value);
-                analysis?.analysis.setSelected(false, true);
-
-
-            } else {
-                const analysis = instance.slots.createAnalysisFromSerialized(value, index);
-                analysis?.setSelected(false, true);
-            }
-
-
-
-        }
-
-    }
 
     protected render(): unknown {
         return html`

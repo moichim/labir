@@ -117,7 +117,7 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
         if ( value && this.file) {
 
 
-            this.fileCopyElementRef.value?.copyAnalysesFromParent();
+            // this.fileCopyElementRef.value?.copyAnalysesFromParent();
 
             this.analysis1 = this.file.slots.getSlot(0)?.serialized ?? undefined;
             this.analysis2 = this.file.slots.getSlot(1)?.serialized ?? undefined;
@@ -128,7 +128,7 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
             this.analysis7 = this.file.slots.getSlot(6)?.serialized ?? undefined;
         } else {
 
-            this.fileCopyElementRef.value?.clearAnalyses();
+            // this.fileCopyElementRef.value?.clearAnalyses();
 
             this.analysis1 = undefined;
             this.analysis2 = undefined;

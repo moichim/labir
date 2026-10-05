@@ -6,8 +6,8 @@ import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalEle
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 
-@customElement("edit-point")
-export class EditPoint extends AbstractThermalElement {
+/** @deprecated */  
+export class EditPointElement extends AbstractThermalElement {
 
     @property()
     public analysis!: PointAnalysis;

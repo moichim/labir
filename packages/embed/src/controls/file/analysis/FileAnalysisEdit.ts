@@ -5,8 +5,8 @@ import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 
-@customElement("file-analysis-edit")
-export class FileAnalisisEdit extends AbstractThermalElement {
+/** @deprecated */
+export class FileAnalisisEditElement extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;

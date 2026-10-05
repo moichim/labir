@@ -6,12 +6,12 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext, fileCurrentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
 import {managerGraphFunctionContext} from "../../../hierarchy/providers/context/ManagerContext";
-import { ThermalChart } from "./chart/chart";
+import { ThermalChartElement } from "./chart/chart";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 
-@customElement("file-analysis-graph")
-export class FileAnalysisGraph extends AbstractFileConsumer {
+/** @deprecated */
+export class FileAnalysisGraphElement extends AbstractFileConsumer {
 
     @state()
     protected hydrated: boolean = false;
@@ -27,7 +27,7 @@ export class FileAnalysisGraph extends AbstractFileConsumer {
 
     container: Ref<HTMLDivElement> = createRef();
 
-    graphRef: Ref<ThermalChart> = createRef();
+    graphRef: Ref<ThermalChartElement> = createRef();
 
     @state()
     protected graphs: AnalysisDataStateValue = {

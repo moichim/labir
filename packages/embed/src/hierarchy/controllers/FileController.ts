@@ -51,15 +51,15 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         return this._UUID;
     }
 
-    public static HOST_PROPERTIES: HostReactiveProperties<IHostProperties> = {
+    public static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties> = {
         managerController: INTERNAL_STATE_DECLARATION,
         registryController: INTERNAL_STATE_DECLARATION,
         groupController: INTERNAL_STATE_DECLARATION,
         fileController: INTERNAL_STATE_DECLARATION,
         file: INTERNAL_STATE_DECLARATION,
         failure: INTERNAL_STATE_DECLARATION,
-        ms: { type: Number, reflect: true, attribute: "file-ms" },
-        playbackSpeed: { type: Number, reflect: true, attribute: "file-playback-speed" },
+        ms: { type: Number, reflect: true, attribute: "ms" },
+        playbackSpeed: { type: Number, reflect: true, attribute: "speed" },
         analysis1: ANALYSIS_STATE_DECLARATION,
         analysis2: ANALYSIS_STATE_DECLARATION,
         analysis3: ANALYSIS_STATE_DECLARATION,
@@ -67,7 +67,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         analysis5: ANALYSIS_STATE_DECLARATION,
         analysis6: ANALYSIS_STATE_DECLARATION,
         analysis7: ANALYSIS_STATE_DECLARATION,
-        autoHighlight: { type: Boolean, reflect: true, attribute: "file-auto-highlight" }
+        autoHighlight: { type: Boolean, reflect: true, attribute: "autohighlight" }
     }
 
     // Accessors to the host's file-related properties

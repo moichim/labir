@@ -1,15 +1,14 @@
 import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-
 import { t } from "i18next";
+import { css, html, nothing, PropertyValues } from "lit";
+import { state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { StyleInfo, styleMap } from "lit/directives/style-map.js";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../../translations/Languages";
 
-@customElement("file-analysis-display")
-export class FileAnalysisDisplay extends AbstractFileConsumer {
+/** @deprecated */
+export class FileAnalysisDisplayElement extends AbstractFileConsumer {
 
     protected container: Ref<HTMLDivElement> = createRef();
 
@@ -57,9 +56,9 @@ export class FileAnalysisDisplay extends AbstractFileConsumer {
             this.requestUpdate();
         });
 
-        this.file?.analysisData.addListener( this.UUID, () => {
+        this.file?.analysisData.addListener(this.UUID, () => {
             // this.requestUpdate();
-        } );
+        });
     }
 
     public static styles = css`
@@ -201,8 +200,8 @@ export class FileAnalysisDisplay extends AbstractFileConsumer {
                 <tbody>
 
                     ${this.analysis.map(
-                analysis => this.renderAnalysisRow(analysis)
-            )}
+            analysis => this.renderAnalysisRow(analysis)
+        )}
                 
                 </tbody>
 
@@ -244,7 +243,7 @@ export class FileAnalysisDisplay extends AbstractFileConsumer {
             padding: "4px 0px"
         };
 
-        if ( inGraph ) {
+        if (inGraph) {
             style.borderColor = color;
             style.borderStyle = "solid";
             style.borderWidth = "2px";
@@ -253,7 +252,7 @@ export class FileAnalysisDisplay extends AbstractFileConsumer {
 
         let valueDisplay: string = "-";
 
-        if ( value !== undefined ) {
+        if (value !== undefined) {
             valueDisplay = value.toFixed(2) + " °C";
         }
 

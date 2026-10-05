@@ -3,8 +3,8 @@ import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
 
-@customElement("analysis-name")
-export class AnalysisColor extends AbstractThermalElement {
+/** @deprecated */
+export class AnalysisNameElement extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;

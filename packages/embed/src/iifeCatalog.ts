@@ -3,6 +3,19 @@ import { ThermalFileAppElement } from "./apps/single/ThermalFileApp";
 import { DropinAppElement } from "./apps/ThermalDropinApp";
 import { ThermalFileAppNewElement } from "./apps/ThermalFileAppNew";
 import { ThermalGroupAppElement } from "./apps/ThermalGroupApp";
+import { ThermalChartElement } from "./controls/file/analysis/chart/chart";
+import { AnalysisColorElement } from "./controls/file/analysis/edit/analysisColor";
+import { AnalysisNameElement } from "./controls/file/analysis/edit/analysisName";
+import { AreaEditElement } from "./controls/file/analysis/edit/editArea";
+import { EditPointElement } from "./controls/file/analysis/edit/editPoint";
+import { FileAnalysisComplexElement } from "./controls/file/analysis/FileAnalysisComplex";
+import { FileAnalysisDisplayElement } from "./controls/file/analysis/FileAnalysisDisplay";
+import { FileAnalisisEditElement } from "./controls/file/analysis/FileAnalysisEdit";
+import { FileAnalysisGraphElement } from "./controls/file/analysis/FileAnalysisGraph";
+import { FileAnalysisOverviewElement } from "./controls/file/analysis/FileAnalysisOverview";
+import { FileAnalysisOverviewRowElement } from "./controls/file/analysis/FileAnalysisOverviewRow";
+import { FileAnalysisRowElement } from "./controls/file/analysis/FileAnalysisRow";
+import { FileAnalysisTableElement } from "./controls/file/analysis/FileAnalysisTable";
 import { FileButtonElement } from "./controls/file/buttons/FileButton";
 import { FileDropdown } from "./controls/file/buttons/FileDropdown";
 import { FileLrcButton } from "./controls/file/buttons/FileLrcButton";
@@ -129,7 +142,7 @@ const elementsGroupControls = {
 
 const elementsFileControls = {
     "file-canvas": FileCanvasElement,
-    "file-dropdown": FileDownloadButton,
+    "file-download-dropdown": FileDownloadButton,
     "file-info-button": FileInfoButton,
     "file-playback-speed-dropdown": FilePlaybackSpeedDropdown,
     "file-timeline": FileTimelineElement,
@@ -141,6 +154,19 @@ const elementsFileControls = {
     "file-download-lrc": FileLrcButton,
     "file-download-png": FilePngButton,
     "file-range-propagator": FileRangePropagator,
+    "file-analysis-complex": FileAnalysisComplexElement,
+    "file-analysis-display": FileAnalysisDisplayElement,
+    "file-analysis-edit": FileAnalisisEditElement,
+    "file-analysis-graph": FileAnalysisGraphElement,
+    "file-analysis-oveerview": FileAnalysisOverviewElement,
+    "file-analysis-overview-row": FileAnalysisOverviewRowElement,
+    "file-analysis-table-row": FileAnalysisRowElement,
+    "file-analysis-table": FileAnalysisTableElement,
+    "analysis-color": AnalysisColorElement,
+    "analysis-name": AnalysisNameElement,
+    "edit-area": AreaEditElement,
+    "edit-point": EditPointElement,
+    "thermal-chart": ThermalChartElement
     
 
 } as const;

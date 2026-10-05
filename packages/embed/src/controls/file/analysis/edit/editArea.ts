@@ -5,8 +5,8 @@ import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalEle
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 
-@customElement("edit-area")
-export class AreaEdit extends AbstractThermalElement {
+/** @deprecated */
+export class AreaEditElement extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAreaAnalysis;

@@ -1,15 +1,15 @@
 import { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
-import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
-import { fileFailureContext, fileContext, fileProviderContext, loadingContext, fileRecordingContext } from "../providers/context/FileContexts";
+import type { FileController } from "../controllers/FileController";
+import { fileControllerContext } from "../controllers/FileController";
+import { fileContext, fileFailureContext, fileRecordingContext, loadingContext } from "../providers/context/FileContexts";
 import { AbstractGroupConsumer } from "./AbstractGroupConsumer";
 
 export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
 
-    @consume({ context: fileProviderContext, subscribe: true })
-    @state()
-    protected parentFileProviderElement?: AbstractFileProvider;
+    @consume({ context: fileControllerContext, subscribe: true })
+    public fileController!: FileController;
 
     public getUUID() {
         return `${this.UUID}__internal_callback`;
@@ -45,43 +45,34 @@ export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
 
     }
 
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        if ( this.fileController ) {
+            this.fileController.onSuccess.delete(this.UUID);
+            this.fileController.onFailure.delete(this.UUID);
+        }
+    }
+
 
 
     protected hookCallbacks() {
 
-        if (this.parentFileProviderElement) {
+        if ( this.fileController ) {
 
-            if ( this.parentFileProviderElement.file ) {
-                this.onInstanceCreated( this.parentFileProviderElement.file );
-            }
-
-            // INTERNAL CALLBACKS - ASSIGNEMENT TO LOCAL PROPERTIES
-
-            this.parentFileProviderElement.onSuccess.set(
-                this.getUUID(),
-                () => {
+            this.fileController.onSuccess.set(
+                this.UUID,
+                instance => {
+                    this.onInstanceCreated(instance);
                     this.loading = false;
                 }
             );
 
-            this.parentFileProviderElement.onFailure.set(
-                this.getUUID(),
-                () => {
+            this.fileController.onFailure.set(
+                this.UUID,
+                error => {
+                    this.onFailure(error);
                     this.loading = false;
                 }
-            );
-
-
-            // IMPLEMENTED CALLBACKS
-
-            this.parentFileProviderElement.onSuccess.set(
-                this.UUID,
-                this.onInstanceCreated.bind(this)
-            );
-
-            this.parentFileProviderElement.onFailure.set(
-                this.UUID,
-                this.onFailure.bind(this)
             );
 
         } else {

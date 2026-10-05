@@ -6,9 +6,8 @@ import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 import { consume } from "@lit/context";
 import { interactiveAnalysisContext } from "../../../hierarchy/providers/context/ManagerContext";
-
-@customElement("file-analysis-overview-row")
-export class FileAnalysisRow extends AbstractThermalElement {
+/** @deprecated */
+export class FileAnalysisOverviewRowElement extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;

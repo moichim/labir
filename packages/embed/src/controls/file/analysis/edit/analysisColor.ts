@@ -4,8 +4,8 @@ import { AbstractAnalysis, availableAnalysisColors } from "@labirthermal/core";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import {map} from 'lit/directives/map.js';
 
-@customElement("analysis-color")
-export class AnalysisColor extends AbstractThermalElement {
+/** @deprecated */  
+export class AnalysisColorElement extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;

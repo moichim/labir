@@ -1,13 +1,15 @@
 import { AvailableThermalPalette, ThermalManager } from "@labirthermal/core";
-import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
+import { property } from "lit/decorators.js";
 import { AbstractThermalElement } from "../AbstractThermalElement";
 import { IElementWithManagerController, ManagerController } from "../controllers/ManagerController";
-import { toolsContext } from "../providers/context/ManagerContext";
 import { removeManager } from "../providers/getters";
-import { property } from "lit/decorators.js";
 
 export abstract class AbstractManagerProvider extends AbstractThermalElement implements IElementWithManagerController {
+
+    public static properties = {
+        ...ManagerController.HOST_PROPERTIES
+    };
 
     public managerController: ManagerController = new ManagerController(this);
 
@@ -21,21 +23,21 @@ export abstract class AbstractManagerProvider extends AbstractThermalElement imp
     })
     public palette: AvailableThermalPalette = "jet";
 
-    @property({ 
-        type: Boolean, 
-        reflect: true 
+    @property({
+        type: Boolean,
+        reflect: true
     })
     public advancedPalettes: boolean = false;
 
-    @property({ 
-        type: String, 
-        reflect: true 
+    @property({
+        type: String,
+        reflect: true
     })
     public smoothThermograms: boolean = false;
 
-    @property({ 
-        type: String, 
-        reflect: true 
+    @property({
+        type: String,
+        reflect: true
     })
     public smoothGraph: boolean = false;
 

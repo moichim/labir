@@ -1,14 +1,13 @@
 import i18next, { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { property, queryAssignedElements, state } from "lit/decorators.js";
+import { cache } from "lit/directives/cache.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { map } from "lit/directives/map.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { languagesObject, T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { classMap } from "lit/directives/class-map.js";
-import { map } from "lit/directives/map.js";
-import { cache } from "lit/directives/cache.js";
 
 // @customElement("thermal-app")
 export class ThermalAppElement extends AbstractThermalElement {
@@ -31,7 +30,7 @@ export class ThermalAppElement extends AbstractThermalElement {
     @property({ type: String, reflect: true })
     fullscreen: string = "off";
 
-    @property({ type: String, reflect: true, attribute: true, converter: booleanConverter(false) })
+    @property({ type: String, reflect: true, converter: booleanConverter(false), attribute: "show-fullscreen" })
     showfullscreen: boolean = false;
 
     @property( {type: String, reflect: true, attribute: true} )

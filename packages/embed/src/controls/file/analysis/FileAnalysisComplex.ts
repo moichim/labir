@@ -7,12 +7,11 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
-import { FileAnalysisGraph } from "./FileAnalysisGraph";
+import { FileAnalysisGraphElement } from "./FileAnalysisGraph";
 
 
-
-@customElement("file-analysis-complex")
-export class FileAnalysisComplex extends AbstractFileConsumer {
+/** @deprecated */
+export class FileAnalysisComplexElement extends AbstractFileConsumer {
 
     @state()
     protected mayHaveGraph: boolean = false;
@@ -27,7 +26,7 @@ export class FileAnalysisComplex extends AbstractFileConsumer {
     protected hasGraph: boolean = false;
 
     @state()
-    protected graphRef: Ref<FileAnalysisGraph> = createRef();
+    protected graphRef: Ref<FileAnalysisGraphElement> = createRef();
 
     @state()
     protected graphWidth: number = 0;

@@ -9,8 +9,8 @@ import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { interactiveAnalysisContext } from "../../../hierarchy/providers/context/ManagerContext";
 
-@customElement("file-analysis-overview")
-export class FileAnalysisTable extends AbstractFileConsumer {
+/** @deprecated */
+export class FileAnalysisOverviewElement extends AbstractFileConsumer {
 
     protected container: Ref<HTMLDivElement> = createRef();
 

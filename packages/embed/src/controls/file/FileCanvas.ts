@@ -85,10 +85,9 @@ export class FileCanvasElement extends AbstractFileConsumer {
         super.disconnectedCallback();
         if (this.file !== undefined) {
             this.file.unmountFromDom();
-            this.parentFileProviderElement?.onSuccess.delete(this.UUID);
-            this.parentFileProviderElement?.onInstanceCreated.delete(this.UUID);
-            this.parentFileProviderElement?.onLoadingStart.delete(this.UUID);
-            this.parentFileProviderElement?.onFailure.delete(this.UUID);
+            this.fileController.onSuccess.delete(this.UUID);
+            this.fileController.onFailure.delete(this.UUID);
+            this.fileController.onLoadingStart.delete(this.UUID);
         }
     }
 

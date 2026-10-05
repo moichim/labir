@@ -119,9 +119,9 @@ const CHART_TYPES: Record<string, string|undefined> = {
  * ```
  *
  * @demo demo/index.html
+ * @deprecated
  */
-@customElement("thermal-chart")
-export class ThermalChart extends LitElement {
+export class ThermalChartElement extends LitElement {
   /** @nocollapse */
   static override styles = css`
     :host {
@@ -594,6 +594,6 @@ export class ThermalChart extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'thermal-chart': ThermalChart;
+    'thermal-chart': ThermalChartElement;
   }
 }

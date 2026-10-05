@@ -4,7 +4,11 @@ import { AbstractRegistryConsumer } from "../consumers/AbstractRegistryConsumer"
 import { GroupController, IElementWithGroupController } from "../controllers/GroupController";
 
 export abstract class AbstractGroupProvider extends AbstractRegistryConsumer implements IElementWithGroupController {
-    
+
+    public static properties = {
+        ...GroupController.HOST_PROPERTIES,
+    };
+
     public groupSlug!: string;
 
     public groupController: GroupController = new GroupController(this)

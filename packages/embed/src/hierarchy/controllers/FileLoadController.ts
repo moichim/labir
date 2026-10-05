@@ -13,6 +13,7 @@ type IHostProperties = {
 
 export interface IElementWithFileLoadController extends IBaseElement, IHostProperties {
     fileController: FileController,
+    fileLoadController: FileLoadController
 }
 
 export class FileLoadController extends AbstractHierarchyController<IElementWithFileLoadController> {
