@@ -70,7 +70,7 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
 
         this.groupControllerContextProvider = new ContextProvider(
             this.host, 
-            { context:  groupControllerContext }
+            { context:  groupControllerContext, initialValue: this }
         );
 
         this.groupObjectContextProvider = new ContextProvider(

@@ -1,14 +1,13 @@
+import { CallbacksManager, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import { FileAnalysisSynchronisators } from "./FileAnalysisSynchronisators";
 import { ContextProvider, createContext } from "@lit/context";
-import { IBaseElement } from "../../controllers/IBaseElement"
-import { ManagerController } from "./ManagerController";
-import { RegistryController } from "./RegistryController";
+import { PropertyDeclaration, PropertyValueMap } from "lit";
+import { IBaseElement } from "../../controllers/IBaseElement";
+import { AnalysisList, CurrentFrameContext, durationContext, filaMayStopContext, fileAnalysisListContext, fileContext, fileCurrentFrameContext, FileCursorContext, fileCursorContext, fileFailureContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, readyContext } from "../providers/context/FileContexts";
 import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { GroupController } from "./GroupController";
-import { CallbacksManager, Instance, ThermalFileFailure } from "@labirthermal/core";
-import { DurationContext, CurrentFrameContext, FileCursorContext, AnalysisList, fileContext, fileFailureContext, readyContext, durationContext, fileCurrentFrameContext, fileCursorContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, fileAnalysisListContext, filaMayStopContext } from "../providers/context/FileContexts";
-import { PlaybackSpeeds } from "@labirthermal/core";
-import { booleanConverter } from "../../index.export";
-import { PropertyDeclaration, PropertyValueMap } from "lit";
+import { ManagerController } from "./ManagerController";
+import { RegistryController } from "./RegistryController";
 
 type IHostProperties = {
 
@@ -37,14 +36,14 @@ type IHostProperties = {
 
 }
 
-export interface IElementWithFileController extends IBaseElement, IHostProperties {}
+export interface IElementWithFileController extends IBaseElement, IHostProperties { }
 
 export const fileControllerContext = createContext<FileController>("file-controller-context");
 
-const ANALYSIS_STATE_DECLARATION: PropertyDeclaration = { type: String,reflect: true };
+const ANALYSIS_STATE_DECLARATION: PropertyDeclaration = { type: String, reflect: true };
 
 export class FileController extends AbstractHierarchyController<IElementWithFileController> {
-    
+
 
     private _UUID: string;
 
@@ -60,7 +59,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         file: INTERNAL_STATE_DECLARATION,
         failure: INTERNAL_STATE_DECLARATION,
         ms: { type: Number, reflect: true, attribute: "file-ms" },
-        playbackSpeed: {type: Number, reflect: true, attribute: "file-playback-speed"},
+        playbackSpeed: { type: Number, reflect: true, attribute: "file-playback-speed" },
         analysis1: ANALYSIS_STATE_DECLARATION,
         analysis2: ANALYSIS_STATE_DECLARATION,
         analysis3: ANALYSIS_STATE_DECLARATION,
@@ -68,7 +67,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         analysis5: ANALYSIS_STATE_DECLARATION,
         analysis6: ANALYSIS_STATE_DECLARATION,
         analysis7: ANALYSIS_STATE_DECLARATION,
-        autoHighlight: { type: Boolean,state: true, reflect: true, attribute: "file-auto-highlight" }
+        autoHighlight: { type: Boolean, reflect: true, attribute: "file-auto-highlight" }
     }
 
     // Accessors to the host's file-related properties
@@ -87,7 +86,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     // Local state accessors
     public get ready() { return this.readyContextProvider.value; }
-    public get recording() { return this.fileRecordingContextProvider.value;}
+    public get recording() { return this.fileRecordingContextProvider.value; }
     public get playing() { return this.filePlayingContextProvider.value; }
     public get mayStop() { return this.fileMayStopContextProvider.value; }
     public get cursor() { return this.fileCursorContextProvider.value; }
@@ -96,9 +95,9 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     public get duration() { return this.fileDurationContextProvider.value; }
 
     // Callbacks managers
-    public readonly onLoadingStart = new CallbacksManager<()=>void>();
-    public readonly onSuccess = new CallbacksManager< ( instance: Instance ) => void >();
-    public readonly onFailure = new CallbacksManager< ( error: ThermalFileFailure ) => void >();
+    public readonly onLoadingStart = new CallbacksManager<() => void>();
+    public readonly onSuccess = new CallbacksManager<(instance: Instance) => void>();
+    public readonly onFailure = new CallbacksManager<(error: ThermalFileFailure) => void>();
 
 
 
@@ -130,8 +129,13 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     private fileAnalysesContextProvider: ContextProvider<typeof fileAnalysisListContext, IElementWithFileController>;
 
+    
+    // Analysis synchronisation
+    private _analysisSynchronisators = new FileAnalysisSynchronisators(this); 
 
 
+    private _propagateHighlightCache: (event: MouseEvent|FocusEvent) => void | undefined;
+    private _unpropagateHighlightCache: (event: MouseEvent|FocusEvent) => void | undefined;
 
 
     constructor(
@@ -142,8 +146,8 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
         // Expose self as file context provider
         this.fileControllerContextProvider = new ContextProvider(
-            this.host, 
-            { context: fileControllerContext }
+            this.host,
+            { context: fileControllerContext, initialValue: this }
         );
 
         // Create the file context provider
@@ -184,7 +188,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
         this.filePlaybackSpeedContextProvider = new ContextProvider(
             this.host,
-            { context: filePlaybackSpeedContext}
+            { context: filePlaybackSpeedContext }
         );
 
         this.filePlayingContextProvider = new ContextProvider(
@@ -207,104 +211,199 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
             { context: fileAnalysisListContext }
         );
 
+        this._propagateHighlightCache = ( event: MouseEvent|FocusEvent ) => this._propagateHighlight();
+        this._unpropagateHighlightCache = ( event: MouseEvent|FocusEvent ) => this._unpropagateHighlight();
+
 
     }
 
 
 
     hostConnected(): void {
-        throw new Error("Method not implemented.");
+
+        // Register propagation events
+        this.host.addEventListener("mouseenter", this._propagateHighlightCache);
+        this.host.addEventListener("focus", this._propagateHighlightCache);
+        this.host.addEventListener("mouseleave", this._unpropagateHighlightCache);
+        this.host.addEventListener("blur", this._unpropagateHighlightCache);
+
+        // After moving, refresh the core links
+        if ( this._attached ) {
+            this._propagateContexts( this._attached );
+            this._bindListeners(this._attached);
+        }
+
     }
 
     hostDisconnected(): void {
-        this.host.registryController.setHighlight(undefined);
+        
+        this.host.removeEventListener("mouseenter", this._propagateHighlightCache);
+        this.host.removeEventListener("focus", this._propagateHighlightCache);
+        this.host.removeEventListener("mouseleave", this._unpropagateHighlightCache);
+        this.host.removeEventListener("blur", this._unpropagateHighlightCache);
 
-        this.fileObject?.analysis.removeListener( this.UUID );
+        this._unpropagateHighlight();
 
-        this.fileObject?.timeline.removeListener( this.UUID );
-        this.fileObject?.timeline.callbacksPlay.delete( this.UUID );
-        this.fileObject?.timeline.callbacksPause.delete( this.UUID );
-        this.fileObject?.timeline.callbacksStop?.delete( this.UUID );
-        this.fileObject?.timeline.callbacksEnd?.delete( this.UUID );
-        this.fileObject?.timeline.callbacksChangeFrame?.delete( this.UUID );
-        this.fileObject?.timeline.callbackdPlaybackSpeed?.delete( this.UUID );
+        if ( this._attached ) {
+            this._unbindListeners(this._attached);
+        }
 
-        this.fileObject?.recording.removeListener( this.UUID );
-        this.fileObject?.recording.callbackMayStop?.delete( this.UUID );
     }
 
 
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileController>): void {
-        throw new Error("Method not implemented.");
+
+        // Update the file assignment
+        if (value.has("file")) this._syncAssignment();
+
+        // Notify the analysis synchronisators about the host update
+        this._analysisSynchronisators.handleHostUpdate(value);
+
+        // Update the MS
+        if ( value.has("ms")  ) {
+            this.setMs(this.host.ms);
+        }
+
+        // Update the playback speed
+        if ( value.has("playbackSpeed") && this.host.file && this.host.file.timeline.isSequence ) {
+
+            if ( this.host.playbackSpeed !== this.host.file.timeline.playbackSpeed ) {
+                this.host.file.timeline.playbackSpeed = this.host.playbackSpeed;
+            }
+
+        }
+
+
     }
 
-
-    /** 
-     * This is crucial - once the instance is loaded or retrieved somewhere, all the magic happens. Existence of this method enables controller to change the instance at any time. 
-     */
-    public receiveInstance(
+    private _propagateContexts(
         instance: Instance
     ): void {
-
-
-        // Store the instance anywhere necessary
-        this.host.file = instance;
         this.fileContextProvider.setValue(instance);
-
-        // Clear all properties that should be clear whenever an instance is here
-
-        this.host.failure = undefined;
-        this.fileFailureContextProvider.setValue(undefined);
-
         this.readyContextProvider.setValue(true);
-        
-        // Update all internal states and contexts that depend on the new instance
-
-        // Update the duration context based on the new instance's timeline
         this.fileDurationContextProvider.setValue({
             ms: instance.timeline.duration,
             time: instance.timeline.formatDuration(instance.timeline.duration)
         });
-
-        // Current frame context propagation
         this._propagateInstanceCurrentFrame(instance);
-
-        // Propagate analyses
         this._propagateInstanceAnalysesArray(instance);
+        this.fileMsContextProvider.setValue(instance.timeline.currentMs);
+        this.filePlaybackSpeedContextProvider.setValue(instance.timeline.playbackSpeed);
+        this.filePlayingContextProvider.setValue(instance.timeline.isPlaying);
+        this.fileMayStopContextProvider.setValue(instance.recording.mayStop);
+        this.fileRecordingContextProvider.setValue(instance.recording.value);
+    }
 
-        // Set the playback speed from local property to the core
-        if ( this.playbackSpeed !== undefined ) {
-            instance.timeline.playbackSpeed = this.playbackSpeed;
+    private _resetAllContexts(): void {
+        this.readyContextProvider.setValue(false);
+        this.fileDurationContextProvider.setValue(undefined);
+        this.fileCurrentFrameContextProvider.setValue(undefined);
+        this.fileAnalysesContextProvider.setValue([]);
+        this.fileContextProvider.setValue(undefined);
+        this.fileRecordingContextProvider.setValue(false);
+        this.filePlayingContextProvider.setValue(false);
+        this.fileMayStopContextProvider.setValue(true);
+        this.fileMsContextProvider.setValue(0);
+        this.fileCursorContextProvider.setValue(undefined);
+    }
+
+    private _attached?: Instance;
+
+    private _syncAssignment(): void {
+
+        const next = this.host.file;
+        
+        // Do nothing if file is the same
+        if ( next === this._attached ) return;
+
+        const previous = this._attached;
+
+        // If there is an attached instance, detach it first
+        if ( previous ) this._detach(previous);
+
+        // If there is a new instance, attach it
+        if ( next ) this._attach( next, previous !== undefined );
+
+        // If there is no new instance, reset all contexts
+        else { 
+            this._resetAllContexts(); 
+            this.host.ms = 0;
         }
+
+    }
+
+    private _attach(
+        instance: Instance,
+        isReplacement: boolean
+    ): void {
+
+        this._attached = instance;
+
+        // Propagate the context
+        this.fileContextProvider.setValue(instance);
+
+        // Clear the failure
+        this.host.failure = undefined;
+        this.fileFailureContextProvider.setValue(undefined);
+
+        if ( this.host.playbackSpeed !== undefined ) {
+            instance.timeline.playbackSpeed = this.host.playbackSpeed;
+        }
+
+        this._propagateContexts(instance);
+        this._bindListeners(instance);
+
+        if ( !isReplacement && this.host.ms > 0 && instance.timeline.isSequence ) {
+            this.setMs(this.host.ms);
+        } else {
+            this.host.ms = instance.timeline.currentMs;
+        }
+
+        this.onSuccess.call(instance);
+
+
+    }
+
+
+    private _detach(
+        instance: Instance
+    ): void {
+
+        this._unbindListeners(instance);
+        this._unpropagateHighlight();
+
+        this._attached = undefined;
+
+        instance.unmountFromDom();
+
+    }
+
+
+
+    private _bindListeners(
+        instance: Instance
+    ): void {
 
         // Add listeners for the instance's timeline events
 
-        // Playback starts
-        instance.timeline.callbacksPlay.set( this.UUID, () => {
+        instance.timeline.callbacksPlay.set(this.UUID, () => {
             this.filePlayingContextProvider.setValue(true);
-            this.host.requestUpdate();
-        } );
+        });
 
-        // Playback pauses
-        instance.timeline.callbacksPause.set( this.UUID, () => {
+        instance.timeline.callbacksPause.set(this.UUID, () => {
             this.filePlayingContextProvider.setValue(false);
-            this.host.requestUpdate();
-        } );
+        });
 
-        // Playbacks stops
-        instance.timeline.callbacksStop.set( this.UUID, () => {
+        instance.timeline.callbacksStop?.set(this.UUID, () => {
             this.filePlayingContextProvider.setValue(false);
-            this.host.requestUpdate();
-        } );
+        });
 
-        // Playbacks ends
-        instance.timeline.callbacksEnd.set( this.UUID, () => {
+        instance.timeline.callbacksEnd?.set(this.UUID, () => {
             this.filePlayingContextProvider.setValue(false);
-            this.host.requestUpdate();
-        } );
+        });
 
         // Frame changes
-        instance.timeline.callbacksChangeFrame.set( this.UUID, (frame) => {
+        instance.timeline.callbacksChangeFrame.set(this.UUID, (frame) => {
             const value = {
                 ms: frame.relative,
                 time: instance.timeline.currentTime,
@@ -315,56 +414,38 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
             this.fileCurrentFrameContextProvider.setValue(value);
             this.host.ms = frame.relative;
             this.fileMsContextProvider.setValue(frame.relative);
-            this.host.requestUpdate();
-        } );
+        });
 
         // Playback speed changes
-        instance.timeline.callbackdPlaybackSpeed.set( this.UUID, (speed) => {
+        instance.timeline.callbackdPlaybackSpeed.set(this.UUID, (speed) => {
             this.host.playbackSpeed = speed;
             this.filePlaybackSpeedContextProvider.setValue(speed);
-            this.host.requestUpdate();
-        } );
+        });
 
         // May stop changes
-        instance.recording.callbackMayStop.set( this.UUID, (value) => {
+        instance.recording.callbackMayStop.set(this.UUID, (value) => {
             this.fileMayStopContextProvider.setValue(value);
-            this.host.requestUpdate();
-        } );
+        });
 
         // Recording
-        instance.recording.addListener( this.UUID, value => {
+        instance.recording.addListener(this.UUID, value => {
             this.fileRecordingContextProvider.setValue(value);
-            this.host.requestUpdate();
-        } );
+        });
 
 
         // Analyses list listener
-        instance.analysis.addListener( this.UUID, value => {
+        instance.analysis.addListener(this.UUID, value => {
             this.fileAnalysesContextProvider.setValue(value);
-            this.host.requestUpdate();
-        } );
+        });
 
-        // Call the success listener
-        this.onSuccess.call( instance );
+        
 
-        // Register propagation events
-        this.host.addEventListener( "mouseenter", this._propagateHighlight.bind(this) );
-        this.host.addEventListener( "focus", this._propagateHighlight.bind(this) );
-        this.host.addEventListener( "mouseleave", this._unpropagateHighlight.bind(this) );
-        this.host.addEventListener( "blur", this._unpropagateHighlight.bind(this) );
-
-        // Request the host update in the end
-        this.host.requestUpdate();
+        this._analysisSynchronisators.handleFileAssigned(instance);
 
     }
 
-    public removeInstance(
-        instance: Instance
-    ): void {
 
-        instance.unmountFromDom();
-
-        // Remove all listeners
+    private _unbindListeners(instance: Instance): void {
         instance.timeline.callbacksPlay.delete(this.UUID);
         instance.timeline.callbacksPause.delete(this.UUID);
         instance.timeline.callbacksStop.delete(this.UUID);
@@ -372,23 +453,39 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         instance.timeline.callbacksChangeFrame.delete(this.UUID);
         instance.timeline.callbackdPlaybackSpeed.delete(this.UUID);
         instance.recording.removeListener(this.UUID);
+        instance.recording.callbackMayStop?.delete(this.UUID);
         instance.analysis.removeListener(this.UUID);
 
-        // Reset the contexts
-        this.readyContextProvider.setValue(false);
-        this.fileDurationContextProvider.setValue(undefined);
-        this.fileCurrentFrameContextProvider.setValue(undefined);
-        this.fileAnalysesContextProvider.setValue([]);
-        this.fileContextProvider.setValue(undefined);
-        this.fileRecordingContextProvider.setValue(false);
-        this.filePlayingContextProvider.setValue(false);
-        this.fileMayStopContextProvider.setValue(false);
-        this.fileMsContextProvider.setValue(0);
+        this._analysisSynchronisators.handleFileUnassigned();
+    }
 
-        this._unpropagateHighlight();
 
-        // Remove the instance from the host
+    /** 
+     * This is crucial - once the instance is loaded or retrieved somewhere, all the magic happens. Existence of this method enables controller to change the instance at any time. 
+     */
+    public receiveInstance(
+        instance: Instance
+    ): void {
+
+        // Store the instance in the host
+        this.host.file = instance;
+        this._syncAssignment();
+
+    }
+
+    public removeInstance(): void {
+
         this.host.file = undefined;
+        this._syncAssignment();
+
+    }
+
+    public receiveFailure(failure: ThermalFileFailure): void {
+
+        this.removeInstance();
+        this.host.failure = failure;
+        this.fileFailureContextProvider.setValue( failure );
+        this.onFailure.call(failure);
 
     }
 
@@ -401,7 +498,6 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
             index: instance.timeline.currentStep.index,
             absolute: instance.timeline.currentStep.absolute
         });
-        this.host.requestUpdate();
     }
 
     private _propagateInstanceAnalysesArray(instance: Instance): void {
@@ -412,31 +508,78 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     // Setters of local states
 
-    public setCursor(value: FileCursorContext): void {
-        if ( value !== this.fileCursorContextProvider.value ) {
+    public setTimeCursor(value: FileCursorContext): void {
+        if (value !== this.fileCursorContextProvider.value) {
             this.host.requestUpdate();
             this.fileCursorContextProvider.setValue(value);
         }
-        
+
     }
 
-    public setCurrentFrame(value: CurrentFrameContext): void {
-        if ( value !== this.fileCurrentFrameContextProvider.value ) {
-            this.host.requestUpdate();
-            this.fileCurrentFrameContextProvider.setValue(value);
+    public setTimePercentage(
+        percentage: number
+    ): void {
+        const file = this._attached;
+
+        if (!file?.timeline.isSequence) return;
+
+        const clampedPercentage = Math.max(
+            0,
+            Math.min(
+                percentage,
+                100
+            )
+        );
+
+        if ( clampedPercentage !== file.timeline.currentPercentage ) {
+            file.timeline.setValueByPercent(clampedPercentage);
         }
+
+    }
+
+    public play(): void {
+        this._attached?.timeline.play();
+    }
+
+    public stop(): void {
+        this._attached?.timeline.stop();
+    }
+
+    public pause(): void {
+        this._attached?.timeline.pause();
     }
 
     public setAnalyses(value: AnalysisList): void {
-        if ( value !== this.fileAnalysesContextProvider.value ) {
+        if (value !== this.fileAnalysesContextProvider.value) {
             this.host.requestUpdate();
             this.fileAnalysesContextProvider.setValue(value);
         }
     }
 
+    public setMs(value: number): void {
+
+        const file = this._attached;
+
+        if (!file?.timeline.isSequence) return;
+
+        const clampedRelativeTime = Math.max(
+            0,
+            Math.min(
+                value,
+                file.timeline.duration
+            )
+        )
+
+        if ( clampedRelativeTime !== file.timeline.currentMs ) {
+            file.timeline.setRelativeTime(clampedRelativeTime);
+        }
+
+    }
+
+    /** Impose this file's highlight into the registry */
     private _propagateHighlight() {
-        if ( this.autoHighlight && this.fileObject ) {
-            this.host.setAttribute( "is-highlight", "true" );
+        if (this.autoHighlight && this.fileObject) {
+            this.host.setAttribute("is-highlight", "true");
             this.host.registryController.setHighlight({
                 from: this.fileObject.min,
                 to: this.fileObject.max
@@ -444,11 +587,21 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         }
     }
 
+    /** Remove the highlight from the registry */
     private _unpropagateHighlight() {
-        if ( this.fileObject ) {
-            this.host.removeAttribute( "is-highlight" );
+        if (this.host.hasAttribute("is-highlight")) {
+            this.host.removeAttribute("is-highlight");
             this.host.registryController.setHighlight(undefined);
         }
+    }
+
+    public startLoading(): void {
+        this.onLoadingStart.call();
+        this.readyContextProvider.setValue(false);
+    }
+
+    private endLoading(): void {
+        this.readyContextProvider.setValue(true);
     }
 
 
