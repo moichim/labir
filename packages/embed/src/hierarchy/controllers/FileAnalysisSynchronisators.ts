@@ -1,5 +1,5 @@
 import { PropertyValues } from "lit";
-import { FileAnalysisSynchronisator } from "./FileAnalysisSyncronisator";
+import { FileAnalysisSynchronisator } from "./FileAnalysisSynchronisator";
 import type { FileController } from "./FileController";
 import { Instance } from "@labirthermal/core";
 
@@ -35,9 +35,10 @@ export class FileAnalysisSynchronisators {
 
     /** Every synchronisator will be notified that a file has been assigned */
     public handleFileAssigned(
-        instance: Instance
+        instance: Instance,
+        coreWins: boolean = false
     ): void {
-        this._forEach(synchronisator => synchronisator.fileAssigned(instance));
+        this._forEach(synchronisator => synchronisator.fileAssigned( instance, coreWins ));
     }
 
     /** Every synchronisator will be notified that a file has been removed */

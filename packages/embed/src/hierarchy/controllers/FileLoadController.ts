@@ -1,8 +1,8 @@
+import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
 import { PropertyValueMap } from "lit";
 import { IBaseElement } from "../../controllers/IBaseElement";
 import { AbstractHierarchyController, HostReactiveProperties } from "./AbstractHierarchyController";
 import { FileController } from "./FileController";
-import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
 
 type IHostProperties = {
 
@@ -46,8 +46,8 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
 
 
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileLoadController>): void {
-        
-        if ( value.has("thermal") && this.host.thermal ) {
+
+        if (value.has("thermal") && this.host.thermal) {
             this._load(this.host.thermal, this.host.visible);
         }
 
@@ -55,13 +55,10 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
     }
 
     hostConnected(): void {
-        
-        // Perform the initial load if a LRC URL is provided
-        if ( this.host.thermal ) {
-            // this._load(this.host.thermal, this.host.visible);
-        }
-
+        // Do nothing for now
     }
+
+
     hostDisconnected(): void {
         // Do nothing for now
     }
@@ -72,7 +69,7 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
     ) {
 
         // If there is a file already, remove it from the group
-        if (  this.host.fileController.fileObject ) {
+        if (this.host.fileController.fileObject) {
             this.group.files.removeFile(this.host.fileController.fileObject);
         }
 
@@ -83,7 +80,7 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
             visible,
             this.group,
             async (result) => {
-                if ( result instanceof Instance ) {
+                if (result instanceof Instance) {
                     this.host.fileController.receiveInstance(result);
                 } else if (result instanceof ThermalFileFailure) {
                     this.host.fileController.receiveFailure(result);
@@ -97,5 +94,5 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
 
 
 
-    
+
 }

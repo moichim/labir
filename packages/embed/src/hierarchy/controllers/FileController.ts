@@ -230,7 +230,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         // After moving, refresh the core links
         if ( this._attached ) {
             this._propagateContexts( this._attached );
-            this._bindListeners(this._attached);
+            this._bindListeners(this._attached, true);
         }
 
     }
@@ -381,7 +381,8 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
 
     private _bindListeners(
-        instance: Instance
+        instance: Instance,
+        coreWins: boolean = false
     ): void {
 
         // Add listeners for the instance's timeline events
@@ -440,7 +441,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
         
 
-        this._analysisSynchronisators.handleFileAssigned(instance);
+        this._analysisSynchronisators.handleFileAssigned(instance, coreWins);
 
     }
 
@@ -547,13 +548,6 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     public pause(): void {
         this._attached?.timeline.pause();
-    }
-
-    public setAnalyses(value: AnalysisList): void {
-        if (value !== this.fileAnalysesContextProvider.value) {
-            this.host.requestUpdate();
-            this.fileAnalysesContextProvider.setValue(value);
-        }
     }
 
     public setMs(value: number): void {
