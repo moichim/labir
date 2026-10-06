@@ -4361,6 +4361,7 @@ var GlRenderer = class GlRenderer extends AbstractRenderer {
 	vertexShader;
 	pixelsBuffer;
 	pixelsTexture;
+	uploadedPixelsVersion;
 	paletteBuffer;
 	paletteTexture;
 	vertexBuffer;
@@ -4392,10 +4393,6 @@ var GlRenderer = class GlRenderer extends AbstractRenderer {
 			const to = range ? range.to : this.file.max;
 			this.writeRangeUniform(from, to);
 		});
-		this.file.timeline.addListener(this.listenerIdPixels, () => {
-			const novePixely = this.file.pixels;
-			this.writePixelsTexture(novePixely);
-		});
 		this.initGl();
 		const initialRange = this.registry.range.currentRange;
 		const initialFrom = initialRange ? initialRange.from : this.file.min;
@@ -4403,7 +4400,6 @@ var GlRenderer = class GlRenderer extends AbstractRenderer {
 		this.writeRangeUniform(initialFrom, initialTo);
 		const initialPalette = this.registry.palette.currentPalette.texturePixels;
 		this.writePaletteTexture(initialPalette);
-		this.writePixelsTexture(this.file.pixels);
 		this.context.viewport(0, 0, this.canvas.width, this.canvas.height);
 		return true;
 	}
@@ -4480,6 +4476,7 @@ var GlRenderer = class GlRenderer extends AbstractRenderer {
 	writePixelsTexture(pixels) {
 		if (pixels instanceof Float32Array) this.pixelsBuffer.set(pixels, 0);
 		else this.pixelsBuffer.set(pixels, 0);
+		this.context.activeTexture(this.context.TEXTURE0);
 		this.context.bindTexture(this.context.TEXTURE_2D, this.pixelsTexture);
 		this.context.texSubImage2D(this.context.TEXTURE_2D, 0, 0, 0, this.width, this.height, this.context.RED, this.context.FLOAT, this.pixelsBuffer);
 	}
@@ -4512,6 +4509,8 @@ var GlRenderer = class GlRenderer extends AbstractRenderer {
 	}
 	async executeRender() {
 		const gl = this.context;
+		this.writePixelsTexture(this.file.pixels);
+		this.uploadedPixelsVersion = this.file.pixelsVersion;
 		gl.useProgram(this.program);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 		const u_pixels = gl.getUniformLocation(this.program, "u_pixels");
@@ -4721,11 +4720,17 @@ var AbstractFile = class extends BaseStructureObject {
 		this.renderer.init();
 	}
 	_pixels;
+	_pixelsVersion = 0;
 	get pixels() {
 		return this._pixels;
 	}
+	/** Changes whenever pixels are supplied through setPixels, including reused arrays. */
+	get pixelsVersion() {
+		return this._pixelsVersion;
+	}
 	setPixels(value) {
 		this._pixels = value;
+		this._pixelsVersion++;
 		this.onSetPixels(value);
 	}
 	constructor(group, baseInfo, initialPixels, thermalUrl, visibleUrl) {

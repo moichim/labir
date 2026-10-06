@@ -165,9 +165,13 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
 
     private _pixels: number[];
+    private _pixelsVersion: number = 0;
     public get pixels() { return this._pixels; }
+    /** Changes whenever pixels are supplied through setPixels, including reused arrays. */
+    public get pixelsVersion() { return this._pixelsVersion; }
     public setPixels(value: number[]) {
         this._pixels = value;
+        this._pixelsVersion++;
         this.onSetPixels(value);
 
     }

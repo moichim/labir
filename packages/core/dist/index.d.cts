@@ -2529,7 +2529,10 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
   get preferWebGl(): boolean;
   switchToCPURenderer(): void;
   private _pixels;
+  private _pixelsVersion;
   get pixels(): number[];
+  /** Changes whenever pixels are supplied through setPixels, including reused arrays. */
+  get pixelsVersion(): number;
   setPixels(value: number[]): void;
   abstract getPixelsForHistogram(): number[];
   constructor(group: ThermalGroup, baseInfo: ParsedFileBaseInfo, initialPixels: number[], thermalUrl: string, visibleUrl?: string);

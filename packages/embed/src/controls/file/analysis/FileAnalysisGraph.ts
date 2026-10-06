@@ -249,6 +249,13 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
         })[character] ?? character);
     }
 
+    private handleGraphClick = (relativeTimeMs: number): void => {
+        const file = this.file;
+        if (file?.timeline.isSequence) {
+            void file.timeline.setRelativeTime(relativeTimeMs);
+        }
+    }
+
     public static styles = css`
 
         :host {
@@ -305,6 +312,7 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
                         data-video-svg
                         type="line" 
                         .data=${this.getChartData()} 
+                        .onGraphClick=${this.handleGraphClick}
                         .options=${{
                             colors: this.graphs.colors,
                             curveType: this.graphSmooth ? 'function' : "default",

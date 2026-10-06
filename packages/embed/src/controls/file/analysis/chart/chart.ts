@@ -330,6 +330,9 @@ export class ThermalChartElement extends LitElement {
   @property({type: Array})
   selection: google.visualization.ChartSelection[]|undefined = undefined;
 
+  @property({attribute: false})
+  onGraphClick?: (relativeTimeMs: number) => void;
+
   /**
    * Whether the chart is currently rendered.
    * @export
@@ -393,7 +396,17 @@ export class ThermalChartElement extends LitElement {
           });
           google.visualization.events.addListener(
               chartWrapper, 'select', () => {
-                this.selection = chartWrapper.getChart()!.getSelection();
+                const chart = chartWrapper.getChart();
+                const selection = chart?.getSelection() ?? [];
+                this.selection = selection;
+
+                const selectedRow = selection.find(item => item.row !== null && item.row !== undefined)?.row;
+                if (selectedRow !== undefined && selectedRow !== null) {
+                  const relativeTimeMs = chartWrapper.getDataTable()?.getValue(selectedRow, 0);
+                  if (typeof relativeTimeMs === 'number' && Number.isFinite(relativeTimeMs)) {
+                    this.onGraphClick?.(relativeTimeMs);
+                  }
+                }
               });
           this.propagateEvents(DEFAULT_EVENTS, chartWrapper);
         });
