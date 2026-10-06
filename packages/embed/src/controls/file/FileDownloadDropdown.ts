@@ -44,6 +44,7 @@ export class FileDownloadButton extends AbstractFileConsumer {
         instance.analysisData.onGraphsPresence.set(this.UUID, value => {
             this.hasGraphs = value;
         });
+        this.hasGraphs = instance.analysisData.hasActiveGraphs;
     }
     public onFailure(): void {
         // throw new Error("Method not implemented.");

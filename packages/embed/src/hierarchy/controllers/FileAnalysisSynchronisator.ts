@@ -11,6 +11,10 @@ export class FileAnalysisSynchronisator {
         return value?.trim() || undefined;
     }
 
+    private get UUID_LISTENER(): string {
+        return this._controller.UUID + "_" + this._attribute;
+    }
+
     private readonly _attribute: keyof IElementWithFileController;
 
     private get _attributeValue(): string | undefined {
@@ -23,7 +27,9 @@ export class FileAnalysisSynchronisator {
         }
     }
 
-
+    private get _mountKey(): string {
+        return `${this._controller.UUID}_slot_${this._slotNumber}`;
+    }
 
     private get _internalSerialized(): string | undefined {
         return this._slotObject?.serialized as string | undefined;
@@ -34,8 +40,6 @@ export class FileAnalysisSynchronisator {
     private get _slotObject() {
         return this._fileObject?.slots.getSlot(this._slotNumber);
     }
-
-
 
     constructor(
         private readonly _controller: FileController,
@@ -54,6 +58,7 @@ export class FileAnalysisSynchronisator {
 
         this._fileObject = instance;
 
+        // Listener pro propagaci změn z jádra zpět do host atributu
         instance.slots
             .getOnSerializeManager(this._slotNumber)
             ?.set(
@@ -65,18 +70,27 @@ export class FileAnalysisSynchronisator {
                 }
             );
 
-        const attribute = FileAnalysisSynchronisator.normalize(this._attributeValue);
+        const syncAction = () => {
+            const attribute = FileAnalysisSynchronisator.normalize(this._attributeValue);
 
-        if (coreWins || attribute === undefined) {
-            this._attributeValue = this._slotObject?.serialized;
+            if (coreWins || attribute === undefined) {
+                this._attributeValue = this._slotObject?.serialized;
+            } else {
+                this._applyToCore(attribute);
+            }
+        };
+
+        // Pokud už soubor náhodou mounted je, aplikujeme hned:
+        if (instance.dom?.built) {
+            syncAction();
         } else {
-            this._applyToCore(attribute);
+            // Jinak počkáme na onMount z instance:
+            instance.onMount.set(this._mountKey, () => {
+                syncAction();
+            });
         }
 
     }
-
-
-
 
     /** Deactivates the listeners and internal objects - stopping the synchronisation of analyses */
     public fileUnassigned(): void {
@@ -85,23 +99,27 @@ export class FileAnalysisSynchronisator {
             .getOnSerializeManager(this._slotNumber)
             ?.delete(this._controller.UUID);
 
+        // Úklid listeneru z instance
+        this._fileObject?.onMount.delete(this._mountKey);
+
         this._fileObject = undefined;
 
     }
-
 
     /** Looks for the changed attributes of the host and propagates them to internal state if necessary */
     public handleHostUpdate(
         changedValues: PropertyValues<typeof this._controller.host>
     ): void {
 
-        // If the host attribute of this analysis has changed, propagate its value to the internal analysis state
         if (changedValues.has(this._attribute)) {
 
-            const value = FileAnalysisSynchronisator.normalize(this._attributeValue)
+            const value = FileAnalysisSynchronisator.normalize(this._attributeValue);
 
             if (this._internalSerialized !== value) {
-                this._applyToCore(value);
+                // Pokud je soubor v DOMu, aplikujeme hned; pokud ne, onMount se o to postará
+                if (this._fileObject?.dom?.built) {
+                    this._applyToCore(value);
+                }
             }
 
         }
@@ -112,12 +130,8 @@ export class FileAnalysisSynchronisator {
         value: string | undefined
     ): void {
 
-
         const file = this._fileObject;
-
-        if (!file) {
-            return;
-        }
+        if (!file) return;
 
         const slot = this._slotObject;
 
@@ -125,6 +139,12 @@ export class FileAnalysisSynchronisator {
             if (slot) file.slots.removeSlotAndAnalysis(this._slotNumber);
         } else if (slot) {
             slot.recieveSerialized(value);
+
+            // Pokud slot už existoval (např. po remountu), zajistíme, že jeho DOM je v novém canvasLayer:
+            const canvasRoot = file.dom?.canvasLayer?.getLayerRoot();
+            if (canvasRoot && !canvasRoot.contains(slot.analysis.layerRoot)) {
+                canvasRoot.appendChild(slot.analysis.layerRoot);
+            }
         } else {
             file.slots.createAnalysisFromSerialized(value, this._slotNumber)?.setSelected();
         }

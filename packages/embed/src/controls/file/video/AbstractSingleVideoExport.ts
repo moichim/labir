@@ -34,7 +34,7 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
         return this.exportedDivRef.value;
     }
 
-    @property({ type: Boolean, reflect: true}) public parentHasAnalyses: boolean = false;
+    @property({ type: Boolean, reflect: true }) public parentHasAnalyses: boolean = false;
 
     @state() public analysis1?: string;
     @state() public analysis2?: string;
@@ -50,11 +50,11 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
     @state()
     public recordingPhaseProgress: number = 0;
 
-    public setRecordingPhase( phase: RecordingPhase ): void {
+    public setRecordingPhase(phase: RecordingPhase): void {
         this.recordingPhase = phase;
     }
 
-    public setRecordingPhaseProgress( progress: number ): void {
+    public setRecordingPhaseProgress(progress: number): void {
         this.recordingPhaseProgress = progress;
     }
 
@@ -114,7 +114,7 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
     public setHasAnalysis(value: boolean): void {
         this.renderProps.hasAnalysis = value;
 
-        if ( value && this.file) {
+        if (value && this.file) {
 
 
             // this.fileCopyElementRef.value?.copyAnalysesFromParent();
@@ -195,8 +195,8 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
     }
 
     protected updated(_changedProperties: PropertyValues): void {
-        super.updated( _changedProperties );
-        
+        super.updated(_changedProperties);
+
         // Nastav výchozí název souboru z .lrc souboru
         if (_changedProperties.has("file") && this.file) {
             const lrcFileName = this.file.fileName;
@@ -210,7 +210,7 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
 
     public async record(): Promise<void> {
 
-        const recorder = new VideoRecorder( this );
+        const recorder = new VideoRecorder(this);
 
         await recorder.captureVideo();
 
@@ -219,7 +219,7 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
 
     public async currentFrame(): Promise<void> {
 
-        const recorder = new VideoRecorder( this );
+        const recorder = new VideoRecorder(this);
         await recorder.captureCurrentFrameAsPng();
     }
 

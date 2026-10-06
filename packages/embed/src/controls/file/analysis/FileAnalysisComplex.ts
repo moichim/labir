@@ -1,4 +1,4 @@
-import { AbstractAddTool } from "@labirthermal/core";
+import { AbstractAddTool, AbstractAnalysis } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -75,34 +75,11 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
             this.hasAnalysis = true;
         }
 
-        instance.analysis.layers.onAdd.set(this.UUID, (analysis) => {
-            if (this.hasAnalysis === false) {
-                this.hasAnalysis = true;
-            }
+        instance.analysis.layers.onAdd.set(this.UUID, analysis => this.watchAnalysis(analysis));
 
-            const listener = () => {
-                this.isDrawingAnalysis = false;
-            }
-
-            analysis.file.dom?.listenerLayer?.getLayerRoot().addEventListener("pointerup", listener);
-
-            analysis.graph.onGraphActivation.set(this.UUID, ( min, max, avg ) => {
-
-                if ( min || max || avg ) {
-                    this.hasGraph = true;
-                } else {
-
-                    const hasAnyGraph = analysis.file.analysis.value.reduce( (state, current) => {
-                        if (state === true) { return state}
-                        return current.graph.state.MIN || current.graph.state.MAX || current.graph.state.AVG;
-                    }, false );
-
-                    this.hasGraph = hasAnyGraph;
-
-                }
-            });
-
-        });
+        // Analyses may already exist (e.g. created from the host attributes when the file was mounted)
+        instance.analysis.value.forEach(analysis => this.watchAnalysis(analysis));
+        this.hasGraph = instance.analysisData.hasActiveGraphs;
 
         instance.analysis.layers.onRemove.set(this.UUID, () => {
             if (this.hasAnalysis === true) {
@@ -115,6 +92,39 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
         });
 
         this.hydrated = true;
+    }
+
+    /** Bind the listeners to a single analysis. Safe to call repeatedly for the same analysis. */
+    protected watchAnalysis(analysis: AbstractAnalysis) {
+
+        if (this.hasAnalysis === false) {
+            this.hasAnalysis = true;
+        }
+
+        const listenerLayer = analysis.file.dom?.listenerLayer?.getLayerRoot();
+        listenerLayer?.removeEventListener("pointerup", this.pointerUpListener);
+        listenerLayer?.addEventListener("pointerup", this.pointerUpListener);
+
+        analysis.graph.onGraphActivation.set(this.UUID, (min, max, avg) => {
+
+            if (min || max || avg) {
+                this.hasGraph = true;
+            } else {
+
+                const hasAnyGraph = analysis.file.analysis.value.reduce((state, current) => {
+                    if (state === true) { return state }
+                    return current.graph.state.MIN || current.graph.state.MAX || current.graph.state.AVG;
+                }, false);
+
+                this.hasGraph = hasAnyGraph;
+
+            }
+        });
+
+    }
+
+    private pointerUpListener = () => {
+        this.isDrawingAnalysis = false;
     }
 
     protected dehydrate() {

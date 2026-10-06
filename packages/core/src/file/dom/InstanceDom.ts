@@ -1,3 +1,4 @@
+import { CallbacksManager } from "../../properties/callbacksManager";
 import { AbstractFile } from "../AbstractFile";
 import { ThermalCanvasLayer } from "./layers/thermalCanvasLayer";
 import ThermalCursorLayer from "./layers/thermalCursorLayer";
@@ -28,6 +29,8 @@ export class InstanceDOM {
             this.root.style.position = "relative";
             this.root.style.lineHeight = "0";
 
+            this.parent.onMount.call();
+
         } else {
 
             // Identification
@@ -39,6 +42,8 @@ export class InstanceDOM {
             this.root.style.removeProperty("zIndex");
             this.root.style.removeProperty("position");
             this.root.style.removeProperty("lineHeight");
+
+            this.parent.onUnmount.call();
 
         }
 

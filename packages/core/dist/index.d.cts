@@ -7,8 +7,8 @@ import * as zip from "zip-slim";
  * Manage callbacks on optional property values
  */
 declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
-  /** @deprecated use set method instead */
-  add(key: string, callback: CallbackType): void;
+  /** An alternative to built-in `set` method enabling one-shot callbacks */
+  add(key: string, callback: CallbackType, oneShot?: boolean): void;
   call(...args: Parameters<CallbackType>): void;
 }
 //#endregion
@@ -2490,6 +2490,8 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
   get frameCount(): number;
   protected _dom?: InstanceDOM;
   get dom(): InstanceDOM | undefined;
+  readonly onMount: CallbacksManager<() => void>;
+  readonly onUnmount: CallbacksManager<() => void>;
   /** Renderer pro vykreslování do canvasu */
   protected renderer?: AbstractRenderer;
   get hover(): boolean;

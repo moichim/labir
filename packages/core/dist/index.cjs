@@ -44,9 +44,13 @@ var version = "1.3.4";
 * Manage callbacks on optional property values
 */
 var CallbacksManager = class extends Map {
-	/** @deprecated use set method instead */
-	add(key, callback) {
-		this.set(key, callback);
+	/** An alternative to built-in `set` method enabling one-shot callbacks */
+	add(key, callback, oneShot = false) {
+		if (oneShot) this.set(key, ((...args) => {
+			callback(...args);
+			this.delete(key);
+		}));
+		else this.set(key, callback);
 	}
 	call(...args) {
 		this.forEach((fn) => fn(...args));
@@ -4135,6 +4139,7 @@ var InstanceDOM = class InstanceDOM {
 			this.root.style.zIndex = "10";
 			this.root.style.position = "relative";
 			this.root.style.lineHeight = "0";
+			this.parent.onMount.call();
 		} else {
 			this.root.classList.remove(InstanceDOM.CLASS_BUILT);
 			delete this.root.dataset.built;
@@ -4142,6 +4147,7 @@ var InstanceDOM = class InstanceDOM {
 			this.root.style.removeProperty("zIndex");
 			this.root.style.removeProperty("position");
 			this.root.style.removeProperty("lineHeight");
+			this.parent.onUnmount.call();
 		}
 	}
 	_hydrated = false;
@@ -4676,6 +4682,8 @@ var AbstractFile = class extends BaseStructureObject {
 	get dom() {
 		return this._dom;
 	}
+	onMount = new CallbacksManager();
+	onUnmount = new CallbacksManager();
 	/** Renderer pro vykreslování do canvasu */
 	renderer;
 	get hover() {
