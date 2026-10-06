@@ -4,8 +4,9 @@ import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { guard } from "lit/directives/guard.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext, fileCurrentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
+import { fileCursorContext, FileCursorContext, fileCurrentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
 import {managerGraphFunctionContext} from "../../../hierarchy/providers/context/ManagerContext";
 import { ThermalChartElement } from "./chart/chart";
 import { t } from "i18next";
@@ -36,14 +37,16 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
         colors: []
     }
 
+    private chartDataSource?: AnalysisDataStateValue;
+    private chartDataCache?: unknown[][];
+    private chartOptionsCache?: object;
+    private chartOptionsCacheKey?: string;
+
     @consume({context: fileCurrentFrameContext, subscribe: true})
     protected currentFrame?: CurrentFrameContext;
 
     @consume({ context: fileCursorContext, subscribe: true })
     protected cursor: FileCursorContext;
-
-    @consume({ context: fileCursorSetterContext, subscribe: true })
-    protected cursorSetter?: FileCursorSetterContext;
 
     @state()
     protected shadowLeft: number = 0;
@@ -191,9 +194,14 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
     }
 
     private getChartData(): unknown[][] {
+        if (this.chartDataSource === this.graphs && this.chartDataCache) {
+            return this.chartDataCache;
+        }
+
         const [headers, ...rows] = this.graphs.values;
 
-        return [
+        this.chartDataSource = this.graphs;
+        this.chartDataCache = [
             [
                 { label: headers[0], type: "number" },
                 ...headers.slice(1).flatMap(label => [
@@ -213,6 +221,47 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
                 ];
             })
         ];
+
+        return this.chartDataCache;
+    }
+
+    private getChartOptions(): object {
+        const duration = this.file?.duration ?? 0;
+        const timeLabel = t(T.time);
+        const temperatureLabel = `${t(T.temperature)} °C`;
+        const key = JSON.stringify([
+            this.graphs.colors,
+            this.graphSmooth,
+            this.graphWidth,
+            this.graphHeight,
+            duration,
+            timeLabel,
+            temperatureLabel
+        ]);
+
+        if (this.chartOptionsCache && this.chartOptionsCacheKey === key) {
+            return this.chartOptionsCache;
+        }
+
+        this.chartOptionsCacheKey = key;
+        this.chartOptionsCache = {
+            colors: this.graphs.colors,
+            curveType: this.graphSmooth ? "function" : "default",
+            legend: { position: "bottom" },
+            hAxis: {
+                title: timeLabel,
+                ticks: this.getDurationAxisTicks(),
+                viewWindow: { min: 0, max: duration }
+            },
+            vAxis: { title: temperatureLabel },
+            tooltip: { isHtml: true },
+            width: this.graphWidth,
+            height: this.graphHeight,
+            chartArea: { width: "80%" },
+            backgroundColor: { fill: "transparent" }
+        };
+
+        return this.chartOptionsCache;
     }
 
     private getDurationAxisTicks(): { v: number, f: string }[] {
@@ -256,6 +305,10 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
         }
     }
 
+    private handleGraphHover = (percentage: number | undefined): void => {
+        this.fileController.setTimeCursorPercentage(percentage);
+    }
+
     public static styles = css`
 
         :host {
@@ -295,13 +348,13 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
 
             
 
-            <div data-video-style style="position: absolute; top:${this.shadowTop}px; left: ${this.shadowLeft}px; width: ${this.shadowWidth}px; height: ${this.shadowHeight}px;">
+            <div data-video-style style="position: absolute; top:${this.shadowTop}px; left: ${this.shadowLeft}px; width: ${this.shadowWidth}px; height: ${this.shadowHeight}px; pointer-events: none;">
             ${this.currentFrame && html`
                 <div data-video-style style="position: absolute; height: 100%; background-color: #eee; left: 0px; width: ${this.currentFrame.percentage}%"></div>
             `}
 
-                ${this.cursor && html`
-                    <div data-video-style style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor.percentage}%"></div>
+                ${this.cursor !== undefined && html`
+                    <div data-video-style style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor}%"></div>
                 `}
             </div>
         
@@ -311,27 +364,18 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
                         ${ref(this.graphRef)}
                         data-video-svg
                         type="line" 
-                        .data=${this.getChartData()} 
+                        .data=${guard([this.graphs], () => this.getChartData())}
                         .onGraphClick=${this.handleGraphClick}
-                        .options=${{
-                            colors: this.graphs.colors,
-                            curveType: this.graphSmooth ? 'function' : "default",
-                            legend: { position: 'bottom' },
-                            hAxis: {
-                                title: t(T.time),
-                                ticks: this.getDurationAxisTicks(),
-                                viewWindow: { min: 0, max: this.file?.duration ?? 0 }
-                            },
-                            vAxis: { title:  t(T.temperature)+ ' °C' },
-                            tooltip: { isHtml: true },
-                            width: this.graphWidth,
-                            height: this.graphHeight,
-                            chartArea: { 
-                                width: '80%', 
-                            },
-                            backgroundColor: { fill: 'transparent' },
-                            
-                        }}
+                        .onGraphHover=${this.handleGraphHover}
+                        .options=${guard([
+                            this.graphs.colors,
+                            this.graphSmooth,
+                            this.graphWidth,
+                            this.graphHeight,
+                            this.file?.duration,
+                            t(T.time),
+                            t(T.temperature)
+                        ], () => this.getChartOptions())}
                         ></thermal-chart>`
                 : nothing
             }

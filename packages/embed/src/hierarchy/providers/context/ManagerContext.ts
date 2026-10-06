@@ -23,8 +23,4 @@ export const languageContext = createContext<string>("language");
 
 export const toolContext = createContext<ThermalTool>("tool-context");
 
-type ToolsContext = ThermalManager["tool"]["tools"];
-/** @deprecated I do not know wha is this here. */
-export const toolsContext = createContext<ToolsContext>("tools-context");
-
 export const interactiveAnalysisContext = createContext<boolean>("interactive-analysis-context");

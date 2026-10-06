@@ -263,6 +263,12 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
 
     static styles?: CSSResultGroup | undefined = css`
 
+        :host {
+            display: block;
+            min-width: 0;
+            max-width: 100%;
+        }
+
         .container {
             height: 100%;
             width: 100%;
@@ -364,4 +370,3 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
     }
 
 }
-

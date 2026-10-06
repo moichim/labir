@@ -12,13 +12,4 @@ export abstract class AbstractControlledApp extends AbstractThermalElement {
 
     public abstract get manager(): ThermalManager;
 
-    @property({ type: Boolean, reflect: true, attribute: "advanced-palettes", converter: booleanConverter(false) })
-    @provide({ context: advancedPalettesContext })
-    public advancedPalettes: boolean = false;
-
-    @provide({ context: advancedPalettesSetterContext })
-    protected setAdvancedPalettes = ( value: boolean ) => {
-        this.advancedPalettes = value;
-    }
-
 }

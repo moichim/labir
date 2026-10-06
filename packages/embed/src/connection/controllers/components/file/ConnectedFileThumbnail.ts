@@ -319,7 +319,7 @@ export class FileThumbnail extends AbstractControlledConsumer {
 
         // For grid, display only the table
         if (this.displayMode === FileListDisplayMode.GRID) {
-            content = html`<file-analysis-table></file-analysis-table>`;
+            content = html`<file-analysis-table mode="compact"></file-analysis-table>`;
         }
 
         // For table, display a complex and store buttons

@@ -22,17 +22,9 @@ export const fileProviderContext = createContext<AbstractFileProvider>( "file-pr
 export const fileMsContext = createContext<number>("file-ms-context");
 
 
-export type FileCursorContext = undefined | {
-        absolute: number,
-        ms: number,
-        percentage: number
-}
+export type FileCursorContext = number | undefined;
 
 export const fileCursorContext = createContext<FileCursorContext>( "file-cursor" );
-
-export type FileCursorSetterContext = (percent: number|undefined) => void;
-
-export const fileCursorSetterContext = createContext<FileCursorSetterContext>( "file-cursor-setter" );
 
 
 

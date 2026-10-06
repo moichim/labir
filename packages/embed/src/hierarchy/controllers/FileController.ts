@@ -3,7 +3,7 @@ import { FileAnalysisSynchronisators } from "./FileAnalysisSynchronisators";
 import { ContextProvider, createContext } from "@lit/context";
 import { PropertyDeclaration, PropertyValueMap } from "lit";
 import { IBaseElement } from "../../controllers/IBaseElement";
-import { AnalysisList, CurrentFrameContext, durationContext, filaMayStopContext, fileAnalysisListContext, fileContext, fileCurrentFrameContext, FileCursorContext, fileCursorContext, fileFailureContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, readyContext } from "../providers/context/FileContexts";
+import { AnalysisList, CurrentFrameContext, durationContext, filaMayStopContext, fileAnalysisListContext, fileContext, fileCurrentFrameContext, fileCursorContext, fileFailureContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, readyContext } from "../providers/context/FileContexts";
 import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { GroupController } from "./GroupController";
 import { ManagerController } from "./ManagerController";
@@ -208,7 +208,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
         this.fileAnalysesContextProvider = new ContextProvider(
             this.host,
-            { context: fileAnalysisListContext }
+            { context: fileAnalysisListContext, initialValue: [] }
         );
 
         this._propagateHighlightCache = ( event: MouseEvent|FocusEvent ) => this._propagateHighlight();
@@ -509,12 +509,18 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     // Setters of local states
 
-    public setTimeCursor(value: FileCursorContext): void {
-        if (value !== this.fileCursorContextProvider.value) {
-            this.host.requestUpdate();
-            this.fileCursorContextProvider.setValue(value);
+    public setTimeCursorPercentage(percentage: number | undefined): void {
+        if (percentage !== undefined && !Number.isFinite(percentage)) {
+            return;
         }
 
+        const value = percentage === undefined
+            ? undefined
+            : Math.max(0, Math.min(percentage, 100));
+
+        if (value !== this.fileCursorContextProvider.value) {
+            this.fileCursorContextProvider.setValue(value);
+        }
     }
 
     public setTimePercentage(

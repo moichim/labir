@@ -40,6 +40,42 @@ Handles cannot cross, and displayed values are rounded to two decimal places
 without rounding incoming registry values. A constant temperature interval is
 displayed with disabled handles.
 
+### Analysis table
+
+`file-analysis-table` renders the analyses of its enclosing file provider. Both
+layouts use the same rows and display AVG, MIN and MAX in that order:
+
+```html
+<file-analysis-table mode="full" show-range-propagator="true"></file-analysis-table>
+<file-analysis-table mode="compact" show-range-propagator="false"></file-analysis-table>
+```
+
+| Attribute | Default | Meaning |
+| --- | --- | --- |
+| `mode` | `full` | `full` has size and action columns; `compact` omits size and places smaller action buttons next to the name. |
+| `show-range-propagator` | Inherited interactivity | Show the button that applies the analysis MIN/MAX to the registry range, independently of selection and editing. |
+| `selection-enabled` | Inherited interactivity | Allow individual selection and select/deselect all. |
+| `edit-enabled` | Inherited interactivity | Show editing and deletion actions. |
+| `graph-activation-enabled` | `true` | Allow graph toggles for sequences; points only support AVG. |
+
+Boolean attributes accept `"true"` and `"false"` (an empty attribute enables
+the option). Omitting or removing the optional overrides restores inherited
+interactivity, including the existing `forceinteractiveanalysis` override.
+Compact mode changes layout, not permissions. Range propagation is unavailable
+for points and disabled until the analysis has finite, ordered MIN/MAX values.
+Hovering or focusing a row highlights its current range in either layout.
+Inactive value buttons have transparent backgrounds. Active value buttons use
+the analysis color, with black or white text chosen for the higher WCAG contrast;
+the same colors apply on hover and focus.
+The table fills its container when the content fits. Wider content retains its
+natural column widths and scrolls horizontally inside the table's focusable
+container, without widening the surrounding grid or flex layout.
+
+`file-analysis-overview` and `file-analysis-overview-row` remain deprecated
+compact-layout aliases without a range button by default. The original
+misspelled `file-analysis-oveerview` tag remains supported as well.
+`file-analysis-display`, used by video export, is unchanged.
+
 ## How to use
 
 ### 1. Include the library

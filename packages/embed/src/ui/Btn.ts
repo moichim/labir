@@ -112,12 +112,14 @@ export class ThermalBtnElement extends AbstractThermalElement {
 
     private showTooltip = async () => {
         if (!this.tooltipElement || !this.arrowElement) return;
+        this.tooltipElement.style.display = 'block';
         this.tooltipElement.style.visibility = 'visible';
         this.tooltipElement.style.opacity = '1';
         const updatePosition = async () => {
             if (!this.tooltipElement || !this.arrowElement) return;
             const { x, y, placement, middlewareData } = await computePosition(this, this.tooltipElement, {
                 placement: this.tooltipPlacement,
+                strategy: 'fixed',
                 middleware: [
                     offset(6),
                     flip(),
@@ -154,6 +156,7 @@ export class ThermalBtnElement extends AbstractThermalElement {
         if (!this.tooltipElement) return;
         this.tooltipElement.style.opacity = '0';
         this.tooltipElement.style.visibility = 'hidden';
+        this.tooltipElement.style.display = 'none';
         if (this.cleanupAutoUpdate) {
             this.cleanupAutoUpdate();
             this.cleanupAutoUpdate = undefined;
@@ -553,7 +556,7 @@ export class ThermalBtnElement extends AbstractThermalElement {
             tooltipHtml = html`
                 <div
                     class="thermal-tooltip"
-                    style="position: absolute; top: 0; left: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out;"
+                    style="display: none; position: fixed; top: 0; left: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out;"
                     @mouseenter=${this.showTooltip}
                     @mouseleave=${this.hideTooltip}
                     @focus=${this.showTooltip}

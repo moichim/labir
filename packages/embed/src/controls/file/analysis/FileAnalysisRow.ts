@@ -4,181 +4,68 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import type { PropertyValues } from "lit";
-import { property, state } from "lit/decorators.js";
-import { classMap } from "lit/directives/class-map.js";
+import { property } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { registryControllerContext } from "../../../hierarchy/controllers/RegistryController";
 import type { RegistryController } from "../../../hierarchy/controllers/RegistryController";
 import { T } from "../../../translations/Languages";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { getContrastColor } from "../../../utils/getContrastColor";
+import { optionalBooleanConverter } from "./AnalysisTableOptions";
+import type { AnalysisTableMode } from "./AnalysisTableOptions";
 
-/** @deprecated */
 export class FileAnalysisRowElement extends AbstractThermalElement {
 
-    @property()
-    public analysis!: AbstractAnalysis;
+    @property({ attribute: false })
+    public analysis?: AbstractAnalysis;
 
-    @property({ type: Boolean })
+    @property({ type: String })
+    public mode: AnalysisTableMode = "full";
+
+    @property({ converter: booleanConverter(true) })
     public interactiveanalysis: boolean = true;
 
-    @state()
-    protected value: {
-        min: number | undefined,
-        max: number | undefined,
-        avg: number | undefined
-    } = {
-            min: undefined,
-            max: undefined,
-            avg: undefined
-        };
+    @property({ attribute: "edit-enabled", converter: optionalBooleanConverter })
+    public editEnabled?: boolean;
 
-    @state()
-    protected graph: {
-        min: boolean,
-        max: boolean,
-        avg: boolean
-    } = {
-            min: false,
-            max: false,
-            avg: false
-        }
+    @property({ attribute: "graph-activation-enabled", converter: booleanConverter(true) })
+    public graphActivationEnabled: boolean = true;
 
-    @state()
-    protected may: {
-        min: boolean,
-        max: boolean,
-        avg: boolean
-    } = {
-            min: false,
-            max: false,
-            avg: false
-        }
+    @property({ attribute: "show-range-propagator", converter: booleanConverter(true) })
+    public showRangePropagator: boolean = true;
 
-    @state()
-    protected dimension?: string;
-
-    @state()
-    protected color?: string;
-
-    @property({ type: Boolean, reflect: true, attribute: true })
+    @property({ type: Boolean, reflect: true })
     protected selected: boolean = false;
 
-    @state()
-    protected name?: string;
+    @consume({ context: registryControllerContext, subscribe: true })
+    private registryController!: RegistryController;
 
+    private boundAnalysis?: AbstractAnalysis;
+    private hovered: boolean = false;
+    private focused: boolean = false;
 
+    protected get allowsEdit(): boolean {
+        return this.editEnabled ?? this.interactiveanalysis;
+    }
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
-
-        // Whenever the analysis changes, update the table row
-        if (_changedProperties.has("analysis")) {
-
-            const oldAnalysis = _changedProperties.get("analysis") as AbstractAnalysis;
-
-            // Remove listeners
-            if (oldAnalysis) {
-                oldAnalysis.onDeselected.delete(this.UUID);
-                oldAnalysis.onSelected.delete(this.UUID);
-                oldAnalysis.onValues.delete(this.UUID);
-                oldAnalysis.onMoveOrResize.delete(this.UUID);
-                oldAnalysis.graph.onGraphActivation.delete(this.UUID);
-                oldAnalysis.onSetInitialColor.delete(this.UUID);
-                oldAnalysis.onSetName.delete(this.UUID);
-            }
-
-            const newAnalysis = this.analysis;
-
-            // Update the name
-            this.name = newAnalysis.name;
-
-            // Update activation
-            this.selected = newAnalysis.selected;
-
-            // Update the color
-            this.color = newAnalysis.initialColor;
-
-
-
-            const formatDimension = (analysis: AbstractAnalysis) => {
-
-                if (analysis instanceof AbstractAreaAnalysis) {
-                    return newAnalysis.width + "x" + newAnalysis.height;
-                }
-                return "1x1";
-
-            }
-
-            // Update dimensions
-            this.dimension = formatDimension(newAnalysis); // newAnalysis.width + "x" + newAnalysis.height;
-
-            // Update values
-            this.value = {
-                min: newAnalysis.min,
-                max: newAnalysis.max,
-                avg: newAnalysis.avg
-            }
-
-            // Update may
-            if (newAnalysis.file.timeline.isSequence) {
-                this.may = newAnalysis instanceof PointAnalysis
-                    ? { avg: true, min: false, max: false }
-                    : { avg: true, min: true, max: true };
-            } else {
-                this.may = { avg: false, min: false, max: false };
-            }
-
-
-            // Update graph
-            this.graph = {
-                min: newAnalysis.graph.state.MIN,
-                max: newAnalysis.graph.state.MAX,
-                avg: newAnalysis.graph.state.AVG
-            }
-
-            // Listen to resize or move
-            newAnalysis.onSerializableChange.set(this.UUID, (analysis) => {
-                this.dimension = formatDimension(analysis);// analysis.width + "x" + analysis.height;
-            });
-
-            // Listen to values
-            newAnalysis.onValues.set(this.UUID, (min, max, avg) => {
-                this.value = { min, max, avg };
-            });
-
-            // Listen to graph activation
-            newAnalysis.graph.onGraphActivation.set(this.UUID, (min, max, avg) => {
-                this.graph = { min, max, avg };
-            });
-
-            // Listen to selection
-            newAnalysis.onSelected.set(this.UUID, () => {
-                this.selected = true;
-            });
-
-            newAnalysis.onDeselected.set(this.UUID, () => {
-                this.selected = false;
-            });
-
-            // Listen to initialColor
-            newAnalysis.onSetInitialColor.set(this.UUID, (value) => {
-                this.color = value;
-            });
-
-            // Listen to the name changes
-            newAnalysis.onSetName.set(this.UUID, (value) => {
-                this.name = value;
-            });
-
-
-
-
+    private readonly refresh = () => {
+        this.selected = this.analysis?.selected ?? false;
+        this.requestUpdate();
+        if (this.hovered || this.focused) {
+            this.highlightAnalysis();
         }
+    };
 
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
+        if (changedProperties.has("analysis")) {
+            this.bindAnalysis();
+        }
     }
 
     connectedCallback(): void {
         super.connectedCallback();
-
+        this.bindAnalysis();
         this.renderRoot.addEventListener("mouseover", this.handleMouseOver);
         this.renderRoot.addEventListener("mouseout", this.handleMouseOut);
         this.renderRoot.addEventListener("focusin", this.handleFocusIn);
@@ -186,361 +73,302 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
     }
 
     disconnectedCallback(): void {
-        super.disconnectedCallback();
-
+        this.unbindAnalysis();
+        if (this.hovered || this.focused) {
+            this.registryController.setHighlight(undefined);
+        }
+        this.hovered = false;
+        this.focused = false;
         this.renderRoot.removeEventListener("mouseover", this.handleMouseOver);
         this.renderRoot.removeEventListener("mouseout", this.handleMouseOut);
         this.renderRoot.removeEventListener("focusin", this.handleFocusIn);
         this.renderRoot.removeEventListener("focusout", this.handleFocusOut);
+        super.disconnectedCallback();
+    }
+
+    private bindAnalysis(): void {
+        if (this.boundAnalysis === this.analysis || !this.isConnected) {
+            return;
+        }
+        this.unbindAnalysis();
+        this.boundAnalysis = this.analysis;
+        const analysis = this.boundAnalysis;
+        if (analysis) {
+            analysis.onSelected.set(this.UUID, this.refresh);
+            analysis.onDeselected.set(this.UUID, this.refresh);
+            analysis.onValues.set(this.UUID, this.refresh);
+            analysis.onSerializableChange.set(this.UUID, this.refresh);
+            analysis.onMoveOrResize.set(this.UUID, this.refresh);
+            analysis.onSetInitialColor.set(this.UUID, this.refresh);
+            analysis.onSetName.set(this.UUID, this.refresh);
+            analysis.graph.onGraphActivation.set(this.UUID, this.refresh);
+        }
+        this.refresh();
+    }
+
+    private unbindAnalysis(): void {
+        const analysis = this.boundAnalysis;
+        if (analysis) {
+            analysis.onSelected.delete(this.UUID);
+            analysis.onDeselected.delete(this.UUID);
+            analysis.onValues.delete(this.UUID);
+            analysis.onSerializableChange.delete(this.UUID);
+            analysis.onMoveOrResize.delete(this.UUID);
+            analysis.onSetInitialColor.delete(this.UUID);
+            analysis.onSetName.delete(this.UUID);
+            analysis.graph.onGraphActivation.delete(this.UUID);
+        }
+        this.boundAnalysis = undefined;
     }
 
     private isWithinRow(target: EventTarget | null): boolean {
         return target instanceof Node && this.renderRoot.contains(target);
     }
 
+    private get range(): { from: number, to: number } | undefined {
+        const min = this.analysis?.min;
+        const max = this.analysis?.max;
+        if (min !== undefined && max !== undefined
+            && Number.isFinite(min) && Number.isFinite(max) && min <= max) {
+            return { from: min, to: max };
+        }
+        return undefined;
+    }
+
     private highlightAnalysis(): void {
-        if (this.analysis.min !== undefined && this.analysis.max !== undefined) {
-            this.registryController.setHighlight({
-                from: this.analysis.min,
-                to: this.analysis.max
-            });
-        }
+        this.registryController.setHighlight(this.range);
     }
 
-    private handleMouseOver: EventListener = (event: Event): void => {
-        if (!(event instanceof MouseEvent)) {
-            return;
-        }
-
-        if (this.isWithinRow(event.relatedTarget)) {
-            return;
-        }
-
-        this.highlightAnalysis();
-    }
-
-    private handleMouseOut: EventListener = (event: Event): void => {
-        if (!(event instanceof MouseEvent)) {
-            return;
-        }
-
-        if (this.isWithinRow(event.relatedTarget)) {
-            return;
-        }
-
-        this.registryController.setHighlight(undefined);
-
-    }
-
-    private handleFocusIn: EventListener = (event: Event): void => {
-        if (!(event instanceof FocusEvent)) {
-            return;
-        }
-
-        if (!this.isWithinRow(event.relatedTarget)) {
+    private readonly handleMouseOver: EventListener = event => {
+        if (event instanceof MouseEvent && !this.isWithinRow(event.relatedTarget)) {
+            this.hovered = true;
             this.highlightAnalysis();
         }
-    }
+    };
 
-    private handleFocusOut: EventListener = (event: Event): void => {
-        if (!(event instanceof FocusEvent)) {
-            return;
+    private readonly handleMouseOut: EventListener = event => {
+        if (event instanceof MouseEvent && !this.isWithinRow(event.relatedTarget)) {
+            this.hovered = false;
+            if (!this.focused) {
+                this.registryController.setHighlight(undefined);
+            }
         }
+    };
 
-        if (!this.isWithinRow(event.relatedTarget)) {
-            this.registryController.setHighlight(undefined);
+    private readonly handleFocusIn: EventListener = event => {
+        if (event instanceof FocusEvent && !this.isWithinRow(event.relatedTarget)) {
+            this.focused = true;
+            this.highlightAnalysis();
         }
-    }
+    };
 
-
-    protected valueOrNothing(value: number | undefined): string {
-        return value === undefined ? "-" : value.toFixed(2) + " °C";
-    }
-
-
-
-
-
+    private readonly handleFocusOut: EventListener = event => {
+        if (event instanceof FocusEvent && !this.isWithinRow(event.relatedTarget)) {
+            this.focused = false;
+            if (!this.hovered) {
+                this.registryController.setHighlight(undefined);
+            }
+        }
+    };
 
     public static styles = css`
-    
         :host {
             display: table-row;
             white-space: nowrap;
-            margin: 0;
-            padding: 0;
-        }
-
-        button, td {
-            font-size: var( --thermal-fs-sm );
-            font-size: 14px;
-            color: var( --thermal-foreground);
-            white-space: nowrap;
-        }
-
-        .may button {
-            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            border-radius: var( --thermal-radius );
-            cursor: pointer;
-
-            transition: all .2s ease-in-out;
-
-            &:hover,
-            &:focus {
-                border-color: var( --thermal-slate-dark );
-                color: var( --thermal-foreground );
-            }
         }
 
         td {
-            padding: 0.25em 0.5em;
+            padding: .25em .5em;
+            color: var(--thermal-foreground);
+            font-size: var(--thermal-fs-sm);
         }
 
-        
+        td.compact {
+            padding: .25em;
+        }
 
-        .selected {
+        .identity, .name, .actions {
+            display: inline-flex;
+            align-items: center;
+            gap: .5em;
+        }
+
+        .identity {
+            width: max-content;
+            min-width: 100%;
+            justify-content: space-between;
+        }
+
+        .name, .actions {
+            flex-shrink: 0;
         }
 
         .name {
-
-            &.interactive {
-                cursor: pointer;
-            }
-
-            &.interactive:hover {
-                color: var( --thermal-primary );
-            }
-
-            u, b, span {
-                display: inline-block;
-            }
-            u {
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            }
-            b {
-                width: 1em;
-                height: 1em;
-            }
-
-            &.selected u {
-                background-color: var( --thermal-slate-dark );
-            }
-
-            &.notSelected span {
-                text-decoration: line-through;
-            }
+            min-width: 0;
+            color: inherit;
+            font: inherit;
         }
 
-        .edit-buttons {
-            
+        button.name {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
         }
 
+        button.name:hover {
+            color: var(--thermal-primary);
+        }
+
+        .color {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            flex-shrink: 0;
+        }
+
+        .selection-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+        }
+
+        :host([selected]) .selection-indicator {
+            background: var(--thermal-slate-dark);
+        }
     `;
 
-    private renderFirstCell(): unknown {
-
-        const classes = {
-            name: true,
-            selected: this.selected,
-            interactive: this.interactiveanalysis
-        };
-
-        const u = this.interactiveanalysis === true ? html`<u aria-hidden="true"></u>` : nothing;
-
-        return html`<td
-            class=${classMap(classes)}
-            @click=${() => {
-
-                if (!this.interactiveanalysis) {
-                    return;
-                }
-
-                if (this.selected) {
-                    this.analysis.setDeselected(true);
-                } else {
-                    this.analysis.setSelected(false, true);
-                }
-
-            }}
-        >
-            ${u}
-            <b aria-hidden="true" style="background-color: ${this.color}"></b>
-            <span>${this.analysis.name}</span>
-        </td>`;
-
-    }
-
-
-
-    protected renderCell(
-        value: number | undefined,
-        may: boolean,
-        active: boolean,
-        clickFn: () => void
-    ): unknown {
-
-
-        const bg = active ? this.color : "white";
-
-        return html`
-            <td class="${may ? "may" : "mayNot"} ${active ? "active" : "inactive"}">
-
-                ${may
-                ? html`
-                        <thermal-btn
-                            size="md"
-                            @click=${clickFn}
-                            style="background-color: ${bg};"
-                            tooltip="${active ? "Skrýt v grafu" : "Zobrazit graf"}"
-                        >
-                            <span style="">${this.valueOrNothing(value)}</span>
-                        </thermal-btn>
-                    `
-                : this.valueOrNothing(value)
-            }
-
-            </td>
-        `;
-    }
-
-    @consume({ context: registryControllerContext, subscribe: true })
-    private registryController!: RegistryController;
-
-
-    private renderLastCell(): unknown {
-
-        if (this.interactiveanalysis === false) {
+    private renderActions(): unknown {
+        const analysis = this.analysis;
+        if (!analysis) {
             return nothing;
         }
 
-        let rangebtn: unknown = nothing;
+        const size = this.mode === "compact" ? "sm" : "md";
 
-        if (!(this.analysis instanceof PointAnalysis)) {
-
-            rangebtn = html`<thermal-btn
-                size="md"
-                @click=${() => {
-                    if (this.analysis.min !== undefined && this.analysis.max !== undefined) {
-                        this.analysis.file.group.registry.range.imposeRange({
-                            from: this.analysis.min,
-                            to: this.analysis.max
-                        })
-                    }
-                }}
-                icon="range"
-                iconStyle="outline"
-            ></thermal-btn>`;
-
-        }
-
-        return html`<td>
-            <div style="display: flex; gap: .5em;">
-                <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
+        return html`<span class="actions">
+            ${this.allowsEdit ? html`
+                <file-analysis-edit .analysis=${analysis}>
+                    <thermal-btn
+                        slot="invoker"
+                        size=${size}
+                        icon="settings"
+                        iconStyle="solid"
+                        tooltip=${t(T.editsth, { what: analysis.name })}
+                    ></thermal-btn>
+                </file-analysis-edit>
                 <thermal-btn
+                    size=${size}
                     icon="trash"
                     iconStyle="micro"
-                    tooltip="${t(T.delete)} ${this.analysis.name}"
-                    @click=${() => this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key)}
+                    tooltip="${t(T.delete)} ${analysis.name}"
+                    @click=${() => analysis.file.analysis.layers.removeAnalysis(analysis.key)}
                 ></thermal-btn>
-                ${rangebtn}
-            </div>
-        </td>`;
-
+            ` : nothing}
+            ${this.showRangePropagator && !(analysis instanceof PointAnalysis) ? html`
+                <thermal-btn
+                    size=${size}
+                    icon="range"
+                    iconStyle="outline"
+                    tooltip="${t(T.range)}: ${analysis.name}"
+                    disabled=${this.range === undefined}
+                    @click=${() => {
+                        const range = this.range;
+                        if (range) {
+                            analysis.file.group.registry.range.imposeRange(range);
+                        }
+                    }}
+                ></thermal-btn>
+            ` : nothing}
+        </span>`;
     }
 
+    private renderName(): unknown {
+        const analysis = this.analysis;
+        if (!analysis) {
+            return nothing;
+        }
+        const label = html`
+            <span class="color" aria-hidden="true" style="background-color: ${analysis.initialColor}"></span>
+            <span>${analysis.name}</span>
+        `;
+        return this.interactiveanalysis ? html`
+            <button
+                type="button"
+                class="name"
+                aria-pressed=${analysis.selected}
+                @click=${() => {
+                    if (analysis.selected) {
+                        analysis.setDeselected(true);
+                    } else {
+                        analysis.setSelected(false, true);
+                    }
+                }}
+            >
+                <span class="selection-indicator" aria-hidden="true"></span>
+                ${label}
+            </button>
+        ` : html`<span class="name">${label}</span>`;
+    }
 
+    private renderValue(statistic: "avg" | "min" | "max"): unknown {
+        const analysis = this.analysis;
+        if (!analysis) {
+            return nothing;
+        }
+        const value = analysis[statistic];
+        const text = value === undefined ? "-" : `${value.toFixed(2)} \u00b0C`;
+        const active = analysis.graph.state[statistic === "avg" ? "AVG" : statistic === "min" ? "MIN" : "MAX"];
+        const canActivate = this.graphActivationEnabled && analysis.file.timeline.isSequence
+            && (statistic === "avg" || analysis instanceof AbstractAreaAnalysis);
+        const background = active ? analysis.initialColor : "transparent";
+        const foreground = active ? getContrastColor(analysis.initialColor) : "var(--thermal-foreground)";
+
+        return html`<td class=${this.mode === "compact" ? "compact" : ""}>
+            ${canActivate ? html`
+                <thermal-btn
+                    size=${this.mode === "compact" ? "sm" : "md"}
+                    aria-pressed=${active}
+                    tooltip="${t(T.graph)}: ${t(T[statistic])}"
+                    style="background-color: ${background}; color: ${foreground}; --bg: ${background}; --bg-hover: ${background}; --color: ${foreground}; --color-hover: ${foreground};"
+                    @click=${() => {
+                        if (statistic === "avg") {
+                            analysis.graph.setAvgActivation(!active);
+                        } else if (statistic === "min") {
+                            analysis.graph.setMinActivation(!active);
+                        } else {
+                            analysis.graph.setMaxActivation(!active);
+                        }
+                    }}
+                >${text}</thermal-btn>
+            ` : text}
+        </td>`;
+    }
 
     protected render(): unknown {
-
-
-        return [
-            // The first cell
-            this.renderFirstCell(),
-
-            this.renderCell(
-                this.value.avg,
-                this.may.avg,
-                this.graph.avg,
-                () => {
-                    this.analysis.graph.setAvgActivation(!this.graph.avg);
-                }
-            ),
-
-            this.renderCell(
-                this.value.min,
-                this.may.min,
-                this.graph.min,
-                () => {
-                    this.analysis.graph.setMinActivation(!this.graph.min);
-                }
-            ),
-
-            this.renderCell(
-                this.value.max,
-                this.may.max,
-                this.graph.max,
-                () => {
-                    this.analysis.graph.setMaxActivation(!this.graph.max);
-                }
-            ),
-
-            html`<td>${this.dimension}</td>`,
-
-            this.renderLastCell()
-        ];
-
+        const analysis = this.analysis;
+        if (!analysis) {
+            return nothing;
+        }
+        const compact = this.mode === "compact";
+        const hasActions = this.allowsEdit || this.showRangePropagator;
+        const dimension = analysis instanceof AbstractAreaAnalysis
+            ? `${analysis.width}x${analysis.height}`
+            : "1x1";
 
         return html`
-        
-        <td 
-            class="name ${this.selected ? "selected" : "notSelected"} ${this.interactiveanalysis ? "interactive" : ""}"
-            @click=${() => {
-
-                if (this.interactiveanalysis === false) {
-                    return;
-                }
-
-                if (this.selected) this.analysis.setDeselected(true);
-                else this.analysis.setSelected(false, true);
-            }}
-        >
-            ${this.interactiveanalysis === true ? html`<u aria-hidden="true"></u>` : nothing}
-            <b aria-hidden="true" style="background-color: ${this.color}"></b>
-            <span>${this.analysis.name}</span>
-        </td>
-
-        ${this.renderCell(
-                this.value.avg,
-                this.may.avg,
-                this.graph.avg,
-                () => {
-                    this.analysis.graph.setAvgActivation(!this.graph.avg);
-                }
-            )}
-        ${this.renderCell(
-                this.value.min,
-                this.may.min,
-                this.graph.min,
-                () => {
-                    this.analysis.graph.setMinActivation(!this.graph.min);
-                }
-            )}
-        ${this.renderCell(
-                this.value.max,
-                this.may.max,
-                this.graph.max,
-                () => {
-                    this.analysis.graph.setMaxActivation(!this.graph.max);
-                }
-            )}
-        <td>${this.dimension}</td>
-
-        <td> ahoj</td>
-        
+            <td class=${compact ? "compact" : ""}>
+                <span class="identity">
+                    ${this.renderName()}
+                    ${compact && hasActions ? this.renderActions() : nothing}
+                </span>
+            </td>
+            ${this.renderValue("avg")}
+            ${this.renderValue("min")}
+            ${this.renderValue("max")}
+            ${compact ? nothing : html`<td>${dimension}</td>`}
+            ${!compact && hasActions ? html`<td>${this.renderActions()}</td>` : nothing}
         `;
     }
-
 }

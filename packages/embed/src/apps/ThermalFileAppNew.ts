@@ -126,7 +126,7 @@ implements
             label="${this.label}" 
             author="${this.author}" 
             license="${this.license}"
-            .show-fullscreen=${this.showFullscreen}
+            .showfullscreen=${this.showFullscreen}
         >
 
             <file-download-dropdown slot="bar-pre"></file-download-dropdown>

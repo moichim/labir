@@ -2,13 +2,12 @@ import { AvailableThermalPalette, ThermalPalettes, ThermalPaletteType } from "@l
 import { consume } from "@lit/context";
 import { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
-import { advancedPalettesContext } from "../../apps/AbstractControlledApp";
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
-import { managerPaletteContext, ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { managerAdvancedPalettesContext, managerPaletteContext, ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 
 export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 
-    @consume({ context: advancedPalettesContext, subscribe: true })
+    @consume({ context: managerAdvancedPalettesContext, subscribe: true })
     @state()
     protected advancedPalettesContext: boolean = false;
 

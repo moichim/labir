@@ -314,16 +314,6 @@ export class ThermalAppElement extends AbstractThermalElement {
             background-color: var( --thermal-slate ) !important;
         }
 
-        .container {
-
-            padding: calc( var( --thermal-gap ) / 3 );
-            background-color: var( --thermal-slate-light );
-            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            border-radius: var( --thermal-radius );    
-            position: relative;        
-
-        }
-
         .bar {
             padding-bottom: calc( var( --thermal-gap ) * 0.5 );
             display: flex;
@@ -404,23 +394,14 @@ export class ThermalAppElement extends AbstractThermalElement {
             display: none;
         }
 
-        :host([fullscreen="on"]) .container {
+        :host([fullscreen="on"]) {
+            box-sizing: border-box;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            padding: calc( var( --thermal-gap ) / 3 ) 0;
             border: 0;
             border-radius: 0;
-            box-sizing: border-box;
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-top: 0px;
-
-            .app-header {
-                padding-top: calc( var( --thermal-gap ) / 3 );
-            }
-
-            header,
-            .content {
-                width: 100%;
-            }
         }
 
 

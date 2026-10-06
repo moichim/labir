@@ -333,6 +333,9 @@ export class ThermalChartElement extends LitElement {
   @property({attribute: false})
   onGraphClick?: (relativeTimeMs: number) => void;
 
+  @property({attribute: false})
+  onGraphHover?: (percentage: number | undefined) => void;
+
   /**
    * Whether the chart is currently rendered.
    * @export
@@ -358,8 +361,119 @@ export class ThermalChartElement extends LitElement {
   protected override render() {
     return html`
       <div id="styles"></div>
-      <div ${ref(this.chartRef)} id="chartdiv"></div>
+      <div
+        ${ref(this.chartRef)}
+        id="chartdiv"
+        @pointermove=${this.handleGraphPointerMove}
+        @pointerleave=${this.handleGraphPointerLeave}
+        @click=${this.handleGraphClickEvent}
+      ></div>
     `;
+  }
+
+  private getGraphLayout(): {
+    getChartAreaBoundingBox: () => { left: number, top: number, width: number, height: number };
+    getBoundingBox?: (id: string) => { left: number, top: number, width: number, height: number };
+    getHAxisValue?: (position: number) => unknown;
+  } | undefined {
+    const chart = this.chartWrapper?.getChart() as (google.visualization.ChartBase & {
+      getChartLayoutInterface?: () => {
+        getChartAreaBoundingBox: () => { left: number, top: number, width: number, height: number };
+        getBoundingBox?: (id: string) => { left: number, top: number, width: number, height: number };
+        getHAxisValue?: (position: number) => unknown;
+      }
+    }) | undefined;
+
+    return chart?.getChartLayoutInterface?.();
+  }
+
+  private isGraphVisualizationPoint(
+    x: number,
+    y: number,
+    layout: NonNullable<ReturnType<ThermalChartElement["getGraphLayout"]>>
+  ): boolean {
+    const chartArea = layout.getChartAreaBoundingBox();
+    const inChartArea =
+      chartArea.width > 0 &&
+      chartArea.height > 0 &&
+      x >= chartArea.left &&
+      x <= chartArea.left + chartArea.width &&
+      y >= chartArea.top &&
+      y <= chartArea.top + chartArea.height;
+
+    const axisLabels = layout.getBoundingBox?.("hAxis#0#labels");
+    const axisBottom = Math.max(
+      chartArea.top + chartArea.height,
+      axisLabels ? axisLabels.top + axisLabels.height : 0
+    );
+    const inHorizontalAxis =
+      x >= chartArea.left &&
+      x <= chartArea.left + chartArea.width &&
+      y >= chartArea.top &&
+      y <= axisBottom;
+
+    return inChartArea || inHorizontalAxis;
+  }
+
+  private handleGraphPointerMove = (event: PointerEvent): void => {
+    const container = this.chartRef.value;
+    const layout = this.onGraphClick || this.onGraphHover
+      ? this.getGraphLayout()
+      : undefined;
+    const chartArea = layout?.getChartAreaBoundingBox();
+
+    if (!container || !layout || !chartArea) {
+      if (container) {
+        container.style.cursor = "";
+      }
+      this.onGraphHover?.(undefined);
+      return;
+    }
+
+    const bounds = container.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    const inVisualization = this.isGraphVisualizationPoint(x, y, layout);
+
+    container.style.cursor = inVisualization && this.onGraphClick ? "pointer" : "";
+    this.onGraphHover?.(inVisualization
+      ? Math.max(0, Math.min(100, (x - chartArea.left) / chartArea.width * 100))
+      : undefined);
+  }
+
+  private handleGraphClickEvent = (event: MouseEvent): void => {
+    const container = this.chartRef.value;
+    const layout = this.getGraphLayout();
+
+    if (!container || !layout || !this.onGraphClick) {
+      return;
+    }
+
+    const bounds = container.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    const chartArea = layout.getChartAreaBoundingBox();
+
+    if (
+      chartArea.width <= 0 ||
+      !this.isGraphVisualizationPoint(x, y, layout) ||
+      x < chartArea.left ||
+      x > chartArea.left + chartArea.width
+    ) {
+      return;
+    }
+
+    const relativeTimeMs = layout.getHAxisValue?.(x);
+    if (typeof relativeTimeMs === "number" && Number.isFinite(relativeTimeMs)) {
+      this.onGraphClick(relativeTimeMs);
+    }
+  }
+
+  private handleGraphPointerLeave = (): void => {
+    if (this.chartRef.value) {
+      this.chartRef.value.style.cursor = "";
+    }
+    this.onGraphHover?.(undefined);
   }
 
   public getRef() {
@@ -399,14 +513,6 @@ export class ThermalChartElement extends LitElement {
                 const chart = chartWrapper.getChart();
                 const selection = chart?.getSelection() ?? [];
                 this.selection = selection;
-
-                const selectedRow = selection.find(item => item.row !== null && item.row !== undefined)?.row;
-                if (selectedRow !== undefined && selectedRow !== null) {
-                  const relativeTimeMs = chartWrapper.getDataTable()?.getValue(selectedRow, 0);
-                  if (typeof relativeTimeMs === 'number' && Number.isFinite(relativeTimeMs)) {
-                    this.onGraphClick?.(relativeTimeMs);
-                  }
-                }
               });
           this.propagateEvents(DEFAULT_EVENTS, chartWrapper);
         });

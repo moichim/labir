@@ -102,7 +102,7 @@ export class FileThumbnail extends AbstractFileConsumer {
             <main>
                 <file-canvas norender="${this.norender}"></file-canvas>
                 <file-timeline></file-timeline>
-                <file-analysis-overview></file-analysis-overview>
+                <file-analysis-table mode="compact" show-range-propagator="false"></file-analysis-table>
             </main>
         
     `;

@@ -7,7 +7,7 @@ import { property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { CurrentFrameContext, durationContext, DurationContext, filaMayStopContext, fileCurrentFrameContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, filePlayingContext } from "../../hierarchy/providers/context/FileContexts";
+import { CurrentFrameContext, durationContext, DurationContext, filaMayStopContext, fileCurrentFrameContext, FileCursorContext, fileCursorContext, filePlayingContext } from "../../hierarchy/providers/context/FileContexts";
 import { T } from "../../translations/Languages";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
 
@@ -33,10 +33,6 @@ export class FileTimelineElement extends AbstractFileConsumer {
 
     @consume({ context: fileCursorContext, subscribe: true })
     protected cursor: FileCursorContext;
-
-    @consume({ context: fileCursorSetterContext, subscribe: true })
-    protected cursorSetter?: FileCursorSetterContext;
-
 
     protected timelineRef: Ref<HTMLDivElement> = createRef()
     protected barRef: Ref<HTMLDivElement> = createRef();
@@ -170,8 +166,8 @@ export class FileTimelineElement extends AbstractFileConsumer {
             this.pointerMs = eventValues.ms;
         }
 
-        if (this.cursorSetter && eventValues) {
-            this.cursorSetter(eventValues.percent);
+        if (eventValues) {
+            this.fileController.setTimeCursorPercentage(eventValues.percent);
         }
     }
 
@@ -185,15 +181,13 @@ export class FileTimelineElement extends AbstractFileConsumer {
             this.pointerMs = eventValues.ms;
         }
 
-        if (this.cursorSetter && eventValues) {
-            this.cursorSetter(eventValues.percent);
+        if (eventValues) {
+            this.fileController.setTimeCursorPercentage(eventValues.percent);
         }
     }
 
     handleBarMouseLeave() {
-        if (this.cursorSetter) {
-            this.cursorSetter(undefined);
-        }
+        this.fileController.setTimeCursorPercentage(undefined);
         this.pointerMs = undefined;
     }
 
@@ -412,7 +406,7 @@ export class FileTimelineElement extends AbstractFileConsumer {
                 @mouseleave=${this.handleBarMouseLeave.bind(this)}
             >
                 <div class="bar" data-video-rerender style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
-                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
+                    ${this.cursor !== undefined ? html`<div class="pointer" style="left: ${this.cursor}%"></div>` : ""}
                 </div>
 
             </div>

@@ -12,7 +12,7 @@ import { FileAnalysisComplexElement } from "./controls/file/analysis/FileAnalysi
 import { FileAnalysisDisplayElement } from "./controls/file/analysis/FileAnalysisDisplay";
 import { FileAnalisisEditElement } from "./controls/file/analysis/FileAnalysisEdit";
 import { FileAnalysisGraphElement } from "./controls/file/analysis/FileAnalysisGraph";
-import { FileAnalysisOverviewElement } from "./controls/file/analysis/FileAnalysisOverview";
+import { FileAnalysisOverviewElement, FileAnalysisOveerviewElement } from "./controls/file/analysis/FileAnalysisOverview";
 import { FileAnalysisOverviewRowElement } from "./controls/file/analysis/FileAnalysisOverviewRow";
 import { FileAnalysisRowElement } from "./controls/file/analysis/FileAnalysisRow";
 import { FileAnalysisTableElement } from "./controls/file/analysis/FileAnalysisTable";
@@ -158,7 +158,7 @@ const elementsFileControls = {
     "file-analysis-display": FileAnalysisDisplayElement,
     "file-analysis-edit": FileAnalisisEditElement,
     "file-analysis-graph": FileAnalysisGraphElement,
-    "file-analysis-oveerview": FileAnalysisOverviewElement,
+    "file-analysis-overview": FileAnalysisOverviewElement,
     "file-analysis-overview-row": FileAnalysisOverviewRowElement,
     "file-analysis-table-row": FileAnalysisRowElement,
     "file-analysis-table": FileAnalysisTableElement,

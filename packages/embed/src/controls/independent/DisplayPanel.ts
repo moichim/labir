@@ -5,6 +5,8 @@ import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { consume } from "@lit/context";
 import { advancedPalettesContext, advancedPalettesSetterContext } from "../../apps/AbstractControlledApp";
+import { managerAdvancedPalettesContext } from "../../hierarchy/providers/context/ManagerContext";
+import { ManagerController, managerControllerContext } from "../../hierarchy/controllers/ManagerController";
 
 @customElement("display-panel")
 export class DisplayPanel extends AbstractThermalElement {
@@ -17,13 +19,13 @@ export class DisplayPanel extends AbstractThermalElement {
     
     `;
 
-    @consume({ context: advancedPalettesContext, subscribe: true })
+    @consume({ context: managerAdvancedPalettesContext, subscribe: true })
     @state()
     advancedPalettes: boolean = false;
 
-    @consume({ context: advancedPalettesSetterContext, subscribe: true })
+    @consume({ context: managerControllerContext, subscribe: true })
     @state()
-    advancedPalettesSetter: (value: boolean) => void = () => {};
+    managerController!: ManagerController;
 
 
     protected render(): unknown {
@@ -31,12 +33,12 @@ export class DisplayPanel extends AbstractThermalElement {
         <thermal-field label="${t(T.colourpalette)}" hint="Zvolte, jaké chcete používat palety.">
             <thermal-btn 
                 variant="${!this.advancedPalettes ? 'foreground' : 'default'}"
-                @click=${() => this.advancedPalettesSetter( false )}
+                @click=${() => this.managerController.setAdvancedPalettes( false )}
                 tooltip="IRON, JET, White hot, Black hot"
             >Základní</thermal-btn>
             <thermal-btn 
                 variant="${this.advancedPalettes ? 'foreground' : 'default'}"
-                @click=${() => this.advancedPalettesSetter( true )}
+                @click=${() => this.managerController.setAdvancedPalettes( true )}
                 tooltip="Všechny dostupné palety"
             >Pokročilé</thermal-btn>
         </thermal-field>

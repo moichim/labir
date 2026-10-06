@@ -1,257 +1,241 @@
-import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import type { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
+import { repeat } from "lit/directives/repeat.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
+import { fileAnalysisListContext } from "../../../hierarchy/providers/context/FileContexts";
+import type { AnalysisList } from "../../../hierarchy/providers/context/FileContexts";
 import { interactiveAnalysisContext } from "../../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { optionalBooleanConverter } from "./AnalysisTableOptions";
+import type { AnalysisTableMode } from "./AnalysisTableOptions";
 
-/** @deprecated */
 export class FileAnalysisTableElement extends AbstractFileConsumer {
 
+    @property({ type: String })
+    public mode: AnalysisTableMode = "full";
+
+    @property({ attribute: "show-range-propagator", converter: optionalBooleanConverter })
+    public showRangePropagator?: boolean;
+
+    @property({ attribute: "selection-enabled", converter: optionalBooleanConverter })
+    public selectionEnabled?: boolean;
+
+    @property({ attribute: "edit-enabled", converter: optionalBooleanConverter })
+    public editEnabled?: boolean;
+
+    @property({ attribute: "graph-activation-enabled", converter: booleanConverter(true) })
+    public graphActivationEnabled: boolean = true;
+
     @consume({ context: interactiveAnalysisContext, subscribe: true })
-    interactiveanalysis: boolean = false;
+    @property({ converter: booleanConverter(false) })
+    public interactiveanalysis: boolean = false;
 
-    @property({ type: Boolean, converter: booleanConverter(false) })
-    forceinteractiveanalysis: boolean = false;
+    @property({ converter: booleanConverter(false) })
+    public forceinteractiveanalysis: boolean = false;
 
+    @consume({ context: fileAnalysisListContext, subscribe: true })
     @state()
-    protected analysis: AbstractAnalysis[] = [];
+    protected analysis: AnalysisList = [];
 
-    @state()
-    protected allSelected: boolean = false;
+    private boundFile?: Instance;
 
-    public onFailure(error: ThermalFileFailure): void {
-        console.log(error);
+    private readonly selectionChanged = () => this.requestUpdate();
+
+    protected get interactive(): boolean {
+        return this.interactiveanalysis || this.forceinteractiveanalysis;
     }
 
-    @state()
-    protected hasHighlightedData: boolean = false;
+    protected get allowsSelection(): boolean {
+        return this.selectionEnabled ?? this.interactive;
+    }
 
-    public onInstanceCreated(instance: Instance): void {
+    protected get allowsEdit(): boolean {
+        return this.editEnabled ?? this.interactive;
+    }
 
-        this.hydrate(instance);
+    protected get showsRangePropagator(): boolean {
+        return this.showRangePropagator ?? this.interactive;
+    }
 
+    private get allSelected(): boolean {
+        return this.analysis.length > 0 && this.analysis.every(analysis => analysis.selected);
+    }
+
+    public onInstanceCreated(): void {
+        this.requestUpdate();
+    }
+
+    public onFailure(error: ThermalFileFailure): void {
+        this.log(error);
     }
 
     connectedCallback(): void {
         super.connectedCallback();
-        if (this.file) {
-            this.hydrate(this.file);
+        this.bindFile();
+    }
+
+    disconnectedCallback(): void {
+        this.unbindFile();
+        super.disconnectedCallback();
+    }
+
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+        if (changedProperties.has("file")) {
+            this.bindFile();
         }
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
-
-        if (_changedProperties.has("file")) {
-            if (this.file) {
-                this.hydrate(this.file);
-            }
+    private bindFile(): void {
+        if (this.boundFile === this.file || !this.isConnected) {
+            return;
         }
+        this.unbindFile();
+        this.boundFile = this.file;
+        this.boundFile?.analysis.layers.onSelectionChange.set(this.UUID, this.selectionChanged);
     }
 
-
-    protected hydrate(file: Instance) {
-
-        // Mirror all analysis to local state
-        file.analysis.addListener(this.UUID, analysis => {
-            this.analysis = analysis;
-        });
-
-        // Mirror all selected
-        file.analysis.layers.onSelectionChange.add(this.UUID, () => {
-            this.allSelected = file.analysis.layers.all.length === file.analysis.layers.selectedOnly.length;
-        });
-
-
-        // Mirror hasSelectedData
-        file.analysisData.onGraphsPresence.set(this.UUID, value => {
-            this.hasHighlightedData = value;
-        })
-
-        // Set initial allSelected
-        this.allSelected = file.analysis.layers.all.length === file.analysis.layers.selectedOnly.length;
-
-        // Set initial allSelected
-        this.analysis = file.analysis.value;
-
-        // Set initial hasHighlightedData
-        this.hasHighlightedData = file.analysisData.hasActiveGraphs;
+    private unbindFile(): void {
+        this.boundFile?.analysis.layers.onSelectionChange.delete(this.UUID);
+        this.boundFile = undefined;
     }
 
     public static styles = css`
-    
         :host {
-
             display: block;
             width: 100%;
             min-width: 0;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-
-            margin: 0;
-            padding: 0;
-
-            position: relative;
-
+            max-width: 100%;
+            contain: inline-size;
             box-sizing: border-box;
-        
+            color: var(--thermal-foreground);
+        }
+
+        .overflow {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         table {
-
-            display: table;
-
+            width: max-content;
             min-width: 100%;
-            
-            position: relative;
-
-            table-layout: fixed;
-
-            
             margin: 0;
-            padding: 0;
-            
-            border-collapse: collapse;
-
-            color: var( --thermal-foreground );
-            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
+            table-layout: auto;
             box-sizing: border-box;
-
-            td, th {
-                padding: calc( var( --thermal-fs ) * .5 )
-            }
+            border-collapse: collapse;
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+            font-size: var(--thermal-fs-sm);
         }
 
         th {
             text-align: left;
+            white-space: nowrap;
+            padding: .5em;
         }
 
-        th, td, button, thermal-btn {
-            font-size: var( --thermal-fs-sm );
-            font-size: 14px;
-        }
-
-        caption {
-            display: none !important;
-        }
-
-        file-analysis-table-row {
-            color: var( --thermal-foreground );
-            transition: background-color .2s ease-in-out;
+        table.compact th {
+            padding: .25em;
         }
 
         file-analysis-table-row:not(:last-child) {
-            border-bottom: var(--thermal-border-width) dotted var( --thermal-foreground );
+            border-bottom: var(--thermal-border-width) dotted var(--thermal-slate);
         }
 
         file-analysis-table-row[selected] {
-            background-color: var( --thermal-background );
+            background-color: var(--thermal-background);
         }
 
-        .all {
-
-            &.interactive {
-                cursor: pointer;
-            }
-
-            &.interactive:hover {
-                color: var( --thermal-primary );
-            }
-
-            u, b, span, thermal-btn {
-                display: inline-block;
-            }
-
-            u {
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            }
-
-            &.yes u {
-                background-color: var( --thermal-slate-dark );
-            }
-
-            button {
-                margin: 0;
-                padding: 0;
-                border: 0;
-                background: transparent;
-                color: var( --thermal-primary );
-                text-transform: lowercase;
-                cursor: pointer;
-
-                &:hover,
-                &:focus {
-                    color: var( --thermal-primary-dark );
-                }
-            }
-
+        .selection {
+            display: inline-flex;
+            align-items: center;
+            gap: .5em;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
         }
 
+        .selection:hover {
+            color: var(--thermal-primary);
+        }
+
+        .selection-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+        }
+
+        .selection[aria-pressed="true"] .selection-indicator {
+            background: var(--thermal-slate-dark);
+        }
     `;
 
-    private renderTableRows(): unknown {
-
-        if (this.analysis.length === 0 || this.file === undefined) {
-            return nothing;
-        }
-
-        return this.analysis.map(analysis => html`<file-analysis-table-row
-            .analysis=${analysis}
-            .interactiveanalysis=${this.interactiveanalysis === true || this.forceinteractiveanalysis === true}
-        ></file-analysis-table-row>`);
-
-    }
-
-
-
     protected render(): unknown {
-
-        if (this.analysis.length === 0 || this.file === undefined) {
+        if (this.file === undefined || this.analysis.length === 0) {
             return nothing;
         }
 
-        const interactiveanalysis = this.interactiveanalysis === true || this.forceinteractiveanalysis === true;
+        const compact = this.mode === "compact";
 
         return html`
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th
-                            class="all ${this.allSelected ? "yes" : "no"} ${interactiveanalysis ? "interactive" : ""}"
-                            @click=${() => {
-                if (this.allSelected)
-                    this.file?.analysis.layers.deselectAll();
-                else
-                    this.file?.analysis.layers.selectAll();
-            }}
-                        >
-                            ${interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing}
-                            <thermal-btn variant="text" tooltip="${this.allSelected ? "Deaktivovat všechny" : "Aktivovat všechny"}" tooltip-placement="right">${t(T.analysis)}</thermal-btn>
-                        </th>
-                        <th>${t(T.avg)}</th>
-                        <th>${t(T.min)}</th>
-                        <th>${t(T.max)}</th>
-                        <th>${t(T.size)}</th>
-                        <th></th>
-                    </tr>
-                
-                </thead>
-
-                <tbody>${this.renderTableRows()}</tbody>
-
-            </table>
-            
+            <div class="overflow" tabindex="0" role="region" aria-label=${t(T.analysis)}>
+                <table class=${compact ? "compact" : "full"} aria-label=${t(T.analysis)}>
+                    <thead>
+                        <tr>
+                            <th scope="col">
+                                ${this.allowsSelection ? html`
+                                    <button
+                                        type="button"
+                                        class="selection"
+                                        aria-pressed=${this.allSelected}
+                                        @click=${() => {
+                                            if (this.allSelected) {
+                                                this.file?.analysis.layers.deselectAll();
+                                            } else {
+                                                this.file?.analysis.layers.selectAll();
+                                            }
+                                        }}
+                                    >
+                                        <span class="selection-indicator" aria-hidden="true"></span>
+                                        ${t(T.analysis)}
+                                    </button>
+                                ` : t(T.analysis)}
+                            </th>
+                            <th scope="col">${t(T.avg)}</th>
+                            <th scope="col">${t(T.min)}</th>
+                            <th scope="col">${t(T.max)}</th>
+                            ${compact ? nothing : html`<th scope="col">${t(T.size)}</th>`}
+                            ${!compact && (this.allowsEdit || this.showsRangePropagator)
+                                ? html`<th scope="col"></th>`
+                                : nothing}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${repeat(this.analysis, analysis => analysis.key, analysis => html`
+                            <file-analysis-table-row
+                                .analysis=${analysis}
+                                .mode=${this.mode}
+                                .interactiveanalysis=${this.allowsSelection}
+                                .editEnabled=${this.allowsEdit}
+                                .graphActivationEnabled=${this.graphActivationEnabled}
+                                .showRangePropagator=${this.showsRangePropagator}
+                            ></file-analysis-table-row>
+                        `)}
+                    </tbody>
+                </table>
+            </div>
         `;
     }
-
 }
