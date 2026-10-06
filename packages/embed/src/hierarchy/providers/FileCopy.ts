@@ -23,6 +23,13 @@ export class FileCopyElement extends AbstractThermalElement implements IElementW
     })
     public originalFile!: Instance;
 
+    /** Mirror the analyses of the original file to the copy. Changing the value at runtime copies or clears the analyses. */
+    @property({
+        type: Boolean,
+        attribute: false
+    })
+    public withAnalyses: boolean = true;
+
     managerSlug!: string;
     managerObject!: ThermalManager;
     managerController: ManagerController = new ManagerController(this);
@@ -94,13 +101,9 @@ export class FileCopyElement extends AbstractThermalElement implements IElementW
 
         // Sync file properties
         this.ms = originalFile.timeline.currentMs;
-        this.analysis1 = originalFile.slots.getSlot(1)?.serialized;
-        this.analysis2 = originalFile.slots.getSlot(2)?.serialized;
-        this.analysis3 = originalFile.slots.getSlot(3)?.serialized;
-        this.analysis4 = originalFile.slots.getSlot(4)?.serialized;
-        this.analysis5 = originalFile.slots.getSlot(5)?.serialized;
-        this.analysis6 = originalFile.slots.getSlot(6)?.serialized;
-        this.analysis7 = originalFile.slots.getSlot(7)?.serialized;
+        if (this.withAnalyses) {
+            this.copyAnalysesFromParent();
+        }
 
         // Now we shall create all internal objects based on the original file
         super.connectedCallback();
@@ -132,8 +135,37 @@ export class FileCopyElement extends AbstractThermalElement implements IElementW
         window.Thermal.managers.delete(this.managerSlug);
     }
 
+    /** Take the current analyses of the original file. The file controller propagates them to the copied file. */
+    public copyAnalysesFromParent(): void {
+        const slots = this.originalFile.slots;
+        this.analysis1 = slots.getSlot(1)?.serialized;
+        this.analysis2 = slots.getSlot(2)?.serialized;
+        this.analysis3 = slots.getSlot(3)?.serialized;
+        this.analysis4 = slots.getSlot(4)?.serialized;
+        this.analysis5 = slots.getSlot(5)?.serialized;
+        this.analysis6 = slots.getSlot(6)?.serialized;
+        this.analysis7 = slots.getSlot(7)?.serialized;
+    }
+
+    /** Remove all analyses from the copied file. */
+    public clearAnalyses(): void {
+        this.analysis1 = undefined;
+        this.analysis2 = undefined;
+        this.analysis3 = undefined;
+        this.analysis4 = undefined;
+        this.analysis5 = undefined;
+        this.analysis6 = undefined;
+        this.analysis7 = undefined;
+    }
+
     updated(_changedProperties: PropertyValues<FileCopyElement>): void {
         super.updated(_changedProperties);
+
+        // Skip the initial value - the connected callback has already handled it
+        if (_changedProperties.has("withAnalyses") && _changedProperties.get("withAnalyses") !== undefined) {
+            if (this.withAnalyses) this.copyAnalysesFromParent();
+            else this.clearAnalyses();
+        }
         this.managerController.hostUpdatedWatcher(_changedProperties);
         this.registryController.hostUpdatedWatcher(_changedProperties);
         this.groupController.hostUpdatedWatcher(_changedProperties);

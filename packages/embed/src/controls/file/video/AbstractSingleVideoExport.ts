@@ -36,14 +36,6 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
 
     @property({ type: Boolean, reflect: true }) public parentHasAnalyses: boolean = false;
 
-    @state() public analysis1?: string;
-    @state() public analysis2?: string;
-    @state() public analysis3?: string;
-    @state() public analysis4?: string;
-    @state() public analysis5?: string;
-    @state() public analysis6?: string;
-    @state() public analysis7?: string;
-
     @state()
     public recordingPhase: RecordingPhase = RecordingPhase.IDLE;
 
@@ -111,34 +103,9 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
         this.onLayoutAffectingPropertyChanged();
     }
 
+    /** The analyses are mirrored to the copy by the `withAnalyses` property of the `file-copy` element (see the providers directive). */
     public setHasAnalysis(value: boolean): void {
         this.renderProps.hasAnalysis = value;
-
-        if (value && this.file) {
-
-
-            // this.fileCopyElementRef.value?.copyAnalysesFromParent();
-
-            this.analysis1 = this.file.slots.getSlot(0)?.serialized ?? undefined;
-            this.analysis2 = this.file.slots.getSlot(1)?.serialized ?? undefined;
-            this.analysis3 = this.file.slots.getSlot(2)?.serialized ?? undefined;
-            this.analysis4 = this.file.slots.getSlot(3)?.serialized ?? undefined;
-            this.analysis5 = this.file.slots.getSlot(4)?.serialized ?? undefined;
-            this.analysis6 = this.file.slots.getSlot(5)?.serialized ?? undefined;
-            this.analysis7 = this.file.slots.getSlot(6)?.serialized ?? undefined;
-        } else {
-
-            // this.fileCopyElementRef.value?.clearAnalyses();
-
-            this.analysis1 = undefined;
-            this.analysis2 = undefined;
-            this.analysis3 = undefined;
-            this.analysis4 = undefined;
-            this.analysis5 = undefined;
-            this.analysis6 = undefined;
-            this.analysis7 = undefined;
-        }
-
         this.requestUpdate();
         this.onLayoutAffectingPropertyChanged();
     }
@@ -199,6 +166,8 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
 
         // Nastav výchozí název souboru z .lrc souboru
         if (_changedProperties.has("file") && this.file) {
+            this.parentHasAnalyses = this.file.analysis.value.length > 0;
+
             const lrcFileName = this.file.fileName;
             // Odstraň .lrc příponu
             const baseName = lrcFileName.replace(/\.lrc$/i, "");

@@ -136,7 +136,7 @@ implements
             <registry-range-form slot="bar-pre"></registry-range-form>
             <registry-opacity-slider slot="bar-pre"></registry-opacity-slider>
 
-            <registry-histogram slot="pre"></registry-histogram>
+            <registry-histogram slot="pre" interactive="true"></registry-histogram>
             <registry-range-slider slot="pre"></registry-range-slider>
 
             
