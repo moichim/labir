@@ -57,6 +57,7 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
         from: { type: Number, reflect: true, attribute: "from" },
         to: { type: Number, reflect: true, attribute: "to" },
         loading: { type: Boolean, attribute: "is-loading", reflect: true },
+        highlight: { type: Object, reflect: false, state: true },
     }
 
     public get registryObject(): ThermalRegistry {
@@ -368,6 +369,7 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
     }
 
     public setHighlight(value: ThermalRangeOrUndefined): void {
+        this.log(value);
         if (this.highlightContextProvider.value !== value) {
             this.highlightContextProvider.setValue(value);
         }

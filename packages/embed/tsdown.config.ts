@@ -9,9 +9,4 @@ export default defineConfig({
   clean: true,
   target: false,
   sourcemap: true,
-  deps: {
-    neverBundle: [
-      'toolcool-range-slider',
-    ],
-  },
 });

@@ -25,8 +25,3 @@ export const registryMaxContext = createContext<number | undefined>("registry-ma
  * This context is exposed by a registry provider. It need to be consumed manually.
  */
 export const registryHighlightContext = createContext<ThermalRangeOrUndefined>("registry-highlight");
-
-/**
- * Highlight setter needs to be used in order to set/unset a temperature range on the thermal scale.
- */
-export const setRegistryHighlightContext = createContext<(value: ThermalRangeOrUndefined) => void>("registry-highlight-setter");

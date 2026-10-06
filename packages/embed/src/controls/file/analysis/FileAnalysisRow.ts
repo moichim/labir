@@ -1,11 +1,14 @@
-import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis, ThermalRangeOrUndefined } from "@labirthermal/core";
+import { AbstractAreaAnalysis, PointAnalysis } from "@labirthermal/core";
+import type { AbstractAnalysis } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import type { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
-import { setRegistryHighlightContext } from "../../../hierarchy/providers/context/RegistryContext";
+import { registryControllerContext } from "../../../hierarchy/controllers/RegistryController";
+import type { RegistryController } from "../../../hierarchy/controllers/RegistryController";
 import { T } from "../../../translations/Languages";
 
 /** @deprecated */
@@ -61,10 +64,6 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
 
     @state()
     protected name?: string;
-
-    @state()
-    @consume({ context: setRegistryHighlightContext, subscribe: true })
-    protected setRegistryHighlight?: (value: ThermalRangeOrUndefined) => void;
 
 
 
@@ -175,37 +174,81 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
 
         }
 
-        if (_changedProperties.has("setRegistryHighlight")) {
-            this.addEventListener("mouseover", this.handleMouseOver.bind(this));
-            this.addEventListener("focus", this.handleMouseOver.bind(this));
-            this.addEventListener("mouseout", this.handleMouseOut.bind(this));
-            this.addEventListener("blur", this.handleMouseOut.bind(this));
-        }
+    }
 
+    connectedCallback(): void {
+        super.connectedCallback();
+
+        this.renderRoot.addEventListener("mouseover", this.handleMouseOver);
+        this.renderRoot.addEventListener("mouseout", this.handleMouseOut);
+        this.renderRoot.addEventListener("focusin", this.handleFocusIn);
+        this.renderRoot.addEventListener("focusout", this.handleFocusOut);
     }
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
-        this.removeEventListener("mouseover", this.handleMouseOver.bind(this));
-        this.removeEventListener("focus", this.handleMouseOver.bind(this));
-        this.removeEventListener("mouseout", this.handleMouseOut.bind(this));
-        this.removeEventListener("blur", this.handleMouseOut.bind(this));
+
+        this.renderRoot.removeEventListener("mouseover", this.handleMouseOver);
+        this.renderRoot.removeEventListener("mouseout", this.handleMouseOut);
+        this.renderRoot.removeEventListener("focusin", this.handleFocusIn);
+        this.renderRoot.removeEventListener("focusout", this.handleFocusOut);
     }
 
-    private handleMouseOver() {
+    private isWithinRow(target: EventTarget | null): boolean {
+        return target instanceof Node && this.renderRoot.contains(target);
+    }
 
-        if (this.setRegistryHighlight && this.analysis.min !== undefined && this.analysis.max !== undefined) {
-            this.setRegistryHighlight({
+    private highlightAnalysis(): void {
+        if (this.analysis.min !== undefined && this.analysis.max !== undefined) {
+            this.registryController.setHighlight({
                 from: this.analysis.min,
                 to: this.analysis.max
             });
         }
     }
 
-    private handleMouseOut() {
+    private handleMouseOver: EventListener = (event: Event): void => {
+        if (!(event instanceof MouseEvent)) {
+            return;
+        }
 
-        if (this.setRegistryHighlight) {
-            this.setRegistryHighlight(undefined);
+        if (this.isWithinRow(event.relatedTarget)) {
+            return;
+        }
+
+        this.highlightAnalysis();
+    }
+
+    private handleMouseOut: EventListener = (event: Event): void => {
+        if (!(event instanceof MouseEvent)) {
+            return;
+        }
+
+        if (this.isWithinRow(event.relatedTarget)) {
+            return;
+        }
+
+        this.registryController.setHighlight(undefined);
+
+    }
+
+    private handleFocusIn: EventListener = (event: Event): void => {
+        if (!(event instanceof FocusEvent)) {
+            return;
+        }
+
+        if (!this.isWithinRow(event.relatedTarget)) {
+            this.highlightAnalysis();
+        }
+    }
+
+    private handleFocusOut: EventListener = (event: Event): void => {
+        if (!(event instanceof FocusEvent)) {
+            return;
+        }
+
+        if (!this.isWithinRow(event.relatedTarget)) {
+            this.registryController.setHighlight(undefined);
         }
     }
 
@@ -362,6 +405,10 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
             </td>
         `;
     }
+
+    @consume({ context: registryControllerContext, subscribe: true })
+    private registryController!: RegistryController;
+
 
     private renderLastCell(): unknown {
 

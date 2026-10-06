@@ -6345,6 +6345,8 @@ var OpacityDrive = class extends AbstractProperty {
 //#region src/properties/scale/RangeDriver.ts
 /** Handles the thermal range display. */
 var RangeDriver = class extends AbstractProperty {
+	onAutoValueChanged = new CallbacksManager();
+	_autoValue = void 0;
 	get currentRange() {
 		return this.value;
 	}
@@ -6367,6 +6369,7 @@ var RangeDriver = class extends AbstractProperty {
 	*/
 	afterSetEffect(value) {
 		if (value) this.parent.forEveryInstance((instance) => instance.draw());
+		this.recalculateAutoValue();
 	}
 	/** 
 	* Imposes a range to itself and below
@@ -6392,15 +6395,24 @@ var RangeDriver = class extends AbstractProperty {
 	}
 	/** Sets the range automatically based on the current histogram */
 	applyAuto() {
+		this.imposeRange(this._autoValue);
+	}
+	get autoValue() {
+		return this._autoValue;
+	}
+	recalculateAutoValue() {
+		const previousValue = this._autoValue;
 		if (this.parent.histogram.value) {
 			const percentage = 10;
 			const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
-			const newRange = {
+			if (histogramBarsOverPercentage.length > 0) this._autoValue = {
 				from: histogramBarsOverPercentage[0].from,
 				to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
 			};
-			this.imposeRange(newRange);
-		}
+			else this._autoValue = void 0;
+		} else this._autoValue = void 0;
+		if (previousValue?.from !== this._autoValue?.from || previousValue?.to !== this._autoValue?.to) this.onAutoValueChanged.call(this._autoValue);
+		return this._autoValue;
 	}
 };
 
@@ -7424,7 +7436,9 @@ var HistogramState = class extends AbstractProperty {
 	validate(value) {
 		return value;
 	}
-	afterSetEffect() {}
+	afterSetEffect() {
+		this.parent.range.recalculateAutoValue();
+	}
 	/** 
 	* Recalculate the histogram buffer using web workers.
 	* This is an async operation using `workerpool`

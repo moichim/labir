@@ -24,6 +24,22 @@ This frontend library is a webcomponents implementation of [@labir/core](/packag
 - export thermal recording to PNG / WEBM
 - export analyses data to CSV
 
+### Registry range slider
+
+`registry-range-slider` renders its track, palette and two accessible handles
+directly in Lit, without a third-party slider. Registry contexts supply the
+confirmed bounds and range; changes from the range form, full/automatic range
+buttons or application code update the handles without writing back to the registry.
+
+Mouse, touch and pen dragging preview the range locally and commit it on release.
+Cancelling a gesture or receiving an external range/bounds update discards the preview.
+Focused handles move left/right by 1% of the full temperature interval and commit
+immediately, updating the registry, form and thermal image. Up/Home selects the
+lowest allowed value, Down/End the highest; the mouse wheel also steps by 1%.
+Handles cannot cross, and displayed values are rounded to two decimal places
+without rounding incoming registry values. A constant temperature interval is
+displayed with disabled handles.
+
 ## How to use
 
 ### 1. Include the library

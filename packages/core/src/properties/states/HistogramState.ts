@@ -55,7 +55,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
     }
 
     protected afterSetEffect() {
-
+        this.parent.range.recalculateAutoValue();
     }
 
 

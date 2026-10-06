@@ -1,6 +1,7 @@
-import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labirthermal/core";
+import type { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import { css, html } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { T } from "../../translations/Languages";
@@ -38,10 +39,19 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
     private debounceTimer: number | undefined;
 
     @state()
-    protected hasHistogram: boolean = false;
+    protected autoValue: ThermalRangeOrUndefined;
 
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
+    private subscribedRegistry?: ThermalRegistry;
+
+    private autoRangeHovered: boolean = false;
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.hydrate();
+    }
+
+    protected willUpdate(changedProperties: PropertyValues<this>): void {
+        super.willUpdate(changedProperties);
         this.hydrate();
     }
 
@@ -54,33 +64,36 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
     }
 
     private hydrate(): void {
-        if (this.registry === undefined) {
+        const registry = this.registryController?.registryObject;
+        if (registry === undefined || registry === this.subscribedRegistry) {
             return;
         }
 
-        // Update initial state
-        this.recieveMinmax( this.registry.minmax.value );
-        this.recieveRange( this.registry.range.value );
+        this.dehydrate();
+        this.subscribedRegistry = registry;
 
-        // Register internal listeners
-        this.registry.minmax.addListener(this.UUID, this.recieveMinmax.bind(this));
-        this.registry.range.addListener(this.UUID, this.recieveRange.bind(this));
-        this.registry.histogram.addListener(this.UUID, (value) => {
-            this.hasHistogram = !!value;
-        });
+        this.recieveMinmax(registry.minmax.value);
+        this.recieveRange(registry.range.value);
+        this.recieveAutoValue(registry.range.autoValue);
+
+        registry.minmax.addListener(this.UUID, this.recieveMinmax);
+        registry.range.addListener(this.UUID, this.recieveRange);
+        registry.range.onAutoValueChanged.set(this.UUID, this.recieveAutoValue);
     }
 
     private dehydrate(): void {
-        if (this.registry === undefined) {
+        const registry = this.subscribedRegistry;
+        if (registry === undefined) {
             return;
         }
 
-        // Remove listeners
-        this.registry.minmax.removeListener(this.UUID);
-        this.registry.range.removeListener(this.UUID);
+        registry.minmax.removeListener(this.UUID);
+        registry.range.removeListener(this.UUID);
+        registry.range.onAutoValueChanged.delete(this.UUID);
+        this.subscribedRegistry = undefined;
     }
 
-    private recieveMinmax( value: ThermalMinmaxOrUndefined ): void {
+    private recieveMinmax = (value: ThermalMinmaxOrUndefined): void => {
         if ( value ) {
             if (this.min !== value.min ) this.min = value.min;
             if (this.max !== value.max ) this.max = value.max;
@@ -93,7 +106,7 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         }
     }
 
-    private recieveRange( value: ThermalRangeOrUndefined ): void {
+    private recieveRange = (value: ThermalRangeOrUndefined): void => {
         this.isUpdatingFromRegistry = true;
         
         if ( value ) {
@@ -112,6 +125,38 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         }
         
         this.isUpdatingFromRegistry = false;
+    }
+
+    private recieveAutoValue = (value: ThermalRangeOrUndefined): void => {
+        this.autoValue = value;
+        if (this.autoRangeHovered) {
+            this.registryController.setHighlight(value);
+        }
+    }
+
+    private handleFullRangeMouseEnter = (): void => {
+        const minmax = this.registry.minmax.value;
+        if (minmax !== undefined) {
+            this.registryController.setHighlight({ from: minmax.min, to: minmax.max });
+        }
+    }
+
+    private handleFullRangeClick = (): void => {
+        this.registry.range.applyMinmax();
+    }
+
+    private handleAutoRangeMouseEnter = (): void => {
+        this.autoRangeHovered = true;
+        this.registryController.setHighlight(this.autoValue);
+    }
+
+    private handleAutoRangeClick = (): void => {
+        this.registry.range.applyAuto();
+    }
+
+    private handleHighlightMouseLeave = (): void => {
+        this.autoRangeHovered = false;
+        this.registryController.setHighlight(undefined);
     }
 
     private updateFrom( value: number | undefined ): void {
@@ -738,11 +783,13 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         <div class="fields fields__separated fields__buttons">
             <thermal-btn
                 tooltip=${t(T.fullrange)}
-                @click=${() => {
-                    this.registry.range.applyMinmax();
-                }}
+                @click=${this.handleFullRangeClick}
+                @mouseenter=${this.handleFullRangeMouseEnter}
+                @mouseleave=${this.handleHighlightMouseLeave}
+                @focusin=${this.handleFullRangeMouseEnter}
+                @focusout=${this.handleHighlightMouseLeave}
                 style="padding: 0 0.5em; display: flex; align-items: center; justify-content: center;"
-                disabled="${(this.canSetMin() || this.canSetMax()) ? "false" : "true"}"
+                ?disabled=${!this.canSetMin() && !this.canSetMax()}
             >
                 <svg width="35" height="16" viewBox="0 0 35 16" fill="none" style="display: block;" stroke-linecap="butt" stroke-linejoin="miter">
                     <!-- Levý symbol (min) -->
@@ -760,10 +807,12 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
             
             <thermal-btn
                 tooltip=${t(T.automaticrange)}
-                @click=${() => {
-                    this.registry.range.applyAuto();
-                }}
-                disabled="${this.hasHistogram ? "false" : "true"}"
+                @click=${this.handleAutoRangeClick}
+                @mouseenter=${this.handleAutoRangeMouseEnter}
+                @mouseleave=${this.handleHighlightMouseLeave}
+                @focusin=${this.handleAutoRangeMouseEnter}
+                @focusout=${this.handleHighlightMouseLeave}
+                ?disabled=${this.autoValue === undefined}
                 style="padding: 0 0.5em; display: flex; align-items: center; justify-content: center;"
             >
                 <svg width="56" height="16" viewBox="0 0 56 16" fill="none" style="display: block;">

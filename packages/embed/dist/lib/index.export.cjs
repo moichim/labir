@@ -33,16 +33,14 @@ i18next = __toESM(i18next);
 let lit_directives_unsafe_svg_js = require("lit/directives/unsafe-svg.js");
 let uuid = require("uuid");
 let lit_decorators_js = require("lit/decorators.js");
-let lit_directives_ref_js = require("lit/directives/ref.js");
+let lit_directives_cache_js = require("lit/directives/cache.js");
 let lit_directives_if_defined_js = require("lit/directives/if-defined.js");
 let lit_directives_map_js = require("lit/directives/map.js");
-let lit_directives_cache_js = require("lit/directives/cache.js");
+let lit_directives_ref_js = require("lit/directives/ref.js");
 let _floating_ui_dom = require("@floating-ui/dom");
 let lit_directives_class_map_js = require("lit/directives/class-map.js");
 let _labirthermal_core = require("@labirthermal/core");
-require("toolcool-range-slider");
-require("toolcool-range-slider/dist/plugins/tcrs-marks.min.js");
-require("toolcool-range-slider/src/plugins/moving-tooltip-plugin");
+let lit_directives_style_map_js = require("lit/directives/style-map.js");
 require("@google-web-components/google-chart");
 let public_ip = require("public-ip");
 let date_fns = require("date-fns");
@@ -769,8 +767,7 @@ const fileContext = (0, _lit_context.createContext)("file");
 const fileFailureContext = (0, _lit_context.createContext)("failure");
 /** @deprecated Not used - remove */
 const loadingContext = (0, _lit_context.createContext)("file-loading");
-/** @deprecated Not used - remove */
-const loadedContext = (0, _lit_context.createContext)("file-loaded");
+const readyContext = (0, _lit_context.createContext)("file-ready-context");
 const fileProviderContext = (0, _lit_context.createContext)("file-provider-element");
 const fileMsContext = (0, _lit_context.createContext)("file-ms-context");
 const fileCursorContext = (0, _lit_context.createContext)("file-cursor");
@@ -783,7 +780,7 @@ const filePlaybackSpeedContext = (0, _lit_context.createContext)("file-playback-
 const fileRecordingContext = (0, _lit_context.createContext)("recording");
 /** @deprecated */
 const filaMayStopContext = (0, _lit_context.createContext)("mayStop");
-const fileAnalysisList = (0, _lit_context.createContext)("analysislist");
+const fileAnalysisListContext = (0, _lit_context.createContext)("analysislist");
 
 //#endregion
 //#region src/hierarchy/providers/context/GroupContext.ts
@@ -816,6 +813,7 @@ const setRegistryHighlightContext = (0, _lit_context.createContext)("registry-hi
 //#region src/hierarchy/providers/context/ManagerContext.ts
 const managerContext = (0, _lit_context.createContext)("manager-instance");
 const managerPaletteContext = (0, _lit_context.createContext)("manager-palette-context");
+const managerAdvancedPalettesContext = (0, _lit_context.createContext)("manager-advanced-palettes-context");
 const managerSmoothContext = (0, _lit_context.createContext)("manager-smooth-context");
 const managerGraphFunctionContext = (0, _lit_context.createContext)("manager-graph-function-context");
 const languageContext = (0, _lit_context.createContext)("language");
@@ -826,11 +824,8 @@ const interactiveAnalysisContext = (0, _lit_context.createContext)("interactive-
 
 //#endregion
 //#region src/ui/App.ts
-var _ref$26, _ref2$12, _ThermalAppElement;
-let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
-	static {
-		_ThermalAppElement = this;
-	}
+var _ref$19, _ref2$7;
+var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.language = i18next.default.language;
@@ -1200,7 +1195,7 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	renderLanguageSwitcher() {
 		return lit.html`<thermal-dropdown>
     <span slot="invoker">${this.language.toUpperCase()}</span>
-    ${(0, lit_directives_cache_js.cache)((0, lit_directives_map_js.map)(_ThermalAppElement.languages, (lang) => lit.html`<div slot="option">
+    ${(0, lit_directives_cache_js.cache)((0, lit_directives_map_js.map)(ThermalAppElement.languages, (lang) => lit.html`<div slot="option">
         <thermal-btn
             @click=${() => {
 			i18next.default.changeLanguage(lang);
@@ -1299,11 +1294,11 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "pre",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref$26 = typeof Array !== "undefined" && Array) === "function" ? _ref$26 : Object)], ThermalAppElement.prototype, "preElements", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$19 = typeof Array !== "undefined" && Array) === "function" ? _ref$19 : Object)], ThermalAppElement.prototype, "preElements", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "content",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref2$12 = typeof Array !== "undefined" && Array) === "function" ? _ref2$12 : Object)], ThermalAppElement.prototype, "contentElements", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$7 = typeof Array !== "undefined" && Array) === "function" ? _ref2$7 : Object)], ThermalAppElement.prototype, "contentElements", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -1311,8 +1306,8 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
-	attribute: true,
-	converter: booleanConverter(false)
+	converter: booleanConverter(false),
+	attribute: "show-fullscreen"
 }), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "showfullscreen", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -1329,11 +1324,10 @@ __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type",
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "labelVariant", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalAppElement.prototype, "onlabel", void 0);
 __decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "chromiumwarning", void 0);
-ThermalAppElement = _ThermalAppElement = __decorate([(0, lit_decorators_js.customElement)("thermal-app")], ThermalAppElement);
 
 //#endregion
 //#region src/ui/Bar.ts
-let ThermalBarElement = class ThermalBarElement extends lit.LitElement {
+var ThermalBarElement = class extends lit.LitElement {
 	constructor(..._args) {
 		super(..._args);
 		this.collapsed = false;
@@ -1462,12 +1456,11 @@ let ThermalBarElement = class ThermalBarElement extends lit.LitElement {
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalBarElement.prototype, "collapsed", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ThermalBarElement.prototype, "lastContentWidth", void 0);
-ThermalBarElement = __decorate([(0, lit_decorators_js.customElement)("thermal-bar")], ThermalBarElement);
 
 //#endregion
 //#region src/ui/Btn.ts
-var _ref$25;
-let ThermalBtnElement = class ThermalBtnElement extends AbstractThermalElement {
+var _ref$18;
+var ThermalBtnElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.tooltipPlacement = "top";
@@ -1952,7 +1945,7 @@ let ThermalBtnElement = class ThermalBtnElement extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "tooltip-placement"
-}), __decorateMetadata("design:type", typeof (_ref$25 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$25 : Object)], ThermalBtnElement.prototype, "tooltipPlacement", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$18 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$18 : Object)], ThermalBtnElement.prototype, "tooltipPlacement", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtnElement.prototype, "pre", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -1992,11 +1985,10 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], ThermalBtnElement.prototype, "align", void 0);
-ThermalBtnElement = __decorate([(0, lit_decorators_js.customElement)("thermal-btn")], ThermalBtnElement);
 
 //#endregion
 //#region src/ui/Dialog.ts
-let ThermalDialogElement = class ThermalDialogElement extends lit.LitElement {
+var ThermalDialogElement = class extends lit.LitElement {
 	constructor(..._args) {
 		super(..._args);
 		this.button = (0, i18next.t)(T.close);
@@ -2196,12 +2188,11 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalDialogElement.prototype, "beforeClose", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalDialogElement.prototype, "_open", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalDialogElement.prototype, "onCloseEveryTime", void 0);
-ThermalDialogElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dialog")], ThermalDialogElement);
 
 //#endregion
 //#region src/ui/Dropdown.ts
-var _ref$24, _ref2$11, _ref3$6;
-let ThermalDropdownElement = class ThermalDropdownElement extends AbstractThermalElement {
+var _ref$17, _ref2$6, _ref3$2;
+var ThermalDropdownElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.dropdownRef = (0, lit_directives_ref_js.createRef)();
@@ -2403,7 +2394,7 @@ let ThermalDropdownElement = class ThermalDropdownElement extends AbstractTherma
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$24 = typeof Array !== "undefined" && Array) === "function" ? _ref$24 : Object)], ThermalDropdownElement.prototype, "_options", void 0);
+__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$17 = typeof Array !== "undefined" && Array) === "function" ? _ref$17 : Object)], ThermalDropdownElement.prototype, "_options", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -2416,22 +2407,21 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$11 = typeof BtnVariants$2 !== "undefined" && BtnVariants$2) === "function" ? _ref2$11 : Object)], ThermalDropdownElement.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$6 = typeof BtnVariants$2 !== "undefined" && BtnVariants$2) === "function" ? _ref2$6 : Object)], ThermalDropdownElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref3$6 = typeof BtnSizes$2 !== "undefined" && BtnSizes$2) === "function" ? _ref3$6 : Object)], ThermalDropdownElement.prototype, "size", void 0);
+}), __decorateMetadata("design:type", typeof (_ref3$2 = typeof BtnSizes$2 !== "undefined" && BtnSizes$2) === "function" ? _ref3$2 : Object)], ThermalDropdownElement.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], ThermalDropdownElement.prototype, "plain", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true
 }), __decorateMetadata("design:type", String)], ThermalDropdownElement.prototype, "tooltip", void 0);
-ThermalDropdownElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dropdown")], ThermalDropdownElement);
 
 //#endregion
 //#region src/ui/Dropin.ts
-let ThermalDropinElement = class ThermalDropinElement extends AbstractThermalElement {
+var ThermalDropinElement = class extends AbstractThermalElement {
 	static {
 		this.styles = lit.css`
     
@@ -2515,12 +2505,11 @@ let ThermalDropinElement = class ThermalDropinElement extends AbstractThermalEle
 	}
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalDropinElement.prototype, "prompt", void 0);
-ThermalDropinElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dropin")], ThermalDropinElement);
 
 //#endregion
 //#region src/ui/Expandable.ts
-var _ref$23, _ref2$10, _ref3$5;
-let ThermalExpandableElement = class ThermalExpandableElement extends AbstractThermalElement {
+var _ref$16, _ref2$5, _ref3$1;
+var ThermalExpandableElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.closeIcon = false;
@@ -2606,17 +2595,17 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$23 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref$23 : Object)], ThermalExpandableElement.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$16 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref$16 : Object)], ThermalExpandableElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$10 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref2$10 : Object)], ThermalExpandableElement.prototype, "variantExpanded", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$5 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref2$5 : Object)], ThermalExpandableElement.prototype, "variantExpanded", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$5 = typeof BtnSizes$1 !== "undefined" && BtnSizes$1) === "function" ? _ref3$5 : Object)], ThermalExpandableElement.prototype, "size", void 0);
+}), __decorateMetadata("design:type", typeof (_ref3$1 = typeof BtnSizes$1 !== "undefined" && BtnSizes$1) === "function" ? _ref3$1 : Object)], ThermalExpandableElement.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalExpandableElement.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalExpandableElement.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({
@@ -2636,11 +2625,10 @@ __decorate([(0, lit_decorators_js.property)({
 	converter: booleanConverter(false),
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], ThermalExpandableElement.prototype, "expanded", void 0);
-ThermalExpandableElement = __decorate([(0, lit_decorators_js.customElement)("thermal-expandable")], ThermalExpandableElement);
 
 //#endregion
 //#region src/ui/Field.ts
-let ThermalFieldElement = class ThermalFieldElement extends lit.LitElement {
+var ThermalFieldElement = class extends lit.LitElement {
 	static {
 		this.styles = lit.css`
     
@@ -2699,11 +2687,10 @@ let ThermalFieldElement = class ThermalFieldElement extends lit.LitElement {
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalFieldElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalFieldElement.prototype, "hint", void 0);
-ThermalFieldElement = __decorate([(0, lit_decorators_js.customElement)("thermal-field")], ThermalFieldElement);
 
 //#endregion
 //#region src/ui/Icon.ts
-let ThermalIconElement = class ThermalIconElement extends AbstractThermalElement {
+var ThermalIconElement = class extends AbstractThermalElement {
 	connectedCallback() {
 		super.connectedCallback();
 		this.updateIcon();
@@ -2747,11 +2734,10 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], ThermalIconElement.prototype, "css", void 0);
-ThermalIconElement = __decorate([(0, lit_decorators_js.customElement)("thermal-icon")], ThermalIconElement);
 
 //#endregion
 //#region src/ui/Loading.ts
-let ThermalLoadingElement = class ThermalLoadingElement extends AbstractThermalElement {
+var ThermalPosterElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.loaded = false;
@@ -2802,22 +2788,21 @@ let ThermalLoadingElement = class ThermalLoadingElement extends AbstractThermalE
 		return content;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalLoadingElement.prototype, "loaded", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalPosterElement.prototype, "loaded", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], ThermalLoadingElement.prototype, "loading", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalLoadingElement.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalLoadingElement.prototype, "iconStyle", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalLoadingElement.prototype, "message", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalLoadingElement.prototype, "bordercolor", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalLoadingElement.prototype, "bgcolor", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalLoadingElement.prototype, "textcolor", void 0);
-ThermalLoadingElement = __decorate([(0, lit_decorators_js.customElement)("thermal-poster")], ThermalLoadingElement);
+}), __decorateMetadata("design:type", Boolean)], ThermalPosterElement.prototype, "loading", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "iconStyle", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "message", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "bordercolor", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "bgcolor", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "textcolor", void 0);
 
 //#endregion
 //#region src/ui/Radio.ts
-let ThermalRadioElement = class ThermalRadioElement extends AbstractThermalElement {
+var ThermalRadioElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.type = "radio";
@@ -2902,11 +2887,10 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], ThermalRadioElement.prototype, "checked", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ThermalRadioElement.prototype, "onChange", void 0);
-ThermalRadioElement = __decorate([(0, lit_decorators_js.customElement)("thermal-radio")], ThermalRadioElement);
 
 //#endregion
 //#region src/ui/Slot.ts
-let ThermalSlotElement = class ThermalSlotElement extends AbstractThermalElement {
+var ThermalSlotElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this._slottedElements = [];
@@ -2982,11 +2966,10 @@ let ThermalSlotElement = class ThermalSlotElement extends AbstractThermalElement
 };
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalSlotElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ThermalSlotElement.prototype, "_slottedElements", void 0);
-ThermalSlotElement = __decorate([(0, lit_decorators_js.customElement)("thermal-slot")], ThermalSlotElement);
 
 //#endregion
 //#region src/ui/Spinner.ts
-let ThermalSpinnerElement = class ThermalSpinnerElement extends AbstractThermalElement {
+var ThermalSpinnerElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.color = "var(--thermal-primary)";
@@ -3038,11 +3021,10 @@ let ThermalSpinnerElement = class ThermalSpinnerElement extends AbstractThermalE
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalSpinnerElement.prototype, "message", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalSpinnerElement.prototype, "color", void 0);
-ThermalSpinnerElement = __decorate([(0, lit_decorators_js.customElement)("thermal-spinner")], ThermalSpinnerElement);
 
 //#endregion
 //#region src/ui/Tip.ts
-let ThermalTipElement = class ThermalTipElement extends AbstractThermalElement {
+var ThermalTipElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.icon = "bulb";
@@ -3111,317 +3093,90 @@ thermal-icon {
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalTipElement.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalTipElement.prototype, "iconStyle", void 0);
-ThermalTipElement = __decorate([(0, lit_decorators_js.customElement)("thermal-tip")], ThermalTipElement);
 
 //#endregion
-//#region src/hierarchy/consumers/AbstractManagerConsumer.ts
-var _ref$22;
-var AbstractManagerConsumer = class extends AbstractThermalElement {};
-__decorate([
-	(0, _lit_context.consume)({
-		context: managerContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$22 = typeof _labirthermal_core.ThermalManager !== "undefined" && _labirthermal_core.ThermalManager) === "function" ? _ref$22 : Object)
-], AbstractManagerConsumer.prototype, "manager", void 0);
-
-//#endregion
-//#region src/hierarchy/consumers/AbstractRegistryConsumer.ts
-var _ref$21;
-var AbstractRegistryConsumer = class extends AbstractManagerConsumer {};
-__decorate([(0, _lit_context.consume)({
-	context: registryContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$21 = typeof _labirthermal_core.ThermalRegistry !== "undefined" && _labirthermal_core.ThermalRegistry) === "function" ? _ref$21 : Object)], AbstractRegistryConsumer.prototype, "registry", void 0);
-
-//#endregion
-//#region src/hierarchy/consumers/AbstractGroupConsumer.ts
-var _ref$20;
-var AbstractGroupConsumer = class extends AbstractRegistryConsumer {};
-__decorate([(0, _lit_context.consume)({
-	context: groupContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$20 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$20 : Object)], AbstractGroupConsumer.prototype, "group", void 0);
-
-//#endregion
-//#region src/hierarchy/abstraction/AbstractFileProvider.ts
-var _ref$19, _ref2$9, _ref3$4, _ref4$1, _ref5$1, _ref6$1, _ref7$1, _ref8$1;
-var AbstractFileProvider = class extends AbstractGroupConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.loading = false;
-		this.ready = false;
-		this.cursor = void 0;
-		this.cursorSetter = (percent) => {
-			if (percent === void 0) {
-				if (this.cursor !== void 0) this.cursor = void 0;
-			} else if (this.file) {
-				const relativeTime = this.file.timeline._convertPercenttRelative(percent);
-				const frame = this.file.timeline.findPreviousRelative(relativeTime);
-				this.cursor = {
-					absolute: frame.absolute,
-					ms: frame.relative,
-					percentage: percent
-				};
-			}
-		};
-		this.ms = 0;
-		this.speed = 1;
-		this.recording = false;
-		this.playing = false;
-		this.mayStop = true;
-		this.analyses = [];
-		this.onLoadingStart = new _labirthermal_core.CallbacksManager();
-		this.onSuccess = new _labirthermal_core.CallbacksManager();
-		this.onFailure = new _labirthermal_core.CallbacksManager();
-		this.autoHighlight = false;
-		this.onInstanceCreated = new _labirthermal_core.CallbacksManager();
+//#region src/controllers/AbstractReactiveController.ts
+var AbstractReactiveController = class {
+	constructor(host) {
+		this.host = host;
+		host.addController(this);
 	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("ms")) {
-			if (this.file && this.duration && this.currentFrame) {
-				const newMs = Math.min(this.duration.ms, Math.max(0, this.ms));
-				if (newMs !== this.currentFrame.ms) this.file.timeline.setRelativeTime(newMs);
-			}
-		}
-		if (_changedProperties.has("speed")) {
-			if (this.file && this.speed) {
-				if (this.speed !== this.file.timeline.playbackSpeed) this.file.timeline.playbackSpeed = this.speed;
-			}
-		}
-		if (_changedProperties.has("playing")) {
-			if (this.file) {
-				if (this.playing && !this.file.timeline.isPlaying) this.file.timeline.play();
-				else if (!this.playing && this.file.timeline.isPlaying) this.file.timeline.pause();
-			}
-		}
-		this.handleAnalysisUpdate(1, _changedProperties);
-		this.handleAnalysisUpdate(2, _changedProperties);
-		this.handleAnalysisUpdate(3, _changedProperties);
-		this.handleAnalysisUpdate(4, _changedProperties);
-		this.handleAnalysisUpdate(5, _changedProperties);
-		this.handleAnalysisUpdate(6, _changedProperties);
-		this.handleAnalysisUpdate(7, _changedProperties);
-	}
-	attributeChangedCallback(name, _old, value) {
-		super.attributeChangedCallback(name, _old, value);
-		if (name === "recording") {
-			if (this.file) {
-				if (this.recording === true && value === "false") this.file.recording.end();
-				else if (this.recording === false && value === "true") this.file.recording.start();
-			}
-		}
-	}
-	/** Register instance callback listeners */
-	recieveInstance(instance) {
-		this.file = instance;
-		this.failure = void 0;
-		this.loading = false;
-		this.ready = true;
-		this.duration = {
-			ms: instance.timeline.duration,
-			time: instance.timeline.formatDuration(instance.timeline.duration)
-		};
-		this.currentFrame = {
-			ms: instance.timeline.currentMs,
-			time: instance.timeline.currentTime,
-			percentage: instance.timeline.currentPercentage,
-			index: instance.timeline.currentStep.index,
-			absolute: instance.timeline.currentStep.absolute
-		};
-		this.analyses = instance.analysis.layers.all;
-		if (this.speed) instance.timeline.playbackSpeed = this.speed;
-		this.playCallback = () => {
-			this.playing = true;
-		};
-		this.stopCallback = () => {
-			this.playing = false;
-		};
-		this.currentFrameChangeCallback = (frame) => {
-			this.currentFrame = {
-				ms: frame.relative,
-				time: instance.timeline.currentTime,
-				percentage: instance.timeline.currentPercentage,
-				index: frame.index,
-				absolute: frame.absolute
-			};
-			this.ms = frame.relative;
-		};
-		this.playbackSpeedCallback = (value) => {
-			this.speed = value;
-		};
-		this.recordingCallback = (value) => {
-			this.recording = value;
-		};
-		this.mayStopCallback = (value) => {
-			this.mayStop = value;
-		};
-		this.analysisCallback = (value) => {
-			this.analyses = value;
-		};
-		instance.timeline.callbacksPlay.add(this.UUID, this.playCallback);
-		instance.timeline.callbacksPause.add(this.UUID, this.stopCallback);
-		instance.timeline.callbacksStop.add(this.UUID, this.stopCallback);
-		instance.timeline.callbacksEnd.add(this.UUID, this.stopCallback);
-		instance.timeline.callbacksChangeFrame.add(this.UUID, this.currentFrameChangeCallback);
-		instance.timeline.callbackdPlaybackSpeed.add(this.UUID, this.playbackSpeedCallback);
-		instance.recording.addListener(this.UUID, this.recordingCallback);
-		instance.recording.callbackMayStop.add(this.UUID, this.mayStopCallback);
-		instance.analysis.addListener(this.UUID, this.analysisCallback);
-		this.onInstanceCreated.call(instance);
-		this.addEventListener("mouseenter", () => {
-			if (this.autoHighlight && this.file && this.highlightSetter) this.highlightSetter({
-				from: this.file.min,
-				to: this.file.max
-			});
-		});
-		this.addEventListener("mouseleave", () => {
-			if (this.autoHighlight && this.highlightSetter) this.highlightSetter(void 0);
-		});
-	}
-	removeInstance(instance) {
-		instance.unmountFromDom();
-		this.file = void 0;
-		this.loading = false;
-		this.ready = false;
-		this.duration = void 0;
-		this.currentFrame = void 0;
-		this.analyses = [];
-		instance.timeline.callbacksPlay.delete(this.UUID);
-		instance.timeline.callbacksPause.delete(this.UUID);
-		instance.timeline.callbacksStop.delete(this.UUID);
-		instance.timeline.callbacksEnd.delete(this.UUID);
-		instance.timeline.callbacksChangeFrame.delete(this.UUID);
-		instance.timeline.callbackdPlaybackSpeed.delete(this.UUID);
-		instance.recording.removeListener(this.UUID);
-		instance.analysis.removeListener(this.UUID);
-	}
-	deleteFile() {
-		if (this.file) this.removeInstance(this.file);
-	}
-	/**
-	* Initialise slots & their listeners
-	*/
-	initAnalysesSync(instance) {
-		instance.slots.onSlot1Serialize.set(this.UUID, (value) => this.analysis1 = value);
-		instance.slots.onSlot2Serialize.set(this.UUID, (value) => this.analysis2 = value);
-		instance.slots.onSlot3Serialize.set(this.UUID, (value) => this.analysis3 = value);
-		instance.slots.onSlot4Serialize.set(this.UUID, (value) => this.analysis4 = value);
-		instance.slots.onSlot5Serialize.set(this.UUID, (value) => this.analysis5 = value);
-		instance.slots.onSlot6Serialize.set(this.UUID, (value) => this.analysis6 = value);
-		instance.slots.onSlot7Serialize.set(this.UUID, (value) => this.analysis7 = value);
-		this.createInitialAnalysis(instance, 1, this.analysis1);
-		this.createInitialAnalysis(instance, 2, this.analysis2);
-		this.createInitialAnalysis(instance, 3, this.analysis3);
-		this.createInitialAnalysis(instance, 4, this.analysis4);
-		this.createInitialAnalysis(instance, 5, this.analysis5);
-		this.createInitialAnalysis(instance, 6, this.analysis6);
-		this.createInitialAnalysis(instance, 7, this.analysis7);
-	}
-	handleAnalysisUpdate(index, _changedProperties) {
-		const field = `analysis${index}`;
-		if (_changedProperties.has(field)) {
-			const oldValue = _changedProperties.get(field);
-			const newValue = this[field];
-			if (this.file) {
-				const slot = this.file.slots.getSlot(index);
-				if (slot === void 0 && newValue && newValue.trim().length > 0 && (!oldValue || oldValue?.trim().length > 0)) this.file.slots.createAnalysisFromSerialized(newValue, index)?.setSelected(false, true);
-				else if (slot !== void 0 && oldValue && (!newValue || newValue?.trim().length === 0)) this.file.slots.removeSlotAndAnalysis(index);
-				else if (slot && newValue) slot?.recieveSerialized(newValue);
-			}
-		}
-	}
-	createInitialAnalysis(instance, index, value) {
-		if (value !== void 0 && value !== null && value.trim().length > 0) if (instance.slots.hasSlot(index)) {
-			const analysis = instance.slots.getSlot(index);
-			analysis?.recieveSerialized(value);
-			analysis?.analysis.setSelected(false, true);
-		} else instance.slots.createAnalysisFromSerialized(value, index)?.setSelected(false, true);
-	}
-	render() {
-		return lit.html`
-            <slot></slot>
-            <slot name="mark"></slot>
-            <slot name="analysis"></slot>
-        `;
+	/** Logs anything using the host's logging mechanism. Adds the controller's className as the first argument. */
+	log(...args) {
+		this.host.log(this.constructor.name, ...args);
 	}
 };
-__decorate([
-	(0, _lit_context.provide)({ context: fileContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$19 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$19 : Object)
-], AbstractFileProvider.prototype, "file", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: fileFailureContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$9 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref2$9 : Object)
-], AbstractFileProvider.prototype, "failure", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: loadingContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], AbstractFileProvider.prototype, "loading", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: loadedContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Object)
-], AbstractFileProvider.prototype, "ready", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: durationContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref3$4 = typeof DurationContext !== "undefined" && DurationContext) === "function" ? _ref3$4 : Object)
-], AbstractFileProvider.prototype, "duration", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: fileCurrentFrameContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref4$1 = typeof CurrentFrameContext !== "undefined" && CurrentFrameContext) === "function" ? _ref4$1 : Object)
-], AbstractFileProvider.prototype, "currentFrame", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileCursorContext }), __decorateMetadata("design:type", typeof (_ref5$1 = typeof FileCursorContext !== "undefined" && FileCursorContext) === "function" ? _ref5$1 : Object)], AbstractFileProvider.prototype, "cursor", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileMsContext }), __decorateMetadata("design:type", Number)], AbstractFileProvider.prototype, "ms", void 0);
-__decorate([(0, _lit_context.provide)({ context: filePlaybackSpeedContext }), __decorateMetadata("design:type", typeof (_ref6$1 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref6$1 : Object)], AbstractFileProvider.prototype, "speed", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileRecordingContext }), __decorateMetadata("design:type", Boolean)], AbstractFileProvider.prototype, "recording", void 0);
-__decorate([(0, _lit_context.provide)({ context: filePlayingContext }), __decorateMetadata("design:type", Boolean)], AbstractFileProvider.prototype, "playing", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.provide)({ context: filaMayStopContext }),
-	__decorateMetadata("design:type", Boolean)
-], AbstractFileProvider.prototype, "mayStop", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileAnalysisList }), __decorateMetadata("design:type", typeof (_ref7$1 = typeof AnalysisList !== "undefined" && AnalysisList) === "function" ? _ref7$1 : Object)], AbstractFileProvider.prototype, "analyses", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true,
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], AbstractFileProvider.prototype, "autoHighlight", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: registryHighlightContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref8$1 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref8$1 : Object)], AbstractFileProvider.prototype, "highlight", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: setRegistryHighlightContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], AbstractFileProvider.prototype, "highlightSetter", void 0);
 
 //#endregion
-//#region src/hierarchy/abstraction/AbstractGroupProvider.ts
-var AbstractGroupProvider = class extends AbstractRegistryConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.UUIDGroupListeners = this.UUID + "__group-listener";
-		this.autoclear = false;
+//#region src/hierarchy/controllers/AbstractHierarchyController.ts
+/** Common internal state for host elements that should be only internal states. */
+const INTERNAL_STATE_DECLARATION = {
+	reflect: false,
+	state: true
+};
+/** Abstract base class for controllers related to the hierarchy of `@labirthermal/core`.  */
+var AbstractHierarchyController = class extends AbstractReactiveController {
+	/** Retrieve the default slug from the host element, falling back to the element UUID. Should be called only in host connected. */
+	_getDefaultSlugFromHost(primaryAttributeName) {
+		return this.host.getAttribute(primaryAttributeName) ?? this.host.getAttribute("slug") ?? this.UUID;
 	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.group = this.registry.groups.addOrGetGroup(this.slug);
+};
+
+//#endregion
+//#region src/hierarchy/controllers/GroupController.ts
+const groupControllerContext = (0, _lit_context.createContext)("group-controller-context");
+var GroupController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
 	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		if (this.autoclear === true && this.group !== void 0) this.registry.groups.removeGroup(this.group.id);
+	static {
+		this.HOST_PROPERTIES = {
+			managerController: INTERNAL_STATE_DECLARATION,
+			registryController: INTERNAL_STATE_DECLARATION,
+			groupSlug: {
+				type: String,
+				reflect: true,
+				attribute: "group-slug"
+			},
+			groupObject: INTERNAL_STATE_DECLARATION,
+			autoclearGroup: {
+				type: Boolean,
+				reflect: true,
+				attribute: "autoclear-group",
+				converter: booleanConverter(true)
+			},
+			groupController: INTERNAL_STATE_DECLARATION
+		};
 	}
-	render() {
-		return lit.html`<slot></slot>`;
+	get groupObject() {
+		return this.host.groupObject;
 	}
+	get slug() {
+		return this.host.groupSlug;
+	}
+	get autoclearGroup() {
+		return this.host.autoclearGroup;
+	}
+	constructor(host) {
+		super(host);
+		this._UUID = host.UUID + "_group-controller";
+		this.groupControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: groupControllerContext,
+			initialValue: this
+		});
+		this.groupObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: groupContext });
+	}
+	hostConnected() {
+		const slug = this._getDefaultSlugFromHost("group-slug");
+		this.host.groupSlug = slug;
+		this.host.groupObject = this.host.registryController.addOrGetGroup(slug);
+		this.groupObjectContextProvider.setValue(this.host.groupObject);
+		this.log(this.host.groupObject);
+	}
+	hostDisconnected() {
+		if (this.autoclearGroup && this.host.groupObject) this.host.registryController.removeGroup(this.host.groupObject);
+	}
+	hostUpdatedWatcher(value) {}
 };
 
 //#endregion
@@ -3457,162 +3212,1033 @@ const removeManager = (manager) => {
 };
 
 //#endregion
-//#region src/hierarchy/abstraction/AbstractManagerProvider.ts
-var _ref$18;
-var AbstractManagerProvider = class extends AbstractThermalElement {
-	constructor(..._args) {
-		super(..._args);
-		this.UUIDManagerListeners = this.UUID + "__manager-listener";
-		this.palette = {
-			key: "jet",
-			data: _labirthermal_core.ThermalPalettes["jet"]
+//#region src/utils/converters/paletteConverter.ts
+/** A unified converter for thermal palettes. Recommended usage:
+* @example
+* ```ts
+* import { paletteConverter } from "path/to/paletteConverter";
+* class MyComponent extends LitElement {
+*      @property({
+*          type: String,
+*          reflect: true,
+*          converter: paletteConverter,
+*      })
+*      public palette: AvailableThermalPalette = "iron"; // IRON is used as default
+* }
+* ```
+*/
+const paletteConverter = {
+	fromAttribute: (value) => {
+		if (value === void 0 || value === null || typeof value !== "string" || value === "" || !(value in _labirthermal_core.ThermalPalettes)) return "iron";
+		return value;
+	},
+	toAttribute: (value) => value
+};
+
+//#endregion
+//#region src/hierarchy/controllers/ManagerController.ts
+/** Exposes the main manager controller with all its setters and direct access to the host element values. */
+const managerControllerContext = (0, _lit_context.createContext)("manager-controller-context");
+var ManagerController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			managerSlug: {
+				type: String,
+				reflect: false,
+				attribute: "manager-slug"
+			},
+			managerObject: INTERNAL_STATE_DECLARATION,
+			managerController: INTERNAL_STATE_DECLARATION,
+			palette: {
+				type: String,
+				reflect: true,
+				attribute: "palette",
+				converter: paletteConverter
+			},
+			advancedPalettes: {
+				reflect: true,
+				attribute: "advanced-palettes",
+				converter: booleanConverter(false)
+			},
+			smoothThermograms: {
+				reflect: true,
+				attribute: "smooth-thermograms",
+				converter: booleanConverter(false)
+			},
+			smoothGraph: {
+				reflect: true,
+				attribute: "smooth-graph",
+				converter: booleanConverter(false)
+			},
+			tool: {
+				type: String,
+				reflect: true,
+				attribute: "tool"
+			}
 		};
-		this.smooth = false;
-		this.graphSmooth = false;
-		this.autoclear = false;
 	}
-	connectedCallback() {
-		super.connectedCallback();
-		const options = {};
-		options.palette = this.sanitizeStringPalette(this.palette.key);
-		this.manager = createOrGetManager(this.slug, options);
-		this.tool = this.manager.tool.value;
-		this.tools = this.manager.tool.tools;
+	/** Accessor to the manageer slug from the host */
+	get slug() {
+		return this.host.managerSlug;
 	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		if (this.autoclear === true && this.manager !== void 0) removeManager(this.manager);
+	/** Accessor to the manager object from the host */
+	get managerObject() {
+		return this.host.managerObject;
 	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		this.manager.palette.addListener(this.UUIDManagerListeners, (value) => {
-			this.setPalette(value);
-		});
-		this.manager.smooth.addListener(this.UUIDManagerListeners, (value) => {
-			this.smooth = value;
-		});
-		this.manager.graphSmooth.addListener(this.UUIDManagerListeners, (value) => {
-			this.graphSmooth = value;
-		});
-		this.manager.tool.addListener(this.UUIDManagerListeners, (value) => {
-			this.tool = value;
-		});
+	/** Palette property value accessed from the host element */
+	get palette() {
+		return this.host.palette;
 	}
-	attributeChangedCallback(name, _old, value) {
-		super.attributeChangedCallback(name, _old, value);
-		if (name === "palette" && this.manager) {
-			const palette = this.sanitizeStringPalette(value);
-			this.manager.palette.setPalette(palette);
+	/** Smooth thermograms flag accessed from the host element */
+	get smoothThermograms() {
+		return this.host.smoothThermograms;
+	}
+	/** Tool property accessed from the host element */
+	get tool() {
+		return this.host.tool;
+	}
+	get toolObject() {
+		return this.managerObject.tool.value;
+	}
+	/** Graph smoothing flag accessed from the host element */
+	get smoothGraph() {
+		return this.host.smoothGraph;
+	}
+	constructor(host) {
+		super(host);
+		this._UUID = host.UUID + "_manager-controller";
+		this.managerControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: managerControllerContext,
+			initialValue: this
+		});
+		this.managerObjectContextPtovider = new _lit_context.ContextProvider(this.host, { context: managerContext });
+		this.paletteContextProvider = new _lit_context.ContextProvider(this.host, { context: managerPaletteContext });
+		this.advancedPalettesContextProvider = new _lit_context.ContextProvider(this.host, { context: managerAdvancedPalettesContext });
+		this.smoothThermogramsContextProvider = new _lit_context.ContextProvider(this.host, { context: managerSmoothContext });
+		this.toolContextProvider = new _lit_context.ContextProvider(this.host, { context: toolContext });
+		this.smoothGraphContextProvider = new _lit_context.ContextProvider(this.host, { context: managerGraphFunctionContext });
+	}
+	hostConnected() {
+		const slug = this._getDefaultSlugFromHost("manager-slug");
+		this.host.managerSlug = slug;
+		this.host.managerObject = createOrGetManager(slug);
+		this.managerObjectContextPtovider.setValue(this.host.managerObject);
+		const initialPaletteValue = paletteConverter.fromAttribute(this.host.palette);
+		this.setPalette(initialPaletteValue);
+		this.managerObject.palette.addListener(this.UUID, this.setPalette.bind(this));
+		this.setAdvancedPalettes(this.host.advancedPalettes);
+		this.setSmoothThermograms(this.host.smoothThermograms);
+		this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
+		this.setSmoothGraph(this.host.smoothGraph);
+		this.managerObject.graphSmooth.addListener(this.UUID, this.setSmoothGraph.bind(this));
+		this._setToolByKey(this.host.tool);
+		this.managerObject.tool.addListener(this.UUID, this.setTool.bind(this));
+	}
+	hostDisconnected() {
+		this.managerObject.palette.removeListener(this.UUID);
+		this.managerObject.smooth.removeListener(this.UUID);
+		this.managerObject.graphSmooth.removeListener(this.UUID);
+		this.managerObject.tool.removeListener(this.UUID);
+	}
+	hostUpdate() {
+		if (this.host.palette && this.host.palette !== this.managerObject.palette.value) this.setPalette(this.host.palette);
+		if (this.host.advancedPalettes && this.host.advancedPalettes !== this.advancedPalettesContextProvider.value) this.setAdvancedPalettes(this.host.advancedPalettes);
+	}
+	hostUpdatedWatcher(value) {
+		if (!value) return;
+		if (value.has("palette")) this.setPalette(this.host.palette);
+		if (value.has("advancedPalettes")) this.setAdvancedPalettes(this.host.advancedPalettes);
+		if (value.has("smoothThermograms")) this.setSmoothThermograms(this.host.smoothThermograms);
+		if (value.has("smoothGraph")) this.setSmoothGraph(this.host.smoothGraph);
+		if (value.has("tool")) this._setToolByKey(this.host.tool);
+	}
+	/** 
+	* Create or get a registry by its slug from the internal manager object. 
+	*/
+	createRegistry(slug) {
+		return this.managerObject.addOrGetRegistry(slug);
+	}
+	_paletteStringToContextValue(palette) {
+		return {
+			key: palette,
+			data: _labirthermal_core.ThermalPalettes[palette]
+		};
+	}
+	/** 
+	* This is the recommended way to set the advanced palettes flag - updates the value in the context provider and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setAdvancedPalettes(value) {
+		if (this.host.advancedPalettes !== value) this.host.advancedPalettes = value;
+		if (this.advancedPalettesContextProvider.value !== value) this.advancedPalettesContextProvider.setValue(value);
+	}
+	/** 
+	* This is the recommended way to set the palette - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setPalette(value) {
+		const sanitizedValue = paletteConverter.fromAttribute(value);
+		if (this.managerObject.palette.value !== sanitizedValue) this.managerObject.palette.setPalette(sanitizedValue);
+		if (!this.paletteContextProvider.value) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
+		else if (this.paletteContextProvider.value.key !== sanitizedValue) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
+		if (this.host.palette !== sanitizedValue) this.host.palette = sanitizedValue;
+	}
+	/** 
+	* This is the recommended way to set the smooth thermograms flag - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setSmoothThermograms(value) {
+		if (this.host.smoothThermograms !== value) this.host.smoothThermograms = value;
+		if (this.smoothThermogramsContextProvider.value !== value) this.smoothThermogramsContextProvider.setValue(value);
+		if (this.managerObject.smooth.value !== value) this.managerObject.smooth.setSmooth(value);
+	}
+	/** 
+	* This is the recommended way to set the tool - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setTool(value) {
+		if (value && value.key !== this.host.tool) this.host.tool = value.key;
+		if (this.toolContextProvider.value !== value) this.toolContextProvider.setValue(value);
+		if (this.managerObject.tool.value !== value) this.managerObject.tool.selectTool(value);
+	}
+	_setToolByKey(value) {
+		const toolObject = this._toolStringToObject(value);
+		this.setTool(toolObject);
+	}
+	_toolStringToObject(value = "inspect") {
+		const selectedTool = this.managerObject.tool.tools[value];
+		if (!selectedTool) this.managerObject.tool.tools["inspect"];
+		return selectedTool;
+	}
+	/**
+	* This is the recommended way to set the smooth graph option - updates the value and the context provider. All updates are performed only when the new value differs from the current one.
+	*/
+	setSmoothGraph(value) {
+		if (this.host.smoothGraph !== value) this.host.smoothGraph = value;
+		if (this.smoothGraphContextProvider.value !== value) this.smoothGraphContextProvider.setValue(value);
+	}
+};
+
+//#endregion
+//#region src/hierarchy/consumers/AbstractManagerConsumer.ts
+var _ref$15;
+var AbstractManagerConsumer = class extends AbstractThermalElement {
+	/** @deprecated Use the manager controller instead */
+	get manager() {
+		return this.managerController.managerObject;
+	}
+};
+__decorate([(0, _lit_context.consume)({
+	context: managerControllerContext,
+	subscribe: true
+}), __decorateMetadata("design:type", typeof (_ref$15 = typeof ManagerController !== "undefined" && ManagerController) === "function" ? _ref$15 : Object)], AbstractManagerConsumer.prototype, "managerController", void 0);
+
+//#endregion
+//#region src/hierarchy/controllers/RegistryController.ts
+const registryControllerContext = (0, _lit_context.createContext)("registry-controller-context");
+var RegistryController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			managerController: INTERNAL_STATE_DECLARATION,
+			registrySlug: {
+				type: String,
+				reflect: false,
+				attribute: "registry-slug"
+			},
+			registryObject: INTERNAL_STATE_DECLARATION,
+			registryController: INTERNAL_STATE_DECLARATION,
+			opacity: {
+				type: Number,
+				reflect: true,
+				attribute: "opacity"
+			},
+			min: {
+				type: Number,
+				reflect: false,
+				state: true
+			},
+			max: {
+				type: Number,
+				reflect: false,
+				state: true
+			},
+			from: {
+				type: Number,
+				reflect: true,
+				attribute: "from"
+			},
+			to: {
+				type: Number,
+				reflect: true,
+				attribute: "to"
+			},
+			loading: {
+				type: Boolean,
+				attribute: "is-loading",
+				reflect: true
+			}
+		};
+	}
+	get registryObject() {
+		return this.host.registryObject;
+	}
+	get slug() {
+		return this.host.registrySlug;
+	}
+	get opacity() {
+		return this.host.opacity;
+	}
+	get min() {
+		return this.host.min;
+	}
+	get max() {
+		return this.host.max;
+	}
+	get from() {
+		return this.host.from;
+	}
+	get to() {
+		return this.host.to;
+	}
+	get loading() {
+		return this.host.loading;
+	}
+	constructor(host) {
+		super(host);
+		this._UUID = host.UUID + "_registry-controller";
+		this.registryControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: registryControllerContext,
+			initialValue: this
+		});
+		this.registryObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: registryContext });
+		this.opacityContextProvider = new _lit_context.ContextProvider(this.host, { context: registryOpacityContext });
+		this.minContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMinContext });
+		this.maxContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMaxContext });
+		this.fromContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeFromContext });
+		this.toContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeToContext });
+		this.loadingContextProvider = new _lit_context.ContextProvider(this.host, { context: registryLoadingContext });
+		this.highlightContextProvider = new _lit_context.ContextProvider(this.host, { context: registryHighlightContext });
+	}
+	hostConnected() {
+		const slug = this._getDefaultSlugFromHost("registry-slug");
+		this.host.registrySlug = slug;
+		this.host.registryObject = this.host.managerController.createRegistry(slug);
+		this.registryObjectContextProvider.setValue(this.host.registryObject);
+		this.setOpacity(this.host.opacity ?? 1);
+		this.registryObject.opacity.addListener(this.UUID, this.setOpacity.bind(this));
+		this.registryObject.minmax.addListener(this.UUID, (value) => {
+			if (value === void 0) {
+				this.host.min = void 0;
+				this.host.max = void 0;
+				this.minContextProvider.setValue(void 0);
+				this.maxContextProvider.setValue(void 0);
+			} else {
+				if (value.min !== this.host.min) this.host.min = value.min;
+				if (value.max !== this.host.max) this.host.max = value.max;
+				if (value.min !== this.minContextProvider.value) this.minContextProvider.setValue(value.min);
+				if (value.max !== this.maxContextProvider.value) this.maxContextProvider.setValue(value.max);
+			}
+		});
+		this.registryObject.range.addListener(this.UUID, this._rangeListener.bind(this));
+		this.registryObject.loading.addListener(this.UUID, this._loadingListener.bind(this));
+	}
+	hostDisconnected() {
+		this.registryObject.opacity.removeListener(this.UUID);
+		this.registryObject.minmax.removeListener(this.UUID);
+		this.registryObject.range.removeListener(this.UUID);
+		this.registryObject.loading.removeListener(this.UUID);
+	}
+	hostUpdatedWatcher(value) {
+		if (value.has("opacity")) this.setOpacity(this.host.opacity ?? 1);
+		if (value.has("from") || value.has("to")) if (this.host.from === void 0 || this.host.to === void 0) this._clearRange();
+		else this.setRange(this.host.from, this.host.to);
+	}
+	addOrGetGroup(slug) {
+		return this.registryObject.groups.addOrGetGroup(slug);
+	}
+	removeGroup(group) {
+		this.registryObject.groups.removeGroup(group.id);
+	}
+	/**
+	* This is the recommended way to set the opacity. Calling this method will 
+	* - update the context provider element's attribute `opacity`
+	* - set the internal value to `@labirthermal/core`
+	* - update the context provider
+	*/
+	setOpacity(value) {
+		const safeValue = isNaN(value) ? 1 : Math.max(0, Math.min(1, value));
+		if (this.host.opacity !== safeValue) this.host.opacity = safeValue;
+		if (this.registryObject.opacity.value !== safeValue) this.registryObject.opacity.imposeOpacity(safeValue);
+		if (this.opacityContextProvider.value !== safeValue) this.opacityContextProvider.setValue(safeValue);
+	}
+	setRange(from, to) {
+		if (this.registryObject.range.value === void 0 || this.registryObject.range.value.from !== from || this.registryObject.range.value.to !== to) this.registryObject.range.imposeRange({
+			from,
+			to
+		});
+		const currentInternalRange = this.registryObject.range.value;
+		if (currentInternalRange === void 0) this._clearRange();
+		else {
+			this.host.from = currentInternalRange.from;
+			this.host.to = currentInternalRange.to;
+			this.fromContextProvider.setValue(currentInternalRange.from);
+			this.toContextProvider.setValue(currentInternalRange.to);
 		}
 	}
-	sanitizeStringPalette(input) {
-		let valid = true;
-		if (input === null || input === void 0) valid = false;
-		else if (!Object.keys(_labirthermal_core.ThermalPalettes).includes(input)) valid = false;
-		return valid ? input : "jet";
+	setRangeFull() {
+		if (this.host.min !== void 0 && this.host.max !== void 0) this.setRange(this.host.min, this.host.max);
 	}
-	setPalette(key) {
-		this.palette = {
-			key,
-			data: _labirthermal_core.ThermalPalettes[key]
+	_rangeListener(value) {
+		if (value !== void 0) this.setRange(value.from, value.to);
+		else this._clearRange();
+	}
+	_clearRange() {
+		this.host.from = void 0;
+		this.host.to = void 0;
+		this.fromContextProvider.setValue(void 0);
+		this.toContextProvider.setValue(void 0);
+	}
+	_loadingListener(value) {
+		if (value !== this.host.loading) this.host.loading = value;
+		if (value !== this.loadingContextProvider.value) this.loadingContextProvider.setValue(value);
+	}
+	setHighlight(value) {
+		if (this.highlightContextProvider.value !== value) this.highlightContextProvider.setValue(value);
+	}
+};
+
+//#endregion
+//#region src/hierarchy/consumers/AbstractRegistryConsumer.ts
+var _ref$14;
+var AbstractRegistryConsumer = class extends AbstractManagerConsumer {
+	/** @deprecated Use registryController instead */
+	get registry() {
+		return this.registryController.registryObject;
+	}
+};
+__decorate([(0, _lit_context.consume)({
+	context: registryControllerContext,
+	subscribe: true
+}), __decorateMetadata("design:type", typeof (_ref$14 = typeof RegistryController !== "undefined" && RegistryController) === "function" ? _ref$14 : Object)], AbstractRegistryConsumer.prototype, "registryController", void 0);
+
+//#endregion
+//#region src/hierarchy/consumers/AbstractGroupConsumer.ts
+var _ref$13;
+var AbstractGroupConsumer = class extends AbstractRegistryConsumer {
+	/** @deprecated Use groupController instead */
+	get group() {
+		return this.groupController.groupObject;
+	}
+};
+__decorate([(0, _lit_context.consume)({
+	context: groupControllerContext,
+	subscribe: true
+}), __decorateMetadata("design:type", typeof (_ref$13 = typeof GroupController !== "undefined" && GroupController) === "function" ? _ref$13 : Object)], AbstractGroupConsumer.prototype, "groupController", void 0);
+
+//#endregion
+//#region src/hierarchy/controllers/FileAnalysisSynchronisator.ts
+var FileAnalysisSynchronisator = class FileAnalysisSynchronisator {
+	/** Lit.js is using null for removed attributes - we need normalize the value to either string or undefined. */
+	static normalize(value) {
+		return value?.trim() || void 0;
+	}
+	get UUID_LISTENER() {
+		return this._controller.UUID + "_" + this._attribute;
+	}
+	get _attributeValue() {
+		return this._controller.host[this._attribute];
+	}
+	set _attributeValue(value) {
+		if (value !== this._controller.host[this._attribute]) this._controller.host[this._attribute] = value;
+	}
+	get _mountKey() {
+		return `${this._controller.UUID}_slot_${this._slotNumber}`;
+	}
+	get _internalSerialized() {
+		return this._slotObject?.serialized;
+	}
+	get _slotObject() {
+		return this._fileObject?.slots.getSlot(this._slotNumber);
+	}
+	constructor(_controller, _slotNumber) {
+		this._controller = _controller;
+		this._slotNumber = _slotNumber;
+		this._attribute = `analysis${this._slotNumber}`;
+	}
+	/** Enables the listeners and internal objects necessary for synchronisation of the file analysis slot */
+	fileAssigned(instance, coreWins = false) {
+		this._fileObject = instance;
+		instance.slots.getOnSerializeManager(this._slotNumber)?.set(this._controller.UUID, (value) => {
+			if (value !== this._attributeValue) this._attributeValue = value;
+		});
+		const syncAction = () => {
+			const attribute = FileAnalysisSynchronisator.normalize(this._attributeValue);
+			if (coreWins || attribute === void 0) this._attributeValue = this._slotObject?.serialized;
+			else this._applyToCore(attribute);
 		};
+		if (instance.dom?.built) syncAction();
+		else instance.onMount.set(this._mountKey, () => {
+			syncAction();
+		});
+	}
+	/** Deactivates the listeners and internal objects - stopping the synchronisation of analyses */
+	fileUnassigned() {
+		this._fileObject?.slots.getOnSerializeManager(this._slotNumber)?.delete(this._controller.UUID);
+		this._fileObject?.onMount.delete(this._mountKey);
+		this._fileObject = void 0;
+	}
+	/** Looks for the changed attributes of the host and propagates them to internal state if necessary */
+	handleHostUpdate(changedValues) {
+		if (changedValues.has(this._attribute)) {
+			const value = FileAnalysisSynchronisator.normalize(this._attributeValue);
+			if (this._internalSerialized !== value) {
+				if (this._fileObject?.dom?.built) this._applyToCore(value);
+			}
+		}
+	}
+	/** Very carrefully propagate the host attribute value to the analysis slot - this method manipulates the internal state of @labirthermal/core */
+	_applyToCore(value) {
+		const file = this._fileObject;
+		if (!file) return;
+		const slot = this._slotObject;
+		if (value === void 0) {
+			if (slot) file.slots.removeSlotAndAnalysis(this._slotNumber);
+		} else if (slot) {
+			slot.recieveSerialized(value);
+			const canvasRoot = file.dom?.canvasLayer?.getLayerRoot();
+			if (canvasRoot && !canvasRoot.contains(slot.analysis.layerRoot)) canvasRoot.appendChild(slot.analysis.layerRoot);
+		} else file.slots.createAnalysisFromSerialized(value, this._slotNumber)?.setSelected();
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/FileAnalysisSynchronisators.ts
+var FileAnalysisSynchronisators = class {
+	constructor(_controller) {
+		this._controller = _controller;
+		this._synchronisators = [];
+		for (let i = 1; i <= 7; i++) this._synchronisators.push(new FileAnalysisSynchronisator(this._controller, i));
+	}
+	_forEach(callback) {
+		for (const synchronisator of this._synchronisators) callback(synchronisator);
+	}
+	/** Every synchronisator object will look into the changed properties and update its internal state accordingly */
+	handleHostUpdate(changedValues) {
+		this._forEach((synchronisator) => synchronisator.handleHostUpdate(changedValues));
+	}
+	/** Every synchronisator will be notified that a file has been assigned */
+	handleFileAssigned(instance, coreWins = false) {
+		this._forEach((synchronisator) => synchronisator.fileAssigned(instance, coreWins));
+	}
+	/** Every synchronisator will be notified that a file has been removed */
+	handleFileUnassigned() {
+		this._forEach((synchronisator) => synchronisator.fileUnassigned());
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/FileController.ts
+const fileControllerContext = (0, _lit_context.createContext)("file-controller-context");
+const ANALYSIS_STATE_DECLARATION = {
+	type: String,
+	reflect: true
+};
+var FileController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			managerController: INTERNAL_STATE_DECLARATION,
+			registryController: INTERNAL_STATE_DECLARATION,
+			groupController: INTERNAL_STATE_DECLARATION,
+			fileController: INTERNAL_STATE_DECLARATION,
+			file: INTERNAL_STATE_DECLARATION,
+			failure: INTERNAL_STATE_DECLARATION,
+			ms: {
+				type: Number,
+				reflect: true,
+				attribute: "ms"
+			},
+			playbackSpeed: {
+				type: Number,
+				reflect: true,
+				attribute: "speed"
+			},
+			analysis1: ANALYSIS_STATE_DECLARATION,
+			analysis2: ANALYSIS_STATE_DECLARATION,
+			analysis3: ANALYSIS_STATE_DECLARATION,
+			analysis4: ANALYSIS_STATE_DECLARATION,
+			analysis5: ANALYSIS_STATE_DECLARATION,
+			analysis6: ANALYSIS_STATE_DECLARATION,
+			analysis7: ANALYSIS_STATE_DECLARATION,
+			autoHighlight: {
+				type: Boolean,
+				reflect: true,
+				attribute: "autohighlight"
+			}
+		};
+	}
+	get fileObject() {
+		return this.host.file;
+	}
+	get failure() {
+		return this.host.failure;
+	}
+	get ms() {
+		return this.host.ms;
+	}
+	get playbackSpeed() {
+		return this.host.playbackSpeed;
+	}
+	get analysis1() {
+		return this.host.analysis1;
+	}
+	get analysis2() {
+		return this.host.analysis2;
+	}
+	get analysis3() {
+		return this.host.analysis3;
+	}
+	get analysis4() {
+		return this.host.analysis4;
+	}
+	get analysis5() {
+		return this.host.analysis5;
+	}
+	get analysis6() {
+		return this.host.analysis6;
+	}
+	get analysis7() {
+		return this.host.analysis7;
+	}
+	get autoHighlight() {
+		return this.host.autoHighlight;
+	}
+	get ready() {
+		return this.readyContextProvider.value;
+	}
+	get recording() {
+		return this.fileRecordingContextProvider.value;
+	}
+	get playing() {
+		return this.filePlayingContextProvider.value;
+	}
+	get mayStop() {
+		return this.fileMayStopContextProvider.value;
+	}
+	get cursor() {
+		return this.fileCursorContextProvider.value;
+	}
+	get currentFrame() {
+		return this.fileCurrentFrameContextProvider.value;
+	}
+	get analyses() {
+		return this.fileAnalysesContextProvider.value;
+	}
+	get duration() {
+		return this.fileDurationContextProvider.value;
+	}
+	constructor(host) {
+		super(host);
+		this.onLoadingStart = new _labirthermal_core.CallbacksManager();
+		this.onSuccess = new _labirthermal_core.CallbacksManager();
+		this.onFailure = new _labirthermal_core.CallbacksManager();
+		this._analysisSynchronisators = new FileAnalysisSynchronisators(this);
+		this._UUID = host.UUID + "_file-controller";
+		this.fileControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: fileControllerContext,
+			initialValue: this
+		});
+		this.fileContextProvider = new _lit_context.ContextProvider(this.host, { context: fileContext });
+		this.fileFailureContextProvider = new _lit_context.ContextProvider(this.host, { context: fileFailureContext });
+		this.readyContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: readyContext,
+			initialValue: false
+		});
+		this.fileDurationContextProvider = new _lit_context.ContextProvider(this.host, { context: durationContext });
+		this.fileCurrentFrameContextProvider = new _lit_context.ContextProvider(this.host, { context: fileCurrentFrameContext });
+		this.fileCursorContextProvider = new _lit_context.ContextProvider(this.host, { context: fileCursorContext });
+		this.fileMsContextProvider = new _lit_context.ContextProvider(this.host, { context: fileMsContext });
+		this.filePlaybackSpeedContextProvider = new _lit_context.ContextProvider(this.host, { context: filePlaybackSpeedContext });
+		this.filePlayingContextProvider = new _lit_context.ContextProvider(this.host, { context: filePlayingContext });
+		this.fileRecordingContextProvider = new _lit_context.ContextProvider(this.host, { context: fileRecordingContext });
+		this.fileMayStopContextProvider = new _lit_context.ContextProvider(this.host, { context: filaMayStopContext });
+		this.fileAnalysesContextProvider = new _lit_context.ContextProvider(this.host, { context: fileAnalysisListContext });
+		this._propagateHighlightCache = (event) => this._propagateHighlight();
+		this._unpropagateHighlightCache = (event) => this._unpropagateHighlight();
+	}
+	hostConnected() {
+		this.host.addEventListener("mouseenter", this._propagateHighlightCache);
+		this.host.addEventListener("focus", this._propagateHighlightCache);
+		this.host.addEventListener("mouseleave", this._unpropagateHighlightCache);
+		this.host.addEventListener("blur", this._unpropagateHighlightCache);
+		if (this._attached) {
+			this._propagateContexts(this._attached);
+			this._bindListeners(this._attached, true);
+		}
+	}
+	hostDisconnected() {
+		this.host.removeEventListener("mouseenter", this._propagateHighlightCache);
+		this.host.removeEventListener("focus", this._propagateHighlightCache);
+		this.host.removeEventListener("mouseleave", this._unpropagateHighlightCache);
+		this.host.removeEventListener("blur", this._unpropagateHighlightCache);
+		this._unpropagateHighlight();
+		if (this._attached) this._unbindListeners(this._attached);
+	}
+	hostUpdatedWatcher(value) {
+		if (value.has("file")) this._syncAssignment();
+		this._analysisSynchronisators.handleHostUpdate(value);
+		if (value.has("ms")) this.setMs(this.host.ms);
+		if (value.has("playbackSpeed") && this.host.file && this.host.file.timeline.isSequence) {
+			if (this.host.playbackSpeed !== this.host.file.timeline.playbackSpeed) this.host.file.timeline.playbackSpeed = this.host.playbackSpeed;
+		}
+	}
+	_propagateContexts(instance) {
+		this.fileContextProvider.setValue(instance);
+		this.readyContextProvider.setValue(true);
+		this.fileDurationContextProvider.setValue({
+			ms: instance.timeline.duration,
+			time: instance.timeline.formatDuration(instance.timeline.duration)
+		});
+		this._propagateInstanceCurrentFrame(instance);
+		this._propagateInstanceAnalysesArray(instance);
+		this.fileMsContextProvider.setValue(instance.timeline.currentMs);
+		this.filePlaybackSpeedContextProvider.setValue(instance.timeline.playbackSpeed);
+		this.filePlayingContextProvider.setValue(instance.timeline.isPlaying);
+		this.fileMayStopContextProvider.setValue(instance.recording.mayStop);
+		this.fileRecordingContextProvider.setValue(instance.recording.value);
+	}
+	_resetAllContexts() {
+		this.readyContextProvider.setValue(false);
+		this.fileDurationContextProvider.setValue(void 0);
+		this.fileCurrentFrameContextProvider.setValue(void 0);
+		this.fileAnalysesContextProvider.setValue([]);
+		this.fileContextProvider.setValue(void 0);
+		this.fileRecordingContextProvider.setValue(false);
+		this.filePlayingContextProvider.setValue(false);
+		this.fileMayStopContextProvider.setValue(true);
+		this.fileMsContextProvider.setValue(0);
+		this.fileCursorContextProvider.setValue(void 0);
+	}
+	_syncAssignment() {
+		const next = this.host.file;
+		if (next === this._attached) return;
+		const previous = this._attached;
+		if (previous) this._detach(previous);
+		if (next) this._attach(next, previous !== void 0);
+		else {
+			this._resetAllContexts();
+			this.host.ms = 0;
+		}
+	}
+	_attach(instance, isReplacement) {
+		this._attached = instance;
+		this.fileContextProvider.setValue(instance);
+		this.host.failure = void 0;
+		this.fileFailureContextProvider.setValue(void 0);
+		if (this.host.playbackSpeed !== void 0) instance.timeline.playbackSpeed = this.host.playbackSpeed;
+		this._propagateContexts(instance);
+		this._bindListeners(instance);
+		if (!isReplacement && this.host.ms > 0 && instance.timeline.isSequence) this.setMs(this.host.ms);
+		else this.host.ms = instance.timeline.currentMs;
+		this.onSuccess.call(instance);
+	}
+	_detach(instance) {
+		this._unbindListeners(instance);
+		this._unpropagateHighlight();
+		this._attached = void 0;
+		instance.unmountFromDom();
+	}
+	_bindListeners(instance, coreWins = false) {
+		instance.timeline.callbacksPlay.set(this.UUID, () => {
+			this.filePlayingContextProvider.setValue(true);
+		});
+		instance.timeline.callbacksPause.set(this.UUID, () => {
+			this.filePlayingContextProvider.setValue(false);
+		});
+		instance.timeline.callbacksStop?.set(this.UUID, () => {
+			this.filePlayingContextProvider.setValue(false);
+		});
+		instance.timeline.callbacksEnd?.set(this.UUID, () => {
+			this.filePlayingContextProvider.setValue(false);
+		});
+		instance.timeline.callbacksChangeFrame.set(this.UUID, (frame) => {
+			const value = {
+				ms: frame.relative,
+				time: instance.timeline.currentTime,
+				percentage: instance.timeline.currentPercentage,
+				index: frame.index,
+				absolute: frame.absolute
+			};
+			this.fileCurrentFrameContextProvider.setValue(value);
+			this.host.ms = frame.relative;
+			this.fileMsContextProvider.setValue(frame.relative);
+		});
+		instance.timeline.callbackdPlaybackSpeed.set(this.UUID, (speed) => {
+			this.host.playbackSpeed = speed;
+			this.filePlaybackSpeedContextProvider.setValue(speed);
+		});
+		instance.recording.callbackMayStop.set(this.UUID, (value) => {
+			this.fileMayStopContextProvider.setValue(value);
+		});
+		instance.recording.addListener(this.UUID, (value) => {
+			this.fileRecordingContextProvider.setValue(value);
+		});
+		instance.analysis.addListener(this.UUID, (value) => {
+			this.fileAnalysesContextProvider.setValue(value);
+		});
+		this._analysisSynchronisators.handleFileAssigned(instance, coreWins);
+	}
+	_unbindListeners(instance) {
+		instance.timeline.callbacksPlay.delete(this.UUID);
+		instance.timeline.callbacksPause.delete(this.UUID);
+		instance.timeline.callbacksStop.delete(this.UUID);
+		instance.timeline.callbacksEnd.delete(this.UUID);
+		instance.timeline.callbacksChangeFrame.delete(this.UUID);
+		instance.timeline.callbackdPlaybackSpeed.delete(this.UUID);
+		instance.recording.removeListener(this.UUID);
+		instance.recording.callbackMayStop?.delete(this.UUID);
+		instance.analysis.removeListener(this.UUID);
+		this._analysisSynchronisators.handleFileUnassigned();
+	}
+	/** 
+	* This is crucial - once the instance is loaded or retrieved somewhere, all the magic happens. Existence of this method enables controller to change the instance at any time. 
+	*/
+	receiveInstance(instance) {
+		this.host.file = instance;
+		this._syncAssignment();
+	}
+	removeInstance() {
+		this.host.file = void 0;
+		this._syncAssignment();
+	}
+	receiveFailure(failure) {
+		this.removeInstance();
+		this.host.failure = failure;
+		this.fileFailureContextProvider.setValue(failure);
+		this.onFailure.call(failure);
+	}
+	_propagateInstanceCurrentFrame(instance) {
+		this.fileCurrentFrameContextProvider.setValue({
+			ms: instance.timeline.currentMs,
+			time: instance.timeline.currentTime,
+			percentage: instance.timeline.currentPercentage,
+			index: instance.timeline.currentStep.index,
+			absolute: instance.timeline.currentStep.absolute
+		});
+	}
+	_propagateInstanceAnalysesArray(instance) {
+		this.fileAnalysesContextProvider.setValue(instance.analysis.layers.all);
+	}
+	setTimeCursor(value) {
+		if (value !== this.fileCursorContextProvider.value) {
+			this.host.requestUpdate();
+			this.fileCursorContextProvider.setValue(value);
+		}
+	}
+	setTimePercentage(percentage) {
+		const file = this._attached;
+		if (!file?.timeline.isSequence) return;
+		const clampedPercentage = Math.max(0, Math.min(percentage, 100));
+		if (clampedPercentage !== file.timeline.currentPercentage) file.timeline.setValueByPercent(clampedPercentage);
+	}
+	play() {
+		this._attached?.timeline.play();
+	}
+	stop() {
+		this._attached?.timeline.stop();
+	}
+	pause() {
+		this._attached?.timeline.pause();
+	}
+	setMs(value) {
+		const file = this._attached;
+		if (!file?.timeline.isSequence) return;
+		const clampedRelativeTime = Math.max(0, Math.min(value, file.timeline.duration));
+		if (clampedRelativeTime !== file.timeline.currentMs) file.timeline.setRelativeTime(clampedRelativeTime);
+	}
+	/** Impose this file's highlight into the registry */
+	_propagateHighlight() {
+		if (this.autoHighlight && this.fileObject) {
+			this.host.setAttribute("is-highlight", "true");
+			this.host.registryController.setHighlight({
+				from: this.fileObject.min,
+				to: this.fileObject.max
+			});
+		}
+	}
+	/** Remove the highlight from the registry */
+	_unpropagateHighlight() {
+		if (this.host.hasAttribute("is-highlight")) {
+			this.host.removeAttribute("is-highlight");
+			this.host.registryController.setHighlight(void 0);
+		}
+	}
+	startLoading() {
+		this.onLoadingStart.call();
+		this.readyContextProvider.setValue(false);
+	}
+	endLoading() {
+		this.readyContextProvider.setValue(true);
+	}
+};
+
+//#endregion
+//#region src/hierarchy/abstraction/AbstractFileProvider.ts
+var AbstractFileProvider = class extends AbstractGroupConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.fileController = new FileController(this);
+		this.loading = false;
+		this.ready = false;
+		this.ms = 0;
+		this.playbackSpeed = 1;
+		this.recording = false;
+		this.playing = false;
+		this.analyses = [];
+		this.autoHighlight = false;
+	}
+	static {
+		this.properties = { ...FileController.HOST_PROPERTIES };
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+		this.fileController.hostUpdatedWatcher(_changedProperties);
+	}
+	/** Register instance callback listeners. @deprecated */
+	recieveInstance(instance) {
+		this.fileController.receiveInstance(instance);
+	}
+	/** @deprecated */
+	removeInstance(instance) {
+		this.fileController.removeInstance();
+	}
+	deleteFile() {
+		if (this.file) this.removeInstance(this.file);
+	}
+	render() {
+		return lit.html`
+            <slot></slot>
+            <slot name="mark"></slot>
+            <slot name="analysis"></slot>
+        `;
+	}
+};
+__decorate([
+	(0, _lit_context.provide)({ context: loadingContext }),
+	(0, lit_decorators_js.state)(),
+	__decorateMetadata("design:type", Boolean)
+], AbstractFileProvider.prototype, "loading", void 0);
+
+//#endregion
+//#region src/hierarchy/abstraction/AbstractGroupProvider.ts
+var AbstractGroupProvider = class extends AbstractRegistryConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.groupController = new GroupController(this);
+		this.autoclearGroup = true;
+	}
+	static {
+		this.properties = { ...GroupController.HOST_PROPERTIES };
+	}
+	updated(values) {
+		super.updated(values);
+		this.groupController.hostUpdatedWatcher(values);
 	}
 	render() {
 		return lit.html`<slot></slot>`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref$18 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$18 : Object)], AbstractManagerProvider.prototype, "tool", void 0);
-__decorate([(0, _lit_context.provide)({ context: toolsContext }), __decorateMetadata("design:type", Object)], AbstractManagerProvider.prototype, "tools", void 0);
 
 //#endregion
-//#region src/hierarchy/abstraction/AbstractRegistryProvider.ts
-var _ref$17;
-var AbstractRegistryProvider = class extends AbstractManagerConsumer {
+//#region src/hierarchy/abstraction/AbstractManagerProvider.ts
+var _ref$12;
+var AbstractManagerProvider = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
-		this.UUIDRegistryListeners = this.UUID + "__registry-listener";
-		this.opacity = 1;
-		this.loading = false;
+		this.managerController = new ManagerController(this);
+		this.palette = "jet";
+		this.advancedPalettes = false;
+		this.smoothThermograms = false;
+		this.smoothGraph = false;
 		this.autoclear = false;
-		this.forceNew = false;
-		this.setHighlight = (value) => {
-			this.highlight = value;
-		};
 	}
-	createRegistry(slug) {
-		const registry = this.manager.addOrGetRegistry(slug);
-		registry.palette.setPalette(this.manager.palette.value);
-		if (this.from !== void 0 && this.to !== void 0) registry.range.imposeRange({
-			from: this.from,
-			to: this.to
-		});
-		return registry;
-	}
-	hydrateRegistry(registry) {
-		registry.opacity.addListener(this.UUIDRegistryListeners, (value) => {
-			this.opacity = value;
-		});
-		registry.minmax.addListener(this.UUIDRegistryListeners, (value) => {
-			if (value === void 0) {
-				this.min = void 0;
-				this.max = void 0;
-			} else {
-				this.min = value.min;
-				this.max = value.max;
-			}
-		});
-		registry.range.addListener(this.UUIDRegistryListeners, (value) => {
-			if (value === void 0) {
-				this.from = void 0;
-				this.to = void 0;
-			} else {
-				this.from = value.from;
-				this.to = value.to;
-			}
-		});
-		registry.loading.addListener(this.UUIDRegistryListeners, (value) => {
-			this.loading = value;
-		});
+	static {
+		this.properties = { ...ManagerController.HOST_PROPERTIES };
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		this.registry = this.createRegistry(this.slug);
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		if (this.autoclear === true && this.registry !== void 0) this.manager.removeRegistry(this.registry.id);
+		if (this.autoclear === true && this.managerObject !== void 0) removeManager(this.managerObject);
 	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		this.hydrateRegistry(this.registry);
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		this.log("Will update called with changed properties", changedProperties);
 	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("from") || _changedProperties.has("to")) {
-			if (this.from !== void 0 && this.to !== void 0) this.registry.range.imposeRange({
-				from: this.from,
-				to: this.to
-			});
-		}
-		if (_changedProperties.has("opacity")) {
-			const sanitisedOpacity = Math.min(1, Math.max(0, this.opacity));
-			if (sanitisedOpacity !== this.registry.opacity.value) this.registry.opacity.imposeOpacity(sanitisedOpacity);
-		}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		this.log("Updated called with changed properties", changedProperties);
+		this.managerController.hostUpdatedWatcher(changedProperties);
 	}
 	render() {
 		return lit.html`<slot></slot>`;
 	}
 };
 __decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", typeof (_ref$12 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$12 : Object)], AbstractManagerProvider.prototype, "palette", void 0);
+__decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractRegistryProvider.prototype, "forceNew", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryHighlightContext }), __decorateMetadata("design:type", typeof (_ref$17 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$17 : Object)], AbstractRegistryProvider.prototype, "highlight", void 0);
+}), __decorateMetadata("design:type", Boolean)], AbstractManagerProvider.prototype, "advancedPalettes", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Boolean)], AbstractManagerProvider.prototype, "smoothThermograms", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Boolean)], AbstractManagerProvider.prototype, "smoothGraph", void 0);
+
+//#endregion
+//#region src/hierarchy/abstraction/AbstractRegistryProvider.ts
+var AbstractRegistryProvider = class extends AbstractManagerConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.registryController = new RegistryController(this);
+		this.opacity = 1;
+		this.loading = false;
+		this.autoclear = false;
+		this.setHighlight = (value) => {
+			this.highlight = value;
+		};
+	}
+	static {
+		this.properties = { ...RegistryController.HOST_PROPERTIES };
+	}
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		if (this.autoclear === true && this.registryObject !== void 0) this.manager.removeRegistry(this.registryObject.id);
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+		this.registryController.hostUpdatedWatcher(_changedProperties);
+	}
+	render() {
+		return lit.html`<slot></slot>`;
+	}
+};
 __decorate([(0, _lit_context.provide)({ context: setRegistryHighlightContext }), __decorateMetadata("design:type", Object)], AbstractRegistryProvider.prototype, "setHighlight", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/AbstractFileConsumer.ts
-var _ref$16, _ref2$8, _ref3$3;
+var _ref$11, _ref2$4;
 var AbstractFileConsumer = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -3629,28 +4255,30 @@ var AbstractFileConsumer = class extends AbstractGroupConsumer {
 		super.connectedCallback();
 		this.hookCallbacks();
 	}
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		if (this.fileController) {
+			this.fileController.onSuccess.delete(this.UUID);
+			this.fileController.onFailure.delete(this.UUID);
+		}
+	}
 	hookCallbacks() {
-		if (this.parentFileProviderElement) {
-			if (this.parentFileProviderElement.file) this.onInstanceCreated(this.parentFileProviderElement.file);
-			this.parentFileProviderElement.onSuccess.set(this.getUUID(), () => {
+		if (this.fileController) {
+			this.fileController.onSuccess.set(this.UUID, (instance) => {
+				this.onInstanceCreated(instance);
 				this.loading = false;
 			});
-			this.parentFileProviderElement.onFailure.set(this.getUUID(), () => {
+			this.fileController.onFailure.set(this.UUID, (error) => {
+				this.onFailure(error);
 				this.loading = false;
 			});
-			this.parentFileProviderElement.onSuccess.set(this.UUID, this.onInstanceCreated.bind(this));
-			this.parentFileProviderElement.onFailure.set(this.UUID, this.onFailure.bind(this));
 		} else throw new Error("Tento komponent není v souboru!");
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: fileProviderContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$16 = typeof AbstractFileProvider !== "undefined" && AbstractFileProvider) === "function" ? _ref$16 : Object)
-], AbstractFileConsumer.prototype, "parentFileProviderElement", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileControllerContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Object)], AbstractFileConsumer.prototype, "fileController", void 0);
 __decorate([
 	(0, _lit_context.consume)({
 		context: loadingContext,
@@ -3665,7 +4293,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$8 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$8 : Object)
+	__decorateMetadata("design:type", typeof (_ref$11 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$11 : Object)
 ], AbstractFileConsumer.prototype, "file", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -3673,7 +4301,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref3$3 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref3$3 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$4 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref2$4 : Object)
 ], AbstractFileConsumer.prototype, "failure", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -3926,49 +4554,102 @@ ConfigDialog = __decorate([(0, lit_decorators_js.customElement)("config-dialog")
 
 //#endregion
 //#region src/hierarchy/providers/FileCopy.ts
-var _ref$15, _ref2$7, _ref3$2;
-let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
+var _ref$10;
+/** This element creates a completely isolated hierarchy tree for the given original file. The file is copied and all contexts are exposed independently of the original context. */
+var FileCopyElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
-		this.providedSelf = this;
+		this.withAnalyses = true;
+		this.managerController = new ManagerController(this);
+		this.advancedPalettes = true;
+		this.smoothThermograms = false;
+		this.smoothGraph = false;
+		this.tool = "edit";
+		this.registryController = new RegistryController(this);
+		this.opacity = 1;
+		this.loading = false;
+		this.groupController = new GroupController(this);
+		this.autoclearGroup = true;
+		this.fileController = new FileController(this);
 		this.ms = 0;
-		this.speed = 1;
-		this.recording = false;
-		this.playing = false;
+		this.playbackSpeed = 1;
+		this.autoHighlight = false;
+		this._canRenderChildren = false;
 	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		if (this.originalFile) this.processFileCopy(this.originalFile);
+	static {
+		this.properties = {
+			...ManagerController.HOST_PROPERTIES,
+			...RegistryController.HOST_PROPERTIES,
+			...GroupController.HOST_PROPERTIES,
+			...FileController.HOST_PROPERTIES
+		};
 	}
-	async processFileCopy(originalFile) {
-		const originalRange = originalFile.group.registry.range.value;
-		originalFile.group.registry;
-		const copiedFile = await originalFile.reader.createInstance(this.group);
-		copiedFile.group.registry.postLoadedProcessing();
-		if (originalRange) copiedFile.group.registry.range.imposeRange(originalRange);
-		this.onSuccess.call(copiedFile);
-		this.recieveInstance(copiedFile);
-		setTimeout(() => {
-			try {
-				copiedFile.draw();
-			} catch (e) {
-				console.warn("[file-copy] redraw failed for copied instance", e);
-			}
-		}, 0);
+	getSlugManager() {
+		return this._slugBase + "__copy-manager";
 	}
-	syncSlot(index) {
-		if (this.originalFile === void 0 || this.file === void 0) {
-			console.warn("cannot sync slot for file copy, original or copy is missing");
-			return;
-		}
-		const serialized = this.originalFile.slots.getSlot(index)?.serialized;
-		if (serialized) this.file.slots.createAnalysisFromSerialized(serialized, index);
+	getSlugRegistry() {
+		return this._slugBase + "__copy-registry";
 	}
+	getSlugGroup() {
+		return this._slugBase + "__copy-group";
+	}
+	connectedCallback() {
+		const originalFile = this.originalFile;
+		this._slugBase = originalFile.thermalUrl + "__" + this.UUID.substring(0, 6);
+		this.setAttribute("manager-slug", this.getSlugManager());
+		this.setAttribute("group-slug", this.getSlugGroup());
+		this.setAttribute("registry-slug", this.getSlugRegistry());
+		this.palette = this.originalFile.group.registry.manager.palette.value;
+		this.opacity = this.originalFile.group.registry.opacity.value;
+		this.ms = originalFile.timeline.currentMs;
+		if (this.withAnalyses) this.copyAnalysesFromParent();
+		super.connectedCallback();
+		this.originalFile.reader.createInstance(this.groupObject).then((copiedInstance) => {
+			if (!this.isConnected) return;
+			this.registryObject.postLoadedProcessing();
+			this.fileController.receiveInstance(copiedInstance);
+			const range = originalFile.group.registry.range.value;
+			if (range) this.registryObject?.range.imposeRange(range);
+			this._canRenderChildren = true;
+		});
+	}
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this._canRenderChildren = false;
+		this.fileController.removeInstance();
+		this.registryController.removeGroup(this.groupObject);
+		this.managerObject.removeRegistry(this.registryObject.id);
+		window.Thermal.managers.delete(this.managerSlug);
+	}
+	/** Take the current analyses of the original file. The file controller propagates them to the copied file. */
 	copyAnalysesFromParent() {
-		for (let i = 0; i < 7; i++) this.syncSlot(i);
+		const slots = this.originalFile.slots;
+		this.analysis1 = slots.getSlot(1)?.serialized;
+		this.analysis2 = slots.getSlot(2)?.serialized;
+		this.analysis3 = slots.getSlot(3)?.serialized;
+		this.analysis4 = slots.getSlot(4)?.serialized;
+		this.analysis5 = slots.getSlot(5)?.serialized;
+		this.analysis6 = slots.getSlot(6)?.serialized;
+		this.analysis7 = slots.getSlot(7)?.serialized;
 	}
+	/** Remove all analyses from the copied file. */
 	clearAnalyses() {
-		this.file?.analysis.layers.removeAllAnalyses();
+		this.analysis1 = void 0;
+		this.analysis2 = void 0;
+		this.analysis3 = void 0;
+		this.analysis4 = void 0;
+		this.analysis5 = void 0;
+		this.analysis6 = void 0;
+		this.analysis7 = void 0;
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+		if (_changedProperties.has("withAnalyses") && _changedProperties.get("withAnalyses") !== void 0) if (this.withAnalyses) this.copyAnalysesFromParent();
+		else this.clearAnalyses();
+		this.managerController.hostUpdatedWatcher(_changedProperties);
+		this.registryController.hostUpdatedWatcher(_changedProperties);
+		this.groupController.hostUpdatedWatcher(_changedProperties);
+		this.fileController.hostUpdatedWatcher(_changedProperties);
 	}
 	static {
 		this.styles = lit.css`
@@ -3982,95 +4663,24 @@ let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
     `;
 	}
 	render() {
-		return lit.html`${this.ready ? lit.html`<slot></slot>` : lit.nothing}`;
+		return lit.html`${this._canRenderChildren ? lit.html`<slot></slot>` : lit.nothing}`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$15 = typeof FileCopyElement !== "undefined" && FileCopyElement) === "function" ? _ref$15 : Object)], FileCopyElement.prototype, "providedSelf", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: fileContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$7 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$7 : Object)
-], FileCopyElement.prototype, "originalFile", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: fileMsContext }),
-	__decorateMetadata("design:type", Number)
-], FileCopyElement.prototype, "ms", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: filePlaybackSpeedContext }),
-	__decorateMetadata("design:type", typeof (_ref3$2 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref3$2 : Object)
-], FileCopyElement.prototype, "speed", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: fileRecordingContext }),
-	__decorateMetadata("design:type", Boolean)
-], FileCopyElement.prototype, "recording", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: filePlayingContext }),
-	__decorateMetadata("design:type", Boolean)
-], FileCopyElement.prototype, "playing", void 0);
 __decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis1", void 0);
+	type: Object,
+	attribute: false
+}), __decorateMetadata("design:type", typeof (_ref$10 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$10 : Object)], FileCopyElement.prototype, "originalFile", void 0);
 __decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis2", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis3", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis4", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis5", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis6", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis7", void 0);
-FileCopyElement = __decorate([(0, lit_decorators_js.customElement)("file-copy")], FileCopyElement);
+	type: Boolean,
+	attribute: false
+}), __decorateMetadata("design:type", Boolean)], FileCopyElement.prototype, "withAnalyses", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileCopyElement.prototype, "_canRenderChildren", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/FileMirror.ts
-var _ref$14, _ref2$6;
-let FileMirrorElement = class FileMirrorElement extends AbstractFileProvider {
+var _ref$9, _ref2$3;
+/** @deprecated Investigate why is this here. */
+var FileMirrorElement = class extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
 		this.providedSelf = this;
@@ -4093,11 +4703,11 @@ let FileMirrorElement = class FileMirrorElement extends AbstractFileProvider {
 		}
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$14 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$14 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$9 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$9 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: fileContext }),
 	(0, lit_decorators_js.property)(),
-	__decorateMetadata("design:type", typeof (_ref2$6 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$6 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$3 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$3 : Object)
 ], FileMirrorElement.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
@@ -4120,373 +4730,86 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis5", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis6", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis7", void 0);
-FileMirrorElement = __decorate([(0, lit_decorators_js.customElement)("file-mirror")], FileMirrorElement);
+
+//#endregion
+//#region src/hierarchy/controllers/FileLoadController.ts
+var FileLoadController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	get group() {
+		return this.host.fileController.host.groupController.groupObject;
+	}
+	get registry() {
+		return this.group.registry;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			thermal: {
+				type: String,
+				reflect: true,
+				attribute: "thermal"
+			},
+			visible: {
+				type: String,
+				reflect: true,
+				attribute: "visible"
+			}
+		};
+	}
+	constructor(host) {
+		super(host);
+		this._UUID = host.UUID;
+	}
+	hostUpdatedWatcher(value) {
+		if (value.has("thermal") && this.host.thermal) this._load(this.host.thermal, this.host.visible);
+	}
+	hostConnected() {}
+	hostDisconnected() {}
+	async _load(lrc, visible) {
+		if (this.host.fileController.fileObject) this.group.files.removeFile(this.host.fileController.fileObject);
+		this.host.fileController.startLoading();
+		return this.registry.batch.request(lrc, visible, this.group, async (result) => {
+			if (result instanceof _labirthermal_core.Instance) this.host.fileController.receiveInstance(result);
+			else if (result instanceof _labirthermal_core.ThermalFileFailure) this.host.fileController.receiveFailure(result);
+		});
+	}
+};
 
 //#endregion
 //#region src/hierarchy/providers/FileProvider.ts
-var _ref$13, _ref2$5;
-let FileProviderElement = class FileProviderElement extends AbstractFileProvider {
+var FileProviderElement = class extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
-		this.keepinitialhistogram = false;
-		this.ms = 0;
-		this.speed = 1;
-		this.providedSelf = this;
-		this.recording = false;
-		this.playing = false;
-		this.batch = true;
-	}
-	/** 
-	* Load the file and call all necessary callbacks
-	*/
-	async load() {
-		return this.batch === true ? this.loadAsync() : this.loadSync();
-	}
-	/** 
-	* @deprecated Use the batch loader instead.
-	*/
-	async loadSync() {
-		this.loading = true;
-		this.onLoadingStart.call();
-		return await this.registry.service.loadFile(this.thermal, this.visible).then(async (result) => {
-			if (result instanceof _labirthermal_core.ThermalFileReader) return await result.createInstance(this.group).then((instance) => {
-				this.file = instance;
-				this.onSuccess.call(instance);
-				instance.group.registry.postLoadedProcessing();
-				this.loading = false;
-				this.recieveInstance(instance);
-				this.initAnalysesSync(instance);
-				return instance;
-			});
-			else {
-				this.failure = result;
-				this.onFailure.call(this.failure);
-				this.loading = false;
-				return result;
-			}
-		});
-	}
-	/**
-	* Register new load request to the registry batch loader 
-	* 
-	*/
-	loadAsync() {
-		this.loading = true;
-		this.onLoadingStart.call();
-		return this.registry.batch.request(this.thermal, this.visible, this.group, this.asyncLoadCallback.bind(this));
-	}
-	async redraw() {
-		this.loading = true;
-		this.onLoadingStart.call();
-		if (this.file) this.removeInstance(this.file);
-		await this.load();
-	}
-	/**
-	* 
-	* @param result A crucial method called every time a loading ends
-	*/
-	async asyncLoadCallback(result) {
-		if (result instanceof _labirthermal_core.Instance) {
-			if (this.file !== void 0) {
-				this.file.unmountFromDom();
-				delete this.file;
-			}
-			this.file = result;
-			this.onSuccess.call(result);
-			this.initAnalysesSync(result);
-			this.loading = false;
-			this.recieveInstance(result);
-		} else if (result instanceof _labirthermal_core.ThermalFileFailure) {
-			this.failure = result;
-			this.onFailure.call(this.failure);
-			this.loading = false;
-		}
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		if (this.registry) this.load();
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("thermal")) {
-			const oldUrl = _changedProperties.get("thermal");
-			if (oldUrl) {
-				this.group.files.removeFile(oldUrl);
-				this.file = void 0;
-				this.load();
-			}
-		}
+		this.fileLoadController = new FileLoadController(this);
 	}
 };
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true,
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileProviderElement.prototype, "keepinitialhistogram", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: fileMsContext }),
-	__decorateMetadata("design:type", Number)
-], FileProviderElement.prototype, "ms", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: filePlaybackSpeedContext }),
-	__decorateMetadata("design:type", typeof (_ref$13 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$13 : Object)
-], FileProviderElement.prototype, "speed", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref2$5 = typeof FileProviderElement !== "undefined" && FileProviderElement) === "function" ? _ref2$5 : Object)], FileProviderElement.prototype, "providedSelf", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: fileRecordingContext }),
-	__decorateMetadata("design:type", Boolean)
-], FileProviderElement.prototype, "recording", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: filePlayingContext }),
-	__decorateMetadata("design:type", Boolean)
-], FileProviderElement.prototype, "playing", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true,
-	attribute: true,
-	converter: {
-		fromAttribute(value) {
-			return value === "true";
-		},
-		toAttribute(value) {
-			if (value === true) return "true";
-			return "false";
-		}
-	}
-}), __decorateMetadata("design:type", Boolean)], FileProviderElement.prototype, "batch", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: true,
-	reflect: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "thermal", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: true,
-	reflect: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "visible", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis1", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis2", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis3", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis4", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis5", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis6", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis7", void 0);
-FileProviderElement = __decorate([(0, lit_decorators_js.customElement)("file-provider")], FileProviderElement);
 
 //#endregion
 //#region src/hierarchy/providers/GroupProvider.ts
-var _ref$12;
-let GroupProviderElement = class GroupProviderElement extends AbstractGroupProvider {
-	constructor(..._args) {
-		super(..._args);
-		this.autoclear = false;
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		if (this.autoclear === true && this.group && this.registry) this.registry.groups.removeGroup(this.group.id);
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: true,
-	reflect: true
-}), __decorateMetadata("design:type", String)], GroupProviderElement.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$12 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$12 : Object)], GroupProviderElement.prototype, "group", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], GroupProviderElement.prototype, "autoclear", void 0);
-GroupProviderElement = __decorate([(0, lit_decorators_js.customElement)("group-provider")], GroupProviderElement);
+var GroupProviderElement = class extends AbstractGroupProvider {};
 
 //#endregion
 //#region src/hierarchy/providers/ManagerProvider.ts
-var _ref$11, _ref2$4, _ref3$1;
-let ManagerProviderElement = class ManagerProviderElement extends AbstractManagerProvider {
+var ManagerProviderElement = class extends AbstractManagerProvider {
 	constructor(..._args) {
 		super(..._args);
-		this.UUIDManagerListeners = this.UUID + "__manager-listener";
-		this.palette = {
-			key: "jet",
-			data: _labirthermal_core.ThermalPalettes["jet"]
-		};
-		this.smooth = false;
-		this.graphSmooth = false;
 		this.autoclear = false;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$11 = typeof _labirthermal_core.ThermalManager !== "undefined" && _labirthermal_core.ThermalManager) === "function" ? _ref$11 : Object)], ManagerProviderElement.prototype, "manager", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], ManagerProviderElement.prototype, "slug", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerPaletteContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		attribute: true,
-		reflect: true,
-		converter: {
-			fromAttribute: (value) => {
-				return {
-					key: value,
-					data: _labirthermal_core.ThermalPalettes[value]
-				};
-			},
-			toAttribute: (value) => {
-				return value.key.toString();
-			}
-		}
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$4 = typeof ManagerPaletteContext$2 !== "undefined" && ManagerPaletteContext$2) === "function" ? _ref2$4 : Object)
-], ManagerProviderElement.prototype, "palette", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerSmoothContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], ManagerProviderElement.prototype, "smooth", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerGraphFunctionContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], ManagerProviderElement.prototype, "graphSmooth", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], ManagerProviderElement.prototype, "autoclear", void 0);
-__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref3$1 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref3$1 : Object)], ManagerProviderElement.prototype, "tool", void 0);
-__decorate([(0, _lit_context.provide)({ context: toolsContext }), __decorateMetadata("design:type", Object)], ManagerProviderElement.prototype, "tools", void 0);
-ManagerProviderElement = __decorate([(0, lit_decorators_js.customElement)("manager-provider")], ManagerProviderElement);
 
 //#endregion
 //#region src/hierarchy/providers/RegistryProvider.ts
-var _ref$10;
-let RegistryProviderElement = class RegistryProviderElement extends AbstractRegistryProvider {
-	constructor(..._args) {
-		super(..._args);
-		this.opacity = 1;
-		this.loading = false;
-		this.autoclear = false;
-	}
-	updated(changedProperties) {
-		super.updated(changedProperties);
-		if (changedProperties.has("slug") === true && changedProperties.get("slug") !== this.slug) {
-			if (this.registry !== void 0) {
-				if (this.autoclear === true) {}
-			}
-		}
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], RegistryProviderElement.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$10 = typeof _labirthermal_core.ThermalRegistry !== "undefined" && _labirthermal_core.ThermalRegistry) === "function" ? _ref$10 : Object)], RegistryProviderElement.prototype, "registry", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryOpacityContext }),
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "opacity", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryMinContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "min", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryMaxContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "max", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryRangeFromContext }),
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "from", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryRangeToContext }),
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "to", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryLoadingContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], RegistryProviderElement.prototype, "loading", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true
-}), __decorateMetadata("design:type", Boolean)], RegistryProviderElement.prototype, "autoclear", void 0);
-RegistryProviderElement = __decorate([(0, lit_decorators_js.customElement)("registry-provider")], RegistryProviderElement);
+var RegistryProviderElement = class extends AbstractRegistryProvider {};
 
 //#endregion
 //#region src/hierarchy/providers/context/pngExportContext.ts
@@ -4556,8 +4879,8 @@ __decorate([(0, _lit_context.provide)({ context: pngExportGroupNameSetterContext
 
 //#endregion
 //#region src/controls/manager/ManagerExportPanel.ts
-var _ref$9, _ref2$3, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
-let ManagerExportPanel = class ManagerExportPanel extends AbstractThermalElement {
+var _ref$8, _ref2$2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+var ManagerExportPanel = class extends AbstractThermalElement {
 	renderRow(label, content, hint) {
 		return lit.html`<thermal-field label="${label}">
                 <div>${content}</div>
@@ -4669,7 +4992,7 @@ __decorate([(0, _lit_context.consume)({
 __decorate([(0, _lit_context.consume)({
 	context: pngExportWidthSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$9 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref$9 : Object)], ManagerExportPanel.prototype, "pngWidthSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$8 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref$8 : Object)], ManagerExportPanel.prototype, "pngWidthSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsContext,
 	subscribe: true
@@ -4677,7 +5000,7 @@ __decorate([(0, _lit_context.consume)({
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$3 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref2$3 : Object)], ManagerExportPanel.prototype, "pngFsSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$2 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref2$2 : Object)], ManagerExportPanel.prototype, "pngFsSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportAnalysisContext,
 	subscribe: true
@@ -4734,11 +5057,10 @@ __decorate([(0, _lit_context.consume)({
 	context: pngExportGroupNameSetterContext,
 	subscribe: true
 }), __decorateMetadata("design:type", typeof (_ref9 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref9 : Object)], ManagerExportPanel.prototype, "pngExportGroupNameSetter", void 0);
-ManagerExportPanel = __decorate([(0, lit_decorators_js.customElement)("manager-export-panel")], ManagerExportPanel);
 
 //#endregion
 //#region src/controls/manager/ManagerGraphSmoothSwitch.ts
-let ManagerGraphSmoothSwitch = class ManagerGraphSmoothSwitch extends AbstractManagerConsumer {
+var ManagerGraphSmoothSwitch = class extends AbstractManagerConsumer {
 	static {
 		this.styles = lit.css`
     
@@ -4769,11 +5091,10 @@ __decorate([(0, _lit_context.consume)({
 	context: managerGraphFunctionContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Boolean)], ManagerGraphSmoothSwitch.prototype, "smooth", void 0);
-ManagerGraphSmoothSwitch = __decorate([(0, lit_decorators_js.customElement)("manager-graph-smooth-switch")], ManagerGraphSmoothSwitch);
 
 //#endregion
 //#region src/controls/manager/ManagerImageSmoothSwitch.ts
-let ManagerImageSmoothSwitch = class ManagerImageSmoothSwitch extends AbstractManagerConsumer {
+var ManagerImageSmoothSwitch = class extends AbstractManagerConsumer {
 	static {
 		this.styles = lit.css`
     
@@ -4799,11 +5120,10 @@ __decorate([(0, _lit_context.consume)({
 	context: managerSmoothContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Boolean)], ManagerImageSmoothSwitch.prototype, "smooth", void 0);
-ManagerImageSmoothSwitch = __decorate([(0, lit_decorators_js.customElement)("manager-smooth-switch")], ManagerImageSmoothSwitch);
 
 //#endregion
 //#region src/controls/manager/AbstractPaletteSwitch.ts
-var _ref$8;
+var _ref$7;
 var AbstractPaletteSwitch = class extends AbstractManagerConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -4849,12 +5169,12 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$8 = typeof ManagerPaletteContext$1 !== "undefined" && ManagerPaletteContext$1) === "function" ? _ref$8 : Object)
+	__decorateMetadata("design:type", typeof (_ref$7 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$7 : Object)
 ], AbstractPaletteSwitch.prototype, "value", void 0);
 
 //#endregion
 //#region src/controls/manager/ManagerPaletteButtons.ts
-let ManagerPaletteButtons = class ManagerPaletteButtons extends AbstractPaletteSwitch {
+var ManagerPaletteButtons = class extends AbstractPaletteSwitch {
 	static {
 		this.styles = lit.css`
 :host {
@@ -4882,11 +5202,10 @@ let ManagerPaletteButtons = class ManagerPaletteButtons extends AbstractPaletteS
 </thermal-btn>`));
 	}
 };
-ManagerPaletteButtons = __decorate([(0, lit_decorators_js.customElement)("manager-palette-buttons")], ManagerPaletteButtons);
 
 //#endregion
 //#region src/controls/manager/ManagerPaletteDropdown.ts
-let ManagerPaletteDropdown = class ManagerPaletteDropdown extends AbstractPaletteSwitch {
+var ManagerPaletteDropdown = class extends AbstractPaletteSwitch {
 	static {
 		this.styles = lit.css`
 
@@ -4926,12 +5245,14 @@ let ManagerPaletteDropdown = class ManagerPaletteDropdown extends AbstractPalett
         `;
 	}
 };
-ManagerPaletteDropdown = __decorate([(0, lit_decorators_js.customElement)("manager-palette-dropdown")], ManagerPaletteDropdown);
 
 //#endregion
 //#region src/controls/manager/ManagerToolsBar.ts
-var _ref$7;
-let ManagerToolBar = class ManagerToolBar extends AbstractManagerConsumer {
+var _ref$6;
+/**
+* A standard toolbar that is either horizontal or vertical.
+*/
+var ManagerToolBar = class extends AbstractManagerConsumer {
 	/** Handle user input events */
 	onSelect(tool) {
 		this.manager.tool.selectTool(tool);
@@ -4992,21 +5313,12 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$7 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$7 : Object)
+	__decorateMetadata("design:type", typeof (_ref$6 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$6 : Object)
 ], ManagerToolBar.prototype, "value", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: toolsContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Object)
-], ManagerToolBar.prototype, "tools", void 0);
-ManagerToolBar = __decorate([(0, lit_decorators_js.customElement)("manager-tool-bar")], ManagerToolBar);
 
 //#endregion
 //#region src/controls/registry/RegistryRangeForm.ts
-let RegistryRangeForm = class RegistryRangeForm extends AbstractRegistryConsumer {
+var RegistryRangeForm = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.stacked = false;
@@ -5693,15 +6005,11 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Ar
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "inputValues", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeForm.prototype, "isUpdatingFromRegistry", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeForm.prototype, "hasHistogram", void 0);
-RegistryRangeForm = __decorate([(0, lit_decorators_js.customElement)("registry-range-form")], RegistryRangeForm);
 
 //#endregion
 //#region src/controls/registry/RegistryTicksBar.ts
-var _ref$6, _ref2$2, _RegistryTicksBar;
-let RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
-	static {
-		_RegistryTicksBar = this;
-	}
+var _ref$5, _ref2$1;
+var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.ticksRef = (0, lit_directives_ref_js.createRef)();
@@ -5742,7 +6050,7 @@ let RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 		if (minmax === void 0) this.ticks = [];
 		else {
 			const ticksPercentageBuffer = [0];
-			const numTicks = Math.floor(width / _RegistryTicksBar.TICK_WIDTH) - 2;
+			const numTicks = Math.floor(width / RegistryTicksBar.TICK_WIDTH) - 2;
 			const step = 100 / numTicks;
 			for (let i = 1; i < numTicks; i++) ticksPercentageBuffer.push(step * i);
 			ticksPercentageBuffer.push(100);
@@ -5861,7 +6169,7 @@ let RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 			return lit.html`
                     <div class="tick" >
                         <div class="tick-value">
-                            ${tick.value.toFixed(_RegistryTicksBar.TICK_FIXED)}
+                            ${tick.value.toFixed(RegistryTicksBar.TICK_FIXED)}
                         </div>
                     </div>
                         `;
@@ -5877,197 +6185,277 @@ let RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$6 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$6 : Object)], RegistryTicksBar.prototype, "highlight", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$5 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$5 : Object)], RegistryTicksBar.prototype, "highlight", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], RegistryTicksBar.prototype, "placement", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$2 = typeof _labirthermal_core.ThermalMinmaxOrUndefined !== "undefined" && _labirthermal_core.ThermalMinmaxOrUndefined) === "function" ? _ref2$2 : Object)], RegistryTicksBar.prototype, "minmax", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$1 = typeof _labirthermal_core.ThermalMinmaxOrUndefined !== "undefined" && _labirthermal_core.ThermalMinmaxOrUndefined) === "function" ? _ref2$1 : Object)], RegistryTicksBar.prototype, "minmax", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], RegistryTicksBar.prototype, "ticks", void 0);
-RegistryTicksBar = _RegistryTicksBar = __decorate([(0, lit_decorators_js.customElement)("registry-ticks-bar")], RegistryTicksBar);
 
 //#endregion
 //#region src/controls/registry/RegistryRangeSlider.ts
-var _ref$5, _ref2$1;
-let RegistryRangeSlider = class RegistryRangeSlider extends AbstractRegistryConsumer {
+var RegistryRangeSlider = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
-		this.hasInitialValues = false;
-		this.sliderRef = (0, lit_directives_ref_js.createRef)();
-		this.initialised = false;
 		this.loading = false;
+		this.activeHandle = "from";
 	}
 	getClassName() {
 		return "RangeSliderElement";
 	}
-	connectedCallback() {
-		super.connectedCallback();
-	}
 	disconnectedCallback() {
+		this.cancelDrag();
 		super.disconnectedCallback();
-		this.registry.range.removeListener(this.UUID);
-		this.registry.minmax.removeListener(this.UUID);
-		this.initialised = false;
 	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		this.registry.minmax.addListener(this.UUID, (value) => {
-			if (this.registry.range.value) this.registry.range.imposeRange({
-				from: this.registry.range.value.from,
-				to: this.registry.range.value.to
+	willUpdate(changed) {
+		super.willUpdate(changed);
+		if ([
+			"min",
+			"max",
+			"from",
+			"to",
+			"loading",
+			"registryController"
+		].some((key) => changed.has(key))) {
+			this.cancelDrag();
+			if (this.min !== void 0 && this.max !== void 0 && this.from !== void 0 && this.to !== void 0 && !this.values) this.log("Invalid range slider values", {
+				min: this.min,
+				max: this.max,
+				from: this.from,
+				to: this.to
 			});
-		});
+		}
 	}
-	willUpdate(_changedProperties) {
-		super.willUpdate(_changedProperties);
-		if ("from" in _changedProperties && "to" in _changedProperties) this.registry.range.imposeRange({
-			from: _changedProperties.from,
-			to: _changedProperties.to
-		});
+	get values() {
+		const { min, max, from, to } = this;
+		if (min === void 0 || max === void 0 || from === void 0 || to === void 0) return void 0;
+		if (![
+			min,
+			max,
+			from,
+			to,
+			max - min
+		].every(Number.isFinite) || min > max || from < min || to > max || from > to) return void 0;
+		return {
+			min,
+			max,
+			from,
+			to
+		};
 	}
-	getSlider() {
-		return this.renderRoot?.querySelector("tc-range-slider");
+	percent(value, values) {
+		return values.max === values.min ? 0 : (value - values.min) / (values.max - values.min) * 100;
 	}
-	sliderDownListener(event) {
-		const detail = event.detail;
-		this.from = detail.value1;
-		this.to = detail.value2;
+	constrain(handle, value, values, range) {
+		return handle === "from" ? {
+			from: Math.max(values.min, Math.min(range.to, value)),
+			to: range.to
+		} : {
+			from: range.from,
+			to: Math.min(values.max, Math.max(range.from, value))
+		};
 	}
-	sliderUpListener() {
-		if (this.from !== void 0 && this.to !== void 0) this.registry.range.imposeRange({
-			from: this.from,
-			to: this.to
-		});
+	commit(range) {
+		this.cancelDrag();
+		if (range.from === this.from && range.to === this.to) return;
+		this.registryController.setRange(range.from, range.to);
+		this.from = this.registryController.from;
+		this.to = this.registryController.to;
 	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("loading") && this.loading === false) this.initialiseSlider();
+	cancelDrag() {
+		const drag = this.drag;
+		this.drag = void 0;
+		this.draft = void 0;
+		if (drag?.element.hasPointerCapture(drag.pointerId)) drag.element.releasePointerCapture(drag.pointerId);
 	}
-	/**
-	* Create the initial listeners and bind the CSS to the slider
-	*/
-	initialiseSlider() {
-		this.initialised = true;
-		setTimeout(() => {
-			const slider = this.sliderRef.value;
-			if (slider) {
-				slider.addCSS(`
-.tooltip {
-    font-size: 12px;
-}
-.pointer-shape {
-    border-radius: 0;
-    width: 10px;
-}`);
-				slider.addEventListener("change", (event) => {
-					const detail = event.detail;
-					this.from = detail.value1;
-					this.to = detail.value2;
-				});
-				slider.addEventListener("onMouseUp", () => {
-					if (this.from !== void 0 && this.to !== void 0) this.registry.range.imposeRange({
-						from: this.from,
-						to: this.to
-					});
-				});
-			}
-		}, 0);
-		this.registry.range.addListener(this.UUID, (value) => {
-			if (value) {
-				if (this.from !== void 0 && this.to !== void 0) if (this.max < value.from) {
-					this.to = value.to;
-					this.from = value.from;
-				} else {
-					this.from = value.from;
-					this.to = value.to;
-				}
-				else {
-					this.from = value.from;
-					this.to = value.to;
-				}
-				if (this.sliderRef.value) {
-					if (value.from && this.from) this.sliderRef.value.setAttribute("value1", this.from.toString());
-					if (value.to && this.to) this.sliderRef.value.setAttribute("value2", this.to.toString());
-				}
-			}
-		});
+	pointerDown(event) {
+		const values = this.values;
+		if (!values || this.loading || values.min === values.max || this.drag || event.button !== 0) return;
+		const track = event.currentTarget;
+		const target = event.target;
+		if (!(track instanceof HTMLElement) || !(target instanceof HTMLElement)) return;
+		const rect = track.getBoundingClientRect();
+		if (rect.width === 0) return;
+		const pointerPercent = (event.clientX - rect.left) / rect.width * 100;
+		const clickedHandle = target.closest("[data-handle]")?.dataset.handle;
+		let handle;
+		if (clickedHandle === "from" || clickedHandle === "to") handle = clickedHandle;
+		else {
+			const fromDistance = Math.abs(pointerPercent - this.percent(values.from, values));
+			const toDistance = Math.abs(pointerPercent - this.percent(values.to, values));
+			handle = fromDistance === toDistance ? this.activeHandle : fromDistance < toDistance ? "from" : "to";
+		}
+		event.preventDefault();
+		this.activeHandle = handle;
+		track.querySelector(`[data-handle="${handle}"]`)?.focus({ preventScroll: true });
+		this.draft = {
+			from: values.from,
+			to: values.to
+		};
+		const offset = clickedHandle ? event.clientX - rect.left - this.percent(values[handle], values) / 100 * rect.width : 0;
+		this.drag = {
+			pointerId: event.pointerId,
+			handle,
+			offset,
+			element: track,
+			values,
+			controller: this.registryController
+		};
+		track.setPointerCapture(event.pointerId);
+		this.pointerMove(event);
+	}
+	pointerMove(event) {
+		const drag = this.drag;
+		const values = this.values;
+		if (!drag || event.pointerId !== drag.pointerId) return;
+		if (!values || !this.draft || this.loading || this.registryController !== drag.controller || values.min !== drag.values.min || values.max !== drag.values.max || values.from !== drag.values.from || values.to !== drag.values.to) {
+			this.cancelDrag();
+			return;
+		}
+		const rect = drag.element.getBoundingClientRect();
+		if (rect.width === 0) return;
+		const fraction = Math.max(0, Math.min(1, (event.clientX - rect.left - drag.offset) / rect.width));
+		const value = fraction === 0 ? values.min : fraction === 1 ? values.max : values.min + fraction * (values.max - values.min);
+		this.draft = this.constrain(drag.handle, value, values, this.draft);
+	}
+	pointerUp(event) {
+		if (this.drag?.pointerId !== event.pointerId) return;
+		this.pointerMove(event);
+		const range = this.draft;
+		if (range) this.commit(range);
+		else this.cancelDrag();
+	}
+	pointerCancel(event) {
+		if (this.drag?.pointerId === event.pointerId) this.cancelDrag();
+	}
+	keyDown(event, handle) {
+		const values = this.values;
+		if (!values || this.loading || values.min === values.max) return;
+		let value;
+		switch (event.key) {
+			case "ArrowLeft":
+				value = Number((values[handle] - (values.max - values.min) / 100).toPrecision(15));
+				break;
+			case "ArrowRight":
+				value = Number((values[handle] + (values.max - values.min) / 100).toPrecision(15));
+				break;
+			case "ArrowUp":
+			case "Home":
+				value = values.min;
+				break;
+			case "ArrowDown":
+			case "End":
+				value = values.max;
+				break;
+			default: return;
+		}
+		event.preventDefault();
+		event.stopPropagation();
+		this.activeHandle = handle;
+		this.commit(this.constrain(handle, value, values, values));
+	}
+	wheel(event, handle) {
+		const values = this.values;
+		if (!values || this.loading || values.min === values.max || event.deltaY === 0 || this.drag) return;
+		event.preventDefault();
+		event.stopPropagation();
+		this.activeHandle = handle;
+		const value = Number((values[handle] + Math.sign(event.deltaY) * (values.max - values.min) / 100).toPrecision(15));
+		this.commit(this.constrain(handle, value, values, values));
+	}
+	renderHandle(handle, values, range) {
+		const disabled = values.min === values.max;
+		return lit.html`
+            <div class="handle-position ${this.activeHandle === handle ? "active" : ""}"
+                style=${(0, lit_directives_style_map_js.styleMap)({ left: `${this.percent(range[handle], values)}%` })}>
+                <button type="button" class="handle" data-handle=${handle} role="slider"
+                    aria-label=${this.t(handle === "from" ? "minimaltemperature" : "maximaltemperature")}
+                    aria-orientation="horizontal"
+                    aria-valuemin=${handle === "from" ? values.min : range.from}
+                    aria-valuemax=${handle === "from" ? range.to : values.max}
+                    aria-valuenow=${range[handle]}
+                    aria-valuetext=${`${range[handle].toFixed(2)} \u00b0C`}
+                    ?disabled=${disabled}
+                    style=${(0, lit_directives_style_map_js.styleMap)({ background: handle === "from" ? this.palette?.data.pixels[0] : this.palette?.data.pixels[this.palette.data.pixels.length - 1] })}
+                    @focus=${() => {
+			this.activeHandle = handle;
+		}}
+                    @keydown=${(event) => this.keyDown(event, handle)}
+                    @wheel=${(event) => this.wheel(event, handle)}>
+                </button>
+                <span class="tooltip" aria-hidden="true">${range[handle].toFixed(2)}</span>
+            </div>`;
 	}
 	static {
 		this.styles = lit.css`
-.container {
-    height: var( --thermal-gap );
-    padding: calc( var( --thermal-gap ) * .5 );
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-bottom: -6px;
-}
-
-.loading {
-    .skeleton {
-        background: var( --thermal-slate );
-        height: calc( var( --thermal-fs ) * .9 );
-    }
-    tc-range-slider {
-        display: none;
-    }
-}
-
-.ready {
-    .skeleton {
-        display: none;
-    }
-}`;
+        :host { display: block; }
+        .container {
+            height: var(--thermal-gap);
+            padding: 0 calc(var(--thermal-gap) * .5);
+            margin-bottom: -6px;
+            color: var(--thermal-slate-dark);
+            font-size: 12px;
+        }
+        .slider-row { display: flex; align-items: center; }
+        .track {
+            position: relative; flex: 1; min-width: 0; height: 15px;
+            background: var(--thermal-slate); cursor: pointer; touch-action: none;
+        }
+        .fill { position: absolute; height: 100%; pointer-events: none; }
+        .handle-position { position: absolute; top: 50%; z-index: 20; }
+        .handle-position.active { z-index: 21; }
+        .handle {
+            position: absolute; transform: translate(-50%, -50%);
+            box-sizing: border-box; width: 14px; height: 20px; padding: 0; border-radius: 0;
+            border: 2px solid var(--thermal-primary); background: var(--thermal-background);
+            box-shadow: 0 0 5px var(--thermal-primary); cursor: grab; touch-action: none;
+        }
+        .handle:hover, .handle:focus-visible { box-shadow: 0 0 10px var(--thermal-primary); }
+        .handle:focus-visible { outline: 2px solid var(--thermal-primary); outline-offset: 2px; }
+        .handle:active { cursor: grabbing; }
+        .handle:disabled { cursor: default; }
+        .tooltip {
+            position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none;
+            top: 22px; min-width: 40px; height: 20px; line-height: 20px; text-align: center;
+            padding: 0 3px; background: var(--thermal-slate-dark); color: var(--thermal-background);
+            border: 1px solid var(--thermal-slate-dark); border-radius: 3px;
+        }
+        .tooltip::before {
+            content: ""; position: absolute; top: -4px; left: calc(50% - 4px);
+            width: 7px; height: 7px; transform: rotate(45deg);
+            background: var(--thermal-slate-dark);
+        }
+        .skeleton { height: calc(var(--thermal-fs) * .9); background: var(--thermal-slate); }
+    `;
 	}
 	render() {
-		if (this.loading === true) return lit.html`<div class="container loading"><div class"skeleton"></div></div>`;
+		const values = this.values;
+		if (this.loading || !values) return lit.html`<div class="container loading" aria-busy=${this.loading}><div class="skeleton"></div></div><slot></slot>`;
+		const range = this.draft ?? values;
+		const left = this.percent(range.from, values);
+		const right = this.percent(range.to, values);
 		return lit.html`
-<div class="container ready">
-
-    <div class="skeleton"></div>
-
-    <tc-range-slider 
-${(0, lit_directives_ref_js.ref)(this.sliderRef)}
-slider-width="100%"
-slider-height="15px"
-animate-onclick="false"
-min="${this.min}"
-max="${this.max}"
-
-value1="${this.from}"
-value2="${this.to}"
-
-slider-radius="0"
-
-slider-bg="var( --thermal-slate )"
-slider-bg-hover="var( --thermal-slate )"
-slider-bg-fill="${this.palette.data.gradient}"
-pointer-shadow="0 0 5px var(--thermal-primary)"
-pointer-shadow-hover="0 0 10px var(--thermal-primary)"
-pointer-shadow-hover="0 0 10px var(--thermal-primary)"
-
-pointer-border="2px solid var(--thermal-primary)"
-pointer-border-hover="2px solid var(--thermal-primary)"
-pointer-border-focus="2px solid var(--thermal-primary)"
-pointer-bg="${this.palette.data.pixels[0]}"
-                
-pointer2-border="2px solid var(--thermal-primary)"
-pointer2-border-hover="2px solid var(--thermal-primary)"
-pointer2-border-focus="2px solid var(--thermal-primary)"
-pointer2-bg="${this.palette.data.pixels[this.palette.data.pixels.length - 1]}"
-                
-generate-labels="true"
-
-moving-tooltip="true"
-moving-tooltip-distance-to-pointer="-30"
-moving-tooltip-width="40"
-moving-tooltip-height="20"
-moving-tooltip-bg="var(--thermal-slate-dark)"
-moving-tooltip-text-color="var(--thermal-background)"            
-    ></tc-range-slider>
-
-</div>
-
-<slot></slot>`;
+            <div class="container ready">
+                <div class="slider-row">
+                    <div class="track"
+                        @pointerdown=${this.pointerDown}
+                        @pointermove=${this.pointerMove}
+                        @pointerup=${this.pointerUp}
+                        @pointercancel=${this.pointerCancel}
+                        @lostpointercapture=${this.pointerCancel}
+                        @wheel=${(event) => this.wheel(event, this.activeHandle)}>
+                        <div class="fill" style=${(0, lit_directives_style_map_js.styleMap)({
+			left: `${left}%`,
+			width: `${right - left}%`,
+			background: this.palette?.data.gradient
+		})}></div>
+                        ${this.renderHandle("from", values, range)}
+                        ${this.renderHandle("to", values, range)}
+                    </div>
+                </div>
+            </div>
+            <slot></slot>`;
 	}
 };
 __decorate([
@@ -6102,30 +6490,28 @@ __decorate([
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Number)
 ], RegistryRangeSlider.prototype, "to", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeSlider.prototype, "hasInitialValues", void 0);
 __decorate([
 	(0, _lit_context.consume)({
 		context: managerPaletteContext,
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$5 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$5 : Object)
+	__decorateMetadata("design:type", Object)
 ], RegistryRangeSlider.prototype, "palette", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$1 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$1 : Object)], RegistryRangeSlider.prototype, "sliderRef", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeSlider.prototype, "initialised", void 0);
 __decorate([
-	(0, lit_decorators_js.state)(),
 	(0, _lit_context.consume)({
-		context: loadingContext,
+		context: registryLoadingContext,
 		subscribe: true
 	}),
-	__decorateMetadata("design:type", Boolean)
+	(0, lit_decorators_js.state)(),
+	__decorateMetadata("design:type", Object)
 ], RegistryRangeSlider.prototype, "loading", void 0);
-RegistryRangeSlider = __decorate([(0, lit_decorators_js.customElement)("registry-range-slider")], RegistryRangeSlider);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeSlider.prototype, "draft", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeSlider.prototype, "activeHandle", void 0);
 
 //#endregion
-//#region src/controls/registry/RangeFullButton.ts
-let RegistrySetFullRangeElement = class RegistrySetFullRangeElement extends AbstractRegistryConsumer {
+//#region src/controls/registry/RegistryRangeFullButton.ts
+var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.buttonRef = (0, lit_directives_ref_js.createRef)();
@@ -6156,12 +6542,11 @@ let RegistrySetFullRangeElement = class RegistrySetFullRangeElement extends Abst
 __decorate([(0, _lit_context.consume)({
 	context: setRegistryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Function)], RegistrySetFullRangeElement.prototype, "setter", void 0);
-RegistrySetFullRangeElement = __decorate([(0, lit_decorators_js.customElement)("registry-range-full-button")], RegistrySetFullRangeElement);
+}), __decorateMetadata("design:type", Function)], RegistryRangeFullButton.prototype, "setter", void 0);
 
 //#endregion
-//#region src/controls/registry/RangeAutoButton.ts
-let RegistrySetAutoRangeElement = class RegistrySetAutoRangeElement extends AbstractRegistryConsumer {
+//#region src/controls/registry/RegistryRangeAutoButton.ts
+var RegistryRangeAutoButton = class extends AbstractRegistryConsumer {
 	doAction() {
 		this.registry.range.applyAuto();
 	}
@@ -6169,11 +6554,10 @@ let RegistrySetAutoRangeElement = class RegistrySetAutoRangeElement extends Abst
 		return lit.html`<thermal-btn @click=${this.doAction}>${(0, i18next.t)(T.automaticrange)}</thermal-btn>`;
 	}
 };
-RegistrySetAutoRangeElement = __decorate([(0, lit_decorators_js.customElement)("registry-range-auto-button")], RegistrySetAutoRangeElement);
 
 //#endregion
 //#region src/controls/registry/RegistryRangeDisplay.ts
-let RegistryRangeDisplay = class RegistryRangeDisplay extends AbstractRegistryConsumer {
+var RegistryRangeDisplay = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.fixed = 2;
@@ -6216,11 +6600,10 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], RegistryRangeDisplay.prototype, "separator", void 0);
-RegistryRangeDisplay = __decorate([(0, lit_decorators_js.customElement)("registry-range-display")], RegistryRangeDisplay);
 
 //#endregion
 //#region src/controls/registry/RegistryOpacitySlider.ts
-let RegistryOpacitySlider = class RegistryOpacitySlider extends AbstractRegistryConsumer {
+var RegistryOpacitySlider = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.containerRef = (0, lit_directives_ref_js.createRef)();
@@ -6297,10 +6680,9 @@ __decorate([(0, _lit_context.consume)({
 	context: registryOpacityContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Number)], RegistryOpacitySlider.prototype, "value", void 0);
-RegistryOpacitySlider = __decorate([(0, lit_decorators_js.customElement)("registry-opacity-slider")], RegistryOpacitySlider);
 
 //#endregion
-//#region src/controls/group/GroupChart.ts
+//#region src/controls/group/GroupChartElement.ts
 /**
 * @license
 * Copyright 2014-2020 Google LLC
@@ -6318,7 +6700,7 @@ RegistryOpacitySlider = __decorate([(0, lit_decorators_js.customElement)("regist
 * limitations under the License.
 */
 var _ref$4;
-let GroupChart = class GroupChart extends AbstractGroupConsumer {
+var GroupChartElement = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.instances = [];
@@ -6389,16 +6771,15 @@ let GroupChart = class GroupChart extends AbstractGroupConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChart.prototype, "instances", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$4 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$4 : Object)], GroupChart.prototype, "timeout", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupChart.prototype, "data", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChart.prototype, "colors", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupChart.prototype, "on", void 0);
-GroupChart = __decorate([(0, lit_decorators_js.customElement)("group-chart")], GroupChart);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChartElement.prototype, "instances", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$4 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$4 : Object)], GroupChartElement.prototype, "timeout", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupChartElement.prototype, "data", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChartElement.prototype, "colors", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupChartElement.prototype, "on", void 0);
 
 //#endregion
 //#region src/controls/group/GroupAnalysisSyncButton.ts
-let GroupAnalysisSyncButton = class GroupAnalysisSyncButton extends AbstractGroupConsumer {
+var GroupAnalysisSyncButton = class extends AbstractGroupConsumer {
 	connectedCallback() {
 		super.connectedCallback();
 		if (this.on) {
@@ -6498,11 +6879,10 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	converter: booleanConverter(false)
 }), __decorateMetadata("design:type", Boolean)], GroupAnalysisSyncButton.prototype, "on", void 0);
-GroupAnalysisSyncButton = __decorate([(0, lit_decorators_js.customElement)("group-analysis-sync-button")], GroupAnalysisSyncButton);
 
 //#endregion
 //#region src/controls/group/GroupDownloadDropdown.ts
-let GroupDownloadDropdown = class GroupDownloadDropdown extends AbstractGroupConsumer {
+var GroupDownloadDropdown = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.pngColumns = 3;
@@ -6648,11 +7028,10 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Boolean)
 ], GroupDownloadDropdown.prototype, "pngShowScale", void 0);
-GroupDownloadDropdown = __decorate([(0, lit_decorators_js.customElement)("group-download-dropdown")], GroupDownloadDropdown);
 
 //#endregion
 //#region src/controls/group/GroupDownloadButtons.ts
-let GroupDownloadButtons = class GroupDownloadButtons extends AbstractGroupConsumer {
+var GroupDownloadButtons = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.pngWidth = 1350;
@@ -6768,7 +7147,6 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Boolean)
 ], GroupDownloadButtons.prototype, "pngExportGroupName", void 0);
-GroupDownloadButtons = __decorate([(0, lit_decorators_js.customElement)("group-download-buttons")], GroupDownloadButtons);
 
 //#endregion
 //#region src/controls/group/AbstractGroupDropin.ts
@@ -6801,9 +7179,9 @@ var AbstractGroupDropin = class extends AbstractGroupConsumer {
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractGroupDropin.prototype, "ip", void 0);
 
 //#endregion
-//#region src/controls/group/GroupDropin.ts
+//#region src/controls/group/GroupDropinElement.ts
 var _ref$3;
-let GroupDropin = class GroupDropin extends AbstractGroupDropin {
+var GroupDropinElement = class extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
 		this.container = (0, lit_directives_ref_js.createRef)();
@@ -6968,15 +7346,14 @@ let GroupDropin = class GroupDropin extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$3 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$3 : Object)], GroupDropin.prototype, "container", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin.prototype, "hover", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin.prototype, "uploading", void 0);
-GroupDropin = __decorate([(0, lit_decorators_js.customElement)("group-dropin")], GroupDropin);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$3 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$3 : Object)], GroupDropinElement.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinElement.prototype, "hover", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinElement.prototype, "uploading", void 0);
 
 //#endregion
 //#region src/controls/group/GroupDropinInput.ts
 var _ref$2;
-let GroupDropinInput = class GroupDropinInput extends AbstractGroupDropin {
+var GroupDropinInputElement = class extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
 		this.container = (0, lit_directives_ref_js.createRef)();
@@ -7122,10 +7499,9 @@ let GroupDropinInput = class GroupDropinInput extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$2 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$2 : Object)], GroupDropinInput.prototype, "container", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInput.prototype, "hover", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInput.prototype, "uploading", void 0);
-GroupDropinInput = __decorate([(0, lit_decorators_js.customElement)("group-dropin-input")], GroupDropinInput);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$2 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$2 : Object)], GroupDropinInputElement.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInputElement.prototype, "hover", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInputElement.prototype, "uploading", void 0);
 
 //#endregion
 //#region src/controls/file/buttons/AbstractFileButton.ts
@@ -7179,7 +7555,7 @@ __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetada
 
 //#endregion
 //#region src/controls/group/GroupRangePropagator.ts
-let GroupRangePropagator = class GroupRangePropagator extends AbstractGroupConsumer {
+var GroupRangePropagatorElement = class extends AbstractGroupConsumer {
 	static {
 		this.styles = AbstractFileButton.styles;
 	}
@@ -7212,8 +7588,7 @@ let GroupRangePropagator = class GroupRangePropagator extends AbstractGroupConsu
 __decorate([(0, _lit_context.consume)({
 	context: setRegistryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Function)], GroupRangePropagator.prototype, "setter", void 0);
-GroupRangePropagator = __decorate([(0, lit_decorators_js.customElement)("group-range-propagator")], GroupRangePropagator);
+}), __decorateMetadata("design:type", Function)], GroupRangePropagatorElement.prototype, "setter", void 0);
 
 //#endregion
 //#region src/utils/timelineTicks.ts
@@ -7441,7 +7816,7 @@ const ticksCss = lit.css`
 //#endregion
 //#region src/controls/group/GroupTimeline.ts
 var _ref;
-let GroupTimeline = class GroupTimeline extends AbstractGroupConsumer {
+var GroupTimelineElement = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.ms = 0;
@@ -7618,15 +7993,14 @@ let GroupTimeline = class GroupTimeline extends AbstractGroupConsumer {
         </div>`;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimeline.prototype, "longestDurationInMs", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimeline.prototype, "ms", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimeline.prototype, "pointerMs", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimeline.prototype, "playing", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimeline.prototype, "instances", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimeline.prototype, "has", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimeline.prototype, "ticks", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref : Object)], GroupTimeline.prototype, "listener", void 0);
-GroupTimeline = __decorate([(0, lit_decorators_js.customElement)("group-timeline")], GroupTimeline);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimelineElement.prototype, "longestDurationInMs", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimelineElement.prototype, "ms", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimelineElement.prototype, "pointerMs", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimelineElement.prototype, "playing", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimelineElement.prototype, "instances", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimelineElement.prototype, "has", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimelineElement.prototype, "ticks", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref : Object)], GroupTimelineElement.prototype, "listener", void 0);
 
 //#endregion
 exports.AbstractFileConsumer = AbstractFileConsumer;
@@ -7656,252 +8030,47 @@ Object.defineProperty(exports, 'DisplayPanel', {
     return DisplayPanel;
   }
 });
-Object.defineProperty(exports, 'FileCopyElement', {
-  enumerable: true,
-  get: function () {
-    return FileCopyElement;
-  }
-});
-Object.defineProperty(exports, 'FileMirrorElement', {
-  enumerable: true,
-  get: function () {
-    return FileMirrorElement;
-  }
-});
-Object.defineProperty(exports, 'FileProviderElement', {
-  enumerable: true,
-  get: function () {
-    return FileProviderElement;
-  }
-});
-Object.defineProperty(exports, 'GroupAnalysisSyncButton', {
-  enumerable: true,
-  get: function () {
-    return GroupAnalysisSyncButton;
-  }
-});
-Object.defineProperty(exports, 'GroupChart', {
-  enumerable: true,
-  get: function () {
-    return GroupChart;
-  }
-});
-Object.defineProperty(exports, 'GroupDownloadButtons', {
-  enumerable: true,
-  get: function () {
-    return GroupDownloadButtons;
-  }
-});
-Object.defineProperty(exports, 'GroupDownloadDropdown', {
-  enumerable: true,
-  get: function () {
-    return GroupDownloadDropdown;
-  }
-});
-Object.defineProperty(exports, 'GroupDropin', {
-  enumerable: true,
-  get: function () {
-    return GroupDropin;
-  }
-});
-Object.defineProperty(exports, 'GroupDropinInput', {
-  enumerable: true,
-  get: function () {
-    return GroupDropinInput;
-  }
-});
-Object.defineProperty(exports, 'GroupProviderElement', {
-  enumerable: true,
-  get: function () {
-    return GroupProviderElement;
-  }
-});
-Object.defineProperty(exports, 'GroupRangePropagator', {
-  enumerable: true,
-  get: function () {
-    return GroupRangePropagator;
-  }
-});
-Object.defineProperty(exports, 'GroupTimeline', {
-  enumerable: true,
-  get: function () {
-    return GroupTimeline;
-  }
-});
-Object.defineProperty(exports, 'ManagerExportPanel', {
-  enumerable: true,
-  get: function () {
-    return ManagerExportPanel;
-  }
-});
-Object.defineProperty(exports, 'ManagerGraphSmoothSwitch', {
-  enumerable: true,
-  get: function () {
-    return ManagerGraphSmoothSwitch;
-  }
-});
-Object.defineProperty(exports, 'ManagerImageSmoothSwitch', {
-  enumerable: true,
-  get: function () {
-    return ManagerImageSmoothSwitch;
-  }
-});
-Object.defineProperty(exports, 'ManagerPaletteButtons', {
-  enumerable: true,
-  get: function () {
-    return ManagerPaletteButtons;
-  }
-});
-Object.defineProperty(exports, 'ManagerPaletteDropdown', {
-  enumerable: true,
-  get: function () {
-    return ManagerPaletteDropdown;
-  }
-});
-Object.defineProperty(exports, 'ManagerProviderElement', {
-  enumerable: true,
-  get: function () {
-    return ManagerProviderElement;
-  }
-});
-Object.defineProperty(exports, 'ManagerToolBar', {
-  enumerable: true,
-  get: function () {
-    return ManagerToolBar;
-  }
-});
-Object.defineProperty(exports, 'RegistryOpacitySlider', {
-  enumerable: true,
-  get: function () {
-    return RegistryOpacitySlider;
-  }
-});
-Object.defineProperty(exports, 'RegistryProviderElement', {
-  enumerable: true,
-  get: function () {
-    return RegistryProviderElement;
-  }
-});
-Object.defineProperty(exports, 'RegistryRangeDisplay', {
-  enumerable: true,
-  get: function () {
-    return RegistryRangeDisplay;
-  }
-});
-Object.defineProperty(exports, 'RegistryRangeForm', {
-  enumerable: true,
-  get: function () {
-    return RegistryRangeForm;
-  }
-});
-Object.defineProperty(exports, 'RegistryRangeSlider', {
-  enumerable: true,
-  get: function () {
-    return RegistryRangeSlider;
-  }
-});
-Object.defineProperty(exports, 'RegistrySetAutoRangeElement', {
-  enumerable: true,
-  get: function () {
-    return RegistrySetAutoRangeElement;
-  }
-});
-Object.defineProperty(exports, 'RegistrySetFullRangeElement', {
-  enumerable: true,
-  get: function () {
-    return RegistrySetFullRangeElement;
-  }
-});
-Object.defineProperty(exports, 'RegistryTicksBar', {
-  enumerable: true,
-  get: function () {
-    return RegistryTicksBar;
-  }
-});
-Object.defineProperty(exports, 'ThermalAppElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalAppElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalBarElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalBarElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalBtnElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalBtnElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalDialogElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalDialogElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalDropdownElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalDropdownElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalDropinElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalDropinElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalExpandableElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalExpandableElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalFieldElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalFieldElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalIconElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalIconElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalLoadingElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalLoadingElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalRadioElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalRadioElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalSlotElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalSlotElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalSpinnerElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalSpinnerElement;
-  }
-});
-Object.defineProperty(exports, 'ThermalTipElement', {
-  enumerable: true,
-  get: function () {
-    return ThermalTipElement;
-  }
-});
+exports.FileCopyElement = FileCopyElement;
+exports.FileMirrorElement = FileMirrorElement;
+exports.FileProviderElement = FileProviderElement;
+exports.GroupAnalysisSyncButton = GroupAnalysisSyncButton;
+exports.GroupChart = GroupChartElement;
+exports.GroupDownloadButtons = GroupDownloadButtons;
+exports.GroupDownloadDropdown = GroupDownloadDropdown;
+exports.GroupDropin = GroupDropinElement;
+exports.GroupDropinInput = GroupDropinInputElement;
+exports.GroupProviderElement = GroupProviderElement;
+exports.GroupRangePropagator = GroupRangePropagatorElement;
+exports.GroupTimeline = GroupTimelineElement;
+exports.ManagerExportPanel = ManagerExportPanel;
+exports.ManagerGraphSmoothSwitch = ManagerGraphSmoothSwitch;
+exports.ManagerImageSmoothSwitch = ManagerImageSmoothSwitch;
+exports.ManagerPaletteButtons = ManagerPaletteButtons;
+exports.ManagerPaletteDropdown = ManagerPaletteDropdown;
+exports.ManagerProviderElement = ManagerProviderElement;
+exports.ManagerToolBar = ManagerToolBar;
+exports.RegistryOpacitySlider = RegistryOpacitySlider;
+exports.RegistryProviderElement = RegistryProviderElement;
+exports.RegistryRangeDisplay = RegistryRangeDisplay;
+exports.RegistryRangeForm = RegistryRangeForm;
+exports.RegistryRangeSlider = RegistryRangeSlider;
+exports.RegistrySetAutoRangeElement = RegistryRangeAutoButton;
+exports.RegistrySetFullRangeElement = RegistryRangeFullButton;
+exports.RegistryTicksBar = RegistryTicksBar;
+exports.ThermalAppElement = ThermalAppElement;
+exports.ThermalBarElement = ThermalBarElement;
+exports.ThermalBtnElement = ThermalBtnElement;
+exports.ThermalDialogElement = ThermalDialogElement;
+exports.ThermalDropdownElement = ThermalDropdownElement;
+exports.ThermalDropinElement = ThermalDropinElement;
+exports.ThermalExpandableElement = ThermalExpandableElement;
+exports.ThermalFieldElement = ThermalFieldElement;
+exports.ThermalIconElement = ThermalIconElement;
+exports.ThermalLoadingElement = ThermalPosterElement;
+exports.ThermalRadioElement = ThermalRadioElement;
+exports.ThermalSlotElement = ThermalSlotElement;
+exports.ThermalSpinnerElement = ThermalSpinnerElement;
+exports.ThermalTipElement = ThermalTipElement;
 exports.booleanConverter = booleanConverter;
 exports.durationConverter = durationConverter;
 exports.fileContext = fileContext;

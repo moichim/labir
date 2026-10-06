@@ -1376,6 +1376,8 @@ interface IWithRange extends IBaseProperty {
 }
 /** Handles the thermal range display. */
 declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
+  readonly onAutoValueChanged: CallbacksManager<(value: ThermalRangeOrUndefined) => void>;
+  private _autoValue;
   get currentRange(): ThermalRangeOrUndefined;
   /**
    * Make sure the range is allways within the minmax values.
@@ -1396,6 +1398,8 @@ declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, Ther
   applyMinmax(): void;
   /** Sets the range automatically based on the current histogram */
   applyAuto(): void;
+  get autoValue(): ThermalRangeOrUndefined;
+  recalculateAutoValue(): ThermalRangeOrUndefined;
 }
 //#endregion
 //#region src/properties/analysis/group/AnalysisGroupGraph.d.ts

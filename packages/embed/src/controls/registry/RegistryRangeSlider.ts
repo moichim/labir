@@ -1,17 +1,18 @@
 import { consume } from "@lit/context";
-import { PropertyValues, css, html } from "lit";
+import { css, html } from "lit";
+import type { PropertyValues } from "lit";
 import { state } from "lit/decorators.js";
-import { Ref, createRef, ref } from "lit/directives/ref.js";
-import 'toolcool-range-slider';
-import { RangeSlider } from "toolcool-range-slider";
-import "toolcool-range-slider/dist/plugins/tcrs-marks.min.js";
-import "toolcool-range-slider/src/plugins/moving-tooltip-plugin";
+import { styleMap } from "lit/directives/style-map.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
-import { loadingContext } from "../../hierarchy/providers/context/FileContexts";
-import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
-import { registryMaxContext, registryMinContext, registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
+import type { RegistryController } from "../../hierarchy/controllers/RegistryController";
+import type { ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { registryLoadingContext, registryMaxContext, registryMinContext, registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
 
-
+type Handle = "from" | "to";
+type Range = { from: number; to: number };
+type Values = Range & { min: number; max: number };
+type Drag = { pointerId: number; handle: Handle; offset: number; element: HTMLElement; values: Values; controller: RegistryController };
 
 export class RegistryRangeSlider extends AbstractRegistryConsumer {
 
@@ -31,257 +32,265 @@ export class RegistryRangeSlider extends AbstractRegistryConsumer {
     @state()
     public to?: number;
 
-    @state()
-    protected hasInitialValues: boolean = false;
-
     @consume({ context: managerPaletteContext, subscribe: true })
     @state()
-    protected palette!: ManagerPaletteContext;
+    protected palette?: ManagerPaletteContext;
+
+    @consume({ context: registryLoadingContext, subscribe: true })
+    @state()
+    protected loading = false;
 
     @state()
-    protected sliderRef: Ref<RangeSlider> = createRef();
+    private draft?: Range;
 
     @state()
-    protected initialised: boolean = false;
+    private activeHandle: Handle = "from";
 
-    @state()
-    @consume({ context: loadingContext, subscribe: true })
-    protected loading: boolean = false;
+    private drag?: Drag;
 
     protected getClassName(): string {
         return "RangeSliderElement";
     }
 
-    connectedCallback(): void {
-        super.connectedCallback();
-    }
-
     disconnectedCallback(): void {
+        this.cancelDrag();
         super.disconnectedCallback();
-        this.registry.range.removeListener(this.UUID);
-        this.registry.minmax.removeListener(this.UUID);
-        this.initialised = false;
     }
 
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
-        this.registry.minmax.addListener(this.UUID, value => {
-
-            if (this.registry.range.value) {
-                this.registry.range.imposeRange({
-                    from: this.registry.range.value.from,
-                    to: this.registry.range.value.to
-                });
+    protected willUpdate(changed: PropertyValues): void {
+        super.willUpdate(changed);
+        if (["min", "max", "from", "to", "loading", "registryController"].some(key => changed.has(key))) {
+            this.cancelDrag();
+            if (this.min !== undefined && this.max !== undefined && this.from !== undefined && this.to !== undefined
+                && !this.values) {
+                this.log("Invalid range slider values", { min: this.min, max: this.max, from: this.from, to: this.to });
             }
-
-        });
-    }
-
-    protected willUpdate(_changedProperties: PropertyValues): void {
-        super.willUpdate(_changedProperties);
-
-        if ("from" in _changedProperties && "to" in _changedProperties) {
-            this.registry.range.imposeRange({
-                from: _changedProperties.from as number,
-                to: _changedProperties.to as number
-            });
         }
     }
 
-    protected getSlider() {
-        return this.renderRoot?.querySelector("tc-range-slider");
+    private get values(): Values | undefined {
+        const { min, max, from, to } = this;
+        if (min === undefined || max === undefined || from === undefined || to === undefined) return undefined;
+        if (![min, max, from, to, max - min].every(Number.isFinite)
+            || min > max || from < min || to > max || from > to) return undefined;
+        return { min, max, from, to };
     }
 
-    public sliderDownListener(event: Event) {
-        const evt = event as CustomEvent;
-        const detail = evt.detail as { value1: number, value2: number };
-
-        this.from = detail.value1;
-        this.to = detail.value2;
+    private percent(value: number, values: Values): number {
+        return values.max === values.min ? 0 : (value - values.min) / (values.max - values.min) * 100;
     }
 
-
-    public sliderUpListener() {
-        if (this.from !== undefined && this.to !== undefined)
-            this.registry.range.imposeRange({ from: this.from, to: this.to });
+    private constrain(handle: Handle, value: number, values: Values, range: Range): Range {
+        return handle === "from"
+            ? { from: Math.max(values.min, Math.min(range.to, value)), to: range.to }
+            : { from: range.from, to: Math.min(values.max, Math.max(range.from, value)) };
     }
 
-    public updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
+    private commit(range: Range): void {
+        this.cancelDrag();
+        if (range.from === this.from && range.to === this.to) return;
+        this.registryController.setRange(range.from, range.to);
+        this.from = this.registryController.from;
+        this.to = this.registryController.to;
+    }
 
-        // Initialise the slider
-        if (_changedProperties.has("loading") && this.loading === false) {
-            this.initialiseSlider();
+    private cancelDrag(): void {
+        const drag = this.drag;
+        this.drag = undefined;
+        this.draft = undefined;
+        if (drag?.element.hasPointerCapture(drag.pointerId)) {
+            drag.element.releasePointerCapture(drag.pointerId);
+        }
+    }
+
+    private pointerDown(event: PointerEvent): void {
+        const values = this.values;
+        if (!values || this.loading || values.min === values.max || this.drag || event.button !== 0) return;
+        const track = event.currentTarget;
+        const target = event.target;
+        if (!(track instanceof HTMLElement) || !(target instanceof HTMLElement)) return;
+        const rect = track.getBoundingClientRect();
+        if (rect.width === 0) return;
+
+        const pointerPercent = (event.clientX - rect.left) / rect.width * 100;
+        const clickedHandle = target.closest<HTMLElement>("[data-handle]")?.dataset.handle;
+        let handle: Handle;
+        if (clickedHandle === "from" || clickedHandle === "to") {
+            handle = clickedHandle;
+        } else {
+            const fromDistance = Math.abs(pointerPercent - this.percent(values.from, values));
+            const toDistance = Math.abs(pointerPercent - this.percent(values.to, values));
+            handle = fromDistance === toDistance ? this.activeHandle : fromDistance < toDistance ? "from" : "to";
         }
 
-
-
+        event.preventDefault();
+        this.activeHandle = handle;
+        track.querySelector<HTMLElement>(`[data-handle="${handle}"]`)?.focus({ preventScroll: true });
+        this.draft = { from: values.from, to: values.to };
+        const offset = clickedHandle ? event.clientX - rect.left - this.percent(values[handle], values) / 100 * rect.width : 0;
+        this.drag = { pointerId: event.pointerId, handle, offset, element: track, values, controller: this.registryController };
+        track.setPointerCapture(event.pointerId);
+        this.pointerMove(event);
     }
 
-
-    /**
-     * Create the initial listeners and bind the CSS to the slider
-     */
-    protected initialiseSlider() {
-
-        this.initialised = true;
-
-        // The main functionality needs to be deferred, since the component is rendered in the next tick
-        setTimeout(() => {
-
-            const slider = this.sliderRef.value;
-
-            if (slider) {
-                slider.addCSS(`
-.tooltip {
-    font-size: 12px;
-}
-.pointer-shape {
-    border-radius: 0;
-    width: 10px;
-}` );
-
-                slider.addEventListener("change", (event: Event) => {
-
-                    const evt = event as CustomEvent;
-                    const detail = evt.detail as { value1: number, value2: number };
-
-                    this.from = detail.value1;
-                    this.to = detail.value2;
-
-                });
-
-
-                slider.addEventListener("onMouseUp", () => {
-
-                    if (this.from !== undefined && this.to !== undefined)
-                        this.registry.range.imposeRange({ from: this.from, to: this.to });
-
-                });
-
-            }
-
-        }, 0);
-
-
-        this.registry.range.addListener(this.UUID, value => {
-            if (value) {
-
-                if (this.from !== undefined && this.to !== undefined) {
-
-                    // If new min is larger the existing max
-                    if (this.max! < value.from) {
-                        this.to = value.to;
-                        this.from = value.from;
-                    }
-                    // If new max is smaller than existing min
-                    else {
-                        this.from = value.from;
-                        this.to = value.to;
-                    }
-
-                } else {
-                    this.from = value.from;
-                    this.to = value.to;
-                }
-
-                // Set the values the hard way to the component - in case their setting is somehow not working in the component itself
-
-                if (this.sliderRef.value) {
-
-                    if (value.from && this.from) {
-                        this.sliderRef.value.setAttribute("value1", this.from.toString());
-                    }
-
-                    if (value.to && this.to) {
-                        this.sliderRef.value.setAttribute("value2", this.to.toString());
-                    }
-                }
-
-            }
-        });
+    private pointerMove(event: PointerEvent): void {
+        const drag = this.drag;
+        const values = this.values;
+        if (!drag || event.pointerId !== drag.pointerId) return;
+        if (!values || !this.draft || this.loading || this.registryController !== drag.controller
+            || values.min !== drag.values.min || values.max !== drag.values.max
+            || values.from !== drag.values.from || values.to !== drag.values.to) {
+            this.cancelDrag();
+            return;
+        }
+        const rect = drag.element.getBoundingClientRect();
+        if (rect.width === 0) return;
+        const fraction = Math.max(0, Math.min(1, (event.clientX - rect.left - drag.offset) / rect.width));
+        const value = fraction === 0 ? values.min : fraction === 1 ? values.max
+            : values.min + fraction * (values.max - values.min);
+        this.draft = this.constrain(drag.handle, value, values, this.draft);
     }
 
+    private pointerUp(event: PointerEvent): void {
+        if (this.drag?.pointerId !== event.pointerId) return;
+        this.pointerMove(event);
+        const range = this.draft;
+        if (range) this.commit(range);
+        else this.cancelDrag();
+    }
+
+    private pointerCancel(event: PointerEvent): void {
+        if (this.drag?.pointerId === event.pointerId) this.cancelDrag();
+    }
+
+    private keyDown(event: KeyboardEvent, handle: Handle): void {
+        const values = this.values;
+        if (!values || this.loading || values.min === values.max) return;
+        let value: number;
+        switch (event.key) {
+            case "ArrowLeft":
+                value = Number((values[handle] - (values.max - values.min) / 100).toPrecision(15));
+                break;
+            case "ArrowRight":
+                value = Number((values[handle] + (values.max - values.min) / 100).toPrecision(15));
+                break;
+            // Keep the existing horizontal slider's up/down shortcuts.
+            case "ArrowUp":
+            case "Home":
+                value = values.min;
+                break;
+            case "ArrowDown":
+            case "End":
+                value = values.max;
+                break;
+            default:
+                return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        this.activeHandle = handle;
+        this.commit(this.constrain(handle, value, values, values));
+    }
+
+    private wheel(event: WheelEvent, handle: Handle): void {
+        const values = this.values;
+        if (!values || this.loading || values.min === values.max || event.deltaY === 0 || this.drag) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.activeHandle = handle;
+        const value = Number((values[handle] + Math.sign(event.deltaY) * (values.max - values.min) / 100).toPrecision(15));
+        this.commit(this.constrain(handle, value, values, values));
+    }
+
+    private renderHandle(handle: Handle, values: Values, range: Range) {
+        const disabled = values.min === values.max;
+        return html`
+            <div class="handle-position ${this.activeHandle === handle ? "active" : ""}"
+                style=${styleMap({ left: `${this.percent(range[handle], values)}%` })}>
+                <button type="button" class="handle" data-handle=${handle} role="slider"
+                    aria-label=${this.t(handle === "from" ? "minimaltemperature" : "maximaltemperature")}
+                    aria-orientation="horizontal"
+                    aria-valuemin=${handle === "from" ? values.min : range.from}
+                    aria-valuemax=${handle === "from" ? range.to : values.max}
+                    aria-valuenow=${range[handle]}
+                    aria-valuetext=${`${range[handle].toFixed(2)} \u00b0C`}
+                    ?disabled=${disabled}
+                    style=${styleMap({ background: handle === "from" ? this.palette?.data.pixels[0]
+                        : this.palette?.data.pixels[this.palette.data.pixels.length - 1] })}
+                    @focus=${() => { this.activeHandle = handle; }}
+                    @keydown=${(event: KeyboardEvent) => this.keyDown(event, handle)}
+                    @wheel=${(event: WheelEvent) => this.wheel(event, handle)}>
+                </button>
+                <span class="tooltip" aria-hidden="true">${range[handle].toFixed(2)}</span>
+            </div>`;
+    }
 
     static styles = css`
-.container {
-    height: var( --thermal-gap );
-    padding: calc( var( --thermal-gap ) * .5 );
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-bottom: -6px;
-}
-
-.loading {
-    .skeleton {
-        background: var( --thermal-slate );
-        height: calc( var( --thermal-fs ) * .9 );
-    }
-    tc-range-slider {
-        display: none;
-    }
-}
-
-.ready {
-    .skeleton {
-        display: none;
-    }
-}`;
+        :host { display: block; }
+        .container {
+            height: var(--thermal-gap);
+            padding: 0 calc(var(--thermal-gap) * .5);
+            margin-bottom: -6px;
+            color: var(--thermal-slate-dark);
+            font-size: 12px;
+        }
+        .slider-row { display: flex; align-items: center; }
+        .track {
+            position: relative; flex: 1; min-width: 0; height: 15px;
+            background: var(--thermal-slate); cursor: pointer; touch-action: none;
+        }
+        .fill { position: absolute; height: 100%; pointer-events: none; }
+        .handle-position { position: absolute; top: 50%; z-index: 20; }
+        .handle-position.active { z-index: 21; }
+        .handle {
+            position: absolute; transform: translate(-50%, -50%);
+            box-sizing: border-box; width: 14px; height: 20px; padding: 0; border-radius: 0;
+            border: 2px solid var(--thermal-primary); background: var(--thermal-background);
+            box-shadow: 0 0 5px var(--thermal-primary); cursor: grab; touch-action: none;
+        }
+        .handle:hover, .handle:focus-visible { box-shadow: 0 0 10px var(--thermal-primary); }
+        .handle:focus-visible { outline: 2px solid var(--thermal-primary); outline-offset: 2px; }
+        .handle:active { cursor: grabbing; }
+        .handle:disabled { cursor: default; }
+        .tooltip {
+            position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none;
+            top: 24px; min-width: 40px; height: 20px; line-height: 20px; text-align: center;
+            padding: 0 3px; background: var(--thermal-slate-dark); color: var(--thermal-background);
+            border: 1px solid var(--thermal-slate-dark); border-radius: 3px;
+        }
+        .tooltip::before {
+            content: ""; position: absolute; top: -4px; left: calc(50% - 4px);
+            width: 7px; height: 7px; transform: rotate(45deg);
+            background: var(--thermal-slate-dark);
+        }
+        .skeleton { height: calc(var(--thermal-fs) * .9); background: var(--thermal-slate); }
+    `;
 
     protected render(): unknown {
-
-        if (this.loading === true) {
-            return html`<div class="container loading"><div class"skeleton"></div></div>`;
+        const values = this.values;
+        if (this.loading || !values) {
+            return html`<div class="container loading" aria-busy=${this.loading}><div class="skeleton"></div></div><slot></slot>`;
         }
-
+        const range = this.draft ?? values;
+        const left = this.percent(range.from, values);
+        const right = this.percent(range.to, values);
         return html`
-<div class="container ready">
-
-    <div class="skeleton"></div>
-
-    <tc-range-slider 
-${ref(this.sliderRef)}
-slider-width="100%"
-slider-height="15px"
-animate-onclick="false"
-min="${this.min}"
-max="${this.max}"
-
-value1="${this.from}"
-value2="${this.to}"
-
-slider-radius="0"
-
-slider-bg="var( --thermal-slate )"
-slider-bg-hover="var( --thermal-slate )"
-slider-bg-fill="${this.palette.data.gradient}"
-pointer-shadow="0 0 5px var(--thermal-primary)"
-pointer-shadow-hover="0 0 10px var(--thermal-primary)"
-pointer-shadow-hover="0 0 10px var(--thermal-primary)"
-
-pointer-border="2px solid var(--thermal-primary)"
-pointer-border-hover="2px solid var(--thermal-primary)"
-pointer-border-focus="2px solid var(--thermal-primary)"
-pointer-bg="${this.palette.data.pixels[0]}"
-                
-pointer2-border="2px solid var(--thermal-primary)"
-pointer2-border-hover="2px solid var(--thermal-primary)"
-pointer2-border-focus="2px solid var(--thermal-primary)"
-pointer2-bg="${this.palette.data.pixels[this.palette.data.pixels.length - 1]}"
-                
-generate-labels="true"
-
-moving-tooltip="true"
-moving-tooltip-distance-to-pointer="-30"
-moving-tooltip-width="40"
-moving-tooltip-height="20"
-moving-tooltip-bg="var(--thermal-slate-dark)"
-moving-tooltip-text-color="var(--thermal-background)"            
-    ></tc-range-slider>
-
-</div>
-
-<slot></slot>`;
+            <div class="container ready">
+                <div class="slider-row">
+                    <div class="track"
+                        @pointerdown=${this.pointerDown}
+                        @pointermove=${this.pointerMove}
+                        @pointerup=${this.pointerUp}
+                        @pointercancel=${this.pointerCancel}
+                        @lostpointercapture=${this.pointerCancel}
+                        @wheel=${(event: WheelEvent) => this.wheel(event, this.activeHandle)}>
+                        <div class="fill" style=${styleMap({ left: `${left}%`, width: `${right - left}%`,
+                            background: this.palette?.data.gradient })}></div>
+                        ${this.renderHandle("from", values, range)}
+                        ${this.renderHandle("to", values, range)}
+                    </div>
+                </div>
+            </div>
+            <slot></slot>`;
     }
-
 }

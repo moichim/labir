@@ -3,7 +3,9 @@ import { ThermalRegistry, TimeFormat } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { registryContext, setRegistryHighlightContext } from "../../../../../hierarchy/providers/context/RegistryContext";
+import type { RegistryController } from "../../../../../hierarchy/controllers/RegistryController";
+import { registryControllerContext } from "../../../../../hierarchy/controllers/RegistryController";
+import { registryContext } from "../../../../../hierarchy/providers/context/RegistryContext";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-subfolders-grid")
@@ -21,8 +23,8 @@ export class SubfoldersGrid extends AbstractControlledConsumer {
     @property({ type: Function })
     public onFileEdit?: (file: FileInfo) => void;
 
-    @consume({ context: setRegistryHighlightContext, subscribe: true })
-    protected setHighlight?: (value: unknown) => void;
+    @consume({ context: registryControllerContext, subscribe: true })
+    protected registryController!: RegistryController;
 
     @state()
     private columnCount: number = 0;
@@ -44,15 +46,9 @@ export class SubfoldersGrid extends AbstractControlledConsumer {
             this.content.grid?.header ?? {}
         ).length;
 
-        this.registry.minmax.addListener(this.UUID, value => {
-            this.log(value);
-        });
-
 
         // Add listener for processing end to refresh the component
         this.registry.onProcessingEnd.set(this.UUID, () => {
-            this.log("Processing ended", this.registry.minmax.value, this.registry.range.value);
-            // this.registry.range.applyMinmax();
             this.requestUpdate();
         });
     }
@@ -195,17 +191,19 @@ export class SubfoldersGrid extends AbstractControlledConsumer {
         }
 
         const mouseenter = () => {
-            if (this.setHighlight && minmax) {
-                this.setHighlight({
+
+            if (this.registryController && minmax) {
+                this.registryController.setHighlight({
                     from: minmax.min,
                     to: minmax.max
                 });
             }
+
         }
 
         const mouseleave = () => {
-            if (this.setHighlight) {
-                this.setHighlight(undefined);
+            if (this.registryController) {
+                this.registryController.setHighlight(undefined);
             }
         }
 

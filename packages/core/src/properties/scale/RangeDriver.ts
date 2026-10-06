@@ -1,5 +1,6 @@
 import { ThermalRegistry } from "../../hierarchy/ThermalRegistry";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { CallbacksManager } from "../callbacksManager";
 
 
 /** The range should allways contain both properties. */
@@ -19,6 +20,10 @@ export interface IWithRange extends IBaseProperty {
 
 /** Handles the thermal range display. */
 export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
+
+    public readonly onAutoValueChanged = new CallbacksManager<(value: ThermalRangeOrUndefined) => void>();
+
+    private _autoValue: ThermalRangeOrUndefined = undefined;
 
 
     public get currentRange() {
@@ -62,6 +67,8 @@ export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, Therm
 
         if (value)
             this.parent.forEveryInstance(instance => instance.draw());
+
+        this.recalculateAutoValue();
 
     }
 
@@ -109,23 +116,46 @@ export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, Therm
     /** Sets the range automatically based on the current histogram */
     public applyAuto() {
 
+        this.imposeRange(this._autoValue);
+
+    }
+
+    public get autoValue(): ThermalRangeOrUndefined {
+        return this._autoValue;
+    }
+
+    public recalculateAutoValue(): ThermalRangeOrUndefined {
+        const previousValue = this._autoValue;
+
         if (this.parent.histogram.value) {
 
-            // const length = this.parent.histogram.value.length;
             const percentage = 10; //100 / length;
 
             const histogramBarsOverPercentage = this.parent.histogram.value.filter(bar => bar.height >= percentage);
 
-            const newRange: ThermalRangeOrUndefined = {
-                from: histogramBarsOverPercentage[0].from,
-                to: histogramBarsOverPercentage[
-                    histogramBarsOverPercentage.length - 1
-                ].to
-            };
-            this.imposeRange(newRange);
+            if (histogramBarsOverPercentage.length > 0) {
+                this._autoValue = {
+                    from: histogramBarsOverPercentage[0].from,
+                    to: histogramBarsOverPercentage[
+                        histogramBarsOverPercentage.length - 1
+                    ].to
+                };
+            } else {
+                this._autoValue = undefined;
+            }
 
+        } else {
+            this._autoValue = undefined;
         }
 
+        if (
+            previousValue?.from !== this._autoValue?.from
+            || previousValue?.to !== this._autoValue?.to
+        ) {
+            this.onAutoValueChanged.call(this._autoValue);
+        }
+
+        return this._autoValue;
 
     }
 

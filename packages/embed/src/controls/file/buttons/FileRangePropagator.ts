@@ -1,16 +1,11 @@
-import { Instance, ThermalRangeOrUndefined } from "@labirthermal/core";
-import { consume } from "@lit/context";
+import { Instance } from "@labirthermal/core";
 import { t } from "i18next";
 import { property } from "lit/decorators.js";
-import { setRegistryHighlightContext } from "../../../hierarchy/providers/context/RegistryContext";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { AbstractFileButton } from "./AbstractFileButton";
 
 export class FileRangePropagator extends AbstractFileButton {
-
-    @consume({ context: setRegistryHighlightContext, subscribe: true })
-    protected setter?: (value?: ThermalRangeOrUndefined) => void;
 
     protected tooltip: string = t(T.range)
 
@@ -28,23 +23,25 @@ export class FileRangePropagator extends AbstractFileButton {
 
     enter() {
 
-        if (this.setter && this.file) {
-            this.setter({
+        if ( this.registryController && this.file ) {
+            this.registryController.setHighlight({
                 from: this.file.min,
                 to: this.file.max
             });
+        
         }
 
     }
     leave() {
-        if (this.setter) {
-            this.setter(undefined);
+
+        if (this.registryController) {
+            this.registryController.setHighlight(undefined);
         }
+
     }
 
     action() {
         if (this.file) {
-            this.log(this.file.min, this.file.max);
             this.file.group.registry.range.imposeRange({
                 from: this.file.min,
                 to: this.file.max

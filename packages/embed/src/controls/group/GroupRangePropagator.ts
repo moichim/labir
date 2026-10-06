@@ -1,10 +1,6 @@
-import { ThermalRangeOrUndefined } from "@labirthermal/core";
-import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html } from "lit";
-import { customElement } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
-import { setRegistryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
 import { T } from "../../translations/Languages";
 import { AbstractFileButton } from "../file/buttons/AbstractFileButton";
 
@@ -12,29 +8,30 @@ export class GroupRangePropagatorElement extends AbstractGroupConsumer {
 
     public static styles = AbstractFileButton.styles;
 
-    @consume({context: setRegistryHighlightContext, subscribe: true})
-    protected setter?: ( value: ThermalRangeOrUndefined ) => void;
-
     connectedCallback(): void {
         super.connectedCallback();
 
         this.onmouseenter = () => {
-            if ( this.group && this.group.minmax.value && this.setter ) {
-                this.setter({
+
+            if (this.group && this.group.minmax.value && this.registryController) {
+                this.registryController.setHighlight({
                     from: this.group.minmax.value.min,
                     to: this.group.minmax.value.max
                 });
             }
+
         }
 
         this.onmouseleave = () => {
-            if ( this.setter ) {
-                this.setter(undefined);
+
+            if (this.registryController) {
+                this.registryController.setHighlight(undefined);
             }
+
         }
 
         this.onclick = () => {
-            if ( this.group && this.group.minmax.value ) {
+            if (this.group && this.group.minmax.value) {
                 this.group.registry.range.imposeRange({
                     from: this.group.minmax.value.min,
                     to: this.group.minmax.value.max
@@ -51,6 +48,6 @@ export class GroupRangePropagatorElement extends AbstractGroupConsumer {
         `;
     }
 
-    
+
 
 }

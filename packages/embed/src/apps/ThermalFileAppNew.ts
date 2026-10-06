@@ -138,6 +138,7 @@ implements
 
             <registry-histogram slot="pre" interactive="true"></registry-histogram>
             <registry-range-slider slot="pre"></registry-range-slider>
+            <registry-ticks-bar slot="pre"></registry-ticks-bar>
 
             
             <div class="layout">

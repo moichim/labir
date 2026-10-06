@@ -1,36 +1,33 @@
-import { ThermalRangeOrUndefined } from "@labirthermal/core";
-import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html } from "lit";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
-import { setRegistryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
 import { T } from "../../translations/Languages";
 
 export class RegistryRangeFullButton extends AbstractRegistryConsumer {
 
     protected buttonRef: Ref<HTMLElement> = createRef();
 
-    @consume( { context: setRegistryHighlightContext, subscribe: true } )
-    protected setter?: ( value?: ThermalRangeOrUndefined ) => void;
-
     doAction() {
         this.registry.range.applyMinmax();
     }
 
-    mouseenter(){
-        if ( this.registry.minmax.value !== undefined && this.setter) {
-            this.setter({
+    mouseenter() {
+
+        if (this.registry.minmax.value !== undefined && this.registryController) {
+            this.registryController.setHighlight({
                 from: this.registry.minmax.value.min,
                 to: this.registry.minmax.value.max
             });
         }
     }
 
-    mouseleave(){
-        if ( this.setter ) {
-            this.setter( undefined );
+    mouseleave() {
+
+        if (this.registryController) {
+            this.registryController.setHighlight(undefined);
         }
+
     }
 
     protected render(): unknown {
@@ -44,6 +41,6 @@ export class RegistryRangeFullButton extends AbstractRegistryConsumer {
 >${t(T.fullrange)}</thermal-btn>`;
     }
 
-    
+
 
 }

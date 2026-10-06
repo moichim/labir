@@ -175,9 +175,6 @@ importers:
       public-ip:
         specifier: ^8.0.0
         version: 8.0.0
-      toolcool-range-slider:
-        specifier: ^4.0.28
-        version: 4.0.28
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -9683,9 +9680,6 @@ packages:
   toidentifier@1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
-
-  toolcool-range-slider@4.0.28:
-    resolution: {integrity: sha512-DDZAEJ9hItgSbGWY6DkjvMoUBLZG9J3X6qvBzAruvGzcPwrZKRt3EB2ixPqFmrpEy98SyyM+WZbKL0+TR4fOkg==}
 
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
@@ -22454,8 +22448,6 @@ snapshots:
       is-number: 7.0.0
 
   toidentifier@1.0.1: {}
-
-  toolcool-range-slider@4.0.28: {}
 
   totalist@3.0.1: {}
 

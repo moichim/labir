@@ -1,10 +1,10 @@
-import { Instance } from "@labirthermal/core";
-import { css, CSSResultGroup, html } from "lit";
+import { css, html } from "lit";
+import type { CSSResultGroup } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-import { BtnSizes, BtnVariants } from "../../../ui/Btn";
+import type { BtnSizes, BtnVariants } from "../../../ui/Btn";
 
 export abstract class AbstractFileButton extends AbstractFileConsumer {
 
@@ -35,9 +35,38 @@ export abstract class AbstractFileButton extends AbstractFileConsumer {
 
     abstract leave(): void;
 
-    public onInstanceCreated(file: Instance): void { }
+    public onInstanceCreated(): void { }
 
     public onFailure(): void { }
+
+    private isWithinButton(target: EventTarget | null): boolean {
+        return target instanceof Node
+            && (this.contains(target) || this.renderRoot.contains(target));
+    }
+
+    private handleMouseOver = (event: MouseEvent): void => {
+        if (!this.isWithinButton(event.relatedTarget)) {
+            this.enter();
+        }
+    }
+
+    private handleMouseOut = (event: MouseEvent): void => {
+        if (!this.isWithinButton(event.relatedTarget)) {
+            this.leave();
+        }
+    }
+
+    private handleFocusIn = (event: FocusEvent): void => {
+        if (!this.isWithinButton(event.relatedTarget)) {
+            this.enter();
+        }
+    }
+
+    private handleFocusOut = (event: FocusEvent): void => {
+        if (!this.isWithinButton(event.relatedTarget)) {
+            this.leave();
+        }
+    }
 
     static styles?: CSSResultGroup | undefined = css`
 slot {
@@ -47,10 +76,10 @@ slot {
     protected render(): unknown {
         return html`<slot 
     @click=${this.action} 
-    @mouseenter=${this.enter}
-    @focus=${this.enter}
-    @mouseleave=${this.leave}
-    @blur=${this.leave}
+    @mouseover=${this.handleMouseOver}
+    @mouseout=${this.handleMouseOut}
+    @focusin=${this.handleFocusIn}
+    @focusout=${this.handleFocusOut}
     ${ref(this.ref)}
 >
     <thermal-btn 

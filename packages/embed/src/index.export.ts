@@ -34,8 +34,7 @@ export {
     registryMinContext,
     registryOpacityContext,
     registryRangeFromContext,
-    registryRangeToContext,
-    setRegistryHighlightContext
+    registryRangeToContext
 } from "./hierarchy/providers/context/RegistryContext";
 
 export {
