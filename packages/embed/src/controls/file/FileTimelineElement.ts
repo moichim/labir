@@ -136,14 +136,10 @@ export class FileTimelineElement extends AbstractFileConsumer {
             return;
         }
 
-        if (this.timelineRef.value && this.barRef.value && this.file) {
+        const eventValues = this.getValueFromEvent(event);
 
-            const x = event.clientX - this.timelineRef.value.offsetLeft;
-
-            const percent = x / this.timelineRef.value.clientWidth * 100;
-
-            this.file.timeline.setValueByPercent(percent);
-
+        if (eventValues && this.file) {
+            this.file.timeline.setValueByPercent(eventValues.percent);
         }
     }
 
@@ -151,8 +147,12 @@ export class FileTimelineElement extends AbstractFileConsumer {
     protected getValueFromEvent(event: MouseEvent) {
 
         if (this.timelineRef.value && this.file) {
-            const x = event.clientX - this.timelineRef.value.offsetLeft;
-            const percent = x / this.timelineRef.value.clientWidth * 100;
+            const rect = this.timelineRef.value.getBoundingClientRect();
+            if (rect.width === 0) {
+                return;
+            }
+            const x = event.clientX - rect.left;
+            const percent = Math.max(0, Math.min(100, x / rect.width * 100));
             const ms = this.file.duration * (percent / 100);
             return {
                 percent,

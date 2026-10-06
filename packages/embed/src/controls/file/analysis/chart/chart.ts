@@ -119,7 +119,6 @@ const CHART_TYPES: Record<string, string|undefined> = {
  * ```
  *
  * @demo demo/index.html
- * @deprecated
  */
 export class ThermalChartElement extends LitElement {
   /** @nocollapse */

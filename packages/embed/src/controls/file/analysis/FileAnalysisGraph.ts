@@ -1,4 +1,5 @@
-import { AnalysisDataStateValue, Instance } from "@labirthermal/core";
+import { TimeFormat } from "@labirthermal/core";
+import type { AnalysisDataStateValue, Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -189,6 +190,65 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
 
     }
 
+    private getChartData(): unknown[][] {
+        const [headers, ...rows] = this.graphs.values;
+
+        return [
+            [
+                { label: headers[0], type: "number" },
+                ...headers.slice(1).flatMap(label => [
+                    { label, type: "number" },
+                    { type: "string", role: "tooltip", p: { html: true } }
+                ])
+            ],
+            ...rows.map(row => {
+                const relativeTime = row[0].getTime();
+
+                return [
+                    relativeTime,
+                    ...row.slice(1).flatMap((value, index) => [
+                        value,
+                        `<div style="padding: 6px 8px"><div>${this.escapeHtml(t(T.time))}: <strong>${TimeFormat.duration(relativeTime)}</strong></div><div>${this.escapeHtml(headers[index + 1])}: <strong>${this.escapeHtml(String(value))} °C</strong></div></div>`
+                    ])
+                ];
+            })
+        ];
+    }
+
+    private getDurationAxisTicks(): { v: number, f: string }[] {
+        const duration = this.file?.duration ?? 0;
+
+        if (duration <= 0) {
+            return [];
+        }
+
+        const rawStep = duration / 5;
+        const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+        const normalizedStep = rawStep / magnitude;
+        const step = (normalizedStep <= 1 ? 1 : normalizedStep <= 2 ? 2 : normalizedStep <= 5 ? 5 : 10) * magnitude;
+        const ticks: { v: number, f: string }[] = [];
+
+        for (let value = 0; value <= duration; value += step) {
+            ticks.push({ v: value, f: TimeFormat.duration(value) });
+        }
+
+        if (ticks[ticks.length - 1]?.v !== duration) {
+            ticks.push({ v: duration, f: TimeFormat.duration(duration) });
+        }
+
+        return ticks;
+    }
+
+    private escapeHtml(value: string): string {
+        return value.replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\"": "&quot;",
+            "'": "&#39;"
+        })[character] ?? character);
+    }
+
     public static styles = css`
 
         :host {
@@ -244,13 +304,18 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
                         ${ref(this.graphRef)}
                         data-video-svg
                         type="line" 
-                        .data=${this.graphs.values} 
+                        .data=${this.getChartData()} 
                         .options=${{
                             colors: this.graphs.colors,
                             curveType: this.graphSmooth ? 'function' : "default",
                             legend: { position: 'bottom' },
-                            hAxis: { title: t(T.time), format: `m:ss:SSS` },
+                            hAxis: {
+                                title: t(T.time),
+                                ticks: this.getDurationAxisTicks(),
+                                viewWindow: { min: 0, max: this.file?.duration ?? 0 }
+                            },
                             vAxis: { title:  t(T.temperature)+ ' °C' },
+                            tooltip: { isHtml: true },
                             width: this.graphWidth,
                             height: this.graphHeight,
                             chartArea: { 

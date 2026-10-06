@@ -5,6 +5,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import type { BtnSizes, BtnVariants } from "../../../ui/Btn";
+import { Instance } from "@labirthermal/core";
 
 export abstract class AbstractFileButton extends AbstractFileConsumer {
 
@@ -35,7 +36,7 @@ export abstract class AbstractFileButton extends AbstractFileConsumer {
 
     abstract leave(): void;
 
-    public onInstanceCreated(): void { }
+    public onInstanceCreated( instance: Instance ): void { }
 
     public onFailure(): void { }
 

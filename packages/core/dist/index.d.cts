@@ -1631,8 +1631,8 @@ declare class HistogramState extends AbstractProperty<ThermalStatistics[], Therm
   protected validate(value: ThermalStatistics[]): ThermalStatistics[];
   protected afterSetEffect(): void;
   /**
-   * Recalculate the histogram buffer using web workers.
-   * This is an async operation using `workerpool`
+   * Keep the legacy entry point while recalculating the displayed histogram
+   * through the shared result cache.
    */
   recalculateHistogramBufferInWorker(): void;
   protected recalculateHistogram(): Promise<void>;
@@ -2837,6 +2837,8 @@ declare class TimeFormat extends TimeUtilsBase {
   static isoComplete: (value: AcceptableDateInput) => string;
   /** HH:mm */
   static humanTime: (value: AcceptableDateInput, showSeconds?: boolean) => string;
+  /** Format a duration as m:ss.SSS, or h:mm:ss.SSS when it is at least an hour. */
+  static duration: (milliseconds: number) => string;
   /** j. M. ???? (y) */
   static humanDate: (value: AcceptableDateInput, includeYear?: boolean) => string;
   /** Range */

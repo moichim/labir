@@ -5093,6 +5093,17 @@ var TimeFormat = class TimeFormat extends TimeUtilsBase {
 		value = TimeFormat.inputToDate(value);
 		return (0, date_fns.format)(value, showSeconds ? "HH:mm:ss" : "HH:mm");
 	};
+	/** Format a duration as m:ss.SSS, or h:mm:ss.SSS when it is at least an hour. */
+	static duration = (milliseconds) => {
+		if (!Number.isFinite(milliseconds) || milliseconds < 0) throw new RangeError("Duration must be a finite, non-negative number.");
+		const totalMilliseconds = Math.floor(milliseconds);
+		const hours = Math.floor(totalMilliseconds / 36e5);
+		const minutes = Math.floor(totalMilliseconds % 36e5 / 6e4);
+		const seconds = Math.floor(totalMilliseconds % 6e4 / 1e3);
+		const remainingMilliseconds = totalMilliseconds % 1e3;
+		const secondsPart = `${String(seconds).padStart(2, "0")}.${String(remainingMilliseconds).padStart(3, "0")}`;
+		return hours > 0 ? `${hours}:${String(minutes).padStart(2, "0")}:${secondsPart}` : `${minutes}:${secondsPart}`;
+	};
 	/** j. M. ???? (y) */
 	static humanDate = (value, includeYear = false) => {
 		value = TimeFormat.inputToDate(value);
@@ -7391,6 +7402,67 @@ var GroupsState = class extends AbstractProperty {
 };
 
 //#endregion
+//#region src/properties/states/HistogramResultCache.ts
+const MAX_CACHE_ENTRIES = 64;
+const HISTOGRAM_ALGORITHM_VERSION = 1;
+const cloneHistogram = (histogram) => histogram.map((item) => ({ ...item }));
+/**
+* Shared, bounded cache for computed histogram results.
+* Reader identity avoids filename collisions and lets copied instances reuse
+* results even when their registry belongs to a different manager.
+*/
+var HistogramResultCache = class {
+	readerIds = /* @__PURE__ */ new WeakMap();
+	nextReaderId = 0;
+	entries = /* @__PURE__ */ new Map();
+	inFlight = /* @__PURE__ */ new Map();
+	getOrCalculate(readers, calculate) {
+		const key = this.createKey(readers);
+		const cached = this.entries.get(key);
+		if (cached !== void 0) {
+			this.touch(key, cached);
+			return Promise.resolve(cloneHistogram(cached));
+		}
+		const pending = this.inFlight.get(key);
+		if (pending) return pending.then(cloneHistogram);
+		const calculation = Promise.resolve().then(calculate).then((result) => {
+			const safeResult = cloneHistogram(result);
+			this.entries.set(key, safeResult);
+			this.evictOverflow();
+			return safeResult;
+		}).finally(() => {
+			if (this.inFlight.get(key) === calculation) this.inFlight.delete(key);
+		});
+		this.inFlight.set(key, calculation);
+		return calculation.then(cloneHistogram);
+	}
+	createKey(readers) {
+		return `${HISTOGRAM_ALGORITHM_VERSION}:${readers.map((reader) => this.getReaderId(reader)).sort((a, b) => a - b).join(",")}`;
+	}
+	getReaderId(reader) {
+		let id = this.readerIds.get(reader);
+		if (id === void 0) {
+			id = ++this.nextReaderId;
+			this.readerIds.set(reader, id);
+		}
+		return id;
+	}
+	touch(key, value) {
+		this.entries.delete(key);
+		this.entries.set(key, value);
+	}
+	evictOverflow() {
+		while (this.entries.size > MAX_CACHE_ENTRIES) {
+			const leastRecentlyUsed = this.entries.keys().next().value;
+			if (leastRecentlyUsed === void 0) return;
+			this.entries.delete(leastRecentlyUsed);
+		}
+	}
+};
+/** Shared across all managers using this core module instance. */
+const histogramResultCache = new HistogramResultCache();
+
+//#endregion
 //#region src/properties/states/HistogramState.ts
 /** 
 * Handles the histogram creation and subscription.
@@ -7439,61 +7511,23 @@ var HistogramState = class extends AbstractProperty {
 	afterSetEffect() {
 		this.parent.range.recalculateAutoValue();
 	}
-	/** 
-	* Recalculate the histogram buffer using web workers.
-	* This is an async operation using `workerpool`
+	/**
+	* Keep the legacy entry point while recalculating the displayed histogram
+	* through the shared result cache.
 	*/
 	recalculateHistogramBufferInWorker() {
-		if (this.parent.minmax.value !== void 0 && this.parent.groups.value.length !== 0 && this.parent.minmax.distanceInCelsius !== void 0) {
-			const pixels = this.parent.groups.value.map((group) => {
-				return group.files.value.map((instance) => instance.getPixelsForHistogram());
-			});
-			this.parent.pool.exec((instancesPixels, min, max, distance, resolution) => {
-				let sortedPixels = instancesPixels.reduce((state, current) => {
-					const inner = current.reduce((state, current) => {
-						return [...state, ...current];
-					}, []);
-					return [...state, ...inner];
-				}, []).sort((a, b) => a - b);
-				const step = distance / resolution;
-				let nextStep = min + step;
-				const result = /* @__PURE__ */ new Map();
-				let resultCount = 0;
-				while (nextStep !== false) {
-					const nextIndex = sortedPixels.findIndex((num) => num > nextStep);
-					const pixelCount = sortedPixels.slice(0, nextIndex).length;
-					result.set(nextStep - step / 2, pixelCount);
-					resultCount += pixelCount;
-					sortedPixels = sortedPixels.slice(nextIndex);
-					const nextStepTemporary = nextStep + step;
-					nextStep = nextStepTemporary < max ? nextStepTemporary : false;
-				}
-				return {
-					result,
-					resultCount
-				};
-			}, [
-				pixels,
-				this.parent.minmax.value.min,
-				this.parent.minmax.value.max,
-				this.parent.minmax.distanceInCelsius,
-				this._bufferResolution
-			]).then((result) => {
-				this.buffer = result.result;
-				this.bufferPixelsCount = result.resultCount;
-				this.recalculateHistogram();
-			});
-		}
+		this.recalculateHistogram();
 	}
 	async recalculateHistogram() {
-		this.onCalculationStart.call();
-		this.loading = true;
-		const allBuffers = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
+		const allFiles = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
 			state = state.concat(current);
 			return state;
-		}, []).map((reader) => reader.reader.buffer);
+		}, []);
+		if (allFiles.length === 0 || this.parent.minmax.value === void 0 || this.parent.minmax.distanceInCelsius === void 0) return;
+		this.onCalculationStart.call();
+		this.loading = true;
 		try {
-			this.value = await this.parent.pool.exec(LrcParser.registryHistogram, [allBuffers]);
+			this.value = await histogramResultCache.getOrCalculate(allFiles.map((instance) => instance.reader), () => this.parent.pool.exec(LrcParser.registryHistogram, [allFiles.map((instance) => instance.reader.buffer)]));
 			this.loading = false;
 			this.onCalculationEnd.call(true);
 		} catch (error) {

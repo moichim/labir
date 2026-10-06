@@ -31,6 +31,25 @@ export class TimeFormat extends TimeUtilsBase {
         value = TimeFormat.inputToDate(value);
         return format(value, showSeconds ? "HH:mm:ss" : "HH:mm");
     }
+
+    /** Format a duration as m:ss.SSS, or h:mm:ss.SSS when it is at least an hour. */
+    public static duration = (milliseconds: number): string => {
+        if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+            throw new RangeError("Duration must be a finite, non-negative number.");
+        }
+
+        const totalMilliseconds = Math.floor(milliseconds);
+        const hours = Math.floor(totalMilliseconds / 3_600_000);
+        const minutes = Math.floor((totalMilliseconds % 3_600_000) / 60_000);
+        const seconds = Math.floor((totalMilliseconds % 60_000) / 1_000);
+        const remainingMilliseconds = totalMilliseconds % 1_000;
+        const secondsPart = `${String(seconds).padStart(2, "0")}.${String(remainingMilliseconds).padStart(3, "0")}`;
+
+        return hours > 0
+            ? `${hours}:${String(minutes).padStart(2, "0")}:${secondsPart}`
+            : `${minutes}:${secondsPart}`;
+    }
+
     /** j. M. ???? (y) */
     public static humanDate = (
         value: AcceptableDateInput,
