@@ -1,5 +1,6 @@
 import { consume } from "@lit/context";
 import { css, html } from "lit";
+import { live } from "lit/directives/live.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { registryOpacityContext } from "../../hierarchy/providers/context/RegistryContext";
@@ -10,29 +11,6 @@ export class RegistryOpacitySlider extends AbstractRegistryConsumer {
     value!: number;
 
     protected containerRef: Ref<HTMLElement> = createRef();
-
-    connectedCallback(): void {
-        super.connectedCallback();
-
-        // Handler of incoming changes
-        const handleIncomingChange = (value: number) => {
-           
-            // Proceed only when value is different
-            if ( this.value !== value ) {
-                // Update the DOM
-                this.renderRoot.querySelector<HTMLInputElement>( "#handler" )!.value = value.toString();
-            }
-        }
-
-        // Register incoming changes
-        this.registry.opacity.addListener( this.UUID, handleIncomingChange.bind( this ) );
-
-    }
-
-    disconnectedCallback(): void {
-        super.disconnectedCallback();
-        this.registry.opacity.removeListener( this.UUID )
-    }
 
     /** Handle user input events */
     handleUserChangeEvent( event: {target: {value: string}} ) {
@@ -79,7 +57,7 @@ export class RegistryOpacitySlider extends AbstractRegistryConsumer {
                     min="0"
                     max="1"
                     step="0.01"
-                    value="${this.value}"
+                    .value=${live(String(this.value))}
                     @input="${this.handleUserChangeEvent}"
                 />
                 <div class="thermal-opacity-container">

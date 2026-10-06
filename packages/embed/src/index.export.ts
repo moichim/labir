@@ -77,6 +77,10 @@ export { AbstractGroupConsumer } from "./hierarchy/consumers/AbstractGroupConsum
 export { AbstractManagerConsumer } from "./hierarchy/consumers/AbstractManagerConsumer";
 export { AbstractRegistryConsumer } from "./hierarchy/consumers/AbstractRegistryConsumer";
 
+// Hierarchy controllers
+export { ConfigController, configContext } from "./hierarchy/controllers/ConfigController";
+export type { ConfigContextValue, ConfigSettings, GroupExportSettings, PngExportSettings } from "./hierarchy/controllers/ConfigController";
+
 // Independent controls
 export { AppInfoButton } from "./controls/independent/AppInfoButton";
 export { DisplayPanel } from "./controls/independent/DisplayPanel";

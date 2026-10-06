@@ -399,7 +399,7 @@ export class ThermalAppElement extends AbstractThermalElement {
             width: 100vw;
             height: 100vh;
             overflow: auto;
-            padding: calc( var( --thermal-gap ) / 3 ) 0;
+            padding: calc( var( --thermal-gap ) / 3 );
             border: 0;
             border-radius: 0;
         }

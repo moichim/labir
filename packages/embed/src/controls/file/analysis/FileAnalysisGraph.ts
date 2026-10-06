@@ -353,9 +353,9 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
                 <div data-video-style style="position: absolute; height: 100%; background-color: #eee; left: 0px; width: ${this.currentFrame.percentage}%"></div>
             `}
 
-                ${this.cursor !== undefined && html`
+                ${this.cursor !== undefined ? html`
                     <div data-video-style style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor}%"></div>
-                `}
+                ` : nothing}
             </div>
         
             <div ${ref(this.container)}">

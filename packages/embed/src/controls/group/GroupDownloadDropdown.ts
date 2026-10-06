@@ -3,7 +3,7 @@ import { t } from "i18next";
 import { css, CSSResultGroup, html } from "lit";
 import { state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
-import { pngExportAnalysisContext, pngExportColumnsContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportGroupNameContext, pngExportScaleContext, pngExportWidthContext } from "../../hierarchy/providers/context/pngExportContext";
+import { configContext, ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
 
 export class GroupDownloadDropdown extends AbstractGroupConsumer {
@@ -15,39 +15,13 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
     `;
 
     @state()
-    @consume( { context: pngExportColumnsContext, subscribe: true } )
-    private pngColumns: number = 3;
-
-    @state()
-    @consume( { context: pngExportGroupNameContext, subscribe: true } )
-    private pngGroupName: boolean = false;
-
-    @state()
-    @consume( { context: pngExportFsContext, subscribe: true } )
-    private pngFontSize: number = 12;
-
-    @state()
-    @consume( { context: pngExportAnalysisContext, subscribe: true } )
-    private pngShowAnalysis: boolean = true;
-
-    @state()
-    @consume( { context: pngExportFileDateContext, subscribe: true } )
-    private pngFileDate: boolean = true;
-
-    @state()
-    @consume( { context: pngExportFileNameContext, subscribe: true } )
-    private pngFileName: boolean = false;
-
-    @state()
-    @consume( { context: pngExportWidthContext, subscribe: true } )
-    private pngWidth: number = 800;
-
-    @state()
-    @consume( { context: pngExportScaleContext, subscribe: true } )
-    private pngShowScale: boolean = true;
+    @consume({ context: configContext, subscribe: true })
+    private config?: ConfigContextValue;
 
     protected render(): unknown {
 
+        const png = this.config?.settings.export.png;
+        const groupSettings = this.config?.settings.export.group;
         const dropdownClass = this.classList.contains( "small" ) ? "small" : "";
 
 
@@ -81,14 +55,14 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
                     slot="option"
                     pre="PNG" 
                     @click=${() => this.group.analysisSync.png.downloadPng({
-                        columns: this.pngColumns,
-                        showGroupName: this.pngGroupName,
-                        fontSize: this.pngFontSize,
-                        showAnalysis: this.pngShowAnalysis,
-                        showFileDate: this.pngFileDate,
-                        showFileName: this.pngFileName,
-                        showThermalScale: this.pngShowScale,
-                        width: this.pngWidth,
+                        columns: groupSettings?.columns ?? 3,
+                        showGroupName: groupSettings?.groupName ?? false,
+                        fontSize: png?.fontSize ?? 12,
+                        showAnalysis: png?.analyses ?? true,
+                        showFileDate: png?.fileDate ?? true,
+                        showFileName: png?.fileName ?? false,
+                        showThermalScale: png?.thermalScale ?? true,
+                        width: png?.width ?? 800,
                         
                     })}
                     tooltip="${t(T.pngofentiregrouphint)}"

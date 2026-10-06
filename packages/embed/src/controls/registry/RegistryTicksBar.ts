@@ -45,6 +45,8 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
             }
         });
 
+        this.minmax = this.registry.minmax.value;
+
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {

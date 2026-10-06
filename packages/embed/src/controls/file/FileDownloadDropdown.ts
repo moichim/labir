@@ -5,34 +5,16 @@ import { html, nothing } from "lit";
 import { state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportScaleContext, pngExportWidthContext } from "../../hierarchy/providers/context/pngExportContext";
+import { configContext, ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
 import { ThermalDialogElement } from "../../ui/Dialog";
 import { ThermalDropdownElement } from "../../ui/Dropdown";
 
 export class FileDownloadButton extends AbstractFileConsumer {
 
-    @consume({ context: pngExportWidthContext, subscribe: true })
-    protected pngWidth: number = 1350;
-
-    @consume({ context: pngExportFsContext, subscribe: true })
-    protected pngFs!: number;
-
     @state()
-    @consume({ context: pngExportAnalysisContext, subscribe: true })
-    protected pngAnalyses!: boolean;
-
-    @state()
-    @consume({ context: pngExportScaleContext, subscribe: true })
-    protected pngExportScale!: boolean;
-
-    @state()
-    @consume({ context: pngExportFileNameContext, subscribe: true })
-    protected pngFileName!: boolean;
-
-    @state()
-    @consume({ context: pngExportFileDateContext, subscribe: true })
-    protected pngFileDate!: boolean;
+    @consume({ context: configContext, subscribe: true })
+    protected config?: ConfigContextValue;
 
     @state()
     protected hasGraphs: boolean = false;
@@ -81,12 +63,12 @@ export class FileDownloadButton extends AbstractFileConsumer {
                 <thermal-btn 
                     slot="option"
                     @click=${() => this.file!.export.downloadPng({
-                        width: this.pngWidth,
-                        fontSize: this.pngFs,
-                        showAnalysis: this.pngAnalyses,
-                        showThermalScale: this.pngExportScale,
-                        showFileDate: this.pngFileDate,
-                        showFileName: this.pngFileName
+                        width: this.config?.settings.export.png.width ?? 1350,
+                        fontSize: this.config?.settings.export.png.fontSize,
+                        showAnalysis: this.config?.settings.export.png.analyses,
+                        showThermalScale: this.config?.settings.export.png.thermalScale,
+                        showFileDate: this.config?.settings.export.png.fileDate,
+                        showFileName: this.config?.settings.export.png.fileName
                     })}
                     pre="PNG"
                     align="left"

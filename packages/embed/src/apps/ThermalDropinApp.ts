@@ -1,8 +1,9 @@
-import { Instance, ThermalManager } from "@labirthermal/core";
+import { AvailableThermalPalette, Instance, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { GroupController, IElementWithGroupController } from "../hierarchy/controllers/GroupController";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { publicIpv4 } from "public-ip";
 import { GroupDropinElement } from "../controls/group/GroupDropinElement";
@@ -10,11 +11,71 @@ import { GroupProviderElement } from "../index.export";
 import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { BaseAppWithPngExportContext, pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../hierarchy/providers/context/pngExportContext";
+import { IElementWithManagerController, ManagerController } from "../hierarchy/controllers/ManagerController";
+import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
+import { FileController, IElementWithFileController } from "../hierarchy/controllers/FileController";
+import { PlaybackSpeeds } from "@labirthermal/core";
 
-export class DropinAppElement extends BaseAppWithPngExportContext implements IWithlocale {
+export class DropinAppElement 
+extends BaseAppWithPngExportContext 
+implements 
+    IWithlocale,
+    IElementWithManagerController,
+    IElementWithRegistryController,
+    IElementWithGroupController,
+    IElementWithFileController
+{
+
+    public static properties = {
+        ...ManagerController.HOST_PROPERTIES,
+        ...RegistryController.HOST_PROPERTIES,
+        ...GroupController.HOST_PROPERTIES,
+        ...FileController.HOST_PROPERTIES
+    }
+
+
+
+    managerSlug!: string;
+    managerObject!: ThermalManager;
+    managerController: ManagerController = new ManagerController(this);
+    palette: AvailableThermalPalette = "jet";
+    advancedPalettes: boolean = false;
+    smoothThermograms: boolean = true;
+    smoothGraph: boolean = false;
+    tool: string = "inspect";
+
+    registrySlug!: string;
+    registryObject!: ThermalRegistry;
+    registryController: RegistryController = new RegistryController(this);
+    opacity: number = 1;
+    min?: number | undefined;
+    max?: number | undefined;
+    from?: number | undefined;
+    to?: number | undefined;
+    highlight?: ThermalRangeOrUndefined;
+    loading: boolean = false;
+
+    groupSlug!: string;
+    groupObject!: ThermalGroup;
+    groupController: GroupController = new GroupController(this);
+    autoclearGroup: boolean = false;
+
+    fileController: FileController = new FileController(this);
+    file?: Instance | undefined;
+    failure?: ThermalFileFailure | undefined;
+    ms: number = 0;
+    playbackSpeed: PlaybackSpeeds = 1;
+    analysis1?: string | undefined;
+    analysis2?: string | undefined;
+    analysis3?: string | undefined;
+    analysis4?: string | undefined;
+    analysis5?: string | undefined;
+    analysis6?: string | undefined;
+    analysis7?: string | undefined;
+    autoHighlight: boolean = false;
     
     public get manager(): ThermalManager {
-        throw new Error("Method not implemented.");
+        return this.managerObject;
     }
 
     @state()
@@ -28,9 +89,6 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
     @state()
     protected listener?: ReturnType<typeof setTimeout>;
-
-    @state()
-    protected files: Instance[] = [];
 
     @state()
     protected ip?: string;
@@ -63,83 +121,31 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
         publicIpv4().then(ip => this.ip = ip);
     }
 
+    updated( _changedProperties: PropertyValues<DropinAppElement> ) {
+        super.updated(_changedProperties);
+        this.managerController.hostUpdatedWatcher(_changedProperties);
+        this.registryController.hostUpdatedWatcher(_changedProperties);
+        this.groupController.hostUpdatedWatcher(_changedProperties);
+        this.fileController.hostUpdatedWatcher(_changedProperties);
+    }
+
 
     public firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
         initLocalesInTopLevelElement(this);
 
-        if (this.groupRef.value !== undefined) {
+        if (this.groupObject !== undefined) {
 
-            this.groupRef.value.group.files.addListener(this.UUID, (value) => {
+            this.groupObject.files.addListener(this.UUID, (value) => {
 
-                if (this.groupRef.value !== undefined) {
 
-                    this.groupRef.value.group.analysisSync.turnOff();
-                    if (value.length > 0) {
-                        this.groupRef.value.group.analysisSync.turnOn(value[0]);
-                    }
 
+                if ( value.length > 0 ) {
+                    const file = value[0];
+                    this.fileController.receiveInstance(file);
+                    this.registryObject.postLoadedProcessing();
                 }
-
-
-                value.forEach(file => {
-                    file.analysis.reset();
-                    file.analysis.layers.clear();
-
-
-                    const data = {
-                        ip: this.ip,
-                        fileName: file.fileName,
-                        fileSize: file.bytesize,
-                        fileIsSequence: file.timeline.isSequence,
-                        fileNumFrames: file.timeline.frameCount,
-                        fileWidth: file.width,
-                        fileHeight: file.height,
-                        fileTimestamp: file.timeline.frames[0].absolute,
-                        fileDataType: file.fileDataType,
-                        userAgent: window.navigator.userAgent,
-                        windowWidth: window.innerWidth,
-                        windowHeight: window.innerHeight,
-                        time: (new Date()).getTime(),
-                        url: window.location.href
-                    }
-
-                    this.dispatchEvent(new CustomEvent("uploaded", {
-                        detail: data,
-                        bubbles: true,
-                        composed: true
-                    }));
-
-                    //file.unmountFromDom();
-                });
-
-                if (this.listener !== undefined) {
-                    clearTimeout(this.listener);
-                }
-
-                if (value.length === 0) {
-                    this.files = [];
-                } else {
-                    this.files = [value[0]];
-                }
-
-
-                this.listener = setTimeout(async () => {
-
-                    const registry = this.groupRef.value?.group.registry;
-
-                    if (registry !== undefined) {
-                        await registry.postLoadedProcessing();
-                        if (registry.minmax.value !== undefined) {
-                            registry.range.imposeRange({
-                                from: registry.minmax.value.min,
-                                to: registry.minmax.value.max
-                            });
-                        }
-
-                    }
-                }, 0);
 
             });
 
@@ -149,9 +155,18 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
     protected handleClear() {
 
-        if (this.groupRef.value !== undefined) {
-            this.groupRef.value.group.files.removeAllInstances();
-
+        if (this.groupObject !== undefined) {
+            this.fileController.removeInstance();
+            this.groupObject.files.removeAllInstances();
+            this.file = undefined;
+            this.requestUpdate();
+            this.analysis1 = undefined;
+            this.analysis2 = undefined;
+            this.analysis3 = undefined;
+            this.analysis4 = undefined;
+            this.analysis5 = undefined;
+            this.analysis6 = undefined;
+            this.analysis7 = undefined;
         }
 
     }
@@ -219,7 +234,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
     protected renderIntroScene() {
 
         return html`
-            <group-dropin></group-dropin>
+            <group-dropin-element></group-dropin-element>
         `;
 
     }
@@ -227,12 +242,12 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
     protected renderBrowserScene() {
 
         return html`
-        <div class="browser-bar" slot="pre">
-            <registry-histogram expandable="true"></registry-histogram>
-            <registry-range-slider></registry-range-slider>
-            <registry-ticks-bar></registry-ticks-bar>
-            
-        </div>
+        <manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
+        <registry-range-form slot="bar-pre"></registry-range-form>
+
+        <registry-histogram expandable="true" slot="pre"></registry-histogram>
+        <registry-range-slider slot="pre"></registry-range-slider>
+        <registry-ticks-bar slot="pre"></registry-ticks-bar>
 
         <div class="browser">
             
@@ -240,10 +255,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
                 <manager-tool-bar></manager-tool-bar>
             </div>
             <div class="browser-content">
-                ${this.files.length === 1
-                ? this.renderOneFile()
-                : this.renderMultipleFiles()
-            }
+                ${this.renderOneFile()}
             </div>
         </div>
         `;
@@ -252,7 +264,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
     protected renderOneFile() {
         return html`
-        ${this.files.map(file => this.renderDetail(file))}
+        ${this.renderDetail(this.file!)}
         `;
     }
 
@@ -263,11 +275,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
         return html`
             <article class="file">
-                <file-mirror .file="${file}" autoclear="true">
-
-                    <file-detail .onback=${() => file.group.files.removeFile(file)}></file-detail>
-                
-                </file-mirror>
+                <file-detail .onback=${() => this.handleClear()}></file-detail>
             </article>
         `;
 
@@ -277,9 +285,6 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
     protected renderMultipleFiles() {
         return html`
         <div class="files-multiple">
-        ${this.files
-                // .sort((a,b)=> a.timestamp - b.timestamp)
-                .map(file => this.renderDetail(file))}
         </div>
         `;
 
@@ -292,32 +297,14 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
             return html`
 
-            <manager-provider slug="${this.UUID}" palette="iron">
-
-                <registry-provider slug="${this.UUID}" palette="iron">
-
-                    <group-provider ${ref(this.groupRef)} slug="${this.UUID}">
-
                         <thermal-app 
                             label="LabIR Edu Analyser"
-                            showfullscreen="true"
+                            show-fullscreen="true"
                         >
 
                             <group-dropin-input slot="bar-pre"></group-dropin-input>
 
-                            ${this.files.length > 0 
-                                ? html`
-                                <thermal-btn slot="bar-pre" @click="${() => this.handleClear()}" tooltip="Odstranit tento soubor a nahrát nový">${t(T.clear)}</thermal-btn>
-
-                                <manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
-
-                                <registry-range-form stacked="false" slot="bar-pre"></registry-range-form>
-
-                                        
-                                ` 
-                                : nothing}
-
-                            ${this.files.length > 1 
+                            ${this.file 
                                 ? html`
                                     <group-download-dropdown slot="bar-pre"></group-download-dropdown><registry-range-full-button slot="bar-pre"></registry-range-full-button>` 
                                 : nothing}
@@ -339,15 +326,9 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
                             <slot name="bar-pre" slot="bar-pre"></slot>
 
-                            ${this.files.length === 0 ? this.renderIntroScene() : this.renderBrowserScene()}
+                            ${this.file === undefined? this.renderIntroScene() : this.renderBrowserScene()}
                         
                         </thermal-app>
-
-                    </group-provider>
-
-                </registry-provider>
-
-            </manager-provider>
 
         `;
 

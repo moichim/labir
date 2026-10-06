@@ -1,45 +1,19 @@
-import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
-import { pngExportAnalysisContext, pngExportColumnsContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportGroupNameContext, pngExportScaleContext, pngExportWidthContext } from "../../hierarchy/providers/context/pngExportContext";
+import { configContext, ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
+import { consume } from "@lit/context";
 
 export class GroupDownloadButtons extends AbstractGroupConsumer {
 
     @property({type: String})
     public label?: string;
 
-    @consume({ context: pngExportWidthContext, subscribe: true })
-    protected pngWidth: number = 1350;
-
-    @consume({ context: pngExportFsContext, subscribe: true })
-    protected pngFs!: number;
-
     @state()
-    @consume({ context: pngExportAnalysisContext, subscribe: true })
-    protected pngAnalyses!: boolean;
-
-    @state()
-    @consume({ context: pngExportScaleContext, subscribe: true })
-    protected pngExportScale!: boolean;
-
-    @state()
-    @consume({ context: pngExportFileNameContext, subscribe: true })
-    protected pngFileName!: boolean;
-
-    @state()
-    @consume({ context: pngExportFileDateContext, subscribe: true })
-    protected pngFileDate!: boolean;
-
-    @state()
-    @consume({context: pngExportColumnsContext, subscribe: true})
-    protected pngColumns!: number;
-
-    @state()
-    @consume({context: pngExportGroupNameContext, subscribe: true})
-    protected pngExportGroupName!: boolean;
+    @consume({ context: configContext, subscribe: true })
+    protected config?: ConfigContextValue;
 
     static styles?: CSSResultGroup | undefined = css`
 
@@ -71,6 +45,8 @@ export class GroupDownloadButtons extends AbstractGroupConsumer {
 
     protected render(): unknown {
 
+        const png = this.config?.settings.export.png;
+        const group = this.config?.settings.export.group;
 
         return html`
         
@@ -80,14 +56,14 @@ export class GroupDownloadButtons extends AbstractGroupConsumer {
             
             
                 <button class="default" @click=${() => this.group.analysisSync.png.downloadPng({
-                    columns: this.pngColumns,
-                    showAnalysis: this.pngAnalyses,
-                    showFileDate: this.pngFileDate,
-                    showFileName: this.pngFileName,
-                    showThermalScale: this.pngExportScale,
-                    showGroupName: this.pngExportGroupName,
+                    columns: group?.columns,
+                    showAnalysis: png?.analyses,
+                    showFileDate: png?.fileDate,
+                    showFileName: png?.fileName,
+                    showThermalScale: png?.thermalScale,
+                    showGroupName: group?.groupName,
                     label: this.label,
-                    fontSize: this.pngFs
+                    fontSize: png?.fontSize
         })}>${t(T.pngofentiregroup)}</button>
             
                 <button class="default" @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}>${t(T.csvofanalysisdata)}</button>

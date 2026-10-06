@@ -1,64 +1,16 @@
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import { state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
-import { ContextSetter, IWithPngExportContext, pngExportAnalysisContext, pngExportAnalysisSetterContext, pngExportColumnsContext, pngExportColumnsSetterContext, pngExportFileDateContext, pngExportFileDateSetterContext, pngExportFileNameContext, pngExportFileNameSetterContext, pngExportFsContext, pngExportFsSetterContext, pngExportGroupNameContext, pngExportGroupNameSetterContext, pngExportLicenseContext, pngExportLicenseSetterContext, pngExportScaleContext, pngExportScaleSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../hierarchy/providers/context/pngExportContext";
+import { configContext, ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
 
-export class ManagerExportPanel extends AbstractThermalElement implements IWithPngExportContext {
+export class ManagerExportPanel extends AbstractThermalElement {
 
-    @consume({ context: pngExportWidthContext, subscribe: true })
-    public pngWidth!: number;
-    @consume({ context: pngExportWidthSetterContext, subscribe: true })
-    public pngWidthSetter!: ContextSetter<number>;
-
-    
-    @consume({ context: pngExportFsContext, subscribe: true })
-    public pngFs!: number;
-    @consume({ context: pngExportFsSetterContext, subscribe: true })
-    public pngFsSetter!: ContextSetter<number>;
-
-
-    @consume({context: pngExportAnalysisContext, subscribe: true})
-    public pngAnalyses!: boolean;
-    @consume({context: pngExportAnalysisSetterContext, subscribe: true})
-    public pngExportAnalysesSetter!: ContextSetter<boolean>;
-
-
-    @consume({context: pngExportScaleContext, subscribe: true})
-    public pngExportScale!: boolean;
-    @consume({context: pngExportScaleSetterContext, subscribe: true})
-    public pngExportScaleSetter!: ContextSetter<boolean>;
-
-
-    @consume({context: pngExportLicenseContext, subscribe: true})
-    public pngExportLicense!: boolean;
-    @consume({context: pngExportLicenseSetterContext, subscribe: true})
-    public pngExportLicenseSetter!: ContextSetter<boolean>;
-
-
-    @consume({context: pngExportFileNameContext, subscribe: true})
-    public pngExportFileName!: boolean;
-    @consume({context: pngExportFileNameSetterContext, subscribe: true})
-    public pngExportFileNameSetter!: ContextSetter<boolean>;
-
-
-    @consume({context: pngExportFileDateContext, subscribe: true})
-    public pngExportFileDate!: boolean;
-    @consume({context: pngExportFileDateSetterContext, subscribe: true})
-    public pngExportFileDateSetter!: ContextSetter<boolean>;
-
-
-    @consume({context: pngExportColumnsContext, subscribe: true})
-    public pngExportColumns!: number;
-    @consume({context: pngExportColumnsSetterContext, subscribe: true})
-    public pngExportColumnsSetter!: ContextSetter<number>;
-
-
-    @consume({context: pngExportGroupNameContext, subscribe: true})
-    public pngExportGroupName!: boolean;
-    @consume({context: pngExportGroupNameSetterContext, subscribe: true})
-    public pngExportGroupNameSetter!: ContextSetter<boolean>;
+    @state()
+    @consume({ context: configContext, subscribe: true })
+    protected config?: ConfigContextValue;
 
     
 
@@ -166,50 +118,50 @@ export class ManagerExportPanel extends AbstractThermalElement implements IWithP
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
-        if ( this.pngFs === undefined || this.pngWidth === undefined || this.pngWidthSetter === undefined || this.pngFsSetter === undefined ) {
+        if (!this.config || !_changedProperties.has("config")) {
             return;
         }
 
-        const numericalValues = [ "pngFs", "pngWidth" ];
-        for ( const key of numericalValues ) {
-            if ( _changedProperties.has( key ) ) {
-                const value = this[key as keyof ManagerExportPanel] as number;
-                const element = this.shadowRoot?.querySelector( `input[name="${key}"]` ) as HTMLInputElement;
-                if ( element && value) {
-                    const oldValue = element.value;
-                    if ( parseInt( oldValue ) !== value ) {
-                        element.value = value.toString();
-                        this.log(`Updated ${key} from ${oldValue} to ${value}`);
-                    }
-                }
+        const settings = this.config.settings.export.png;
+        const values = [
+            ["pngWidth", settings.width],
+            ["pngFs", settings.fontSize]
+        ] as const;
+
+        for (const [key, value] of values) {
+            const element = this.shadowRoot?.querySelector(`input[name="${key}"]`) as HTMLInputElement | null;
+            if (element && Number(element.value) !== value) {
+                element.value = value.toString();
             }
         }
     }
 
     protected render(): unknown {
 
-        if ( this.pngFs === undefined || this.pngWidth === undefined || this.pngWidthSetter === undefined || this.pngFsSetter === undefined ) {
-            // return nothing;
+        if (!this.config) {
+            return nothing;
         }
+
+        const { png, group } = this.config.settings.export;
 
         return html`
 
         ${this.renderGroup( t(T.exportcontent), html`
-            ${this.renderCheckbox( "pngExportAnalyses", t(T.analyses), this.pngAnalyses, this.pngExportAnalysesSetter.bind(this) ) }
-            ${this.renderCheckbox( "pngExportScale", t(T.thermalscale), this.pngExportScale, this.pngExportScaleSetter.bind(this) )}
-            ${this.renderCheckbox( "pngExportFileName", t(T.exportfilenames), this.pngExportFileName, this.pngExportFileNameSetter.bind(this) )}
-            ${this.renderCheckbox( "pngExportFileDate", t(T.filedate), this.pngExportFileDate, this.pngExportFileDateSetter.bind(this) )}
+            ${this.renderCheckbox( "pngExportAnalyses", t(T.analyses), png.analyses, value => this.config!.setPngSetting("analyses", value) ) }
+            ${this.renderCheckbox( "pngExportScale", t(T.thermalscale), png.thermalScale, value => this.config!.setPngSetting("thermalScale", value) )}
+            ${this.renderCheckbox( "pngExportFileName", t(T.exportfilenames), png.fileName, value => this.config!.setPngSetting("fileName", value) )}
+            ${this.renderCheckbox( "pngExportFileDate", t(T.filedate), png.fileDate, value => this.config!.setPngSetting("fileDate", value) )}
         ` )}
 
         ${this.renderGroup( t(T.exportdimensions), html`
-            ${this.renderSlider( "pngWidth", t(T.exportimagewidth), this.pngWidth, "px", 500, 2000, 50, this.pngWidthSetter.bind(this) )}
+            ${this.renderSlider( "pngWidth", t(T.exportimagewidth), png.width, "px", 500, 2000, 50, value => this.config!.setPngSetting("width", value) )}
 
-            ${this.renderSlider( "pngFs", t(T.exportimagefontsize), this.pngFs, "px", 10, 50, 1, this.pngFsSetter.bind(this) )}
+            ${this.renderSlider( "pngFs", t(T.exportimagefontsize), png.fontSize, "px", 10, 50, 1, value => this.config!.setPngSetting("fontSize", value) )}
         ` )}
 
         ${this.renderGroup( t(T.exportgroup), html`
-            ${this.renderCheckbox( "pngExportGroupName", t(T.exportgroupname), this.pngExportGroupName, this.pngExportGroupNameSetter.bind(this) ) }
-            ${this.renderSlider( "pngColumns", t(T.exportfilenames), this.pngExportColumns, "sloupců", 1, 5, 1, this.pngExportColumnsSetter.bind(this) )}
+            ${this.renderCheckbox( "pngExportGroupName", t(T.exportgroupname), group.groupName, value => this.config!.setGroupSetting("groupName", value) ) }
+            ${this.renderSlider( "pngColumns", t(T.exportfilenames), group.columns, "sloupců", 1, 5, 1, value => this.config!.setGroupSetting("columns", value) )}
         ` )}
 
         `;

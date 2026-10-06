@@ -1,6 +1,6 @@
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
-import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportScaleContext, pngExportWidthContext } from "../../../hierarchy/providers/context/pngExportContext";
+import { configContext, ConfigContextValue } from "../../../hierarchy/controllers/ConfigController";
 import { AbstractFileButton } from "./AbstractFileButton";
 
 export class FilePngButton extends AbstractFileButton {
@@ -8,41 +8,22 @@ export class FilePngButton extends AbstractFileButton {
     tooltip: undefined = undefined;
 
     @state()
-    @consume({ context: pngExportWidthContext, subscribe: true })
-    protected pngWidth!: number;
-
-    @state()
-    @consume({ context: pngExportFsContext, subscribe: true })
-    protected pngFs!: number;
-
-    @state()
-    @consume({ context: pngExportAnalysisContext, subscribe: true })
-    protected pngAnalyses!: boolean;
-
-    @state()
-    @consume({ context: pngExportScaleContext, subscribe: true })
-    protected pngExportScale!: boolean;
-
-    @state()
-    @consume({ context: pngExportFileNameContext, subscribe: true })
-    protected pngFileName!: boolean;
-
-    @state()
-    @consume({ context: pngExportFileDateContext, subscribe: true })
-    protected pngFileDate!: boolean;
+    @consume({ context: configContext, subscribe: true })
+    protected config?: ConfigContextValue;
 
     enter() { }
     leave() { }
 
     action() {
         if (this.file) {
+            const png = this.config?.settings.export.png;
             this.file.export.downloadPng({
-                width: this.pngWidth,
-                fontSize: this.pngFs,
-                showAnalysis: this.pngAnalyses,
-                showThermalScale: this.pngExportScale,
-                showFileName: this.pngFileName,
-                showFileDate: this.pngFileDate
+                width: png?.width,
+                fontSize: png?.fontSize,
+                showAnalysis: png?.analyses,
+                showThermalScale: png?.thermalScale,
+                showFileName: png?.fileName,
+                showFileDate: png?.fileDate
             });
         }
     }

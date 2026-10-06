@@ -1,13 +1,13 @@
 import { GridGrouping } from "@labirthermal/client"
 import { t } from "i18next"
 import { css, CSSResultGroup, html, nothing } from "lit"
-import { customElement, property } from "lit/decorators.js"
+import { property } from "lit/decorators.js"
 import { AbstractFileConsumer } from "../hierarchy/consumers/AbstractFileConsumer"
 import { T } from "../translations/Languages"
 import { booleanConverter } from "../utils/converters/booleanConverter"
+import { Instance } from "@labirthermal/core"
 
-@customElement("file-detail")
-export class FileThumbnail extends AbstractFileConsumer {
+export class FileDetailElement extends AbstractFileConsumer {
 
     @property({ type: Object })
     onback?: () => void;
@@ -21,7 +21,9 @@ export class FileThumbnail extends AbstractFileConsumer {
     @property({ type: String })
     public grouping?: GridGrouping;
 
-    public onInstanceCreated(): void { }
+    public onInstanceCreated(instance: Instance): void {
+        
+    }
 
     public onFailure(): void { }
 

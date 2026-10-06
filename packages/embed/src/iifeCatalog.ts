@@ -57,6 +57,7 @@ import { FileProviderElement } from "./hierarchy/providers/FileProvider";
 import { GroupProviderElement } from "./hierarchy/providers/GroupProvider";
 import { ManagerProviderElement } from "./hierarchy/providers/ManagerProvider";
 import { RegistryProviderElement } from "./hierarchy/providers/RegistryProvider";
+import { FileDetailElement } from "./renderers/FileDetail";
 import { ThermalAppElement } from "./ui/App";
 import { ThermalBarElement } from "./ui/Bar";
 import { ThermalBtnElement } from "./ui/Btn";
@@ -166,7 +167,8 @@ const elementsFileControls = {
     "analysis-name": AnalysisNameElement,
     "edit-area": AreaEditElement,
     "edit-point": EditPointElement,
-    "thermal-chart": ThermalChartElement
+    "thermal-chart": ThermalChartElement,
+    "file-detail": FileDetailElement
     
 
 } as const;

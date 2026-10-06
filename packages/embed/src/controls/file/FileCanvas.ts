@@ -33,6 +33,16 @@ export class FileCanvasElement extends AbstractFileConsumer {
         // Whenever the file context changes in this component, unmount any previous instance and mount the new one
         if (_changedProperties.has("file")) {
 
+            const previous = _changedProperties.get("file") as Instance | undefined;
+
+            this.remountInstance(previous, this.file);
+
+            if ( this.file !== undefined ) {
+                this.loading = false;
+            }
+
+            return;
+
             const isFirstAttempt = _changedProperties.get("file") === undefined
                 && this.file !== undefined;
 
