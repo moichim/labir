@@ -1285,7 +1285,7 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
   deselectAll(): void;
   /** Get color for the next analysis */
   private getNextColor;
-  /** Get name for the next analysis */
+  /** Get name for the next analysis. The number is the lowest one not occupied by an existing analysis of the same type. */
   private getNextName;
 }
 //#endregion

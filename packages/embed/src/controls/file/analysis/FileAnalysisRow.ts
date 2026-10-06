@@ -311,7 +311,7 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
             class=${classMap(classes)}
             @click=${() => {
 
-                if (!this.interactiveanalysis === false) {
+                if (!this.interactiveanalysis) {
                     return;
                 }
 

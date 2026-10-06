@@ -2546,9 +2546,11 @@ var AnalysisLayersStorage = class extends Map {
 		if (availableColors.length > 0) return availableColors[0];
 		else return availableAnalysisColors[0];
 	}
-	/** Get name for the next analysis */
+	/** Get name for the next analysis. The number is the lowest one not occupied by an existing analysis of the same type. */
 	getNextName(type) {
-		return `${type} ${this.all.length}`;
+		let index = this.all.length;
+		while (this.has(`${type} ${index}`)) index++;
+		return `${type} ${index}`;
 	}
 };
 

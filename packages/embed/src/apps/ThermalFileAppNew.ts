@@ -1,10 +1,14 @@
 import { AvailableThermalPalette, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry, ThermalGroup, Instance, ThermalFileFailure, PlaybackSpeeds } from "@labirthermal/core";
+import { provide } from "@lit/context";
 import { css, html, PropertyValues } from "lit";
+import { property } from "lit/decorators.js";
 import { FileController } from "../hierarchy/controllers/FileController";
 import { FileLoadController } from "../hierarchy/controllers/FileLoadController";
 import { IElementWithManagerController, ManagerController } from "../hierarchy/controllers/ManagerController";
 import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
 import { IElementWithGroupController, GroupController } from "../hierarchy/controllers/GroupController";
+import { interactiveAnalysisContext } from "../hierarchy/providers/context/ManagerContext";
+import { booleanConverter } from "../utils/converters/booleanConverter";
 import { AbstractApp } from "./AbstractApp";
 import { IElementWithFileController } from "../hierarchy/controllers/FileController";
 import { IElementWithFileLoadController } from "../hierarchy/controllers/FileLoadController";
@@ -28,6 +32,11 @@ implements
         ...FileController.HOST_PROPERTIES,
         ...FileLoadController.HOST_PROPERTIES
     };
+
+    /** Enables selecting, editing and removing the analyses in the tables. Provided to all descendants. */
+    @provide({ context: interactiveAnalysisContext })
+    @property({ type: String, reflect: true, converter: booleanConverter(true) })
+    interactiveanalysis: boolean = true;
 
     // Manager controller properties
     

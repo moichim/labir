@@ -204,7 +204,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
 
         return this.analysis.map(analysis => html`<file-analysis-table-row
             .analysis=${analysis}
-            interactiveanalysis=${this.interactiveanalysis === true || this.forceinteractiveanalysis === true}
+            .interactiveanalysis=${this.interactiveanalysis === true || this.forceinteractiveanalysis === true}
         ></file-analysis-table-row>`);
 
     }
