@@ -193,6 +193,7 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
 
         // Add the smooth thermograms listener
         this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
+        this.managerObject.smooth.setSmooth(this.host.smoothThermograms);
 
 
         // Smooth graph flag

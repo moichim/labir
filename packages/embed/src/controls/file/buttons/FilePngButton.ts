@@ -1,6 +1,7 @@
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
-import { configContext, ConfigContextValue } from "../../../hierarchy/controllers/ConfigController";
+import { configContext } from "../../../hierarchy/controllers/ConfigController";
+import type { ConfigContextValue } from "../../../hierarchy/controllers/ConfigController";
 import { AbstractFileButton } from "./AbstractFileButton";
 
 export class FilePngButton extends AbstractFileButton {

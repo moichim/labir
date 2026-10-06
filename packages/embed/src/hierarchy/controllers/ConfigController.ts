@@ -1,26 +1,29 @@
 import { ContextProvider, createContext } from "@lit/context";
-import { IBaseElement } from "../../controllers/IBaseElement";
+import type { IBaseElement } from "../../controllers/IBaseElement";
 import { AbstractReactiveController } from "../../controllers/AbstractReactiveController";
 
 export interface PngExportSettings {
-    width: number;
-    fontSize: number;
-    analyses: boolean;
-    thermalScale: boolean;
-    license: boolean;
-    fileName: boolean;
-    fileDate: boolean;
+    readonly width: number;
+    readonly fontSize: number;
+    readonly analyses: boolean;
+    readonly thermalScale: boolean;
+    readonly license: boolean;
+    readonly fileName: boolean;
+    readonly fileDate: boolean;
 }
 
 export interface GroupExportSettings {
-    groupName: boolean;
-    columns: number;
+    readonly groupName: boolean;
+    readonly columns: number;
 }
 
 export interface ConfigSettings {
-    export: {
-        png: PngExportSettings;
-        group: GroupExportSettings;
+    readonly export: {
+        readonly png: PngExportSettings;
+        readonly group: GroupExportSettings;
+    };
+    readonly visibility: {
+        readonly showAllOptions: boolean;
     };
 }
 
@@ -28,6 +31,7 @@ export interface ConfigContextValue {
     settings: ConfigSettings;
     setPngSetting<K extends keyof PngExportSettings>(key: K, value: PngExportSettings[K]): void;
     setGroupSetting<K extends keyof GroupExportSettings>(key: K, value: GroupExportSettings[K]): void;
+    setShowAllOptions(value: boolean): void;
 }
 
 export const configContext = createContext<ConfigContextValue>("config-context");
@@ -49,6 +53,9 @@ export class ConfigController extends AbstractReactiveController<IBaseElement> {
                 groupName: true,
                 columns: 2
             }
+        },
+        visibility: {
+            showAllOptions: false
         }
     };
 
@@ -105,11 +112,23 @@ export class ConfigController extends AbstractReactiveController<IBaseElement> {
         this._publish();
     };
 
+    public readonly setShowAllOptions = (value: boolean): void => {
+        this._settings = {
+            ...this._settings,
+            visibility: {
+                ...this._settings.visibility,
+                showAllOptions: value
+            }
+        };
+        this._publish();
+    };
+
     private _createContextValue(): ConfigContextValue {
         return {
             settings: this._settings,
             setPngSetting: this.setPngSetting,
-            setGroupSetting: this.setGroupSetting
+            setGroupSetting: this.setGroupSetting,
+            setShowAllOptions: this.setShowAllOptions
         };
     }
 

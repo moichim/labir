@@ -40,7 +40,7 @@ implements
     managerController: ManagerController = new ManagerController(this);
     palette: AvailableThermalPalette = "jet";
     advancedPalettes: boolean = false;
-    smoothThermograms: boolean = true;
+    smoothThermograms: boolean = false;
     smoothGraph: boolean = false;
     tool: string = "inspect";
 
@@ -80,15 +80,6 @@ implements
 
     @state()
     protected dropinRef: Ref<GroupDropinElement> = createRef();
-
-    @state()
-    protected groupRef: Ref<GroupProviderElement> = createRef();
-
-    @state()
-    loaded: boolean = false;
-
-    @state()
-    protected listener?: ReturnType<typeof setTimeout>;
 
     @state()
     protected ip?: string;

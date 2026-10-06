@@ -153,38 +153,26 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
 
             position: relative;
 
-            &::before {
-                display: block;
-                content: "";
-                width: 1px;
-                height: 10px;
-                background: var(--thermal-slate);
-            }
-        
+        }
+
+        .tick-marker {
+            display: block;
+            width: 1px;
+            height: 10px;
+            background: var(--thermal-slate);
         }
 
         .placement-top {
             margin-top: 10x;
             padding-bottom: var( --thermal-gap );
-            .tick {
-                &::before {
-                    background: var(--thermal-slate);
-                }
-            }
         }
 
         .placement-bottom {
-            .tick {
-                &::before {
-                    display: block;
-                    content: "";
-                    width: 1px;
-                    height: 5px;
-                    background: currentcolor;
-
-                    position: absolute;
-                    top: 12px;
-                }
+            .tick-marker {
+                height: 5px;
+                background: currentcolor;
+                position: absolute;
+                top: 12px;
             }
         }
 
@@ -234,6 +222,7 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
                     ${this.ticks.map(tick => {
                 return html`
                     <div class="tick" >
+                        <div class="tick-marker"></div>
                         <div class="tick-value">
                             ${tick.value.toFixed(RegistryTicksBar.TICK_FIXED)}
                         </div>

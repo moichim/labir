@@ -1,11 +1,14 @@
 import { provide } from "@lit/context";
 import { property } from "lit/decorators.js";
+import type { IWithlocale } from "../translations/localeContext";
 import { AbstractThermalElement } from "../index.export";
 import { ConfigController } from "../hierarchy/controllers/ConfigController";
-import { localeContext, localeConverter, Locales } from "../translations/localeContext";
+import { initLocalesInTopLevelElement, localeContext, localeConverter } from "../translations/localeContext";
+import type { Locales } from "../translations/localeContext";
 import { booleanConverter } from "../utils/converters/booleanConverter";
+import { PropertyValues } from "lit";
 
-export abstract class AbstractApp extends AbstractThermalElement {
+export abstract class AbstractApp extends AbstractThermalElement implements IWithlocale {
 
     protected readonly configController = new ConfigController(this);
 
@@ -24,4 +27,10 @@ export abstract class AbstractApp extends AbstractThermalElement {
 
     @property({type: Boolean, converter: booleanConverter(false), attribute: "show-fullscreen"})
     public showFullscreen: boolean = false;
+
+    firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+        initLocalesInTopLevelElement(this);
+    }
+
 }

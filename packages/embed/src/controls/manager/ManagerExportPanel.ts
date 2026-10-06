@@ -1,9 +1,11 @@
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
 import { state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
-import { configContext, ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
+import { configContext } from "../../hierarchy/controllers/ConfigController";
+import type { ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
 
 export class ManagerExportPanel extends AbstractThermalElement {

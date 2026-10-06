@@ -1,8 +1,10 @@
 import { t } from "i18next";
-import { css, CSSResultGroup, html } from "lit";
+import { css, html } from "lit";
+import type { CSSResultGroup } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
-import { configContext, ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
+import { configContext } from "../../hierarchy/controllers/ConfigController";
+import type { ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
 import { consume } from "@lit/context";
 

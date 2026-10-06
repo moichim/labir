@@ -1,14 +1,16 @@
-import { Instance } from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html, nothing } from "lit";
 import { state } from "lit/decorators.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { configContext, ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
+import { configContext } from "../../hierarchy/controllers/ConfigController";
+import type { ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
-import { ThermalDialogElement } from "../../ui/Dialog";
-import { ThermalDropdownElement } from "../../ui/Dropdown";
+import type { ThermalDialogElement } from "../../ui/Dialog";
+import type { ThermalDropdownElement } from "../../ui/Dropdown";
 
 export class FileDownloadButton extends AbstractFileConsumer {
 
