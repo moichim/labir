@@ -138,9 +138,15 @@ export class GroupDropinInputElement extends AbstractGroupDropin {
         await Promise.all(results.map(async (result) => {
           if (result instanceof ThermalFileReader) {
             const instance = await result.createInstance(this.group);
-            this.emitUpload(instance.fileName, instance.bytesize);
+            this.emitSingleUpload(instance.fileName, instance.bytesize);
           }
         }));
+
+        this.emitMultipleUpload(
+          results
+            .map(result => result instanceof ThermalFileReader ? result.fileName : undefined)
+            .filter(fileName => fileName !== undefined)
+        );
 
         this.uploading = false;
 
@@ -166,7 +172,7 @@ export class GroupDropinInputElement extends AbstractGroupDropin {
 
             <thermal-btn @click="${() => {
         if (this.listener) {
-          this.listener.openFileDialog(false);
+          this.listener.openFileDialog(true);
         }
       }}"><slot>${title}</slot></thermal-btn>
 

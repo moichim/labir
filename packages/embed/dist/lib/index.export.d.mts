@@ -528,7 +528,7 @@ declare const toolContext: {
 };
 //#endregion
 //#region src/hierarchy/controllers/ManagerController.d.ts
-interface IHostProperties$4 {
+interface IHostProperties$5 {
   /** Element property for the manager slug. It is absolutely required. Recommended property name: manager-slug */
   managerSlug: string;
   /** Core manager object. Exposed in managerContext. */
@@ -546,11 +546,11 @@ interface IHostProperties$4 {
   /** Tool property accessed from the host element. Exposed in the toolContext. Recommended property name: tool */
   tool: keyof ThermalManager["tool"]["tools"];
 }
-interface IElementWithManagerController extends IBaseElement, IHostProperties$4 {}
+interface IElementWithManagerController extends IBaseElement, IHostProperties$5 {}
 declare class ManagerController extends AbstractHierarchyController<IElementWithManagerController> {
   private _UUID;
   get UUID(): string;
-  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$4>;
+  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$5>;
   /** Accessor to the manageer slug from the host */
   get slug(): string;
   private readonly managerControllerContextProvider;
@@ -606,7 +606,7 @@ declare class ManagerController extends AbstractHierarchyController<IElementWith
 }
 //#endregion
 //#region src/hierarchy/controllers/RegistryController.d.ts
-type IHostProperties$3 = {
+type IHostProperties$4 = {
   /** This object is obligatory and it comes either from:
    * - directly from the host's `ManagerController` instance - in case this `RegistryController` is on the same element as the `ManagerController`
    * - from the `managerControllerContext` - for elements that are nested lower in the hierarchy, under an element with `ManagerController`
@@ -623,11 +623,11 @@ type IHostProperties$3 = {
   highlight?: ThermalRangeOrUndefined;
   loading: boolean;
 };
-interface IElementWithRegistryController extends IBaseElement, IHostProperties$3 {}
+interface IElementWithRegistryController extends IBaseElement, IHostProperties$4 {}
 declare class RegistryController extends AbstractHierarchyController<IElementWithRegistryController> {
   private _UUID;
   get UUID(): string;
-  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$3>;
+  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$4>;
   get registryObject(): ThermalRegistry;
   get slug(): string;
   get opacity(): number;
@@ -667,7 +667,7 @@ declare class RegistryController extends AbstractHierarchyController<IElementWit
 }
 //#endregion
 //#region src/hierarchy/controllers/GroupController.d.ts
-type IHostProperties$2 = {
+type IHostProperties$3 = {
   managerController: ManagerController;
   registryController: RegistryController;
   groupSlug: string;
@@ -675,11 +675,11 @@ type IHostProperties$2 = {
   groupController: GroupController;
   autoclearGroup: boolean;
 };
-interface IElementWithGroupController extends IHostProperties$2, IBaseElement {}
+interface IElementWithGroupController extends IHostProperties$3, IBaseElement {}
 declare class GroupController extends AbstractHierarchyController<IElementWithGroupController> {
   private _UUID;
   get UUID(): string;
-  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$2>;
+  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$3>;
   get groupObject(): ThermalGroup;
   get slug(): string;
   get autoclearGroup(): boolean;
@@ -713,7 +713,7 @@ declare abstract class AbstractGroupConsumer extends AbstractRegistryConsumer {
 }
 //#endregion
 //#region src/hierarchy/controllers/FileController.d.ts
-type IHostProperties$1 = {
+type IHostProperties$2 = {
   managerController: ManagerController;
   registryController: RegistryController;
   groupController: GroupController;
@@ -731,11 +731,11 @@ type IHostProperties$1 = {
   analysis7?: string;
   autoHighlight: boolean;
 };
-interface IElementWithFileController extends IBaseElement, IHostProperties$1 {}
+interface IElementWithFileController extends IBaseElement, IHostProperties$2 {}
 declare class FileController extends AbstractHierarchyController<IElementWithFileController> {
   private _UUID;
   get UUID(): string;
-  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$1>;
+  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$2>;
   get fileObject(): Instance | undefined;
   get failure(): ThermalFileFailure | undefined;
   get ms(): number;
@@ -795,7 +795,7 @@ declare class FileController extends AbstractHierarchyController<IElementWithFil
   receiveFailure(failure: ThermalFileFailure): void;
   private _propagateInstanceCurrentFrame;
   private _propagateInstanceAnalysesArray;
-  setTimeCursor(value: FileCursorContext): void;
+  setTimeCursorPercentage(percentage: number | undefined): void;
   setTimePercentage(percentage: number): void;
   play(): void;
   stop(): void;
@@ -865,11 +865,7 @@ declare const fileContext: {
 declare const fileMsContext: {
   __context__: number;
 };
-type FileCursorContext = undefined | {
-  absolute: number;
-  ms: number;
-  percentage: number;
-};
+type FileCursorContext = number | undefined;
 type CurrentFrameContext = {
   index: number;
   ms: number;
@@ -926,12 +922,6 @@ declare const registryMaxContext: {
  */
 declare const registryHighlightContext: {
   __context__: ThermalRangeOrUndefined;
-};
-/**
- * Highlight setter needs to be used in order to set/unset a temperature range on the thermal scale.
- */
-declare const setRegistryHighlightContext: {
-  __context__: (value: ThermalRangeOrUndefined) => void;
 };
 //#endregion
 //#region src/ui/App.d.ts
@@ -1258,7 +1248,6 @@ declare abstract class AbstractRegistryProvider extends AbstractManagerConsumer 
   loading: boolean;
   autoclear: boolean;
   highlight: ThermalRangeOrUndefined;
-  setHighlight: (value: ThermalRangeOrUndefined) => void;
   disconnectedCallback(): void;
   protected updated(_changedProperties: PropertyValues<AbstractRegistryProvider>): void;
   protected render(): unknown;
@@ -1280,6 +1269,105 @@ declare abstract class AbstractFileConsumer extends AbstractGroupConsumer {
   abstract onFailure(error: ThermalFileFailure): void;
 }
 //#endregion
+//#region src/hierarchy/controllers/GroupAnalysisSyncController.d.ts
+declare const SLOT_NUMBERS: readonly [1, 2, 3, 4, 5, 6, 7];
+type SlotNumber = typeof SLOT_NUMBERS[number];
+type AnalysisProperty = `analysis${SlotNumber}`;
+type IHostProperties$1 = {
+  groupAnalysisSyncOn: boolean;
+} & Record<AnalysisProperty, string | undefined>;
+interface IElementWithGroupAnalysisSyncController extends IBaseElement, IHostProperties$1 {
+  groupController: GroupController;
+}
+declare const groupAnalysisSyncContext: {
+  __context__: boolean;
+};
+/**
+ * Binds analysis1-analysis7 to group slots while groupAnalysisSyncOn is true.
+ * Initial nonempty host values win; otherwise existing file slots are adopted.
+ * Later empty values delete slots. Analyses without slots are left untouched.
+ */
+declare class GroupAnalysisSyncController extends AbstractHierarchyController<IElementWithGroupAnalysisSyncController> {
+  get UUID(): string;
+  private static readonly ANALYSIS_PROPERTY_DECLARATION;
+  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$1>;
+  private readonly _onContextProvider;
+  private _group?;
+  private readonly _files;
+  private readonly _values;
+  private readonly _fileValues;
+  private _applying;
+  private _changingCore;
+  private _initialized;
+  get on(): boolean;
+  constructor(host: IElementWithGroupAnalysisSyncController);
+  private _property;
+  private _hostValue;
+  private _setOn;
+  hostConnected(): void;
+  hostDisconnected(): void;
+  hostUpdatedWatcher(changed: PropertyValueMap<IElementWithGroupAnalysisSyncController>): void;
+  private _syncFiles;
+  private _unbindFile;
+  private _getFirstInstanceWithAnalyses;
+  private _initialize;
+  private _enableCore;
+  private _applyHostValues;
+  private _applySlot;
+  onLoaded(): void;
+  _analysesFromInstanceToGroup(instance: Instance): void;
+  turnOnOnFirstInstanceWithAnalyses(): void;
+  turnOnWithAttributeAnalyses(): void;
+  turnOn(instance: Instance): void;
+  turnOff(): void;
+}
+//#endregion
+//#region src/hierarchy/controllers/ConfigController.d.ts
+interface PngExportSettings {
+  readonly width: number;
+  readonly fontSize: number;
+  readonly analyses: boolean;
+  readonly thermalScale: boolean;
+  readonly license: boolean;
+  readonly fileName: boolean;
+  readonly fileDate: boolean;
+}
+interface GroupExportSettings {
+  readonly groupName: boolean;
+  readonly columns: number;
+}
+interface ConfigSettings {
+  readonly export: {
+    readonly png: PngExportSettings;
+    readonly group: GroupExportSettings;
+  };
+  readonly visibility: {
+    readonly showAllOptions: boolean;
+  };
+}
+interface ConfigContextValue {
+  settings: ConfigSettings;
+  setPngSetting<K extends keyof PngExportSettings>(key: K, value: PngExportSettings[K]): void;
+  setGroupSetting<K extends keyof GroupExportSettings>(key: K, value: GroupExportSettings[K]): void;
+  setShowAllOptions(value: boolean): void;
+}
+declare const configContext: {
+  __context__: ConfigContextValue;
+};
+declare class ConfigController extends AbstractReactiveController<IBaseElement> {
+  private _settings;
+  private readonly contextProvider;
+  constructor(host: IBaseElement);
+  hostConnected(): void;
+  hostDisconnected(): void;
+  get settings(): ConfigSettings;
+  readonly setPngSetting: <K extends keyof PngExportSettings>(key: K, value: PngExportSettings[K]) => void;
+  readonly setGroupSetting: <K extends keyof GroupExportSettings>(key: K, value: GroupExportSettings[K]) => void;
+  readonly setShowAllOptions: (value: boolean) => void;
+  private _createContextValue;
+  private _publish;
+}
+//#endregion
 //#region src/controls/independent/AppInfoButton.d.ts
 declare class AppInfoButton extends AbstractThermalElement {
   static styles: lit.CSSResult;
@@ -1290,7 +1378,7 @@ declare class AppInfoButton extends AbstractThermalElement {
 declare class DisplayPanel extends AbstractThermalElement {
   static styles?: CSSResultGroup | undefined;
   advancedPalettes: boolean;
-  advancedPalettesSetter: (value: boolean) => void;
+  managerController: ManagerController;
   protected render(): unknown;
 }
 //#endregion
@@ -1452,49 +1540,9 @@ declare class ManagerProviderElement extends AbstractManagerProvider {
 //#region src/hierarchy/providers/RegistryProvider.d.ts
 declare class RegistryProviderElement extends AbstractRegistryProvider {}
 //#endregion
-//#region src/hierarchy/providers/context/pngExportContext.d.ts
-type ContextSetter<T> = (value: T) => void;
-interface IWithPngExportContext {
-  pngWidth: number;
-  pngFs: number;
-  pngAnalyses: boolean;
-  pngExportScale: boolean;
-  pngExportLicense: boolean;
-  pngExportFileName: boolean;
-  pngExportFileDate: boolean;
-  pngExportColumns: number;
-  pngExportGroupName: boolean;
-  pngWidthSetter: ContextSetter<number>;
-  pngFsSetter: ContextSetter<number>;
-  pngExportAnalysesSetter: ContextSetter<boolean>;
-  pngExportScaleSetter: ContextSetter<boolean>;
-  pngExportLicenseSetter: ContextSetter<boolean>;
-  pngExportFileNameSetter: ContextSetter<boolean>;
-  pngExportFileDateSetter: ContextSetter<boolean>;
-  pngExportColumnsSetter: ContextSetter<number>;
-  pngExportGroupNameSetter: ContextSetter<boolean>;
-}
-//#endregion
 //#region src/controls/manager/ManagerExportPanel.d.ts
-declare class ManagerExportPanel extends AbstractThermalElement implements IWithPngExportContext {
-  pngWidth: number;
-  pngWidthSetter: ContextSetter<number>;
-  pngFs: number;
-  pngFsSetter: ContextSetter<number>;
-  pngAnalyses: boolean;
-  pngExportAnalysesSetter: ContextSetter<boolean>;
-  pngExportScale: boolean;
-  pngExportScaleSetter: ContextSetter<boolean>;
-  pngExportLicense: boolean;
-  pngExportLicenseSetter: ContextSetter<boolean>;
-  pngExportFileName: boolean;
-  pngExportFileNameSetter: ContextSetter<boolean>;
-  pngExportFileDate: boolean;
-  pngExportFileDateSetter: ContextSetter<boolean>;
-  pngExportColumns: number;
-  pngExportColumnsSetter: ContextSetter<number>;
-  pngExportGroupName: boolean;
-  pngExportGroupNameSetter: ContextSetter<boolean>;
+declare class ManagerExportPanel extends AbstractThermalElement {
+  protected config?: ConfigContextValue;
   protected renderRow(label: string, content: ReturnType<typeof html>, hint?: ReturnType<typeof html> | string): lit.TemplateResult<1>;
   protected renderGroup(label: string, content: ReturnType<typeof html>): lit.TemplateResult<1>;
   protected formatTip(value?: ReturnType<typeof html> | string): lit.TemplateResult<1> | "";
@@ -1572,13 +1620,22 @@ declare class RegistryRangeForm extends AbstractRegistryConsumer {
   };
   protected isUpdatingFromRegistry: boolean;
   private debounceTimer;
-  protected hasHistogram: boolean;
-  protected firstUpdated(_changedProperties: PropertyValues): void;
+  protected autoValue: ThermalRangeOrUndefined;
+  private subscribedRegistry?;
+  private autoRangeHovered;
+  connectedCallback(): void;
+  protected willUpdate(changedProperties: PropertyValues<this>): void;
   disconnectedCallback(): void;
   private hydrate;
   private dehydrate;
   private recieveMinmax;
   private recieveRange;
+  private recieveAutoValue;
+  private handleFullRangeMouseEnter;
+  private handleFullRangeClick;
+  private handleAutoRangeMouseEnter;
+  private handleAutoRangeClick;
+  private handleHighlightMouseLeave;
   private updateFrom;
   private updateTo;
   private debouncedUpdate;
@@ -1661,7 +1718,6 @@ declare class RegistryRangeSlider extends AbstractRegistryConsumer {
 //#region src/controls/registry/RegistryRangeFullButton.d.ts
 declare class RegistryRangeFullButton extends AbstractRegistryConsumer {
   protected buttonRef: Ref<HTMLElement>;
-  protected setter?: (value?: ThermalRangeOrUndefined) => void;
   doAction(): void;
   mouseenter(): void;
   mouseleave(): void;
@@ -1687,8 +1743,6 @@ declare class RegistryRangeDisplay extends AbstractRegistryConsumer {
 declare class RegistryOpacitySlider extends AbstractRegistryConsumer {
   value: number;
   protected containerRef: Ref<HTMLElement>;
-  connectedCallback(): void;
-  disconnectedCallback(): void;
   /** Handle user input events */
   handleUserChangeEvent(event: {
     target: {
@@ -1726,28 +1780,14 @@ declare class GroupAnalysisSyncButton extends AbstractGroupConsumer {
 //#region src/controls/group/GroupDownloadDropdown.d.ts
 declare class GroupDownloadDropdown extends AbstractGroupConsumer {
   static styles?: CSSResultGroup | undefined;
-  private pngColumns;
-  private pngGroupName;
-  private pngFontSize;
-  private pngShowAnalysis;
-  private pngFileDate;
-  private pngFileName;
-  private pngWidth;
-  private pngShowScale;
+  private config?;
   protected render(): unknown;
 }
 //#endregion
 //#region src/controls/group/GroupDownloadButtons.d.ts
 declare class GroupDownloadButtons extends AbstractGroupConsumer {
   label?: string;
-  protected pngWidth: number;
-  protected pngFs: number;
-  protected pngAnalyses: boolean;
-  protected pngExportScale: boolean;
-  protected pngFileName: boolean;
-  protected pngFileDate: boolean;
-  protected pngColumns: number;
-  protected pngExportGroupName: boolean;
+  protected config?: ConfigContextValue;
   static styles?: CSSResultGroup | undefined;
   protected render(): unknown;
 }
@@ -1783,7 +1823,6 @@ declare class GroupDropinInputElement extends AbstractGroupDropin {
 //#region src/controls/group/GroupRangePropagator.d.ts
 declare class GroupRangePropagatorElement extends AbstractGroupConsumer {
   static styles: lit.CSSResultGroup | undefined;
-  protected setter?: (value: ThermalRangeOrUndefined) => void;
   connectedCallback(): void;
   protected render(): unknown;
 }
@@ -1836,5 +1875,5 @@ declare class GroupTimelineElement extends AbstractGroupConsumer {
   protected render(): unknown;
 }
 //#endregion
-export { AbstractFileConsumer, AbstractFileProvider, AbstractGroupConsumer, AbstractGroupProvider, AbstractManagerConsumer, AbstractManagerProvider, AbstractRegistryConsumer, AbstractRegistryProvider, AbstractThermalElement, AppInfoButton, type BtnSizes, type BtnVariants, ConfigDialog, DisplayPanel, FileCopyElement, FileMirrorElement, FileProviderElement, GroupAnalysisSyncButton, GroupChartElement as GroupChart, GroupDownloadButtons, GroupDownloadDropdown, GroupDropinElement as GroupDropin, GroupDropinInputElement as GroupDropinInput, GroupProviderElement, GroupRangePropagatorElement as GroupRangePropagator, GroupTimelineElement as GroupTimeline, ManagerExportPanel, ManagerGraphSmoothSwitch, ManagerImageSmoothSwitch, ManagerPaletteButtons, ManagerPaletteDropdown, ManagerProviderElement, ManagerToolBar, RegistryOpacitySlider, RegistryProviderElement, RegistryRangeDisplay, RegistryRangeForm, RegistryRangeSlider, RegistryRangeAutoButton as RegistrySetAutoRangeElement, RegistryRangeFullButton as RegistrySetFullRangeElement, RegistryTicksBar, ThermalAppElement, ThermalBarElement, ThermalBtnElement, ThermalDialogElement, ThermalDropdownElement, ThermalDropinElement, ThermalExpandableElement, ThermalFieldElement, ThermalIconElement, ThermalPosterElement as ThermalLoadingElement, ThermalRadioElement, ThermalSlotElement, ThermalSpinnerElement, ThermalTipElement, booleanConverter, durationConverter, fileContext, fileCurrentFrameContext, fileMsContext, filePlayingContext, groupContext, icons, languageContext, managerContext, managerSmoothContext, registryContext, registryHighlightContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext, setRegistryHighlightContext, toolContext };
+export { AbstractFileConsumer, AbstractFileProvider, AbstractGroupConsumer, AbstractGroupProvider, AbstractManagerConsumer, AbstractManagerProvider, AbstractRegistryConsumer, AbstractRegistryProvider, AbstractThermalElement, AppInfoButton, type BtnSizes, type BtnVariants, type ConfigContextValue, ConfigController, ConfigDialog, type ConfigSettings, DisplayPanel, FileCopyElement, FileMirrorElement, FileProviderElement, GroupAnalysisSyncButton, GroupAnalysisSyncController, GroupChartElement as GroupChart, GroupDownloadButtons, GroupDownloadDropdown, GroupDropinElement as GroupDropin, GroupDropinInputElement as GroupDropinInput, type GroupExportSettings, GroupProviderElement, GroupRangePropagatorElement as GroupRangePropagator, GroupTimelineElement as GroupTimeline, type IElementWithGroupAnalysisSyncController, ManagerExportPanel, ManagerGraphSmoothSwitch, ManagerImageSmoothSwitch, ManagerPaletteButtons, ManagerPaletteDropdown, ManagerProviderElement, ManagerToolBar, type PngExportSettings, RegistryOpacitySlider, RegistryProviderElement, RegistryRangeDisplay, RegistryRangeForm, RegistryRangeSlider, RegistryRangeAutoButton as RegistrySetAutoRangeElement, RegistryRangeFullButton as RegistrySetFullRangeElement, RegistryTicksBar, ThermalAppElement, ThermalBarElement, ThermalBtnElement, ThermalDialogElement, ThermalDropdownElement, ThermalDropinElement, ThermalExpandableElement, ThermalFieldElement, ThermalIconElement, ThermalPosterElement as ThermalLoadingElement, ThermalRadioElement, ThermalSlotElement, ThermalSpinnerElement, ThermalTipElement, booleanConverter, configContext, durationConverter, fileContext, fileCurrentFrameContext, fileMsContext, filePlayingContext, groupAnalysisSyncContext, groupContext, icons, languageContext, managerContext, managerSmoothContext, registryContext, registryHighlightContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext, toolContext };
 //# sourceMappingURL=index.export.d.mts.map

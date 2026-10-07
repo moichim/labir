@@ -22,6 +22,21 @@ import { FileMeta } from "./utils/FileMeta";
  */
 export abstract class AbstractFile extends BaseStructureObject implements IFileInstance {
 
+    private _label?: string;
+    public get label(): string | undefined {
+        return this._label;
+    }
+
+    public setLabel(label: string | undefined) {
+        if (this._label === label) {
+            return;
+        }
+        this._label = label;
+        this.onLabelChange.call(label);
+    }
+
+    public readonly onLabelChange = new CallbacksManager<(label: string | undefined) => void>();
+
 
     public readonly id: string;
 

@@ -78,6 +78,8 @@ export { AbstractManagerConsumer } from "./hierarchy/consumers/AbstractManagerCo
 export { AbstractRegistryConsumer } from "./hierarchy/consumers/AbstractRegistryConsumer";
 
 // Hierarchy controllers
+export { GroupAnalysisSyncController, groupAnalysisSyncContext } from "./hierarchy/controllers/GroupAnalysisSyncController";
+export type { IElementWithGroupAnalysisSyncController } from "./hierarchy/controllers/GroupAnalysisSyncController";
 export { ConfigController, configContext } from "./hierarchy/controllers/ConfigController";
 export type { ConfigContextValue, ConfigSettings, GroupExportSettings, PngExportSettings } from "./hierarchy/controllers/ConfigController";
 

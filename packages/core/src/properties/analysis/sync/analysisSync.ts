@@ -207,6 +207,10 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
                     return;
                 }
 
+                if (!f.dom?.built) {
+                    return;
+                }
+
                 this.onSlotSync.call(value, slotNumber);
 
                 // Create new slots if not yet existing
@@ -234,13 +238,10 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
      */
     private endSyncingSlot(instance: Instance, slotNumber: number) {
 
-        this.forEveryOtherSlot(instance, slotNumber, () => {
-            const { assign, serialise } = this.getSlotListeners(instance, slotNumber)!;
+        const { assign, serialise } = this.getSlotListeners(instance, slotNumber)!;
 
-            assign.delete(AnalysisSyncDrive.LISTENER_KEY);
-            serialise.delete(AnalysisSyncDrive.LISTENER_KEY);
-
-        })
+        assign.delete(AnalysisSyncDrive.LISTENER_KEY);
+        serialise.delete(AnalysisSyncDrive.LISTENER_KEY);
 
     }
 

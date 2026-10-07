@@ -78,6 +78,27 @@ misspelled `file-analysis-oveerview` tag remains supported as well.
 
 ## How to use
 
+### Group analysis attribute binding
+
+Custom group hosts can opt into `GroupAnalysisSyncController`. Merge its
+`HOST_PROPERTIES` into the element's Lit properties, provide a `groupController`,
+initialize `groupAnalysisSyncOn` to `false`, and forward `updated(changed)` to
+`hostUpdatedWatcher(changed)`. Construct it after the group controller.
+
+When enabled, `analysis1` through `analysis7` reflect the active file's slot
+changes, and host property/attribute changes update the corresponding slots in
+all mounted group files. New or remounted files receive the latest host snapshot
+on mount. Empty values delete slots; analyses without slots are preserved.
+On initial activation, nonempty host analyses take precedence, otherwise the
+current pointer (or a file with slots) supplies the snapshot.
+
+The exported `groupAnalysisSyncContext` publishes the enabled state. The host
+flag and core group sync switch are synchronized in both directions. Disabling
+retains the host snapshot and file analyses but stops the binding; disconnecting
+removes listeners without switching off a shared group's core synchronization.
+File attribute binding is not automatically disabled: do not give both bindings
+ownership of the same host's `analysis1` through `analysis7`.
+
 ### 1. Include the library
 
 Include the scripts in the `dist` folder which contains the latest build.

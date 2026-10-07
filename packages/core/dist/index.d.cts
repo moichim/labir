@@ -2450,6 +2450,10 @@ declare class FileMeta {
  * Most drivers are set in individual implementations, not here.
  */
 declare abstract class AbstractFile extends BaseStructureObject implements IFileInstance {
+  private _label?;
+  get label(): string | undefined;
+  setLabel(label: string | undefined): void;
+  readonly onLabelChange: CallbacksManager<(label: string | undefined) => void>;
   readonly id: string;
   /** Internal limit for cursor label position */
   readonly horizontalLimit: number;

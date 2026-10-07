@@ -4,6 +4,7 @@ import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { GroupController, IElementWithGroupController } from "../hierarchy/controllers/GroupController";
+import { GroupDisplayMode, GroupListingController, GroupOrderby, GroupOrdering, IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { publicIpv4 } from "public-ip";
 import { GroupDropinElement } from "../controls/group/GroupDropinElement";
@@ -23,7 +24,8 @@ implements
     IElementWithManagerController,
     IElementWithRegistryController,
     IElementWithGroupController,
-    IElementWithFileController
+    IElementWithFileController,
+    IElementWithGroupListingController
 {
 
     public static properties = {
@@ -37,16 +39,15 @@ implements
 
     managerSlug!: string;
     managerObject!: ThermalManager;
-    managerController: ManagerController = new ManagerController(this);
     palette: AvailableThermalPalette = "jet";
     advancedPalettes: boolean = false;
     smoothThermograms: boolean = false;
     smoothGraph: boolean = false;
     tool: string = "inspect";
+    managerController: ManagerController = new ManagerController(this);
 
     registrySlug!: string;
     registryObject!: ThermalRegistry;
-    registryController: RegistryController = new RegistryController(this);
     opacity: number = 1;
     min?: number | undefined;
     max?: number | undefined;
@@ -54,13 +55,14 @@ implements
     to?: number | undefined;
     highlight?: ThermalRangeOrUndefined;
     loading: boolean = false;
+    registryController: RegistryController = new RegistryController(this);
 
     groupSlug!: string;
     groupObject!: ThermalGroup;
-    groupController: GroupController = new GroupController(this);
     autoclearGroup: boolean = false;
+    groupController: GroupController = new GroupController(this);
 
-    fileController: FileController = new FileController(this);
+    
     file?: Instance | undefined;
     failure?: ThermalFileFailure | undefined;
     ms: number = 0;
@@ -73,6 +75,12 @@ implements
     analysis6?: string | undefined;
     analysis7?: string | undefined;
     autoHighlight: boolean = false;
+    fileController: FileController = new FileController(this);
+
+    groupDisplayMode: GroupDisplayMode = GroupDisplayMode.LIST;
+    orderby: GroupOrderby = GroupOrderby.DATE;
+    ordering: GroupOrdering = GroupOrdering.ASC;
+    groupListingController: GroupListingController = new GroupListingController(this);
     
     public get manager(): ThermalManager {
         return this.managerObject;
@@ -117,6 +125,7 @@ implements
         this.managerController.hostUpdatedWatcher(_changedProperties);
         this.registryController.hostUpdatedWatcher(_changedProperties);
         this.groupController.hostUpdatedWatcher(_changedProperties);
+        this.groupListingController.hostUpdatedWatcher(_changedProperties);
         this.fileController.hostUpdatedWatcher(_changedProperties);
     }
 
@@ -130,12 +139,18 @@ implements
 
             this.groupObject.files.addListener(this.UUID, (value) => {
 
+                if ( !this.groupListingController.hasBackup ) {
+                    // this.groupListingController.backupReaders(value);
+                }
 
+                
 
-                if ( value.length > 0 ) {
-                    const file = value[0];
-                    this.fileController.receiveInstance(file);
-                    this.registryObject.postLoadedProcessing();
+                if ( value.length === 1 ) {
+                    // this.groupListingController.showDetail(value[0]);
+                    // this.registryObject.postLoadedProcessing();
+                } else if ( value.length > 1 ) {
+                    // this.groupListingController.showList();
+                    // this.registryObject.postLoadedProcessing();
                 }
 
             });

@@ -41,6 +41,7 @@ let _floating_ui_dom = require("@floating-ui/dom");
 let lit_directives_class_map_js = require("lit/directives/class-map.js");
 let _labirthermal_core = require("@labirthermal/core");
 let lit_directives_style_map_js = require("lit/directives/style-map.js");
+let lit_directives_live_js = require("lit/directives/live.js");
 require("@google-web-components/google-chart");
 let public_ip = require("public-ip");
 let date_fns = require("date-fns");
@@ -771,7 +772,6 @@ const readyContext = (0, _lit_context.createContext)("file-ready-context");
 const fileProviderContext = (0, _lit_context.createContext)("file-provider-element");
 const fileMsContext = (0, _lit_context.createContext)("file-ms-context");
 const fileCursorContext = (0, _lit_context.createContext)("file-cursor");
-const fileCursorSetterContext = (0, _lit_context.createContext)("file-cursor-setter");
 const fileCurrentFrameContext = (0, _lit_context.createContext)("playback");
 const durationContext = (0, _lit_context.createContext)("duration");
 const filePlayingContext = (0, _lit_context.createContext)("file-playing-context");
@@ -804,10 +804,6 @@ const registryMaxContext = (0, _lit_context.createContext)("registry-max");
 * This context is exposed by a registry provider. It need to be consumed manually.
 */
 const registryHighlightContext = (0, _lit_context.createContext)("registry-highlight");
-/**
-* Highlight setter needs to be used in order to set/unset a temperature range on the thermal scale.
-*/
-const setRegistryHighlightContext = (0, _lit_context.createContext)("registry-highlight-setter");
 
 //#endregion
 //#region src/hierarchy/providers/context/ManagerContext.ts
@@ -818,13 +814,11 @@ const managerSmoothContext = (0, _lit_context.createContext)("manager-smooth-con
 const managerGraphFunctionContext = (0, _lit_context.createContext)("manager-graph-function-context");
 const languageContext = (0, _lit_context.createContext)("language");
 const toolContext = (0, _lit_context.createContext)("tool-context");
-/** @deprecated I do not know wha is this here. */
-const toolsContext = (0, _lit_context.createContext)("tools-context");
 const interactiveAnalysisContext = (0, _lit_context.createContext)("interactive-analysis-context");
 
 //#endregion
 //#region src/ui/App.ts
-var _ref$19, _ref2$7;
+var _ref$18, _ref2$5;
 var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -996,16 +990,6 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
             background-color: var( --thermal-slate ) !important;
         }
 
-        .container {
-
-            padding: calc( var( --thermal-gap ) / 3 );
-            background-color: var( --thermal-slate-light );
-            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            border-radius: var( --thermal-radius );    
-            position: relative;        
-
-        }
-
         .bar {
             padding-bottom: calc( var( --thermal-gap ) * 0.5 );
             display: flex;
@@ -1086,23 +1070,14 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
             display: none;
         }
 
-        :host([fullscreen="on"]) .container {
+        :host([fullscreen="on"]) {
+            box-sizing: border-box;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            padding: calc( var( --thermal-gap ) / 3 );
             border: 0;
             border-radius: 0;
-            box-sizing: border-box;
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-top: 0px;
-
-            .app-header {
-                padding-top: calc( var( --thermal-gap ) / 3 );
-            }
-
-            header,
-            .content {
-                width: 100%;
-            }
         }
 
 
@@ -1294,11 +1269,11 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "pre",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref$19 = typeof Array !== "undefined" && Array) === "function" ? _ref$19 : Object)], ThermalAppElement.prototype, "preElements", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$18 = typeof Array !== "undefined" && Array) === "function" ? _ref$18 : Object)], ThermalAppElement.prototype, "preElements", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "content",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref2$7 = typeof Array !== "undefined" && Array) === "function" ? _ref2$7 : Object)], ThermalAppElement.prototype, "contentElements", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$5 = typeof Array !== "undefined" && Array) === "function" ? _ref2$5 : Object)], ThermalAppElement.prototype, "contentElements", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -1459,7 +1434,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Nu
 
 //#endregion
 //#region src/ui/Btn.ts
-var _ref$18;
+var _ref$17;
 var ThermalBtnElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -1469,12 +1444,14 @@ var ThermalBtnElement = class extends AbstractThermalElement {
 		this.align = "center";
 		this.showTooltip = async () => {
 			if (!this.tooltipElement || !this.arrowElement) return;
+			this.tooltipElement.style.display = "block";
 			this.tooltipElement.style.visibility = "visible";
 			this.tooltipElement.style.opacity = "1";
 			const updatePosition = async () => {
 				if (!this.tooltipElement || !this.arrowElement) return;
 				const { x, y, placement, middlewareData } = await (0, _floating_ui_dom.computePosition)(this, this.tooltipElement, {
 					placement: this.tooltipPlacement,
+					strategy: "fixed",
 					middleware: [
 						(0, _floating_ui_dom.offset)(6),
 						(0, _floating_ui_dom.flip)(),
@@ -1508,6 +1485,7 @@ var ThermalBtnElement = class extends AbstractThermalElement {
 			if (!this.tooltipElement) return;
 			this.tooltipElement.style.opacity = "0";
 			this.tooltipElement.style.visibility = "hidden";
+			this.tooltipElement.style.display = "none";
 			if (this.cleanupAutoUpdate) {
 				this.cleanupAutoUpdate();
 				this.cleanupAutoUpdate = void 0;
@@ -1920,7 +1898,7 @@ var ThermalBtnElement = class extends AbstractThermalElement {
 		if (this.tooltip) tooltipHtml = lit.html`
                 <div
                     class="thermal-tooltip"
-                    style="position: absolute; top: 0; left: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out;"
+                    style="display: none; position: fixed; top: 0; left: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out;"
                     @mouseenter=${this.showTooltip}
                     @mouseleave=${this.hideTooltip}
                     @focus=${this.showTooltip}
@@ -1945,7 +1923,7 @@ var ThermalBtnElement = class extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "tooltip-placement"
-}), __decorateMetadata("design:type", typeof (_ref$18 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$18 : Object)], ThermalBtnElement.prototype, "tooltipPlacement", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$17 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$17 : Object)], ThermalBtnElement.prototype, "tooltipPlacement", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtnElement.prototype, "pre", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -2191,7 +2169,7 @@ __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadat
 
 //#endregion
 //#region src/ui/Dropdown.ts
-var _ref$17, _ref2$6, _ref3$2;
+var _ref$16, _ref2$4, _ref3$1;
 var ThermalDropdownElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -2394,7 +2372,7 @@ var ThermalDropdownElement = class extends AbstractThermalElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$17 = typeof Array !== "undefined" && Array) === "function" ? _ref$17 : Object)], ThermalDropdownElement.prototype, "_options", void 0);
+__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$16 = typeof Array !== "undefined" && Array) === "function" ? _ref$16 : Object)], ThermalDropdownElement.prototype, "_options", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -2407,12 +2385,12 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$6 = typeof BtnVariants$2 !== "undefined" && BtnVariants$2) === "function" ? _ref2$6 : Object)], ThermalDropdownElement.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$4 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref2$4 : Object)], ThermalDropdownElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref3$2 = typeof BtnSizes$2 !== "undefined" && BtnSizes$2) === "function" ? _ref3$2 : Object)], ThermalDropdownElement.prototype, "size", void 0);
+}), __decorateMetadata("design:type", typeof (_ref3$1 = typeof BtnSizes$1 !== "undefined" && BtnSizes$1) === "function" ? _ref3$1 : Object)], ThermalDropdownElement.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], ThermalDropdownElement.prototype, "plain", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -2508,7 +2486,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 
 //#endregion
 //#region src/ui/Expandable.ts
-var _ref$16, _ref2$5, _ref3$1;
+var _ref$15, _ref2$3, _ref3;
 var ThermalExpandableElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -2595,17 +2573,17 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$16 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref$16 : Object)], ThermalExpandableElement.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$15 = typeof BtnVariants !== "undefined" && BtnVariants) === "function" ? _ref$15 : Object)], ThermalExpandableElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$5 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref2$5 : Object)], ThermalExpandableElement.prototype, "variantExpanded", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$3 = typeof BtnVariants !== "undefined" && BtnVariants) === "function" ? _ref2$3 : Object)], ThermalExpandableElement.prototype, "variantExpanded", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$1 = typeof BtnSizes$1 !== "undefined" && BtnSizes$1) === "function" ? _ref3$1 : Object)], ThermalExpandableElement.prototype, "size", void 0);
+}), __decorateMetadata("design:type", typeof (_ref3 = typeof BtnSizes !== "undefined" && BtnSizes) === "function" ? _ref3 : Object)], ThermalExpandableElement.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalExpandableElement.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalExpandableElement.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({
@@ -3332,6 +3310,7 @@ var ManagerController = class extends AbstractHierarchyController {
 		this.setAdvancedPalettes(this.host.advancedPalettes);
 		this.setSmoothThermograms(this.host.smoothThermograms);
 		this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
+		this.managerObject.smooth.setSmooth(this.host.smoothThermograms);
 		this.setSmoothGraph(this.host.smoothGraph);
 		this.managerObject.graphSmooth.addListener(this.UUID, this.setSmoothGraph.bind(this));
 		this._setToolByKey(this.host.tool);
@@ -3420,7 +3399,7 @@ var ManagerController = class extends AbstractHierarchyController {
 
 //#endregion
 //#region src/hierarchy/consumers/AbstractManagerConsumer.ts
-var _ref$15;
+var _ref$14;
 var AbstractManagerConsumer = class extends AbstractThermalElement {
 	/** @deprecated Use the manager controller instead */
 	get manager() {
@@ -3430,7 +3409,7 @@ var AbstractManagerConsumer = class extends AbstractThermalElement {
 __decorate([(0, _lit_context.consume)({
 	context: managerControllerContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$15 = typeof ManagerController !== "undefined" && ManagerController) === "function" ? _ref$15 : Object)], AbstractManagerConsumer.prototype, "managerController", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$14 = typeof ManagerController !== "undefined" && ManagerController) === "function" ? _ref$14 : Object)], AbstractManagerConsumer.prototype, "managerController", void 0);
 
 //#endregion
 //#region src/hierarchy/controllers/RegistryController.ts
@@ -3478,6 +3457,11 @@ var RegistryController = class extends AbstractHierarchyController {
 				type: Boolean,
 				attribute: "is-loading",
 				reflect: true
+			},
+			highlight: {
+				type: Object,
+				reflect: false,
+				state: true
 			}
 		};
 	}
@@ -3605,13 +3589,14 @@ var RegistryController = class extends AbstractHierarchyController {
 		if (value !== this.loadingContextProvider.value) this.loadingContextProvider.setValue(value);
 	}
 	setHighlight(value) {
+		this.log(value);
 		if (this.highlightContextProvider.value !== value) this.highlightContextProvider.setValue(value);
 	}
 };
 
 //#endregion
 //#region src/hierarchy/consumers/AbstractRegistryConsumer.ts
-var _ref$14;
+var _ref$13;
 var AbstractRegistryConsumer = class extends AbstractManagerConsumer {
 	/** @deprecated Use registryController instead */
 	get registry() {
@@ -3621,11 +3606,11 @@ var AbstractRegistryConsumer = class extends AbstractManagerConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryControllerContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$14 = typeof RegistryController !== "undefined" && RegistryController) === "function" ? _ref$14 : Object)], AbstractRegistryConsumer.prototype, "registryController", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$13 = typeof RegistryController !== "undefined" && RegistryController) === "function" ? _ref$13 : Object)], AbstractRegistryConsumer.prototype, "registryController", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/AbstractGroupConsumer.ts
-var _ref$13;
+var _ref$12;
 var AbstractGroupConsumer = class extends AbstractRegistryConsumer {
 	/** @deprecated Use groupController instead */
 	get group() {
@@ -3635,7 +3620,7 @@ var AbstractGroupConsumer = class extends AbstractRegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: groupControllerContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$13 = typeof GroupController !== "undefined" && GroupController) === "function" ? _ref$13 : Object)], AbstractGroupConsumer.prototype, "groupController", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$12 = typeof GroupController !== "undefined" && GroupController) === "function" ? _ref$12 : Object)], AbstractGroupConsumer.prototype, "groupController", void 0);
 
 //#endregion
 //#region src/hierarchy/controllers/FileAnalysisSynchronisator.ts
@@ -3866,7 +3851,10 @@ var FileController = class extends AbstractHierarchyController {
 		this.filePlayingContextProvider = new _lit_context.ContextProvider(this.host, { context: filePlayingContext });
 		this.fileRecordingContextProvider = new _lit_context.ContextProvider(this.host, { context: fileRecordingContext });
 		this.fileMayStopContextProvider = new _lit_context.ContextProvider(this.host, { context: filaMayStopContext });
-		this.fileAnalysesContextProvider = new _lit_context.ContextProvider(this.host, { context: fileAnalysisListContext });
+		this.fileAnalysesContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: fileAnalysisListContext,
+			initialValue: []
+		});
 		this._propagateHighlightCache = (event) => this._propagateHighlight();
 		this._unpropagateHighlightCache = (event) => this._unpropagateHighlight();
 	}
@@ -4033,11 +4021,10 @@ var FileController = class extends AbstractHierarchyController {
 	_propagateInstanceAnalysesArray(instance) {
 		this.fileAnalysesContextProvider.setValue(instance.analysis.layers.all);
 	}
-	setTimeCursor(value) {
-		if (value !== this.fileCursorContextProvider.value) {
-			this.host.requestUpdate();
-			this.fileCursorContextProvider.setValue(value);
-		}
+	setTimeCursorPercentage(percentage) {
+		if (percentage !== void 0 && !Number.isFinite(percentage)) return;
+		const value = percentage === void 0 ? void 0 : Math.max(0, Math.min(percentage, 100));
+		if (value !== this.fileCursorContextProvider.value) this.fileCursorContextProvider.setValue(value);
 	}
 	setTimePercentage(percentage) {
 		const file = this._attached;
@@ -4155,7 +4142,7 @@ var AbstractGroupProvider = class extends AbstractRegistryConsumer {
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractManagerProvider.ts
-var _ref$12;
+var _ref$11;
 var AbstractManagerProvider = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -4192,7 +4179,7 @@ var AbstractManagerProvider = class extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$12 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$12 : Object)], AbstractManagerProvider.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$11 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$11 : Object)], AbstractManagerProvider.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
@@ -4215,9 +4202,6 @@ var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 		this.opacity = 1;
 		this.loading = false;
 		this.autoclear = false;
-		this.setHighlight = (value) => {
-			this.highlight = value;
-		};
 	}
 	static {
 		this.properties = { ...RegistryController.HOST_PROPERTIES };
@@ -4234,11 +4218,10 @@ var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 		return lit.html`<slot></slot>`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: setRegistryHighlightContext }), __decorateMetadata("design:type", Object)], AbstractRegistryProvider.prototype, "setHighlight", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/AbstractFileConsumer.ts
-var _ref$11, _ref2$4;
+var _ref$10, _ref2$2;
 var AbstractFileConsumer = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -4293,7 +4276,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$11 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$11 : Object)
+	__decorateMetadata("design:type", typeof (_ref$10 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$10 : Object)
 ], AbstractFileConsumer.prototype, "file", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -4301,7 +4284,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$4 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref2$4 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$2 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref2$2 : Object)
 ], AbstractFileConsumer.prototype, "failure", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -4311,6 +4294,371 @@ __decorate([
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Boolean)
 ], AbstractFileConsumer.prototype, "recording", void 0);
+
+//#endregion
+//#region src/utils/converters/stringOrUndefinedConverter.ts
+const stringOrUndefinedConverter = {
+	fromAttribute(value) {
+		if (typeof value !== "string") return;
+		const trimmed = value.trim();
+		if (trimmed.length === 0) return;
+		return trimmed;
+	},
+	toAttribute(value) {
+		const trimmed = value?.trim();
+		return trimmed?.length ? trimmed : void 0;
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/GroupAnalysisSyncController.ts
+const SLOT_NUMBERS = [
+	1,
+	2,
+	3,
+	4,
+	5,
+	6,
+	7
+];
+const groupAnalysisSyncContext = (0, _lit_context.createContext)("group-analysis-sync-context");
+/**
+* Binds analysis1-analysis7 to group slots while groupAnalysisSyncOn is true.
+* Initial nonempty host values win; otherwise existing file slots are adopted.
+* Later empty values delete slots. Analyses without slots are left untouched.
+*/
+var GroupAnalysisSyncController = class GroupAnalysisSyncController extends AbstractHierarchyController {
+	get UUID() {
+		return this.host.UUID + "_group-analysis-sync-controller";
+	}
+	static {
+		this.ANALYSIS_PROPERTY_DECLARATION = {
+			type: String,
+			reflect: true,
+			converter: stringOrUndefinedConverter
+		};
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			groupAnalysisSyncOn: {
+				type: Boolean,
+				reflect: true,
+				converter: booleanConverter(false),
+				attribute: "group-analysis-sync-on"
+			},
+			analysis1: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis2: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis3: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis4: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis5: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis6: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis7: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION
+		};
+	}
+	get on() {
+		return this._onContextProvider.value;
+	}
+	constructor(host) {
+		super(host);
+		this._files = /* @__PURE__ */ new Set();
+		this._values = /* @__PURE__ */ new Map();
+		this._fileValues = /* @__PURE__ */ new Map();
+		this._applying = false;
+		this._changingCore = false;
+		this._initialized = false;
+		this._onContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: groupAnalysisSyncContext,
+			initialValue: false
+		});
+	}
+	_property(slot) {
+		return `analysis${slot}`;
+	}
+	_hostValue(slot) {
+		return this.host[this._property(slot)]?.trim() || void 0;
+	}
+	_setOn(value) {
+		this.host.groupAnalysisSyncOn = value;
+		this._onContextProvider.setValue(value);
+	}
+	hostConnected() {
+		this._group = this.host.groupController.groupObject;
+		const group = this._group;
+		group.analysisSync.addListener(this.UUID, (value) => {
+			if (this._changingCore) return;
+			this._setOn(value);
+			if (!value) {
+				this._initialized = false;
+				return;
+			}
+			queueMicrotask(() => {
+				if (this._group === group && this.on && group.analysisSync.value) this._initialize();
+			});
+		});
+		group.files.addListener(this.UUID, () => this._syncFiles());
+		group.registry.onProcessingEnd.set(this.UUID, () => this.onLoaded());
+		this._setOn(this.host.groupAnalysisSyncOn || group.analysisSync.value);
+		this._syncFiles();
+		if (this.on) this._initialize();
+	}
+	hostDisconnected() {
+		this._group?.analysisSync.removeListener(this.UUID);
+		this._group?.files.removeListener(this.UUID);
+		this._group?.registry.onProcessingEnd.delete(this.UUID);
+		for (const file of this._files) this._unbindFile(file);
+		this._files.clear();
+		this._fileValues.clear();
+		this._group = void 0;
+		this._initialized = false;
+	}
+	hostUpdatedWatcher(changed) {
+		if (!this._group) return;
+		if (changed.has("groupAnalysisSyncOn")) {
+			if (!this.host.groupAnalysisSyncOn) {
+				this.turnOff();
+				return;
+			}
+			if (!this.on || !this._initialized) this._initialize();
+		}
+		if (!this.on) return;
+		const slots = SLOT_NUMBERS.filter((slot) => changed.has(this._property(slot)) && this._hostValue(slot) !== this._values.get(slot));
+		if (slots.length) this._applyHostValues(slots);
+	}
+	_syncFiles() {
+		const group = this._group;
+		if (!group) return;
+		for (const file of this._files) if (!group.files.value.includes(file)) {
+			this._unbindFile(file);
+			this._files.delete(file);
+		}
+		for (const file of group.files.value) {
+			if (this._files.has(file)) continue;
+			this._files.add(file);
+			const values = /* @__PURE__ */ new Map();
+			this._fileValues.set(file, values);
+			for (const slot of SLOT_NUMBERS) file.slots.getOnSerializeManager(slot)?.set(this.UUID, (value) => {
+				const unchanged = values.has(slot) && values.get(slot) === value;
+				values.set(slot, value);
+				if (unchanged) return;
+				if (!this.on || this._applying || file !== group.analysisSync.currentPointer) return;
+				this._values.set(slot, value);
+				this.host[this._property(slot)] = value;
+			});
+			file.onMount.set(this.UUID, () => this.onLoaded());
+		}
+		if (this.on) this.onLoaded();
+	}
+	_unbindFile(file) {
+		for (const slot of SLOT_NUMBERS) file.slots.getOnSerializeManager(slot)?.delete(this.UUID);
+		file.onMount.delete(this.UUID);
+		this._fileValues.delete(file);
+	}
+	_getFirstInstanceWithAnalyses() {
+		return this._group?.files.value.find((file) => SLOT_NUMBERS.some((slot) => file.slots.hasSlot(slot)));
+	}
+	_initialize() {
+		const group = this._group;
+		if (!group) return;
+		this._setOn(true);
+		if (!this._initialized) {
+			const hasAttributes = SLOT_NUMBERS.some((slot) => this._hostValue(slot) !== void 0);
+			const pointer = group.analysisSync.currentPointer;
+			const source = pointer && group.files.value.includes(pointer) ? pointer : this._getFirstInstanceWithAnalyses() ?? group.files.value[0];
+			if (!hasAttributes && source) this._analysesFromInstanceToGroup(source);
+			this._initialized = hasAttributes || source !== void 0;
+		}
+		this._enableCore();
+		if (this._initialized) this._applyHostValues(SLOT_NUMBERS);
+	}
+	_enableCore() {
+		const group = this._group;
+		if (!group) return;
+		const pointer = group.analysisSync.currentPointer;
+		const source = pointer && group.files.value.includes(pointer) ? pointer : group.files.value.find((file) => file.dom?.built) ?? group.files.value[0];
+		if (!source) {
+			group.analysisSync.setCurrentPointer(void 0);
+			return;
+		}
+		this._changingCore = true;
+		try {
+			if (!group.analysisSync.value) group.analysisSync.turnOn(source);
+			else if (source !== pointer) group.analysisSync.setCurrentPointer(source);
+		} finally {
+			this._changingCore = false;
+		}
+	}
+	_applyHostValues(slots) {
+		const group = this._group;
+		if (!group) return;
+		for (const slot of slots) this._values.set(slot, this._hostValue(slot));
+		this._applying = true;
+		const pointer = group.analysisSync.currentPointer;
+		group.analysisSync.setCurrentPointer(void 0);
+		try {
+			for (const file of this._files) {
+				if (!file.dom?.built) continue;
+				for (const slot of slots) {
+					this._applySlot(file, slot, this._values.get(slot));
+					this._fileValues.get(file)?.set(slot, file.slots.getSlot(slot)?.analysis.toSerialized());
+				}
+			}
+		} finally {
+			if (pointer && group.files.value.includes(pointer)) group.analysisSync.setCurrentPointer(pointer);
+			this._applying = false;
+		}
+	}
+	_applySlot(file, slotNumber, value) {
+		const slot = file.slots.getSlot(slotNumber);
+		if (value === void 0) {
+			if (slot) file.slots.removeSlotAndAnalysis(slotNumber);
+			return;
+		}
+		const sameType = slot?.analysis.toSerialized().split(";")[1]?.trim() === value.split(";")[1]?.trim();
+		if (slot && sameType) {
+			if (!slot.analysis.serializedIsValid(value)) {
+				this.log("Invalid group analysis slot value", slotNumber, file.id);
+				return;
+			}
+			if (slot.analysis.toSerialized() !== value) slot.recieveSerialized(value);
+			const root = file.dom?.canvasLayer?.getLayerRoot();
+			if (root && !root.contains(slot.analysis.layerRoot)) root.appendChild(slot.analysis.layerRoot);
+		} else if (!file.slots.createAnalysisFromSerialized(value, slotNumber)) this.log("Unable to create group analysis slot", slotNumber, file.id);
+	}
+	onLoaded() {
+		if (!this.on || this._applying) return;
+		if (!this._initialized) this._initialize();
+		else {
+			this._enableCore();
+			this._applyHostValues(SLOT_NUMBERS);
+		}
+	}
+	_analysesFromInstanceToGroup(instance) {
+		for (const slot of SLOT_NUMBERS) {
+			const value = instance.slots.getSlot(slot)?.analysis.toSerialized();
+			this._values.set(slot, value);
+			this.host[this._property(slot)] = value;
+		}
+	}
+	turnOnOnFirstInstanceWithAnalyses() {
+		const instance = this._getFirstInstanceWithAnalyses();
+		if (instance) this.turnOn(instance);
+	}
+	turnOnWithAttributeAnalyses() {
+		this._setOn(true);
+		this._initialized = true;
+		this._enableCore();
+		this._applyHostValues(SLOT_NUMBERS);
+	}
+	turnOn(instance) {
+		if (!this._group?.files.value.includes(instance)) {
+			this.log("Cannot synchronize analyses from a file outside the group", instance.id);
+			return;
+		}
+		this._analysesFromInstanceToGroup(instance);
+		this._setOn(true);
+		this._initialized = true;
+		this._changingCore = true;
+		try {
+			this._group.analysisSync.turnOn(instance);
+		} finally {
+			this._changingCore = false;
+		}
+		this._applyHostValues(SLOT_NUMBERS);
+	}
+	turnOff() {
+		this._setOn(false);
+		this._initialized = false;
+		this._changingCore = true;
+		try {
+			if (this._group?.analysisSync.value) this._group.analysisSync.turnOff();
+		} finally {
+			this._changingCore = false;
+		}
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/ConfigController.ts
+const configContext = (0, _lit_context.createContext)("config-context");
+var ConfigController = class extends AbstractReactiveController {
+	constructor(host) {
+		super(host);
+		this._settings = {
+			export: {
+				png: {
+					width: 1200,
+					fontSize: 20,
+					analyses: true,
+					thermalScale: true,
+					license: true,
+					fileName: false,
+					fileDate: true
+				},
+				group: {
+					groupName: true,
+					columns: 2
+				}
+			},
+			visibility: { showAllOptions: false }
+		};
+		this.setPngSetting = (key, value) => {
+			this._settings = {
+				...this._settings,
+				export: {
+					...this._settings.export,
+					png: {
+						...this._settings.export.png,
+						[key]: value
+					}
+				}
+			};
+			this._publish();
+		};
+		this.setGroupSetting = (key, value) => {
+			this._settings = {
+				...this._settings,
+				export: {
+					...this._settings.export,
+					group: {
+						...this._settings.export.group,
+						[key]: value
+					}
+				}
+			};
+			this._publish();
+		};
+		this.setShowAllOptions = (value) => {
+			this._settings = {
+				...this._settings,
+				visibility: {
+					...this._settings.visibility,
+					showAllOptions: value
+				}
+			};
+			this._publish();
+		};
+		this.contextProvider = new _lit_context.ContextProvider(host, {
+			context: configContext,
+			initialValue: this._createContextValue()
+		});
+	}
+	hostConnected() {}
+	hostDisconnected() {}
+	get settings() {
+		return this._settings;
+	}
+	_createContextValue() {
+		return {
+			settings: this._settings,
+			setPngSetting: this.setPngSetting,
+			setGroupSetting: this.setGroupSetting,
+			setShowAllOptions: this.setShowAllOptions
+		};
+	}
+	_publish() {
+		this.contextProvider.setValue(this._createContextValue());
+	}
+};
 
 //#endregion
 //#region package.json
@@ -4447,37 +4795,12 @@ let AppInfoButton = class AppInfoButton extends AbstractThermalElement {
 AppInfoButton = __decorate([(0, lit_decorators_js.customElement)("app-info-button")], AppInfoButton);
 
 //#endregion
-//#region src/apps/AbstractControlledApp.ts
-const advancedPalettesContext = (0, _lit_context.createContext)("advanced-palettes");
-const advancedPalettesSetterContext = (0, _lit_context.createContext)("advanced-palettes-setter");
-var AbstractControlledApp = class extends AbstractThermalElement {
-	constructor(..._args) {
-		super(..._args);
-		this.advancedPalettes = false;
-		this.setAdvancedPalettes = (value) => {
-			this.advancedPalettes = value;
-		};
-	}
-};
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true,
-		attribute: "advanced-palettes",
-		converter: booleanConverter(false)
-	}),
-	(0, _lit_context.provide)({ context: advancedPalettesContext }),
-	__decorateMetadata("design:type", Boolean)
-], AbstractControlledApp.prototype, "advancedPalettes", void 0);
-__decorate([(0, _lit_context.provide)({ context: advancedPalettesSetterContext }), __decorateMetadata("design:type", Object)], AbstractControlledApp.prototype, "setAdvancedPalettes", void 0);
-
-//#endregion
 //#region src/controls/independent/DisplayPanel.ts
+var _ref$9;
 let DisplayPanel = class DisplayPanel extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.advancedPalettes = false;
-		this.advancedPalettesSetter = () => {};
 	}
 	static {
 		this.styles = lit.css`
@@ -4493,12 +4816,12 @@ let DisplayPanel = class DisplayPanel extends AbstractThermalElement {
         <thermal-field label="${(0, i18next.t)(T.colourpalette)}" hint="Zvolte, jaké chcete používat palety.">
             <thermal-btn 
                 variant="${!this.advancedPalettes ? "foreground" : "default"}"
-                @click=${() => this.advancedPalettesSetter(false)}
+                @click=${() => this.managerController.setAdvancedPalettes(false)}
                 tooltip="IRON, JET, White hot, Black hot"
             >Základní</thermal-btn>
             <thermal-btn 
                 variant="${this.advancedPalettes ? "foreground" : "default"}"
-                @click=${() => this.advancedPalettesSetter(true)}
+                @click=${() => this.managerController.setAdvancedPalettes(true)}
                 tooltip="Všechny dostupné palety"
             >Pokročilé</thermal-btn>
         </thermal-field>
@@ -4513,7 +4836,7 @@ let DisplayPanel = class DisplayPanel extends AbstractThermalElement {
 };
 __decorate([
 	(0, _lit_context.consume)({
-		context: advancedPalettesContext,
+		context: managerAdvancedPalettesContext,
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
@@ -4521,12 +4844,12 @@ __decorate([
 ], DisplayPanel.prototype, "advancedPalettes", void 0);
 __decorate([
 	(0, _lit_context.consume)({
-		context: advancedPalettesSetterContext,
+		context: managerControllerContext,
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Function)
-], DisplayPanel.prototype, "advancedPalettesSetter", void 0);
+	__decorateMetadata("design:type", typeof (_ref$9 = typeof ManagerController !== "undefined" && ManagerController) === "function" ? _ref$9 : Object)
+], DisplayPanel.prototype, "managerController", void 0);
 DisplayPanel = __decorate([(0, lit_decorators_js.customElement)("display-panel")], DisplayPanel);
 
 //#endregion
@@ -4554,7 +4877,7 @@ ConfigDialog = __decorate([(0, lit_decorators_js.customElement)("config-dialog")
 
 //#endregion
 //#region src/hierarchy/providers/FileCopy.ts
-var _ref$10;
+var _ref$8;
 /** This element creates a completely isolated hierarchy tree for the given original file. The file is copied and all contexts are exposed independently of the original context. */
 var FileCopyElement = class extends AbstractThermalElement {
 	constructor(..._args) {
@@ -4669,7 +4992,7 @@ var FileCopyElement = class extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	attribute: false
-}), __decorateMetadata("design:type", typeof (_ref$10 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$10 : Object)], FileCopyElement.prototype, "originalFile", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$8 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$8 : Object)], FileCopyElement.prototype, "originalFile", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: false
@@ -4678,7 +5001,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 
 //#endregion
 //#region src/hierarchy/providers/FileMirror.ts
-var _ref$9, _ref2$3;
+var _ref$7, _ref2$1;
 /** @deprecated Investigate why is this here. */
 var FileMirrorElement = class extends AbstractFileProvider {
 	constructor(..._args) {
@@ -4703,11 +5026,11 @@ var FileMirrorElement = class extends AbstractFileProvider {
 		}
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$9 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$9 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$7 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$7 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: fileContext }),
 	(0, lit_decorators_js.property)(),
-	__decorateMetadata("design:type", typeof (_ref2$3 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$3 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$1 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$1 : Object)
 ], FileMirrorElement.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
@@ -4812,74 +5135,7 @@ __decorate([(0, lit_decorators_js.property)({
 var RegistryProviderElement = class extends AbstractRegistryProvider {};
 
 //#endregion
-//#region src/hierarchy/providers/context/pngExportContext.ts
-const pngExportWidthContext = (0, _lit_context.createContext)("pngExportWidthContext");
-const pngExportWidthSetterContext = (0, _lit_context.createContext)("pngExportWidthSetterContext");
-const pngExportFsContext = (0, _lit_context.createContext)("png-export-width-context");
-const pngExportFsSetterContext = (0, _lit_context.createContext)("png-export-width-setter-context");
-const pngExportAnalysisContext = (0, _lit_context.createContext)("pngExportAnalysisContext");
-const pngExportAnalysisSetterContext = (0, _lit_context.createContext)("pngExportAnalysisSetterContext");
-const pngExportScaleContext = (0, _lit_context.createContext)("pngExportScaleContext");
-const pngExportScaleSetterContext = (0, _lit_context.createContext)("pngExportScaleSetterContext");
-const pngExportFileNameContext = (0, _lit_context.createContext)("pngExportFileNameContext");
-const pngExportFileNameSetterContext = (0, _lit_context.createContext)("pngExportFileNameSetterContext");
-const pngExportFileDateContext = (0, _lit_context.createContext)("pngExportFileDateContext");
-const pngExportFileDateSetterContext = (0, _lit_context.createContext)("pngExportFileDateSetterContext");
-const pngExportLicenseContext = (0, _lit_context.createContext)("pngExportLicenseContext");
-const pngExportLicenseSetterContext = (0, _lit_context.createContext)("pngExportLicenseSetterContext");
-const pngExportColumnsContext = (0, _lit_context.createContext)("pngExportColumnsContext");
-const pngExportColumnsSetterContext = (0, _lit_context.createContext)("pngExportColumnsSetterContext");
-const pngExportGroupNameContext = (0, _lit_context.createContext)("pngExportGroupNameContext");
-const pngExportGroupNameSetterContext = (0, _lit_context.createContext)("pngExportGroupNameSetterContext");
-var BaseAppWithPngExportContext = class extends AbstractControlledApp {
-	constructor(..._args) {
-		super(..._args);
-		this.pngWidth = 1200;
-		this.pngWidthSetter = (value) => {
-			this.pngWidth = value;
-		};
-		this.pngFs = 20;
-		this.pngFsSetter = (value) => {
-			this.pngFs = value;
-		};
-		this.pngAnalyses = true;
-		this.pngExportAnalysesSetter = (value) => this.pngAnalyses = value;
-		this.pngExportScale = true;
-		this.pngExportScaleSetter = (value) => this.pngExportScale = value;
-		this.pngExportLicense = true;
-		this.pngExportLicenseSetter = (value) => this.pngExportLicense = value;
-		this.pngExportFileName = false;
-		this.pngExportFileNameSetter = (value) => this.pngExportFileName = value;
-		this.pngExportFileDate = true;
-		this.pngExportFileDateSetter = (value) => this.pngExportFileDate = value;
-		this.pngExportColumns = 2;
-		this.pngExportColumnsSetter = (value) => this.pngExportColumns = value;
-		this.pngExportGroupName = true;
-		this.pngExportGroupNameSetter = (value) => this.pngExportGroupName = value;
-	}
-};
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext }), __decorateMetadata("design:type", Number)], BaseAppWithPngExportContext.prototype, "pngWidth", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngWidthSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsContext }), __decorateMetadata("design:type", Number)], BaseAppWithPngExportContext.prototype, "pngFs", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngFsSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportAnalysisContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngAnalyses", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportAnalysisSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportAnalysesSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportScaleContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportScale", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportScaleSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportScaleSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportLicenseContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportLicense", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportLicenseSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportLicenseSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFileNameContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportFileName", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFileNameSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportFileNameSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFileDateContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportFileDate", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFileDateSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportFileDateSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportColumnsContext }), __decorateMetadata("design:type", Number)], BaseAppWithPngExportContext.prototype, "pngExportColumns", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportColumnsSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportColumnsSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportGroupNameContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportGroupName", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportGroupNameSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportGroupNameSetter", void 0);
-
-//#endregion
 //#region src/controls/manager/ManagerExportPanel.ts
-var _ref$8, _ref2$2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
 var ManagerExportPanel = class extends AbstractThermalElement {
 	renderRow(label, content, hint) {
 		return lit.html`<thermal-field label="${label}">
@@ -4947,116 +5203,48 @@ var ManagerExportPanel = class extends AbstractThermalElement {
 	}
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
-		if (this.pngFs === void 0 || this.pngWidth === void 0 || this.pngWidthSetter === void 0 || this.pngFsSetter === void 0) return;
-		for (const key of ["pngFs", "pngWidth"]) if (_changedProperties.has(key)) {
-			const value = this[key];
+		if (!this.config || !_changedProperties.has("config")) return;
+		const settings = this.config.settings.export.png;
+		const values = [["pngWidth", settings.width], ["pngFs", settings.fontSize]];
+		for (const [key, value] of values) {
 			const element = this.shadowRoot?.querySelector(`input[name="${key}"]`);
-			if (element && value) {
-				const oldValue = element.value;
-				if (parseInt(oldValue) !== value) {
-					element.value = value.toString();
-					this.log(`Updated ${key} from ${oldValue} to ${value}`);
-				}
-			}
+			if (element && Number(element.value) !== value) element.value = value.toString();
 		}
 	}
 	render() {
-		if (this.pngFs === void 0 || this.pngWidth === void 0 || this.pngWidthSetter === void 0 || this.pngFsSetter === void 0) {}
+		if (!this.config) return lit.nothing;
+		const { png, group } = this.config.settings.export;
 		return lit.html`
 
         ${this.renderGroup((0, i18next.t)(T.exportcontent), lit.html`
-            ${this.renderCheckbox("pngExportAnalyses", (0, i18next.t)(T.analyses), this.pngAnalyses, this.pngExportAnalysesSetter.bind(this))}
-            ${this.renderCheckbox("pngExportScale", (0, i18next.t)(T.thermalscale), this.pngExportScale, this.pngExportScaleSetter.bind(this))}
-            ${this.renderCheckbox("pngExportFileName", (0, i18next.t)(T.exportfilenames), this.pngExportFileName, this.pngExportFileNameSetter.bind(this))}
-            ${this.renderCheckbox("pngExportFileDate", (0, i18next.t)(T.filedate), this.pngExportFileDate, this.pngExportFileDateSetter.bind(this))}
+            ${this.renderCheckbox("pngExportAnalyses", (0, i18next.t)(T.analyses), png.analyses, (value) => this.config.setPngSetting("analyses", value))}
+            ${this.renderCheckbox("pngExportScale", (0, i18next.t)(T.thermalscale), png.thermalScale, (value) => this.config.setPngSetting("thermalScale", value))}
+            ${this.renderCheckbox("pngExportFileName", (0, i18next.t)(T.exportfilenames), png.fileName, (value) => this.config.setPngSetting("fileName", value))}
+            ${this.renderCheckbox("pngExportFileDate", (0, i18next.t)(T.filedate), png.fileDate, (value) => this.config.setPngSetting("fileDate", value))}
         `)}
 
         ${this.renderGroup((0, i18next.t)(T.exportdimensions), lit.html`
-            ${this.renderSlider("pngWidth", (0, i18next.t)(T.exportimagewidth), this.pngWidth, "px", 500, 2e3, 50, this.pngWidthSetter.bind(this))}
+            ${this.renderSlider("pngWidth", (0, i18next.t)(T.exportimagewidth), png.width, "px", 500, 2e3, 50, (value) => this.config.setPngSetting("width", value))}
 
-            ${this.renderSlider("pngFs", (0, i18next.t)(T.exportimagefontsize), this.pngFs, "px", 10, 50, 1, this.pngFsSetter.bind(this))}
+            ${this.renderSlider("pngFs", (0, i18next.t)(T.exportimagefontsize), png.fontSize, "px", 10, 50, 1, (value) => this.config.setPngSetting("fontSize", value))}
         `)}
 
         ${this.renderGroup((0, i18next.t)(T.exportgroup), lit.html`
-            ${this.renderCheckbox("pngExportGroupName", (0, i18next.t)(T.exportgroupname), this.pngExportGroupName, this.pngExportGroupNameSetter.bind(this))}
-            ${this.renderSlider("pngColumns", (0, i18next.t)(T.exportfilenames), this.pngExportColumns, "sloupců", 1, 5, 1, this.pngExportColumnsSetter.bind(this))}
+            ${this.renderCheckbox("pngExportGroupName", (0, i18next.t)(T.exportgroupname), group.groupName, (value) => this.config.setGroupSetting("groupName", value))}
+            ${this.renderSlider("pngColumns", (0, i18next.t)(T.exportfilenames), group.columns, "sloupců", 1, 5, 1, (value) => this.config.setGroupSetting("columns", value))}
         `)}
 
         `;
 	}
 };
-__decorate([(0, _lit_context.consume)({
-	context: pngExportWidthContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Number)], ManagerExportPanel.prototype, "pngWidth", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportWidthSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$8 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref$8 : Object)], ManagerExportPanel.prototype, "pngWidthSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportFsContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Number)], ManagerExportPanel.prototype, "pngFs", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportFsSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$2 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref2$2 : Object)], ManagerExportPanel.prototype, "pngFsSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportAnalysisContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], ManagerExportPanel.prototype, "pngAnalyses", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportAnalysisSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref3 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref3 : Object)], ManagerExportPanel.prototype, "pngExportAnalysesSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportScaleContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], ManagerExportPanel.prototype, "pngExportScale", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportScaleSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref4 : Object)], ManagerExportPanel.prototype, "pngExportScaleSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportLicenseContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], ManagerExportPanel.prototype, "pngExportLicense", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportLicenseSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref5 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref5 : Object)], ManagerExportPanel.prototype, "pngExportLicenseSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportFileNameContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], ManagerExportPanel.prototype, "pngExportFileName", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportFileNameSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref6 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref6 : Object)], ManagerExportPanel.prototype, "pngExportFileNameSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportFileDateContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], ManagerExportPanel.prototype, "pngExportFileDate", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportFileDateSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref7 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref7 : Object)], ManagerExportPanel.prototype, "pngExportFileDateSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportColumnsContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Number)], ManagerExportPanel.prototype, "pngExportColumns", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportColumnsSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref8 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref8 : Object)], ManagerExportPanel.prototype, "pngExportColumnsSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportGroupNameContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], ManagerExportPanel.prototype, "pngExportGroupName", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportGroupNameSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref9 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref9 : Object)], ManagerExportPanel.prototype, "pngExportGroupNameSetter", void 0);
+__decorate([
+	(0, lit_decorators_js.state)(),
+	(0, _lit_context.consume)({
+		context: configContext,
+		subscribe: true
+	}),
+	__decorateMetadata("design:type", Object)
+], ManagerExportPanel.prototype, "config", void 0);
 
 //#endregion
 //#region src/controls/manager/ManagerGraphSmoothSwitch.ts
@@ -5123,7 +5311,7 @@ __decorate([(0, _lit_context.consume)({
 
 //#endregion
 //#region src/controls/manager/AbstractPaletteSwitch.ts
-var _ref$7;
+var _ref$6;
 var AbstractPaletteSwitch = class extends AbstractManagerConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -5152,7 +5340,7 @@ var AbstractPaletteSwitch = class extends AbstractManagerConsumer {
 };
 __decorate([
 	(0, _lit_context.consume)({
-		context: advancedPalettesContext,
+		context: managerAdvancedPalettesContext,
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
@@ -5169,7 +5357,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$7 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$7 : Object)
+	__decorateMetadata("design:type", typeof (_ref$6 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$6 : Object)
 ], AbstractPaletteSwitch.prototype, "value", void 0);
 
 //#endregion
@@ -5248,7 +5436,7 @@ var ManagerPaletteDropdown = class extends AbstractPaletteSwitch {
 
 //#endregion
 //#region src/controls/manager/ManagerToolsBar.ts
-var _ref$6;
+var _ref$5;
 /**
 * A standard toolbar that is either horizontal or vertical.
 */
@@ -5313,7 +5501,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$6 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$6 : Object)
+	__decorateMetadata("design:type", typeof (_ref$5 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$5 : Object)
 ], ManagerToolBar.prototype, "value", void 0);
 
 //#endregion
@@ -5336,10 +5524,81 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 			to: ""
 		};
 		this.isUpdatingFromRegistry = false;
-		this.hasHistogram = false;
+		this.autoRangeHovered = false;
+		this.recieveMinmax = (value) => {
+			if (value) {
+				if (this.min !== value.min) this.min = value.min;
+				if (this.max !== value.max) this.max = value.max;
+			} else {
+				this.min = void 0;
+				this.max = void 0;
+				this.from = void 0;
+				this.to = void 0;
+				this.inputValues = {
+					from: "",
+					to: ""
+				};
+			}
+		};
+		this.recieveRange = (value) => {
+			this.isUpdatingFromRegistry = true;
+			if (value) {
+				if (this.from !== value.from) {
+					this.from = value.from;
+					this.inputValues = {
+						...this.inputValues,
+						from: value.from?.toFixed(2) ?? ""
+					};
+				}
+				if (this.to !== value.to) {
+					this.to = value.to;
+					this.inputValues = {
+						...this.inputValues,
+						to: value.to?.toFixed(2) ?? ""
+					};
+				}
+			} else {
+				this.from = void 0;
+				this.to = void 0;
+				this.inputValues = {
+					from: "",
+					to: ""
+				};
+			}
+			this.isUpdatingFromRegistry = false;
+		};
+		this.recieveAutoValue = (value) => {
+			this.autoValue = value;
+			if (this.autoRangeHovered) this.registryController.setHighlight(value);
+		};
+		this.handleFullRangeMouseEnter = () => {
+			const minmax = this.registry.minmax.value;
+			if (minmax !== void 0) this.registryController.setHighlight({
+				from: minmax.min,
+				to: minmax.max
+			});
+		};
+		this.handleFullRangeClick = () => {
+			this.registry.range.applyMinmax();
+		};
+		this.handleAutoRangeMouseEnter = () => {
+			this.autoRangeHovered = true;
+			this.registryController.setHighlight(this.autoValue);
+		};
+		this.handleAutoRangeClick = () => {
+			this.registry.range.applyAuto();
+		};
+		this.handleHighlightMouseLeave = () => {
+			this.autoRangeHovered = false;
+			this.registryController.setHighlight(void 0);
+		};
 	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
+	connectedCallback() {
+		super.connectedCallback();
+		this.hydrate();
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
 		this.hydrate();
 	}
 	disconnectedCallback() {
@@ -5348,61 +5607,24 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 		if (this.debounceTimer) clearTimeout(this.debounceTimer);
 	}
 	hydrate() {
-		if (this.registry === void 0) return;
-		this.recieveMinmax(this.registry.minmax.value);
-		this.recieveRange(this.registry.range.value);
-		this.registry.minmax.addListener(this.UUID, this.recieveMinmax.bind(this));
-		this.registry.range.addListener(this.UUID, this.recieveRange.bind(this));
-		this.registry.histogram.addListener(this.UUID, (value) => {
-			this.hasHistogram = !!value;
-		});
+		const registry = this.registryController?.registryObject;
+		if (registry === void 0 || registry === this.subscribedRegistry) return;
+		this.dehydrate();
+		this.subscribedRegistry = registry;
+		this.recieveMinmax(registry.minmax.value);
+		this.recieveRange(registry.range.value);
+		this.recieveAutoValue(registry.range.autoValue);
+		registry.minmax.addListener(this.UUID, this.recieveMinmax);
+		registry.range.addListener(this.UUID, this.recieveRange);
+		registry.range.onAutoValueChanged.set(this.UUID, this.recieveAutoValue);
 	}
 	dehydrate() {
-		if (this.registry === void 0) return;
-		this.registry.minmax.removeListener(this.UUID);
-		this.registry.range.removeListener(this.UUID);
-	}
-	recieveMinmax(value) {
-		if (value) {
-			if (this.min !== value.min) this.min = value.min;
-			if (this.max !== value.max) this.max = value.max;
-		} else {
-			this.min = void 0;
-			this.max = void 0;
-			this.from = void 0;
-			this.to = void 0;
-			this.inputValues = {
-				from: "",
-				to: ""
-			};
-		}
-	}
-	recieveRange(value) {
-		this.isUpdatingFromRegistry = true;
-		if (value) {
-			if (this.from !== value.from) {
-				this.from = value.from;
-				this.inputValues = {
-					...this.inputValues,
-					from: value.from?.toFixed(2) ?? ""
-				};
-			}
-			if (this.to !== value.to) {
-				this.to = value.to;
-				this.inputValues = {
-					...this.inputValues,
-					to: value.to?.toFixed(2) ?? ""
-				};
-			}
-		} else {
-			this.from = void 0;
-			this.to = void 0;
-			this.inputValues = {
-				from: "",
-				to: ""
-			};
-		}
-		this.isUpdatingFromRegistry = false;
+		const registry = this.subscribedRegistry;
+		if (registry === void 0) return;
+		registry.minmax.removeListener(this.UUID);
+		registry.range.removeListener(this.UUID);
+		registry.range.onAutoValueChanged.delete(this.UUID);
+		this.subscribedRegistry = void 0;
 	}
 	updateFrom(value) {
 		if (this.registry && value !== void 0 && this.to !== void 0) {
@@ -5920,11 +6142,13 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
         <div class="fields fields__separated fields__buttons">
             <thermal-btn
                 tooltip=${(0, i18next.t)(T.fullrange)}
-                @click=${() => {
-			this.registry.range.applyMinmax();
-		}}
+                @click=${this.handleFullRangeClick}
+                @mouseenter=${this.handleFullRangeMouseEnter}
+                @mouseleave=${this.handleHighlightMouseLeave}
+                @focusin=${this.handleFullRangeMouseEnter}
+                @focusout=${this.handleHighlightMouseLeave}
                 style="padding: 0 0.5em; display: flex; align-items: center; justify-content: center;"
-                disabled="${this.canSetMin() || this.canSetMax() ? "false" : "true"}"
+                ?disabled=${!this.canSetMin() && !this.canSetMax()}
             >
                 <svg width="35" height="16" viewBox="0 0 35 16" fill="none" style="display: block;" stroke-linecap="butt" stroke-linejoin="miter">
                     <!-- Levý symbol (min) -->
@@ -5942,10 +6166,12 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
             
             <thermal-btn
                 tooltip=${(0, i18next.t)(T.automaticrange)}
-                @click=${() => {
-			this.registry.range.applyAuto();
-		}}
-                disabled="${this.hasHistogram ? "false" : "true"}"
+                @click=${this.handleAutoRangeClick}
+                @mouseenter=${this.handleAutoRangeMouseEnter}
+                @mouseleave=${this.handleHighlightMouseLeave}
+                @focusin=${this.handleAutoRangeMouseEnter}
+                @focusout=${this.handleHighlightMouseLeave}
+                ?disabled=${this.autoValue === void 0}
                 style="padding: 0 0.5em; display: flex; align-items: center; justify-content: center;"
             >
                 <svg width="56" height="16" viewBox="0 0 56 16" fill="none" style="display: block;">
@@ -6004,11 +6230,11 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Nu
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], RegistryRangeForm.prototype, "availableSteps", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "inputValues", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeForm.prototype, "isUpdatingFromRegistry", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeForm.prototype, "hasHistogram", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "autoValue", void 0);
 
 //#endregion
 //#region src/controls/registry/RegistryTicksBar.ts
-var _ref$5, _ref2$1;
+var _ref$4, _ref2;
 var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -6030,6 +6256,7 @@ var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 			this.minmax = value;
 			if (this.ticksRef.value) this.calculateTicks(value, this.ticksRef.value.clientWidth);
 		});
+		this.minmax = this.registry.minmax.value;
 	}
 	firstUpdated(_changedProperties) {
 		super.firstUpdated(_changedProperties);
@@ -6099,38 +6326,26 @@ var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 
             position: relative;
 
-            &::before {
-                display: block;
-                content: "";
-                width: 1px;
-                height: 10px;
-                background: var(--thermal-slate);
-            }
-        
+        }
+
+        .tick-marker {
+            display: block;
+            width: 1px;
+            height: 10px;
+            background: var(--thermal-slate);
         }
 
         .placement-top {
             margin-top: 10x;
             padding-bottom: var( --thermal-gap );
-            .tick {
-                &::before {
-                    background: var(--thermal-slate);
-                }
-            }
         }
 
         .placement-bottom {
-            .tick {
-                &::before {
-                    display: block;
-                    content: "";
-                    width: 1px;
-                    height: 5px;
-                    background: currentcolor;
-
-                    position: absolute;
-                    top: 12px;
-                }
+            .tick-marker {
+                height: 5px;
+                background: currentcolor;
+                position: absolute;
+                top: 12px;
             }
         }
 
@@ -6155,6 +6370,7 @@ var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 			highlightLeft = (this.highlight.from - min) / minmax * 100;
 			highlightWidth = (this.highlight.to - min) / minmax * 100 - highlightLeft;
 		}
+		this.log(highlightLeft, highlightWidth);
 		return lit.html`
 
             <div class="container ${this.minmax !== void 0 ? "ready" : "loading"} placement-${this.placement}" ${(0, lit_directives_ref_js.ref)(this.containerRef)}>
@@ -6168,6 +6384,7 @@ var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
                     ${this.ticks.map((tick) => {
 			return lit.html`
                     <div class="tick" >
+                        <div class="tick-marker"></div>
                         <div class="tick-value">
                             ${tick.value.toFixed(RegistryTicksBar.TICK_FIXED)}
                         </div>
@@ -6185,12 +6402,12 @@ var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$5 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$5 : Object)], RegistryTicksBar.prototype, "highlight", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$4 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$4 : Object)], RegistryTicksBar.prototype, "highlight", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], RegistryTicksBar.prototype, "placement", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$1 = typeof _labirthermal_core.ThermalMinmaxOrUndefined !== "undefined" && _labirthermal_core.ThermalMinmaxOrUndefined) === "function" ? _ref2$1 : Object)], RegistryTicksBar.prototype, "minmax", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2 = typeof _labirthermal_core.ThermalMinmaxOrUndefined !== "undefined" && _labirthermal_core.ThermalMinmaxOrUndefined) === "function" ? _ref2 : Object)], RegistryTicksBar.prototype, "minmax", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], RegistryTicksBar.prototype, "ticks", void 0);
 
 //#endregion
@@ -6417,7 +6634,7 @@ var RegistryRangeSlider = class extends AbstractRegistryConsumer {
         .handle:disabled { cursor: default; }
         .tooltip {
             position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none;
-            top: 22px; min-width: 40px; height: 20px; line-height: 20px; text-align: center;
+            top: 24px; min-width: 40px; height: 20px; line-height: 20px; text-align: center;
             padding: 0 3px; background: var(--thermal-slate-dark); color: var(--thermal-background);
             border: 1px solid var(--thermal-slate-dark); border-radius: 3px;
         }
@@ -6520,13 +6737,13 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
 		this.registry.range.applyMinmax();
 	}
 	mouseenter() {
-		if (this.registry.minmax.value !== void 0 && this.setter) this.setter({
+		if (this.registry.minmax.value !== void 0 && this.registryController) this.registryController.setHighlight({
 			from: this.registry.minmax.value.min,
 			to: this.registry.minmax.value.max
 		});
 	}
 	mouseleave() {
-		if (this.setter) this.setter(void 0);
+		if (this.registryController) this.registryController.setHighlight(void 0);
 	}
 	render() {
 		return lit.html`<thermal-btn 
@@ -6539,10 +6756,6 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
 >${(0, i18next.t)(T.fullrange)}</thermal-btn>`;
 	}
 };
-__decorate([(0, _lit_context.consume)({
-	context: setRegistryHighlightContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], RegistryRangeFullButton.prototype, "setter", void 0);
 
 //#endregion
 //#region src/controls/registry/RegistryRangeAutoButton.ts
@@ -6608,17 +6821,6 @@ var RegistryOpacitySlider = class extends AbstractRegistryConsumer {
 		super(..._args);
 		this.containerRef = (0, lit_directives_ref_js.createRef)();
 	}
-	connectedCallback() {
-		super.connectedCallback();
-		const handleIncomingChange = (value) => {
-			if (this.value !== value) this.renderRoot.querySelector("#handler").value = value.toString();
-		};
-		this.registry.opacity.addListener(this.UUID, handleIncomingChange.bind(this));
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.registry.opacity.removeListener(this.UUID);
-	}
 	/** Handle user input events */
 	handleUserChangeEvent(event) {
 		const value = parseFloat(event.target.value);
@@ -6663,7 +6865,7 @@ var RegistryOpacitySlider = class extends AbstractRegistryConsumer {
                     min="0"
                     max="1"
                     step="0.01"
-                    value="${this.value}"
+                    .value=${(0, lit_directives_live_js.live)(String(this.value))}
                     @input="${this.handleUserChangeEvent}"
                 />
                 <div class="thermal-opacity-container">
@@ -6699,7 +6901,7 @@ __decorate([(0, _lit_context.consume)({
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var _ref$4;
+var _ref$3;
 var GroupChartElement = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -6772,7 +6974,7 @@ var GroupChartElement = class extends AbstractGroupConsumer {
 	}
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChartElement.prototype, "instances", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$4 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$4 : Object)], GroupChartElement.prototype, "timeout", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$3 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$3 : Object)], GroupChartElement.prototype, "timeout", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupChartElement.prototype, "data", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChartElement.prototype, "colors", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupChartElement.prototype, "on", void 0);
@@ -6883,17 +7085,6 @@ __decorate([(0, lit_decorators_js.property)({
 //#endregion
 //#region src/controls/group/GroupDownloadDropdown.ts
 var GroupDownloadDropdown = class extends AbstractGroupConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.pngColumns = 3;
-		this.pngGroupName = false;
-		this.pngFontSize = 12;
-		this.pngShowAnalysis = true;
-		this.pngFileDate = true;
-		this.pngFileName = false;
-		this.pngWidth = 800;
-		this.pngShowScale = true;
-	}
 	static {
 		this.styles = lit.css`
         thermal-btn {
@@ -6902,6 +7093,8 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
     `;
 	}
 	render() {
+		const png = this.config?.settings.export.png;
+		const groupSettings = this.config?.settings.export.group;
 		return lit.html`
         
             <thermal-dropdown class="download ${this.classList.contains("small") ? "small" : ""}">
@@ -6932,14 +7125,14 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
                     slot="option"
                     pre="PNG" 
                     @click=${() => this.group.analysisSync.png.downloadPng({
-			columns: this.pngColumns,
-			showGroupName: this.pngGroupName,
-			fontSize: this.pngFontSize,
-			showAnalysis: this.pngShowAnalysis,
-			showFileDate: this.pngFileDate,
-			showFileName: this.pngFileName,
-			showThermalScale: this.pngShowScale,
-			width: this.pngWidth
+			columns: groupSettings?.columns ?? 3,
+			showGroupName: groupSettings?.groupName ?? false,
+			fontSize: png?.fontSize ?? 12,
+			showAnalysis: png?.analyses ?? true,
+			showFileDate: png?.fileDate ?? true,
+			showFileName: png?.fileName ?? false,
+			showThermalScale: png?.thermalScale ?? true,
+			width: png?.width ?? 800
 		})}
                     tooltip="${(0, i18next.t)(T.pngofentiregrouphint)}"
                     tooltip-placement="right"
@@ -6967,75 +7160,15 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
 __decorate([
 	(0, lit_decorators_js.state)(),
 	(0, _lit_context.consume)({
-		context: pngExportColumnsContext,
+		context: configContext,
 		subscribe: true
 	}),
-	__decorateMetadata("design:type", Number)
-], GroupDownloadDropdown.prototype, "pngColumns", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportGroupNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngGroupName", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], GroupDownloadDropdown.prototype, "pngFontSize", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportAnalysisContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngShowAnalysis", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileDateContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngFileDate", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngFileName", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportWidthContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], GroupDownloadDropdown.prototype, "pngWidth", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportScaleContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngShowScale", void 0);
+	__decorateMetadata("design:type", Object)
+], GroupDownloadDropdown.prototype, "config", void 0);
 
 //#endregion
 //#region src/controls/group/GroupDownloadButtons.ts
 var GroupDownloadButtons = class extends AbstractGroupConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.pngWidth = 1350;
-	}
 	static {
 		this.styles = lit.css`
 
@@ -7065,6 +7198,8 @@ var GroupDownloadButtons = class extends AbstractGroupConsumer {
     `;
 	}
 	render() {
+		const png = this.config?.settings.export.png;
+		const group = this.config?.settings.export.group;
 		return lit.html`
         
                 <button class="default" @click=${() => this.group.files.downloadAllFiles()}>${(0, i18next.t)(T.downloadoriginalfiles)}</button>
@@ -7073,14 +7208,14 @@ var GroupDownloadButtons = class extends AbstractGroupConsumer {
             
             
                 <button class="default" @click=${() => this.group.analysisSync.png.downloadPng({
-			columns: this.pngColumns,
-			showAnalysis: this.pngAnalyses,
-			showFileDate: this.pngFileDate,
-			showFileName: this.pngFileName,
-			showThermalScale: this.pngExportScale,
-			showGroupName: this.pngExportGroupName,
+			columns: group?.columns,
+			showAnalysis: png?.analyses,
+			showFileDate: png?.fileDate,
+			showFileName: png?.fileName,
+			showThermalScale: png?.thermalScale,
+			showGroupName: group?.groupName,
 			label: this.label,
-			fontSize: this.pngFs
+			fontSize: png?.fontSize
 		})}>${(0, i18next.t)(T.pngofentiregroup)}</button>
             
                 <button class="default" @click=${() => {
@@ -7091,62 +7226,14 @@ var GroupDownloadButtons = class extends AbstractGroupConsumer {
 	}
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], GroupDownloadButtons.prototype, "label", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportWidthContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Number)], GroupDownloadButtons.prototype, "pngWidth", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: pngExportFsContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Number)], GroupDownloadButtons.prototype, "pngFs", void 0);
 __decorate([
 	(0, lit_decorators_js.state)(),
 	(0, _lit_context.consume)({
-		context: pngExportAnalysisContext,
+		context: configContext,
 		subscribe: true
 	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadButtons.prototype, "pngAnalyses", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportScaleContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadButtons.prototype, "pngExportScale", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadButtons.prototype, "pngFileName", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileDateContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadButtons.prototype, "pngFileDate", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportColumnsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], GroupDownloadButtons.prototype, "pngColumns", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportGroupNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadButtons.prototype, "pngExportGroupName", void 0);
+	__decorateMetadata("design:type", Object)
+], GroupDownloadButtons.prototype, "config", void 0);
 
 //#endregion
 //#region src/controls/group/AbstractGroupDropin.ts
@@ -7180,7 +7267,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", St
 
 //#endregion
 //#region src/controls/group/GroupDropinElement.ts
-var _ref$3;
+var _ref$2;
 var GroupDropinElement = class extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -7346,13 +7433,13 @@ var GroupDropinElement = class extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$3 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$3 : Object)], GroupDropinElement.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$2 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$2 : Object)], GroupDropinElement.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinElement.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinElement.prototype, "uploading", void 0);
 
 //#endregion
 //#region src/controls/group/GroupDropinInput.ts
-var _ref$2;
+var _ref$1;
 var GroupDropinInputElement = class extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -7499,21 +7586,35 @@ var GroupDropinInputElement = class extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$2 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$2 : Object)], GroupDropinInputElement.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$1 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$1 : Object)], GroupDropinInputElement.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInputElement.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInputElement.prototype, "uploading", void 0);
 
 //#endregion
 //#region src/controls/file/buttons/AbstractFileButton.ts
-var _ref$1, _ref2;
 var AbstractFileButton = class extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.size = "sm";
 		this.ref = (0, lit_directives_ref_js.createRef)();
+		this.handleMouseOver = (event) => {
+			if (!this.isWithinButton(event.relatedTarget)) this.enter();
+		};
+		this.handleMouseOut = (event) => {
+			if (!this.isWithinButton(event.relatedTarget)) this.leave();
+		};
+		this.handleFocusIn = (event) => {
+			if (!this.isWithinButton(event.relatedTarget)) this.enter();
+		};
+		this.handleFocusOut = (event) => {
+			if (!this.isWithinButton(event.relatedTarget)) this.leave();
+		};
 	}
-	onInstanceCreated(file) {}
+	onInstanceCreated(instance) {}
 	onFailure() {}
+	isWithinButton(target) {
+		return target instanceof Node && (this.contains(target) || this.renderRoot.contains(target));
+	}
 	static {
 		this.styles = lit.css`
 slot {
@@ -7523,10 +7624,10 @@ slot {
 	render() {
 		return lit.html`<slot 
     @click=${this.action} 
-    @mouseenter=${this.enter}
-    @focus=${this.enter}
-    @mouseleave=${this.leave}
-    @blur=${this.leave}
+    @mouseover=${this.handleMouseOver}
+    @mouseout=${this.handleMouseOut}
+    @focusin=${this.handleFocusIn}
+    @focusout=${this.handleFocusOut}
     ${(0, lit_directives_ref_js.ref)(this.ref)}
 >
     <thermal-btn 
@@ -7544,11 +7645,11 @@ slot {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$1 = typeof BtnVariants !== "undefined" && BtnVariants) === "function" ? _ref$1 : Object)], AbstractFileButton.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", Object)], AbstractFileButton.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2 = typeof BtnSizes !== "undefined" && BtnSizes) === "function" ? _ref2 : Object)], AbstractFileButton.prototype, "size", void 0);
+}), __decorateMetadata("design:type", Object)], AbstractFileButton.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileButton.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileButton.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], AbstractFileButton.prototype, "plain", void 0);
@@ -7562,13 +7663,13 @@ var GroupRangePropagatorElement = class extends AbstractGroupConsumer {
 	connectedCallback() {
 		super.connectedCallback();
 		this.onmouseenter = () => {
-			if (this.group && this.group.minmax.value && this.setter) this.setter({
+			if (this.group && this.group.minmax.value && this.registryController) this.registryController.setHighlight({
 				from: this.group.minmax.value.min,
 				to: this.group.minmax.value.max
 			});
 		};
 		this.onmouseleave = () => {
-			if (this.setter) this.setter(void 0);
+			if (this.registryController) this.registryController.setHighlight(void 0);
 		};
 		this.onclick = () => {
 			if (this.group && this.group.minmax.value) this.group.registry.range.imposeRange({
@@ -7585,10 +7686,6 @@ var GroupRangePropagatorElement = class extends AbstractGroupConsumer {
         `;
 	}
 };
-__decorate([(0, _lit_context.consume)({
-	context: setRegistryHighlightContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], GroupRangePropagatorElement.prototype, "setter", void 0);
 
 //#endregion
 //#region src/utils/timelineTicks.ts
@@ -8018,6 +8115,7 @@ Object.defineProperty(exports, 'AppInfoButton', {
     return AppInfoButton;
   }
 });
+exports.ConfigController = ConfigController;
 Object.defineProperty(exports, 'ConfigDialog', {
   enumerable: true,
   get: function () {
@@ -8034,6 +8132,7 @@ exports.FileCopyElement = FileCopyElement;
 exports.FileMirrorElement = FileMirrorElement;
 exports.FileProviderElement = FileProviderElement;
 exports.GroupAnalysisSyncButton = GroupAnalysisSyncButton;
+exports.GroupAnalysisSyncController = GroupAnalysisSyncController;
 exports.GroupChart = GroupChartElement;
 exports.GroupDownloadButtons = GroupDownloadButtons;
 exports.GroupDownloadDropdown = GroupDownloadDropdown;
@@ -8072,11 +8171,13 @@ exports.ThermalSlotElement = ThermalSlotElement;
 exports.ThermalSpinnerElement = ThermalSpinnerElement;
 exports.ThermalTipElement = ThermalTipElement;
 exports.booleanConverter = booleanConverter;
+exports.configContext = configContext;
 exports.durationConverter = durationConverter;
 exports.fileContext = fileContext;
 exports.fileCurrentFrameContext = fileCurrentFrameContext;
 exports.fileMsContext = fileMsContext;
 exports.filePlayingContext = filePlayingContext;
+exports.groupAnalysisSyncContext = groupAnalysisSyncContext;
 exports.groupContext = groupContext;
 exports.icons = icons;
 exports.languageContext = languageContext;
@@ -8090,6 +8191,5 @@ exports.registryMinContext = registryMinContext;
 exports.registryOpacityContext = registryOpacityContext;
 exports.registryRangeFromContext = registryRangeFromContext;
 exports.registryRangeToContext = registryRangeToContext;
-exports.setRegistryHighlightContext = setRegistryHighlightContext;
 exports.toolContext = toolContext;
 //# sourceMappingURL=index.export.cjs.map

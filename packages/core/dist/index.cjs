@@ -4609,6 +4609,16 @@ var FileMeta = class {
 * Most drivers are set in individual implementations, not here.
 */
 var AbstractFile = class extends BaseStructureObject {
+	_label;
+	get label() {
+		return this._label;
+	}
+	setLabel(label) {
+		if (this._label === label) return;
+		this._label = label;
+		this.onLabelChange.call(label);
+	}
+	onLabelChange = new CallbacksManager();
 	id;
 	/** Internal limit for cursor label position */
 	horizontalLimit;
@@ -6855,6 +6865,7 @@ var AnalysisSyncDrive = class AnalysisSyncDrive extends AbstractProperty {
 		serialise.set(AnalysisSyncDrive.LISTENER_KEY, (value) => {
 			this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
 				if (f.group.analysisSync.value === false) return;
+				if (!f.dom?.built) return;
 				this.onSlotSync.call(value, slotNumber);
 				if (sl === void 0 && value) f.slots.createAnalysisFromSerialized(value, slotNumber)?.setSelected();
 				else if (sl !== void 0 && value) {
@@ -6868,11 +6879,9 @@ var AnalysisSyncDrive = class AnalysisSyncDrive extends AbstractProperty {
 	* Internal method to end synchronisation of a given slot number on the given instance
 	*/
 	endSyncingSlot(instance, slotNumber) {
-		this.forEveryOtherSlot(instance, slotNumber, () => {
-			const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
-			assign.delete(AnalysisSyncDrive.LISTENER_KEY);
-			serialise.delete(AnalysisSyncDrive.LISTENER_KEY);
-		});
+		const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
+		assign.delete(AnalysisSyncDrive.LISTENER_KEY);
+		serialise.delete(AnalysisSyncDrive.LISTENER_KEY);
 	}
 	/**
 	* Deletes a slot and analysis from all instances in the group except the provided one
