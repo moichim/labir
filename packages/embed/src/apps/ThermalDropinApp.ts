@@ -146,7 +146,7 @@ implements
 
         if (this.groupObject !== undefined) {
 
-            this.groupObject.files.addListener(this.UUID, (value) => {
+            this.groupObject.files.addListener(this.UUID, async (value) => {
 
                 this.toDisplay = value;
 
@@ -155,10 +155,12 @@ implements
                 } else if ( value.length === 1 ) {
                     this.displayMode = Mode.DETAIL;
                     this.fileController.receiveInstance(this.toDisplay[0]);
-                    this.registryObject.postLoadedProcessing();
+                    await this.registryObject.postLoadedProcessing();
+                    this.registryObject.range.applyMinmax();
                 } else if ( value.length > 1 ) {
                     this.displayMode = Mode.LIST;
-                    this.registryObject.postLoadedProcessing();
+                    await this.registryObject.postLoadedProcessing();
+                    this.registryObject.range.applyMinmax();
                 }
 
             });
