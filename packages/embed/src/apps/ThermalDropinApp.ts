@@ -288,6 +288,7 @@ implements
             <article class="file">
                 <thermal-btn @click=${() => this.handleClear()}>x</thermal-btn>
                     <file-info-button></file-info-button>
+                    <file-download-dropdown></file-download-dropdown>
                     <file-canvas></file-canvas>
                     <file-timeline></file-timeline>
             </article>
