@@ -8,8 +8,7 @@ import { T } from "../translations/Languages"
 import { booleanConverter } from "../utils/converters/booleanConverter"
 import { GridGrouping } from "@labirthermal/client";
 
-@customElement("file-thumbnail")
-export class FileThumbnail extends AbstractFileConsumer {
+export class FileThumbnailElement extends AbstractFileConsumer {
 
     @property({ type: Object })
     ondetail?: (file: Instance) => void;

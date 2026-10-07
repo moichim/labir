@@ -69,6 +69,17 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         await Promise.all(requests);
     }
 
+    public async showOneAndBackup(
+        instance: Instance
+    ): Promise<void> {
+        const reader = instance.reader;
+        this.backup.clear();
+        this.backupReaders( this.group.files.value );
+        this.host.fileController.removeInstance();
+        this.group.files.removeAllInstances();
+        await reader.createInstance(this.group);
+    }
+
 
     hostConnected(): void {
         // throw new Error("Method not implemented.");

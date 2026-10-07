@@ -154,6 +154,7 @@ implements
                     this.displayMode = Mode.INPUT;
                 } else if ( value.length === 1 ) {
                     this.displayMode = Mode.DETAIL;
+                    this.fileController.receiveInstance(this.toDisplay[0]);
                     this.registryObject.postLoadedProcessing();
                 } else if ( value.length > 1 ) {
                     this.displayMode = Mode.LIST;
@@ -187,58 +188,13 @@ implements
 
     public static styles = css`
     
-        .browser {
+        .layout {
+        
+            width: 100%;
             display: grid;
-            grid-template-columns: 2rem 1fr;
-            gap: var(--thermal-gap);
-            padding-top: var(--thermal-gap);
-        }
-
-        .file {
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            padding: var(--thermal-gap);
-            background: var(--thermal-background);
-
-            file-analysis-graph {
-                height: 300px;
-            }
-
-            header {
-                display: flex;
-                align-items: center;
-            }
-
-            .file-label {
-                display: flex;
-                flex-grow: 1;
-                gap: 5px;
-                align-items: center;
-                padding-bottom: var(--thermal-gap);
-                div {
-                    opacity: .5;
-                }
-            }
-
-            h1, h2 {
-                margin: 0;
-                padding: 0;
-                font-size: var(--thermal-fs);
-                line-height: 1em;
-            }
-
-            .file-expanded {
-                display: grid;
-                grid-template-columns: 50% calc( 50%  - var(--thermal-gap));
-                gap: var(--thermal-gap);
-            }
-
-        }
-
-        .files-multiple {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(calc(100% / 4), 1fr));
-            gap: var(--thermal-gap);
+            grid-template-columns: auto 1fr;
+            gap: 1em;
+        
         }
 
     `;
@@ -286,14 +242,10 @@ implements
         children: unknown
     ) {
         return html`
-
-            <group-dropin-input 
-                slot="bar-pre"
-                .onDrop=${this.handleDropAndClear.bind(this)}
-            ></group-dropin-input>
-        
-        ${children}
-        
+        <div class="layout">
+            <manager-tool-bar></manager-tool-bar>
+            <div class="layout-content">${children}</div>
+        </div>
         `;
     }
 
@@ -330,25 +282,30 @@ implements
 
     protected renderDetail() {
 
-        return html`
+        return this.renderLayout( html`
             <article class="file">
-                
-                <file-canvas></file-canvas>
-
+                <thermal-btn @click=${() => this.handleClear()}>x</thermal-btn>
+                    <file-info-button></file-info-button>
+                    <file-canvas></file-canvas>
+                    <file-timeline></file-timeline>
             </article>
-        `;
+        ` );
 
     }
 
     public renderList() {
 
-        return this.toDisplay.map( instance => {
+        const map = this.toDisplay.map( instance => {
 
             return html`<file-provider .file=${instance}>
-                <file-canvas></file-canvas>
+                <file-thumbnail .ondetail=${ ( instance: Instance ) => {
+                    this.groupListingController.showOneAndBackup(instance);
+                } }></file-thumbnail>
             </file-provider>`;
 
         } );
+
+        return this.renderLayout(map);
     }
 
 
