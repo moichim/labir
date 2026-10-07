@@ -116,7 +116,7 @@ export class GroupDropinInputElement extends AbstractGroupDropin {
 
     if (this.container.value !== undefined) {
 
-      this.listener = this.manager.service.handleDropzone(this.container.value, false);
+      this.listener = this.manager.service.handleDropzone(this.container.value, true);
 
       this.listener.onMouseEnter.add(this.UUID, () => {
         this.hover = true;
@@ -140,23 +140,6 @@ export class GroupDropinInputElement extends AbstractGroupDropin {
         this.uploading = false;
 
         return;
-
-        this.group.files.removeAllInstances();
-
-        await Promise.all(results.map(async (result) => {
-          if (result instanceof ThermalFileReader) {
-            const instance = await result.createInstance(this.group);
-            this.emitSingleUpload(instance.fileName, instance.bytesize);
-          }
-        }));
-
-        this.emitMultipleUpload(
-          results
-            .map(result => result instanceof ThermalFileReader ? result.fileName : undefined)
-            .filter(fileName => fileName !== undefined)
-        );
-
-        this.uploading = false;
 
       });
 

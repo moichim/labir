@@ -50,6 +50,8 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
         return this.host.groupObject;
     }
 
+    public get registryController(): RegistryController { return this.host.registryController; }
+
     // Accessors to the host attributes
     public get slug(): string { return this.host.groupSlug; }
     public get autoclearGroup(): boolean { return this.host.autoclearGroup; }
