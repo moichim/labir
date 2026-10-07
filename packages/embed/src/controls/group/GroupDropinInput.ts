@@ -133,6 +133,14 @@ export class GroupDropinInputElement extends AbstractGroupDropin {
 
       this.listener.onProcessingEnd.add(this.UUID, async (results) => {
 
+        if ( this.onDrop !== undefined ) {
+            await this.onDrop(results);
+        }
+
+        this.uploading = false;
+
+        return;
+
         this.group.files.removeAllInstances();
 
         await Promise.all(results.map(async (result) => {

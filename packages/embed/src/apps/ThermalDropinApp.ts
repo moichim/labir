@@ -1,10 +1,11 @@
-import { AvailableThermalPalette, Instance, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import { AvailableThermalPalette, Instance, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
+import type { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { GroupController, IElementWithGroupController } from "../hierarchy/controllers/GroupController";
-import { GroupDisplayMode, GroupListingController, GroupOrderby, GroupOrdering, IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
+import { GroupListingController, GroupOrderby, GroupOrdering, IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { publicIpv4 } from "public-ip";
 import { GroupDropinElement } from "../controls/group/GroupDropinElement";
@@ -16,6 +17,12 @@ import { IElementWithManagerController, ManagerController } from "../hierarchy/c
 import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
 import { FileController, IElementWithFileController } from "../hierarchy/controllers/FileController";
 import { PlaybackSpeeds } from "@labirthermal/core";
+
+enum Mode {
+    INPUT = "input",
+    LIST = "list",
+    DETAIL = "detail"
+}
 
 export class DropinAppElement 
 extends BaseAppWithPngExportContext 
@@ -77,20 +84,22 @@ implements
     autoHighlight: boolean = false;
     fileController: FileController = new FileController(this);
 
-    groupDisplayMode: GroupDisplayMode = GroupDisplayMode.LIST;
     orderby: GroupOrderby = GroupOrderby.DATE;
     ordering: GroupOrdering = GroupOrdering.ASC;
     groupListingController: GroupListingController = new GroupListingController(this);
+
+    @property({ type: String, reflect: true })
+    displayMode: Mode = Mode.INPUT;
     
     public get manager(): ThermalManager {
         return this.managerObject;
     }
 
     @state()
-    protected dropinRef: Ref<GroupDropinElement> = createRef();
+    protected ip?: string;
 
     @state()
-    protected ip?: string;
+    protected toDisplay: Instance[] = [];
 
 
 
@@ -139,18 +148,16 @@ implements
 
             this.groupObject.files.addListener(this.UUID, (value) => {
 
-                if ( !this.groupListingController.hasBackup ) {
-                    // this.groupListingController.backupReaders(value);
-                }
+                this.toDisplay = value;
 
-                
-
-                if ( value.length === 1 ) {
-                    // this.groupListingController.showDetail(value[0]);
-                    // this.registryObject.postLoadedProcessing();
+                if ( value.length === 0 ) {
+                    this.displayMode = Mode.INPUT;
+                } else if ( value.length === 1 ) {
+                    this.displayMode = Mode.DETAIL;
+                    this.registryObject.postLoadedProcessing();
                 } else if ( value.length > 1 ) {
-                    // this.groupListingController.showList();
-                    // this.registryObject.postLoadedProcessing();
+                    this.displayMode = Mode.LIST;
+                    this.registryObject.postLoadedProcessing();
                 }
 
             });
@@ -237,62 +244,127 @@ implements
     `;
 
 
+    
+
+
+    
+
+    public async handleDropAndClear(
+        results: AbstractFileResult[]
+    ) {
+
+        this.groupListingController.clearBackup();
+
+        this.fileController.removeInstance();
+
+        this.groupObject.files.removeAllInstances();
+
+        // Create new instances into the group
+        await Promise.all(results.map(async (result) => {
+            if (result instanceof ThermalFileReader) {
+                const instance = await result.createInstance(this.groupObject);
+                return instance;
+
+            }
+        }));
+
+        this.groupListingController.backupReaders( this.groupObject.files.value );
+
+        console.log(this.groupObject.files.value);
+    }
+
+
     protected renderIntroScene() {
 
         return html`
-            <group-dropin-element></group-dropin-element>
+            <group-dropin-element .onDrop=${this.handleDropAndClear.bind(this)}></group-dropin-element>
         `;
 
     }
 
-    protected renderBrowserScene() {
-
-        return html`
-        <manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
-        <registry-range-form slot="bar-pre"></registry-range-form>
-
-        <registry-histogram expandable="true" slot="pre"></registry-histogram>
-        <registry-range-slider slot="pre"></registry-range-slider>
-        <registry-ticks-bar slot="pre"></registry-ticks-bar>
-
-        <div class="browser">
-            
-            <div class="browser-tools">
-                <manager-tool-bar></manager-tool-bar>
-            </div>
-            <div class="browser-content">
-                ${this.renderOneFile()}
-            </div>
-        </div>
-        `;
-
-    }
-
-    protected renderOneFile() {
-        return html`
-        ${this.renderDetail(this.file!)}
-        `;
-    }
-
-
-    protected renderDetail(
-        file: Instance
+    protected renderLayout(
+        children: unknown
     ) {
+        return html`
+
+            <group-dropin-input 
+                slot="bar-pre"
+                .onDrop=${this.handleDropAndClear.bind(this)}
+            ></group-dropin-input>
+        
+        ${children}
+        
+        `;
+    }
+
+    protected renderHeader(): unknown[] {
+
+        const elements: unknown[] = [];
+
+        // Upload is allways available
+        elements.push( html`<group-dropin-input 
+            slot="bar-pre"
+            .onDrop=${this.handleDropAndClear.bind(this)}
+        ></group-dropin-input>` );
+
+        // Palette and thermal range is available whenever it is anything else than the input
+        if ( this.displayMode !== Mode.INPUT ) {
+            elements.push( html`<manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
+            <registry-range-form slot="bar-pre"></registry-range-form>
+            <registry-opacity-slider slot="bar-pre"></registry-opacity-slider>
+
+            <registry-histogram slot="pre"></registry-histogram>
+            <registry-range-slider slot="pre"></registry-range-slider>
+            <registry-ticks-bar slot="pre"></registry-ticks-bar>
+            
+            ` );
+        }
+
+        return elements;
+
+    }
+
+    protected renderContent() {
+
+    }
+
+    protected renderDetail() {
 
         return html`
             <article class="file">
-                <file-detail .onback=${() => this.handleClear()}></file-detail>
+                
+                <file-canvas></file-canvas>
+
             </article>
         `;
 
     }
 
+    public renderList() {
 
-    protected renderMultipleFiles() {
-        return html`
-        <div class="files-multiple">
-        </div>
-        `;
+        return this.toDisplay.map( instance => {
+
+            return html`<file-provider .file=${instance}>
+                <file-canvas></file-canvas>
+            </file-provider>`;
+
+        } );
+    }
+
+
+    protected renderAuto() {
+
+        switch ( this.displayMode ) {
+
+            case Mode.INPUT:
+                return this.renderIntroScene();
+            case Mode.LIST:
+                return this.renderList();
+            case Mode.DETAIL:
+                return this.renderDetail();
+
+        }
+
 
     }
 
@@ -308,7 +380,12 @@ implements
                             show-fullscreen="true"
                         >
 
-                            <group-dropin-input slot="bar-pre"></group-dropin-input>
+                        ${this.renderHeader()}
+
+                            <group-dropin-input 
+                                slot="bar-pre"
+                                .onDrop=${this.handleDropAndClear.bind(this)}
+                            ></group-dropin-input>
 
                             ${this.file 
                                 ? html`
@@ -332,7 +409,9 @@ implements
 
                             <slot name="bar-pre" slot="bar-pre"></slot>
 
-                            ${this.file === undefined? this.renderIntroScene() : this.renderBrowserScene()}
+                            
+
+                            ${this.renderAuto()}
                         
                         </thermal-app>
 

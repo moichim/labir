@@ -16,15 +16,7 @@ export enum GroupOrdering {
     DESC = "desc"
 }
 
-export enum GroupDisplayMode {
-    LIST = "list",
-    DETAIL = "detail",
-    EMPTY = "empty"
-
-}
-
 type IHostProperties = {
-    groupDisplayMode: GroupDisplayMode;
     orderby: GroupOrderby;
     ordering: GroupOrdering;
 }
@@ -36,12 +28,12 @@ export interface IElementWithGroupListingController extends IBaseElement, IHostP
 }
 
 export class GroupListingController extends AbstractHierarchyController<IElementWithGroupListingController> {
+
+    private _UUID: string;
     
     public get UUID(): string {
-        throw new Error("Method not implemented.");
+        return this._UUID;
     }
-    
-
 
     private get group(): ThermalGroup {
         return this.host.groupController.groupObject;
@@ -51,6 +43,11 @@ export class GroupListingController extends AbstractHierarchyController<IElement
 
     public get hasBackup(): boolean {
         return this.backup.size > 0;
+    }
+
+    public constructor(host: IElementWithGroupListingController) {
+        super(host);
+        this._UUID = host.UUID + "_group-display-controller";
     }
 
     public clearBackup(): void {
@@ -64,38 +61,12 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         instances.forEach(instance => this.backup.add(instance.reader));
     }
 
-
-    public showDetail(
-        instance: Instance
-    ): void {
-
-        const originalReader = instance.reader;
-
-        this.backupReaders(this.group.files.value);
-
-        this.group.files.removeAllInstances();
-
-        originalReader.createInstance(this.group).then( created => {
-            this.host.fileController.receiveInstance(created);
-            this.host.groupDisplayMode = GroupDisplayMode.DETAIL;
-            this.host.requestUpdate();
-        } );
-
-
-    }
-
-    public showList(): void {
-
+    public async restoreTheEntireBackup(): Promise<void> {
         this.host.fileController.removeInstance();
-
-        this.group.files.removeAllInstances();
 
         const requests = Array.from(this.backup).map(reader => reader.createInstance(this.group));
 
-        Promise.all(requests).then(() => {
-            this.host.groupDisplayMode = GroupDisplayMode.LIST;
-            this.host.requestUpdate();
-        });
+        await Promise.all(requests);
     }
 
 
@@ -145,18 +116,6 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         }
 
         return this._orderFiles().map(fileRendererFn);
-
-    }
-
-    public renderDetail(
-        fileRendererFn: (file: Instance) => unknown,
-        emptyRendererFn?: () => unknown,
-    ): unknown {
-
-        if ( this.host.fileController.fileObject ) {
-            return fileRendererFn(this.host.fileController.fileObject);
-        }
-        return emptyRendererFn?.();
 
     }
     

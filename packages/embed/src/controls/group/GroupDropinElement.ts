@@ -42,6 +42,14 @@ export class GroupDropinElement extends AbstractGroupDropin {
 
             listener.onProcessingEnd.add(this.UUID, async (results) => {
 
+                if ( this.onDrop !== undefined ) {
+                    await this.onDrop(results);
+                }
+
+                this.uploading = false;
+
+                return;
+
                 await Promise.all(results.map(async (result) => {
                     if (result instanceof ThermalFileReader) {
                         const instance = await result.createInstance(this.group);
