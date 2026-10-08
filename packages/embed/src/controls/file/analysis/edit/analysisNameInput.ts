@@ -3,8 +3,12 @@ import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
 
-/** @deprecated */
-export class AnalysisNameElement extends AbstractThermalElement {
+/** 
+ * Render the input for editing the analysis name. Property `analysis` needs to be passed down from the parent component 
+ * @package \@labirthermal/embed
+ * @author Jan Jáchim
+ */ 
+export class AnalysisNameInput extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;

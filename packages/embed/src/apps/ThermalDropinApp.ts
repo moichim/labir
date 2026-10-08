@@ -17,6 +17,7 @@ import { IElementWithManagerController, ManagerController } from "../hierarchy/c
 import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
 import { FileController, IElementWithFileController } from "../hierarchy/controllers/FileController";
 import { PlaybackSpeeds } from "@labirthermal/core";
+import { AbstractApp } from "./AbstractApp";
 
 enum Mode {
     INPUT = "input",
@@ -25,7 +26,7 @@ enum Mode {
 }
 
 export class DropinAppElement
-    extends BaseAppWithPngExportContext
+    extends AbstractApp
     implements
     IWithlocale,
     IElementWithManagerController,
@@ -198,6 +199,10 @@ export class DropinAppElement
         
         }
 
+        manager-tool-bar {
+            height: 2em;
+        }
+
     `;
 
 
@@ -226,8 +231,6 @@ export class DropinAppElement
         }));
 
         this.groupListingController.backupReaders(this.groupObject.files.value);
-
-        console.log(this.groupObject.files.value);
     }
 
 
@@ -244,7 +247,7 @@ export class DropinAppElement
     ) {
         return html`
         <div class="layout">
-            <manager-tool-bar></manager-tool-bar>
+            <div style="width: 2em;"></div>
             <div class="layout-content">${children}</div>
         </div>
         `;
@@ -258,6 +261,10 @@ export class DropinAppElement
 
             elements.push(html`<group-dropin-input 
                 slot="bar-pre"
+                variant="background"
+                icon="upload"
+                iconStyle="micro"
+                tooltip="Vyberte soubory z disku"
                 .onDrop=${this.handleDropAndClear.bind(this)}
             ></group-dropin-input>` );
 
@@ -267,25 +274,41 @@ export class DropinAppElement
         // Palette and thermal range is available whenever it is anything else than the input
         if (this.displayMode !== Mode.INPUT) {
 
-            elements.push(html`<manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
-            <registry-range-form slot="bar-pre"></registry-range-form>
+            elements.push(html`
+            <manager-tool-bar slot="pre-bar"></manager-tool-bar>
+            <manager-palette-dropdown slot="pre-bar"></manager-palette-dropdown>
+            <registry-range-form slot="pre-bar"></registry-range-form>
             
             ` );
         }
 
         if (this.displayMode === Mode.LIST) {
-            elements.push(html`${this.groupListingController.renderListHeader("pre")}`);
+            elements.push(html`${this.groupListingController.renderListHeader("bar-header")}`);
         }
 
         if (this.displayMode === Mode.DETAIL) {
-            elements.push(html`${this.groupListingController.renderDetailHeader(this.groupObject.files.value[0], "pre")}`);
+            elements.push(html`${this.groupListingController.renderDetailHeader(this.groupObject.files.value[0], "bar-pre")}`);
         }
 
         if (this.displayMode !== Mode.INPUT) {
+
+            elements.push(html`<thermal-dialog label="${t(T.config)}" slot="bar-pre">
+                <thermal-btn slot="invoker" tooltip="${t(T.config)}" icon="settings" iconStyle="solid"></thermal-btn>
+                <div slot="content">
+                    <table>
+                        <manager-export-panel></manager-export-panel>
+                        <display-panel></display-panel>
+                    </table>
+                </div>
+            </thermal-dialog>`);
+
+
             elements.push(html`
-            <registry-histogram slot="pre"></registry-histogram>
-            <registry-range-slider slot="pre"></registry-range-slider>
-            <registry-ticks-bar slot="pre"></registry-ticks-bar>
+                <div slot="pre-bar" style="flex-grow: 1; padding-left: 1em;">
+            <registry-histogram height="15px" expandable="true"></registry-histogram>
+            <registry-range-slider height="10px"></registry-range-slider>
+            <registry-ticks-bar></registry-ticks-bar>
+                </div>
             ` );
         }
 
@@ -299,15 +322,7 @@ export class DropinAppElement
 
     protected renderDetail() {
 
-        return this.renderLayout(html`
-            <article class="file">
-                <thermal-btn @click=${() => this.handleClear()}>x</thermal-btn>
-                    <file-info-button></file-info-button>
-                    <file-download-dropdown></file-download-dropdown>
-                    <file-canvas></file-canvas>
-                    <file-timeline></file-timeline>
-            </article>
-        ` );
+        return this.renderLayout( this.groupListingController.renderDetailBody() );
 
     }
 
@@ -316,12 +331,6 @@ export class DropinAppElement
         const map = this.toDisplay.map(instance => {
 
             return this.groupListingController.renderThumbnail(instance);
-
-            return html`<file-provider .file=${instance}>
-                <file-thumbnail .ondetail=${(instance: Instance) => {
-                    this.groupListingController.showOneAndBackup(instance);
-                }}></file-thumbnail>
-            </file-provider>`;
 
         });
 
@@ -351,33 +360,20 @@ export class DropinAppElement
 
         try {
 
-            return html`
+            const label = this.label ?? "LabIR Web Analyser";
 
-                        <thermal-app 
-                            label="LabIR Edu Analyser"
-                            show-fullscreen="true"
-                        >
+            return html`<thermal-app 
+                label="${label}"
+                show-fullscreen="true"
+            >
 
-                        ${this.renderHeader()}
+                ${this.renderHeader()}
 
-                            <thermal-dialog label="${t(T.config)}" slot="bar-pre">
-                                <thermal-btn slot="invoker" tooltip="${t(T.config)}" icon="settings" iconStyle="solid">
-                                </thermal-btn>
-                                <div slot="content">
-                                    <table>
-                                        <manager-export-panel></manager-export-panel>
-                                        <display-panel></display-panel>
-                                    </table>
-                                </div>
-                            </thermal-dialog>
+                <slot name="bar-pre" slot="bar-pre"></slot>
 
-                            <slot name="bar-pre" slot="bar-pre"></slot>
+                ${this.renderAuto()}
 
-                            
-
-                            ${this.renderAuto()}
-                        
-                        </thermal-app>
+            </thermal-app>
 
         `;
 

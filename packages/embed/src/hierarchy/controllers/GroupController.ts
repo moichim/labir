@@ -88,9 +88,8 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
         this.host.groupSlug = slug;
 
         this.host.groupObject = this.host.registryController.addOrGetGroup(slug);
+        
         this.groupObjectContextProvider.setValue(this.host.groupObject);
-
-        this.log( this.host.groupObject );
 
     }
 

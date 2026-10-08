@@ -1,4 +1,4 @@
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 
 import { DropinElementListener, ThermalFileReader } from "@labirthermal/core";
 import { t } from "i18next";
@@ -6,8 +6,21 @@ import { css, html, PropertyValues } from "lit";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { T } from "../../translations/Languages";
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export class GroupDropinInputElement extends AbstractGroupDropin {
+
+  @property({ type: String, reflect: true })
+  public icon?: string;
+
+  @property({ type: String, reflect: true })
+  public iconStyle?: string;
+
+  @property({ type: String, reflect: true })
+  public tooltip?: string;
+
+  @property({ type: String, reflect: true })
+  public variant?: string;
 
   @state()
   protected container: Ref<HTMLVideoElement> = createRef();
@@ -159,9 +172,12 @@ export class GroupDropinInputElement extends AbstractGroupDropin {
             </div>`;
 
     return html`
-
-
-            <thermal-btn @click="${() => {
+            <thermal-btn 
+              icon="${ifDefined( this.icon )}"
+              iconStyle="${ifDefined( this.iconStyle )}"
+              tooltip="${ifDefined( this.tooltip )}"
+              variant="${ifDefined( this.variant )}"
+            @click="${() => {
         if (this.listener) {
           this.listener.openFileDialog(true);
         }

@@ -8,10 +8,18 @@ import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileC
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { FileAnalysisGraphElement } from "./FileAnalysisGraph";
+import type { AnalysisTableMode } from "./AnalysisTableOptions";
 
-
-/** @deprecated */
 export class FileAnalysisComplexElement extends AbstractFileConsumer {
+
+    @property({ attribute: "table-mode" })
+    public tableMode: AnalysisTableMode = "full";
+
+    @property({ converter: booleanConverter(false) })
+    public forceinteractiveanalysis: boolean = false;
+
+    @property({ attribute: "graph-activation-enabled", converter: booleanConverter(true) })
+    public graphActivationEnabled: boolean = true;
 
     @state()
     protected mayHaveGraph: boolean = false;
@@ -359,7 +367,11 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
             <div class="analysis">
                 ${this.hasAnalysis === false || this.isDrawingAnalysis === true
                 ? this.renderAddAnalysis()
-                : html`<file-analysis-table></file-analysis-table>`
+                : html`<file-analysis-table
+                    .tableMode=${this.tableMode}
+                    .forceinteractiveanalysis=${this.forceinteractiveanalysis}
+                    .graphActivationEnabled=${this.graphActivationEnabled}
+                ></file-analysis-table>`
             }
             </div>
             ${this.renderGraph()}

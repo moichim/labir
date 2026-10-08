@@ -2,7 +2,7 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html } from "lit";
 import type { CSSResultGroup } from "lit";
-import { state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { configContext } from "../../hierarchy/controllers/ConfigController";
 import type { ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
@@ -20,6 +20,15 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
     @consume({ context: configContext, subscribe: true })
     private config?: ConfigContextValue;
 
+    @property({ type: String, reflect: true })
+    public icon?: string;
+
+    @property({ type: String, reflect: true })
+    public iconStyle?: string;
+
+    @property({ type: String, reflect: true })
+    public variant?: string;
+
     protected render(): unknown {
 
         const png = this.config?.settings.export.png;
@@ -29,7 +38,7 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
 
         return html`
         
-            <thermal-dropdown class="download ${dropdownClass}">
+            <thermal-dropdown class="download ${dropdownClass}" .variant=${this.variant} .icon=${this.icon} .iconStyle=${this.iconStyle}>
             
                 <span slot="invoker">${t(T.download)}</span>
             

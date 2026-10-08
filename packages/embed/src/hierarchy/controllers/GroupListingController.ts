@@ -5,6 +5,7 @@ import { AbstractFileResult, Instance, ThermalFileReader, ThermalGroup, TimeForm
 import { FileController } from "./FileController";
 import { html, nothing, PropertyValueMap } from "lit";
 import { StyleInfo, styleMap } from "lit/directives/style-map.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export enum GroupOrderby {
     DATE = "date",
@@ -124,7 +125,8 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     }
 
     private _renderButton(
-        label: string,
+        icon: string,
+        iconStyle: string,
         tooltip: string,
         active: boolean,
         onClick: () => void,
@@ -132,12 +134,13 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     ): unknown {
         return html`
             <thermal-btn
-                tooltip=${tooltip}
-                variant=${active ? "foreground" : "default"}
+                icon="${icon}"
+                iconStyle="${iconStyle}"
+                tooltip=${ifDefined( active ? undefined : tooltip )}
+                variant=${active ? "background" : "default"}
                 @click=${onClick}
                 slot=${slot}
             >
-                ${label}
             </thermal-btn>
         `;
     }
@@ -148,14 +151,16 @@ export class GroupListingController extends AbstractHierarchyController<IElement
 
         return [
             this._renderButton(
-                "Table View",
+                "list",
+                "micro",
                 "Switch to table view",
                 this._asTable,
                 () => this.setAsTable(true),
                 slot
             ),
             this._renderButton(
-                "Grid View",
+                "grid",
+                "micro",
                 "Switch to grid view",
                 !this._asTable,
                 () => this.setAsTable(false),
@@ -177,7 +182,8 @@ export class GroupListingController extends AbstractHierarchyController<IElement
 
         const divStyles: StyleInfo = {
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
+            fontSize: "small"
         };
 
         return html`<div slot="${slot}" style=${styleMap(divStyles)}>
@@ -185,7 +191,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 const target = e.target as HTMLInputElement;
                 this.setNumColumns(parseInt(target.value, 10));
             }}>
-        <div style=${styleMap({ textAlign: "center", fontSize: "small" })}>Columns: ${this._numColumns} sloupců</div>
+        <div style=${styleMap({ textAlign: "center", fontSize: ".7em",opacity: ".7", marginTop: "-0.2rem" })}>Columns: ${this._numColumns} sloupců</div>
         </div>`;
 
     }
@@ -252,25 +258,37 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             justifyContent: "flex-start",
             alignItems: "center",
             boxSizing: "border-box",
-            background: "var(--thermal-background)",
-            borderRadius: "var(--thermal-radius)",
-            padding: "0.5em",
+            // background: "var(--thermal-background)",
+            // borderRadius: "var(--thermal-radius)",
+            // padding: "0.5em",
             gap: "0.5em"
         };
 
         return html`<div slot="${slot}" style=${styleMap(divStyles)}>
-            <div>${this.group.files.value.length} souborů</div>
+
+            <thermal-btn 
+                variant="text" 
+                style="cursor: default; font-size: .9em;"
+                icon="folder"
+                iconStyle="micro"
+            >${this.group.files.value.length} nahraných souborů</thermal-btn>
+
             <thermal-btn
-                tooltip="Smazat všechny soubory"
+                tooltip="Smazat všechny soubory a nahrát nové"
                 icon="trash"
-                iconStyle="solid"
+                iconStyle="micro"
+                variant="background"
                 @click=${() => {
                 this.clearBackup();
                 this.group.files.removeAllInstances();
             }}
-            >Smazat</thermal-btn>
+            ></thermal-btn>
             <group-dropin-input 
                 slot="bar-pre"
+                variant="background"
+                icon="upload"
+                iconStyle="micro"
+                tooltip="Nahrát další soubory"
                 .onDrop=${async (results: AbstractFileResult[]) => {
 
                 const existingFiles = this.group.files.value.map(file => file.fileName);
@@ -293,8 +311,14 @@ export class GroupListingController extends AbstractHierarchyController<IElement
 
                 this.backupReaders(this.group.files.value);
             }}
-            >Přidat další soubory</group-dropin-input>
-            <group-download-dropdown></group-download-dropdown>
+            ></group-dropin-input>
+            <group-download-dropdown 
+                variant="background"
+                icon="download"
+                iconStyle="micro"
+            >
+                <span slot="invoker">Stáhnout skupinu</span>
+            </group-download-dropdown>
             <div style="flex-grow: 1;"></div>
             ${this.renderLayoutSwitch()}
             ${this.renderColumnsSlider()}
@@ -309,6 +333,10 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         const showDetail = () => {
             this.showOneAndBackup(instance);
         }
+
+        const headerStyle: StyleInfo = {
+
+        };
 
         return html`<file-provider 
             .file=${instance}
@@ -386,17 +414,41 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             justifyContent: "flex-start",
             alignItems: "center",
             boxSizing: "border-box",
-            background: "var(--thermal-background)",
-            borderRadius: "var(--thermal-radius)",
-            padding: "0.5em",
+            // background: "var(--thermal-background)",
+            // borderRadius: "var(--thermal-radius)",
+            // padding: "0.5em",
             gap: "0.5em"
         };
 
+        const isSingular = this.backup.size <= 1;
+
+        const backLabel = isSingular ? "Zavřít" : "Zpět";
+        const backTooltip = isSingular ? "Zavřít soubor a nahrát nový/é" : `Zpět na Vašich ${ this.backup.size } souborů`;
+        const backIcon = isSingular ? "close" : "back";
+        const backIconStyle = isSingular ? "micro" : "micro";
+
         return html`<div style=${styleMap(divStyles)} slot=${slot}>
-            <thermal-btn
-                icon="back"
+
+            <thermal-btn 
+                variant="text" 
+                tooltip="Název souboru" 
+                style="cursor: default; font-size: .9em;"
+                icon="image"
                 iconStyle="micro"
-                tooltip="Zpět na Vašich ${this.backup.size} souborů"
+            >${instance.fileName}</thermal-btn>
+
+            <thermal-btn 
+                variant="text" 
+                tooltip="Čas pořízení snímku" 
+                style="cursor: default; font-size: .9em;"
+                icon="clock"
+                iconStyle="outline"
+            >${TimeFormat.human( instance.timestamp )}</thermal-btn>
+
+            <thermal-btn
+                icon=${backIcon}
+                iconStyle=${backIconStyle}
+                tooltip="${backTooltip}"
                 variant="foreground"
                 @click=${() => {
                     if ( this.backup.size <= 1 ) {
@@ -407,17 +459,47 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                         this.restoreTheEntireBackup();
                     }
                 }}
-            >Zpět</thermal-btn>
-            ${instance.fileName}
-            <file-info-button><thermal-btn slot="invoker" icon="info" iconStyle="solid">Informace o souboru</thermal-btn></file-info-button>
-            <file-download-dropdown></file-download-dropdown>
+            >${backLabel}</thermal-btn>
+            <file-info-button>
+                <thermal-btn 
+                    slot="invoker" 
+                    icon="info" 
+                    iconStyle="solid"
+                    variant="background"
+                >Informace o souboru</thermal-btn>
+            </file-info-button>
+
+            <file-download-dropdown
+                icon="download"
+                iconStyle="micro"
+                variant="background"
+            ></file-download-dropdown>
+
         </div>`;
     }
 
-    public renderDetailBody(
-        instance: Instance
-    ): unknown {
-        return html``;
+    /** Assumes the contexts to be provided by the host element */
+    public renderDetailBody(): unknown {
+
+        const containerStyles: StyleInfo = {
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1em",
+            width: "100%"
+        };
+
+
+        return html`<div style=${styleMap(containerStyles)}>
+            <div>
+                <file-canvas></file-canvas>
+                <file-timeline></file-timeline>
+            </div>
+            <file-analysis-complex
+                table-mode="full"
+                forceinteractiveanalysis="true"
+                graph-activation-enabled="true"
+            ></file-analysis-complex>
+        </div>`;
     }
 
 

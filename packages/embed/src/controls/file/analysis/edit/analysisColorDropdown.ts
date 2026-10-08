@@ -4,8 +4,12 @@ import { AbstractAnalysis, availableAnalysisColors } from "@labirthermal/core";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import {map} from 'lit/directives/map.js';
 
-/** @deprecated */  
-export class AnalysisColorElement extends AbstractThermalElement {
+/** 
+ * Render the dropdown for color selection of an analysis. Property `analysis` needs to be passed down from the parent component 
+ * @package \@labirthermal/embed
+ * @author Jan Jáchim
+ */  
+export class AnalysisColorDropdown extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;
@@ -31,7 +35,6 @@ export class AnalysisColorElement extends AbstractThermalElement {
             newAnalysis.onSetInitialColor.set(this.UUID, (value) => {
                 this.color = value;
             });
-
 
         }
     }

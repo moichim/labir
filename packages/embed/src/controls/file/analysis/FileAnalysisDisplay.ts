@@ -7,7 +7,7 @@ import { StyleInfo, styleMap } from "lit/directives/style-map.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../../translations/Languages";
 
-/** @deprecated */
+/** Display the analysis state for the purpose of exporting. */
 export class FileAnalysisDisplayElement extends AbstractFileConsumer {
 
     protected container: Ref<HTMLDivElement> = createRef();

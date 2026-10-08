@@ -204,8 +204,6 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
 
         }
 
-        this.log( highlightLeft, highlightWidth );
-
         return html`
 
             <div class="container ${this.minmax !== undefined ? "ready" : "loading"} placement-${this.placement}" ${ref(this.containerRef)}>

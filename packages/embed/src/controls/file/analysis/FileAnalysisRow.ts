@@ -19,8 +19,8 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
     @property({ attribute: false })
     public analysis?: AbstractAnalysis;
 
-    @property({ type: String })
-    public mode: AnalysisTableMode = "full";
+    @property({ attribute: "table-mode" })
+    public tableMode: AnalysisTableMode = "full";
 
     @property({ converter: booleanConverter(true) })
     public interactiveanalysis: boolean = true;
@@ -245,7 +245,7 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
             return nothing;
         }
 
-        const size = this.mode === "compact" ? "sm" : "md";
+        const size = this.tableMode === "compact" ? "sm" : "md";
 
         return html`<span class="actions">
             ${this.allowsEdit ? html`
@@ -325,10 +325,10 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
         const background = active ? analysis.initialColor : "transparent";
         const foreground = active ? getContrastColor(analysis.initialColor) : "var(--thermal-foreground)";
 
-        return html`<td class=${this.mode === "compact" ? "compact" : ""}>
+        return html`<td class=${this.tableMode === "compact" ? "compact" : ""}>
             ${canActivate ? html`
                 <thermal-btn
-                    size=${this.mode === "compact" ? "sm" : "md"}
+                    size=${this.tableMode === "compact" ? "sm" : "md"}
                     aria-pressed=${active}
                     tooltip="${t(T.graph)}: ${t(T[statistic])}"
                     style="background-color: ${background}; color: ${foreground}; --bg: ${background}; --bg-hover: ${background}; --color: ${foreground}; --color-hover: ${foreground};"
@@ -351,7 +351,7 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
         if (!analysis) {
             return nothing;
         }
-        const compact = this.mode === "compact";
+        const compact = this.tableMode === "compact";
         const hasActions = this.allowsEdit || this.showRangePropagator;
         const dimension = analysis instanceof AbstractAreaAnalysis
             ? `${analysis.width}x${analysis.height}`

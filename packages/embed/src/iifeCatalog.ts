@@ -4,16 +4,14 @@ import { DropinAppElement } from "./apps/ThermalDropinApp";
 import { ThermalFileAppNewElement } from "./apps/ThermalFileAppNew";
 import { ThermalGroupAppElement } from "./apps/ThermalGroupApp";
 import { ThermalChartElement } from "./controls/file/analysis/chart/chart";
-import { AnalysisColorElement } from "./controls/file/analysis/edit/analysisColor";
-import { AnalysisNameElement } from "./controls/file/analysis/edit/analysisName";
-import { AreaEditElement } from "./controls/file/analysis/edit/editArea";
-import { EditPointElement } from "./controls/file/analysis/edit/editPoint";
+import { AnalysisColorDropdown } from "./controls/file/analysis/edit/analysisColorDropdown";
+import { AnalysisNameInput } from "./controls/file/analysis/edit/analysisNameInput";
+import { AreaEditTable } from "./controls/file/analysis/edit/editAreaTable";
+import { EditpointTable } from "./controls/file/analysis/edit/editPointTable";
 import { FileAnalysisComplexElement } from "./controls/file/analysis/FileAnalysisComplex";
 import { FileAnalysisDisplayElement } from "./controls/file/analysis/FileAnalysisDisplay";
 import { FileAnalisisEditElement } from "./controls/file/analysis/FileAnalysisEdit";
 import { FileAnalysisGraphElement } from "./controls/file/analysis/FileAnalysisGraph";
-import { FileAnalysisOverviewElement, FileAnalysisOveerviewElement } from "./controls/file/analysis/FileAnalysisOverview";
-import { FileAnalysisOverviewRowElement } from "./controls/file/analysis/FileAnalysisOverviewRow";
 import { FileAnalysisRowElement } from "./controls/file/analysis/FileAnalysisRow";
 import { FileAnalysisTableElement } from "./controls/file/analysis/FileAnalysisTable";
 import { FileButtonElement } from "./controls/file/buttons/FileButton";
@@ -160,14 +158,12 @@ const elementsFileControls = {
     "file-analysis-display": FileAnalysisDisplayElement,
     "file-analysis-edit": FileAnalisisEditElement,
     "file-analysis-graph": FileAnalysisGraphElement,
-    "file-analysis-overview": FileAnalysisOverviewElement,
-    "file-analysis-overview-row": FileAnalysisOverviewRowElement,
     "file-analysis-table-row": FileAnalysisRowElement,
     "file-analysis-table": FileAnalysisTableElement,
-    "analysis-color": AnalysisColorElement,
-    "analysis-name": AnalysisNameElement,
-    "edit-area": AreaEditElement,
-    "edit-point": EditPointElement,
+    "analysis-color": AnalysisColorDropdown,
+    "analysis-name": AnalysisNameInput,
+    "edit-area": AreaEditTable,
+    "edit-point": EditpointTable,
     "thermal-chart": ThermalChartElement,
     "file-detail": FileDetailElement,
     "file-thumbnail": FileThumbnailElement

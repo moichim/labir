@@ -12,7 +12,7 @@ import { ThermalChartElement } from "./chart/chart";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 
-/** @deprecated */
+/** High level component around `thermal-chart` that provides the functionality of a file analysis graph */
 export class FileAnalysisGraphElement extends AbstractFileConsumer {
 
     @state()

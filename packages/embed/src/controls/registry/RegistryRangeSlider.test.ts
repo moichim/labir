@@ -90,6 +90,89 @@ describe("RegistryRangeSlider", () => {
         vi.useRealTimers();
     });
 
+    it("leaves the default height in CSS without an inline override", () => {
+        expect(slider.height).toBeNull();
+        expect(slider.hasAttribute("height")).toBe(false);
+        expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe("");
+        expect(slider.style.height).toBe("");
+    });
+
+    it.each(["10px", "30px", "2rem", "calc(1rem + 5px)", "var(--custom-height)", "50%", "0px"])(
+        "accepts the height attribute %s without changing the range", async height => {
+            await range(0, 200, 50, 150);
+            const commit = vi.spyOn(provider.registryObject.range, "imposeRange");
+            slider.setAttribute("height", height);
+            await settle();
+            expect(slider.height).toBe(height);
+            expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe(height);
+            expect(slider.style.height).toBe("");
+            expect(commit).not.toHaveBeenCalled();
+            expect(provider.registryObject.range.value).toEqual({ from: 50, to: 150 });
+        });
+
+    it("updates and removes the attribute override without touching user styles", async () => {
+        slider.style.cssText = "height: 40px; --thermal-range-slider-height: 25px; color: red";
+        slider.setAttribute("height", "30px");
+        await settle();
+        slider.height = "10px";
+        await settle();
+        expect(slider.getAttribute("height")).toBe("10px");
+        expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe("10px");
+        slider.removeAttribute("height");
+        await settle();
+        expect(slider.height).toBeNull();
+        expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe("");
+        expect(slider.style.height).toBe("40px");
+        expect(slider.style.getPropertyValue("--thermal-range-slider-height")).toBe("25px");
+        expect(slider.style.color).toBe("red");
+    });
+
+    it("restores the attribute override after replacing or removing the entire style", async () => {
+        slider.height = "30px";
+        await settle();
+        slider.setAttribute("style", "height: 10px; color: red");
+        await settle();
+        expect(slider.style.height).toBe("10px");
+        expect(slider.style.color).toBe("red");
+        expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe("30px");
+        slider.removeAttribute("style");
+        await settle();
+        expect(slider.style.height).toBe("");
+        expect(slider.style.color).toBe("");
+        expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe("30px");
+    });
+
+    it.each(["", "   ", "invalid", "30", "-5px", "auto", "inherit", "initial", "unset", "min-content"])(
+        "clears a previous override for height %j and logs invalid input", async height => {
+            slider.height = "30px";
+            await settle();
+            const log = vi.spyOn(slider, "log");
+            slider.setAttribute("height", height);
+            await settle();
+            expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe("");
+            if (height.trim()) {
+                expect(log).toHaveBeenCalledWith("Invalid range slider height", { height });
+            } else {
+                expect(log).not.toHaveBeenCalled();
+            }
+        });
+
+    it("retains the configured height while loading and reconnecting", async () => {
+        await range(0, 200, 50, 150);
+        slider.height = "30px";
+        provider.registryObject.loading.markAsLoading();
+        await settle();
+        expect(slider.shadowRoot?.querySelector(".skeleton")).not.toBeNull();
+        expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe("30px");
+        provider.registryObject.loading.markAsLoaded();
+        await settle();
+        slider.remove();
+        provider.append(slider);
+        await settle();
+        expect(slider.style.getPropertyValue("--_range-slider-attribute-height")).toBe("30px");
+        expect(handle("from").getAttribute("aria-valuenow")).toBe("50");
+    });
+
     it("hydrates the exact registry range above 100 and places handles at both ends", async () => {
         await range(Number("21.170000076293945"), Number("126.83999633789062"));
         expect(slider.from).toBe(provider.registryObject.range.value?.from);

@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import {html, css, LitElement} from 'lit';
-import {customElement, property} from 'lit/decorators.js';
+import { css, html, LitElement } from 'lit';
+import { property } from 'lit/decorators.js';
 
-import {createChartWrapper, dataTable, DataTableLike} from './loader.js';
 import { CallbacksManager } from '@labirthermal/core';
 import { createRef, ref, Ref } from 'lit/directives/ref.js';
+import { createChartWrapper, dataTable, DataTableLike } from './loader.js';
 
 const DEFAULT_EVENTS = ['ready', 'select'];
 

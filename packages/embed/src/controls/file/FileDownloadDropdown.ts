@@ -2,7 +2,7 @@ import type { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html, nothing } from "lit";
-import { state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import type { Ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
@@ -20,6 +20,15 @@ export class FileDownloadButton extends AbstractFileConsumer {
 
     @state()
     protected hasGraphs: boolean = false;
+
+    @property({ type: String, reflect: true })
+    public variant?: string;
+
+    @property({ type: String, reflect: true })
+    public icon?: string;
+
+    @property({ type: String, reflect: true })
+    public iconStyle?: string;
 
     protected recordingGraphRef: Ref<ThermalDialogElement> = createRef();
     protected dropdownRef: Ref<ThermalDropdownElement> = createRef();
@@ -42,7 +51,11 @@ export class FileDownloadButton extends AbstractFileConsumer {
 
         return html`
 
-            <thermal-dropdown ${ref(this.dropdownRef)} class="download">
+            <thermal-dropdown ${ref(this.dropdownRef)} class="download"
+                icon=${this.icon}
+                iconStyle=${this.iconStyle}
+                variant=${this.variant}
+            >
 
                 <slot name="invoker" slot="invoker">
                     <div class="button">

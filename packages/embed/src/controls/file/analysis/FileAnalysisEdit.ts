@@ -5,7 +5,7 @@ import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 
-/** @deprecated */
+/** Trigger the edit dialog for an analysis */
 export class FileAnalisisEditElement extends AbstractThermalElement {
 
     @property()

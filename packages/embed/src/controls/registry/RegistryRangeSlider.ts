@@ -1,7 +1,7 @@
 import { consume } from "@lit/context";
 import { css, html } from "lit";
 import type { PropertyValues } from "lit";
-import { state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import type { RegistryController } from "../../hierarchy/controllers/RegistryController";
@@ -15,6 +15,13 @@ type Values = Range & { min: number; max: number };
 type Drag = { pointerId: number; handle: Handle; offset: number; element: HTMLElement; values: Values; controller: RegistryController };
 
 export class RegistryRangeSlider extends AbstractRegistryConsumer {
+
+    @property({ type: String, reflect: true })
+    public height: string | null = null;
+
+    // Whole-style replacements must not erase the height attribute's override.
+    @property({ type: String, attribute: "style" })
+    private heightStyle: string | null = null;
 
     @consume({ context: registryMinContext, subscribe: true })
     @state()
@@ -59,6 +66,18 @@ export class RegistryRangeSlider extends AbstractRegistryConsumer {
 
     protected willUpdate(changed: PropertyValues): void {
         super.willUpdate(changed);
+        if (changed.has("height") || changed.has("heightStyle")) {
+            const height = this.height?.trim();
+            const style = document.createElement("div").style;
+            if (height) style.height = height;
+            const current = this.style.getPropertyValue("--_range-slider-attribute-height");
+            if (height && style.height && !/^(auto|inherit|initial|unset|revert|revert-layer|min-content|max-content|fit-content|stretch|contain)$/i.test(height)) {
+                if (current !== height) this.style.setProperty("--_range-slider-attribute-height", height);
+            } else {
+                if (current) this.style.removeProperty("--_range-slider-attribute-height");
+                if (height && changed.has("height")) this.log("Invalid range slider height", { height: this.height });
+            }
+        }
         if (["min", "max", "from", "to", "loading", "registryController"].some(key => changed.has(key))) {
             this.cancelDrag();
             if (this.min !== undefined && this.max !== undefined && this.from !== undefined && this.to !== undefined
@@ -226,25 +245,30 @@ export class RegistryRangeSlider extends AbstractRegistryConsumer {
     }
 
     static styles = css`
-        :host { display: block; }
-        .container {
-            height: var(--thermal-gap);
-            padding: 0 calc(var(--thermal-gap) * .5);
+        :host {
+            display: block; box-sizing: content-box;
+            --_range-slider-attribute-height: initial;
+            height: var(--_range-slider-attribute-height, var(--thermal-range-slider-height, 15px));
+            padding-bottom: max(0px, calc(var(--thermal-gap) - 15px));
             margin-bottom: -6px;
+        }
+        .container {
+            height: 100%;
+            padding: 0 calc(var(--thermal-gap) * .5);
             color: var(--thermal-slate-dark);
             font-size: 12px;
         }
-        .slider-row { display: flex; align-items: center; }
+        .slider-row { display: flex; align-items: center; height: 100%; }
         .track {
-            position: relative; flex: 1; min-width: 0; height: 15px;
+            position: relative; flex: 1; min-width: 0; height: 100%;
             background: var(--thermal-slate); cursor: pointer; touch-action: none;
         }
         .fill { position: absolute; height: 100%; pointer-events: none; }
-        .handle-position { position: absolute; top: 50%; z-index: 20; }
+        .handle-position { position: absolute; top: 0; height: 100%; z-index: 20; }
         .handle-position.active { z-index: 21; }
         .handle {
-            position: absolute; transform: translate(-50%, -50%);
-            box-sizing: border-box; width: 14px; height: 20px; padding: 0; border-radius: 0;
+            position: absolute; top: 50%; transform: translate(-50%, -50%);
+            box-sizing: border-box; width: 14px; height: calc(100% + 5px); padding: 0; border-radius: 0;
             border: 2px solid var(--thermal-primary); background: var(--thermal-background);
             box-shadow: 0 0 5px var(--thermal-primary); cursor: grab; touch-action: none;
         }
@@ -254,7 +278,7 @@ export class RegistryRangeSlider extends AbstractRegistryConsumer {
         .handle:disabled { cursor: default; }
         .tooltip {
             position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none;
-            top: 24px; min-width: 40px; height: 20px; line-height: 20px; text-align: center;
+            top: calc(100% + 16.5px); min-width: 40px; height: 20px; line-height: 20px; text-align: center;
             padding: 0 3px; background: var(--thermal-slate-dark); color: var(--thermal-background);
             border: 1px solid var(--thermal-slate-dark); border-radius: 3px;
         }
@@ -263,7 +287,7 @@ export class RegistryRangeSlider extends AbstractRegistryConsumer {
             width: 7px; height: 7px; transform: rotate(45deg);
             background: var(--thermal-slate-dark);
         }
-        .skeleton { height: calc(var(--thermal-fs) * .9); background: var(--thermal-slate); }
+        .skeleton { height: 100%; background: var(--thermal-slate); }
     `;
 
     protected render(): unknown {

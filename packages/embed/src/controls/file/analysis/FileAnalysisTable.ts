@@ -16,8 +16,8 @@ import type { AnalysisTableMode } from "./AnalysisTableOptions";
 
 export class FileAnalysisTableElement extends AbstractFileConsumer {
 
-    @property({ type: String })
-    public mode: AnalysisTableMode = "full";
+    @property({ attribute: "table-mode" })
+    public tableMode: AnalysisTableMode = "full";
 
     @property({ attribute: "show-range-propagator", converter: optionalBooleanConverter })
     public showRangePropagator?: boolean;
@@ -187,7 +187,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
             return nothing;
         }
 
-        const compact = this.mode === "compact";
+        const compact = this.tableMode === "compact";
 
         return html`
             <div class="overflow" tabindex="0" role="region" aria-label=${t(T.analysis)}>
@@ -226,7 +226,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
                         ${repeat(this.analysis, analysis => analysis.key, analysis => html`
                             <file-analysis-table-row
                                 .analysis=${analysis}
-                                .mode=${this.mode}
+                                .tableMode=${this.tableMode}
                                 .interactiveanalysis=${this.allowsSelection}
                                 .editEnabled=${this.allowsEdit}
                                 .graphActivationEnabled=${this.graphActivationEnabled}

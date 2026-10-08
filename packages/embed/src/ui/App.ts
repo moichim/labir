@@ -1,6 +1,6 @@
 import i18next, { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
-import { property, queryAssignedElements, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { cache } from "lit/directives/cache.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { map } from "lit/directives/map.js";
@@ -21,11 +21,17 @@ export class ThermalAppElement extends AbstractThermalElement {
     @state()
     private _overflowOpen: boolean = false;
 
-    @queryAssignedElements({ slot: "pre", flatten: true })
-    preElements!: Array<HTMLElement>;
+    @state()
+    private _hasPre: boolean = false;
 
-    @queryAssignedElements({ slot: "content", flatten: true })
-    contentElements!: Array<HTMLElement>;
+    @state()
+    private _hasContent: boolean = false;
+
+    @state()
+    private _hasPreBar: boolean = false;
+
+    @state()
+    private _hasBarHeader: boolean = false;
 
     @property({ type: String, reflect: true })
     fullscreen: string = "off";
@@ -114,6 +120,43 @@ export class ThermalAppElement extends AbstractThermalElement {
 
     private _toggleOverflow(): void {
         this._overflowOpen = !this._overflowOpen;
+    }
+
+    private _setSlotFlag(name: string, has: boolean): void {
+        switch (name) {
+            case "pre":
+                this._hasPre = has;
+                break;
+            case "content":
+                this._hasContent = has;
+                break;
+            case "pre-bar":
+                this._hasPreBar = has;
+                break;
+            case "bar-header":
+                this._hasBarHeader = has;
+                break;
+        }
+    }
+
+    private _onSlotChange = (event: Event): void => {
+        const slot = event.target as HTMLSlotElement;
+        this._setSlotFlag(slot.name, slot.assignedElements({ flatten: true }).length > 0);
+    };
+
+    private _syncSlotFlags(): void {
+        const shadow = this.shadowRoot;
+        if (!shadow) return;
+
+        for (const name of ["pre", "content", "pre-bar", "bar-header"]) {
+            const slot = shadow.querySelector(`slot[name="${name}"]`) as HTMLSlotElement | null;
+            this._setSlotFlag(name, slot !== null && slot.assignedElements({ flatten: true }).length > 0);
+        }
+    }
+
+    protected firstUpdated(changedProperties: PropertyValues): void {
+        super.firstUpdated(changedProperties);
+        this._syncSlotFlags();
     }
 
     private _scheduleOverflowUpdate(): void {
@@ -239,11 +282,9 @@ export class ThermalAppElement extends AbstractThermalElement {
 
                     // If define by width only
                     if (contentHeight < availableHeight) {
-                        console.log("priorita šířky");
                         width = availableWidth;
                         height = width / aspect;
                     } else {
-                        console.log("priorita výšky");
                         height = availableHeight;
                         width = height * aspect;
                     }
@@ -327,6 +368,23 @@ export class ThermalAppElement extends AbstractThermalElement {
             overflow: hidden;
             display: flex;
             align-items: center;
+        }
+
+        .bar-header,
+        .pre-bar {
+            display: flex;
+            gap: 5px;
+            align-items: flex-start;
+        }
+
+        .pre-bar {
+            width: 100%;
+        }
+
+        .bar-header[hidden],
+        .pre-bar[hidden],
+        .pre[hidden] {
+            display: none;
         }
 
         .bar-items {
@@ -583,6 +641,10 @@ export class ThermalAppElement extends AbstractThermalElement {
                 ${ this.renderLabel() }
             </div>
 
+            <div class="bar-header" ?hidden=${!this._hasBarHeader}>
+                <slot name="bar-header" @slotchange=${this._onSlotChange}></slot>
+            </div>
+
             <div class="bar-items" ${ref(this.barItemsRef)}>
 
                 <slot name="bar-pre" @slotchange=${this._scheduleOverflowUpdate}></slot>
@@ -601,15 +663,17 @@ export class ThermalAppElement extends AbstractThermalElement {
 
         </div>
 
-        ${this._overflowCount > 0 ? html`
-            <div class="bar-overflow-panel" ?hidden=${!this._overflowOpen}>
-                <slot name="bar-overflow"></slot>
-            </div>
-        ` : nothing}
+        <div class="bar-overflow-panel" ?hidden=${this._overflowCount === 0 || !this._overflowOpen}>
+            <slot name="bar-overflow"></slot>
+        </div>
 
-        ${this.preElements.length >= 0 ? html`<div class="pre">
-            <slot name="pre"></slot>
-        </div>` : ""}
+        <div class="pre" ?hidden=${!this._hasPre}>
+            <slot name="pre" @slotchange=${this._onSlotChange}></slot>
+        </div>
+
+        <div class="pre-bar" ?hidden=${!this._hasPreBar}>
+            <slot name="pre-bar" @slotchange=${this._onSlotChange}></slot>
+        </div>
 
     </header>
 
@@ -623,8 +687,8 @@ export class ThermalAppElement extends AbstractThermalElement {
 
     ${this.renderCredits()}
 
-    <div class="content ${this.contentElements.length > 0 ? "has-content" : ""}">
-        <slot name="content"></slot>
+    <div class="content ${this._hasContent ? "has-content" : ""}">
+        <slot name="content" @slotchange=${this._onSlotChange}></slot>
     </div>
 `
     }

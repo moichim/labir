@@ -40,6 +40,12 @@ export class ThermalDropdownElement extends AbstractThermalElement {
     @property({type: String, attribute: true})
     public tooltip?: string;
 
+    @property({ type: String, reflect: true })
+    public icon?: string;
+
+    @property({ type: String, reflect: true })
+    public iconStyle?: string;
+
     setOpen() {
         this.isOpen = "open";
     }
@@ -235,6 +241,8 @@ export class ThermalDropdownElement extends AbstractThermalElement {
                     @click=${this.toggle.bind(this)} 
                     variant=${ifDefined(this.variant)}
                     size=${ifDefined(this.size)}
+                    icon="${ifDefined(this.icon)}"
+                    iconStyle="${ifDefined(this.iconStyle)}"
                     ?plain=${this.plain}
                     disabled=${disabled}
                     tooltip="${this.tooltip !== undefined ? this.tooltip : ""}"

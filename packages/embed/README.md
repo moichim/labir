@@ -40,19 +40,44 @@ Handles cannot cross, and displayed values are rounded to two decimal places
 without rounding incoming registry values. A constant temperature interval is
 displayed with disabled handles.
 
+The track defaults to **15px** in CSS. Handles are always **5px taller** than
+the track and remain vertically centred. Set the track height using an attribute,
+ordinary CSS (including inline styles), or the public CSS custom property:
+
+```html
+<registry-range-slider height="30px"></registry-range-slider>
+<registry-range-slider style="height: 30px"></registry-range-slider>
+<registry-range-slider style="--thermal-range-slider-height: 30px"></registry-range-slider>
+```
+
+Ordinary CSS `height` overrides the component's default height rule. Otherwise,
+the `height` attribute takes precedence over `--thermal-range-slider-height`,
+which falls back to 15px. The custom property can also be inherited from a parent
+or set in a stylesheet. Attribute changes are reactive; removing or emptying the
+attribute restores the CSS fallback without overwriting other inline styles.
+Invalid attribute values are logged and also restore the fallback.
+
+Use CSS lengths or expressions such as `2rem`, `calc(1rem + 5px)` or
+`var(--custom-height)`, not unitless numbers such as `height="30"`.
+Percentage heights require a containing block with a definite height.
+Intrinsic sizing keywords such as `auto` are not supported by the attribute.
+The loading placeholder follows the configured track height, and tooltips and
+the component's reserved space adjust with it. Height changes do not change
+the selected temperature range.
+
 ### Analysis table
 
 `file-analysis-table` renders the analyses of its enclosing file provider. Both
 layouts use the same rows and display AVG, MIN and MAX in that order:
 
 ```html
-<file-analysis-table mode="full" show-range-propagator="true"></file-analysis-table>
-<file-analysis-table mode="compact" show-range-propagator="false"></file-analysis-table>
+<file-analysis-table table-mode="full" show-range-propagator="true"></file-analysis-table>
+<file-analysis-table table-mode="compact" show-range-propagator="false"></file-analysis-table>
 ```
 
 | Attribute | Default | Meaning |
 | --- | --- | --- |
-| `mode` | `full` | `full` has size and action columns; `compact` omits size and places smaller action buttons next to the name. |
+| `table-mode` | `full` | `full` has size and action columns; `compact` omits size and places smaller action buttons next to the name. |
 | `show-range-propagator` | Inherited interactivity | Show the button that applies the analysis MIN/MAX to the registry range, independently of selection and editing. |
 | `selection-enabled` | Inherited interactivity | Allow individual selection and select/deselect all. |
 | `edit-enabled` | Inherited interactivity | Show editing and deletion actions. |
@@ -60,9 +85,15 @@ layouts use the same rows and display AVG, MIN and MAX in that order:
 
 Boolean attributes accept `"true"` and `"false"` (an empty attribute enables
 the option). Omitting or removing the optional overrides restores inherited
-interactivity, including the existing `forceinteractiveanalysis` override.
-Compact mode changes layout, not permissions. Range propagation is unavailable
-for points and disabled until the analysis has finite, ordered MIN/MAX values.
+interactivity. Selection, editing, and range propagation default to the
+inherited `interactiveanalysis` context or the `forceinteractiveanalysis`
+override; `selection-enabled`, `edit-enabled`, and `show-range-propagator` can
+override those individually. `table-mode` only changes layout: `full` does not
+make the table interactive, and `compact` does not disable interactions.
+Graph activation is separately controlled by `graph-activation-enabled`
+(enabled by default), and only applies to sequences and supported analysis
+types. Range propagation is unavailable for points and disabled until the
+analysis has finite, ordered MIN/MAX values.
 Hovering or focusing a row highlights its current range in either layout.
 Inactive value buttons have transparent backgrounds. Active value buttons use
 the analysis color, with black or white text chosen for the higher WCAG contrast;

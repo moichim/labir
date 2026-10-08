@@ -131,10 +131,10 @@ import "./controls/file/FilePlaybackSpeedDropdown";
 import "./controls/file/FileTimelineElement";
 import "./controls/file/FileVideo";
 // File analysis
-import "./controls/file/analysis/edit/analysisColor";
-import "./controls/file/analysis/edit/analysisName";
-import "./controls/file/analysis/edit/editArea";
-import "./controls/file/analysis/edit/editPoint";
+import "./controls/file/analysis/edit/analysisColorDropdown";
+import "./controls/file/analysis/edit/analysisNameInput";
+import "./controls/file/analysis/edit/editAreaTable";
+import "./controls/file/analysis/edit/editPointTable";
 import "./controls/file/analysis/FileAnalysisComplex";
 import "./controls/file/analysis/FileAnalysisEdit";
 import "./controls/file/analysis/FileAnalysisGraph";

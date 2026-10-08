@@ -10,8 +10,7 @@ import { RegistryProviderElement } from "../../../hierarchy/providers/RegistryPr
 import { ThermalBtnElement } from "../../../ui/Btn";
 import { FileAnalysisTableElement } from "./FileAnalysisTable";
 import { FileAnalysisRowElement } from "./FileAnalysisRow";
-import { FileAnalysisOverviewElement, FileAnalysisOveerviewElement } from "./FileAnalysisOverview";
-import { FileAnalysisOverviewRowElement } from "./FileAnalysisOverviewRow";
+import { FileAnalysisComplexElement } from "./FileAnalysisComplex";
 
 vi.mock("../../../index.export", async () => ({
     ...await import("../../../utils/converters/booleanConverter"),
@@ -35,9 +34,7 @@ customElements.define("test-analysis-group", GroupProviderElement);
 customElements.define("test-analysis-file", TestFileProvider);
 customElements.define("file-analysis-table", FileAnalysisTableElement);
 customElements.define("file-analysis-table-row", FileAnalysisRowElement);
-customElements.define("file-analysis-overview", FileAnalysisOverviewElement);
-customElements.define("file-analysis-oveerview", FileAnalysisOveerviewElement);
-customElements.define("file-analysis-overview-row", FileAnalysisOverviewRowElement);
+customElements.define("file-analysis-complex", FileAnalysisComplexElement);
 customElements.define("thermal-btn", ThermalBtnElement);
 
 describe("FileAnalysisTable", () => {
@@ -132,7 +129,7 @@ describe("FileAnalysisTable", () => {
     });
 
     it.each(["full", "compact"] as const)("aligns the %s header and rows with independent actions", async mode => {
-        table.mode = mode;
+        table.tableMode = mode;
         await settle();
         const row = rows()[0];
         const expected = mode === "full" ? 6 : 4;
@@ -160,6 +157,33 @@ describe("FileAnalysisTable", () => {
         expect(row.shadowRoot?.querySelector('[icon="range"]')).toBeNull();
         expect(table.shadowRoot?.querySelectorAll("th")).toHaveLength(mode === "full" ? 5 : 4);
         expect(row.shadowRoot?.querySelectorAll("td")).toHaveLength(mode === "full" ? 5 : 4);
+    });
+
+    it("accepts table-mode as the layout attribute", async () => {
+        table.setAttribute("table-mode", "compact");
+        await settle();
+        expect(table.tableMode).toBe("compact");
+        expect(table.shadowRoot?.querySelector("table")?.classList.contains("compact")).toBe(true);
+    });
+
+    it("forwards full, forced interactivity and graph activation through the complex control", async () => {
+        const complex = new FileAnalysisComplexElement();
+        complex.tableMode = "full";
+        complex.forceinteractiveanalysis = true;
+        complex.graphActivationEnabled = true;
+        provider.append(complex);
+        for (let i = 0; i < 4; i++) {
+            await complex.updateComplete;
+            const nestedTable = complex.shadowRoot?.querySelector<FileAnalysisTableElement>("file-analysis-table");
+            if (nestedTable) {
+                await nestedTable.updateComplete;
+            }
+        }
+        const nestedTable = element<FileAnalysisTableElement>(complex.shadowRoot, "file-analysis-table");
+        expect(nestedTable.tableMode).toBe("full");
+        expect(nestedTable.forceinteractiveanalysis).toBe(true);
+        expect(nestedTable.graphActivationEnabled).toBe(true);
+        complex.remove();
     });
 
     it("selects individual rows and all rows, and blocks selection when disabled", async () => {
@@ -216,7 +240,7 @@ describe("FileAnalysisTable", () => {
         expect(element<HTMLElement>(row.shadowRoot, ".color").style.backgroundColor).toBe("red");
         expect(row.shadowRoot?.querySelectorAll("td")[4].textContent).toBe("1x2");
         expect(row.shadowRoot?.querySelectorAll("td")[1].textContent).toContain(area.avg?.toFixed(2));
-        table.mode = "compact";
+        table.tableMode = "compact";
         await settle();
         expect(rows()[0]).toBe(row);
         expect(row.shadowRoot?.querySelectorAll("td")).toHaveLength(4);
@@ -253,7 +277,7 @@ describe("FileAnalysisTable", () => {
     });
 
     it.each(["full", "compact"] as const)("keeps %s value buttons transparent and updates active contrast", async mode => {
-        table.mode = mode;
+        table.tableMode = mode;
         await settle();
         const button = element<HTMLElement>(rows()[0].shadowRoot, "td:nth-child(2) thermal-btn");
         expect(button.style.getPropertyValue("--bg")).toBe("transparent");
@@ -320,22 +344,6 @@ describe("FileAnalysisTable", () => {
         expect(table.showRangePropagator).toBeUndefined();
         expect(rows()[0].shadowRoot?.querySelector("file-analysis-edit")).not.toBeNull();
         expect(rows()[0].shadowRoot?.querySelector("button.name")).not.toBeNull();
-    });
-
-    it("keeps both legacy overview tags as compact wrappers", async () => {
-        for (const tag of ["file-analysis-overview", "file-analysis-oveerview"]) {
-            const overview = document.createElement(tag) as FileAnalysisOverviewElement;
-            overview.forceinteractiveanalysis = true;
-            provider.append(overview);
-            await overview.updateComplete;
-            const row = element<FileAnalysisRowElement>(overview.shadowRoot, "file-analysis-table-row");
-            await row.updateComplete;
-            expect(overview.mode).toBe("compact");
-            expect(overview.shadowRoot?.querySelectorAll("th")).toHaveLength(4);
-            expect(row.shadowRoot?.querySelectorAll("td")).toHaveLength(4);
-            expect(row.shadowRoot?.querySelector('[icon="range"]')).toBeNull();
-            overview.remove();
-        }
     });
 
     it("provides a keyboard-focusable scrolling region", () => {

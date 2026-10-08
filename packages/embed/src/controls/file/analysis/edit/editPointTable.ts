@@ -6,8 +6,12 @@ import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalEle
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 
-/** @deprecated */  
-export class EditPointElement extends AbstractThermalElement {
+/** 
+ * The full table and form for editing a point analysis properties. Enables editing of name, color and coordinates (top, left). Property `analysis` needs to be passed down from the parent component 
+ * @package \@labirthermal/embed
+ * @author Jan Jáchim
+ */ 
+export class EditpointTable extends AbstractThermalElement {
 
     @property()
     public analysis!: PointAnalysis;
