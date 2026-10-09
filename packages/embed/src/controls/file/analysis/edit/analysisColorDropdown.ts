@@ -17,9 +17,22 @@ export class AnalysisColorDropdown extends AbstractThermalElement {
     @state()
     protected color?: string;
 
+    protected willUpdate(_changedProperties: PropertyValues): void {
+        super.willUpdate(_changedProperties);
+
+        // Side effect of analysis changing - derive the displayed color before rendering.
+        if ( _changedProperties.has( "analysis" ) ) {
+
+            this.color = this.analysis.initialColor;
+
+        }
+
+    }
+
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
+        // Rebind the color-change listener after rendering when the input analysis changes.
         if ( _changedProperties.has( "analysis" ) ) {
 
             const oldAnalysis = _changedProperties.get( "analysis" ) as AbstractAnalysis;
@@ -28,13 +41,9 @@ export class AnalysisColorDropdown extends AbstractThermalElement {
                 oldAnalysis.onSetInitialColor.delete( this.UUID );
             }
 
-            const newAnalysis = this.analysis;
-
-            this.color = newAnalysis.initialColor;
-
-            newAnalysis.onSetInitialColor.set(this.UUID, (value) => {
+            this.analysis.onSetInitialColor.set( this.UUID, value => {
                 this.color = value;
-            });
+            } );
 
         }
     }

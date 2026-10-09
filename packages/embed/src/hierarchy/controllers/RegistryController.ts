@@ -369,7 +369,6 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
     }
 
     public setHighlight(value: ThermalRangeOrUndefined): void {
-        this.log(value);
         if (this.highlightContextProvider.value !== value) {
             this.highlightContextProvider.setValue(value);
         }

@@ -11,7 +11,7 @@ import { booleanConverter } from "../utils/converters/booleanConverter";
 import { ThermalFileElement } from "../utils/multipleFiles/ThermalFile";
 import { GroupEntry, Grouping, TimeGrouping } from "../utils/multipleFiles/TimeGrouping";
 import { AbstractMultipleApp } from "./multiple/AbstractMultipleApp";
-import { GroupProviderElement } from "../index.export";
+import { GroupProviderElement } from "../hierarchy/providers/GroupProvider";
 
 
 enum STATE {

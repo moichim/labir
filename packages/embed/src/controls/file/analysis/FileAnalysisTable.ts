@@ -71,7 +71,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
     }
 
     public onFailure(error: ThermalFileFailure): void {
-        this.log(error);
+        // Do nothing
     }
 
     connectedCallback(): void {
@@ -79,18 +79,27 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
         this.bindFile();
     }
 
+    
     disconnectedCallback(): void {
-        this.unbindFile();
+        this.unbindFile();        
         super.disconnectedCallback();
     }
 
+    
     protected updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
+        
+        /** Rebinds the selection listener when the provided file instance changes. */
         if (changedProperties.has("file")) {
             this.bindFile();
         }
+
     }
 
+    /**
+     * Subscribes to selection changes on the current file.
+     * Avoids duplicate subscriptions and replaces any listener attached to a previous file.
+     */
     private bindFile(): void {
         if (this.boundFile === this.file || !this.isConnected) {
             return;
@@ -100,6 +109,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
         this.boundFile?.analysis.layers.onSelectionChange.set(this.UUID, this.selectionChanged);
     }
 
+    /** Removes this component's selection listener from the file it is currently bound to. */
     private unbindFile(): void {
         this.boundFile?.analysis.layers.onSelectionChange.delete(this.UUID);
         this.boundFile = undefined;

@@ -7,6 +7,9 @@ import { managerAdvancedPalettesContext, managerPaletteContext, ManagerPaletteCo
 
 export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 
+    protected static BASIC_PALETTES = ["iron", "jet", "white_hot", "black_hot"];
+
+
     @consume({ context: managerAdvancedPalettesContext, subscribe: true })
     @state()
     protected advancedPalettesContext: boolean = false;
@@ -21,29 +24,33 @@ export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
     @state()
     protected value!: ManagerPaletteContext;
 
-    protected updated(_changedProperties: PropertyValues): void {
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
 
         const showAdvancedPalettes = this.advancedPalettesProperty ?? this.advancedPalettesContext;
-        const basicPalettes = ["iron", "jet", "white_hot", "black_hot"];
+        const basicPalettes = AbstractPaletteSwitch.BASIC_PALETTES;
+        const optionsChanged = changedProperties.has("advancedPalettesContext")
+            || changedProperties.has("advancedPalettesProperty");
 
-        if (_changedProperties.has("advancedPalettesContext") || _changedProperties.has("advancedPalettesProperty")) {
+        // Side effect of advanced palette options changing - derive the available palettes before rendering.
+        if (optionsChanged) {
 
             if (showAdvancedPalettes) {
                 this.palettes = Object.values(ThermalPalettes);
             } else {
                 
                 this.palettes = Object.entries(ThermalPalettes)
-                    .filter(([key, palette]) => basicPalettes.includes(key))
-                    .map(([key, palette]) => palette);
-
-                if ( ! basicPalettes.includes( this.value.key )  ) {
-                    this.onSelect("iron");
-                }
+                    .filter(([key]) => AbstractPaletteSwitch.BASIC_PALETTES.includes(key))
+                    .map(([, palette]) => palette);
             }
 
         }
 
-        if (  _changedProperties.has("value") && !showAdvancedPalettes && !basicPalettes.includes( this.value.key )  ) {
+        // Side effect of palette or options changing - select iron if the supplied palette is excluded by basic mode.
+        if ((optionsChanged || changedProperties.has("value"))
+            && this.value !== undefined
+            && !showAdvancedPalettes
+            && !basicPalettes.includes(this.value.key)) {
             this.onSelect("iron");
         }
 

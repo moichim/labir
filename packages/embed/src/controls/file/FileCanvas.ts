@@ -1,4 +1,4 @@
-import { Instance } from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
@@ -10,7 +10,11 @@ import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 export class FileCanvasElement extends AbstractFileConsumer {
 
+    /** Dedicated core-owned mount target; must not contain any Lit-managed child parts. */
     public container: Ref<HTMLDivElement> = createRef();
+
+    /** Actual DOM-mounted instance, retained for cleanup even before a pending file update completes. Not reactive. */
+    private mountedInstance?: Instance;
 
     @property({ type: Boolean, attribute: "prefers-gpu" })
     public prefersGpu: boolean = true;
@@ -18,87 +22,50 @@ export class FileCanvasElement extends AbstractFileConsumer {
     @property({ converter: booleanConverter(false) })
     public norender: boolean = false;
 
-    public onInstanceCreated(instance: Instance): void {
-
-        // Mount the incoming instance to the DOM
-        this.remountInstance(undefined, instance);
+    public onInstanceCreated(): void {
+        this.requestUpdate();
     }
 
     public onFailure(): void { }
 
-    protected updated(_changedProperties: PropertyValues): void {
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.requestUpdate();
+    }
+
+
+    protected updated(_changedProperties: PropertyValues<FileCanvasElement>): void {
 
         super.updated(_changedProperties);
+        if (!this.isConnected || !this.container.value) return;
 
-        // Whenever the file context changes in this component, unmount any previous instance and mount the new one
-        if (_changedProperties.has("file")) {
-
-            const previous = _changedProperties.get("file") as Instance | undefined;
-
-            this.remountInstance(previous, this.file);
-
-            if ( this.file !== undefined ) {
-                this.loading = false;
-            }
-
-            return;
-
-            const isFirstAttempt = _changedProperties.get("file") === undefined
-                && this.file !== undefined;
-
-            if (!isFirstAttempt) {
-
-                const oldFileValue = _changedProperties.get("file") as Instance | undefined;
-
-                this.remountInstance(oldFileValue, this.file);
-
-            }
-
-        }
-
-        if (_changedProperties.has("prefers-gpu")) {
+        // Synchronize the mount after rendering, including reconnection without a file property change.
+        if (this.mountedInstance !== this.file) {
+            this.unmountInstance();
             if (this.file) {
                 this.file.setPreferWebGl(this.prefersGpu);
+                this.file.mountToDom(this.container.value);
+                this.mountedInstance = this.file;
                 this.file.draw();
             }
+        } else if (_changedProperties.has("prefersGpu") && this.mountedInstance) {
+            // Apply GPU changes after rendering without drawing twice when a new file is mounted.
+            this.mountedInstance.setPreferWebGl(this.prefersGpu);
+            this.mountedInstance.draw();
         }
     }
 
 
-    /** Any mounting or unmounting of instances to the DOM */
-    private remountInstance(
-        previousInstance?: Instance,
-        nextInstance?: Instance
-    ) {
-
-        // Do nothing if the instances are the same
-        if (previousInstance === nextInstance) {
-            return;
-        }
-
-        // Remove the old instance of the DOM if any
-        if (previousInstance !== undefined) {
-            previousInstance.unmountFromDom();
-        }
-
-        // Mount the new instance to the DOM
-        if (nextInstance !== undefined && this.container.value) {
-            nextInstance.mountToDom(this.container.value);
-            nextInstance.setPreferWebGl(this.prefersGpu);
-            nextInstance.draw();
-        }
-
-
+    /** Releases the actual mount rather than a possibly newer file context value. */
+    private unmountInstance(): void {
+        this.mountedInstance?.unmountFromDom();
+        this.mountedInstance = undefined;
     }
 
     public disconnectedCallback(): void {
+        this.unmountInstance();
         super.disconnectedCallback();
-        if (this.file !== undefined) {
-            this.file.unmountFromDom();
-            this.fileController.onSuccess.delete(this.UUID);
-            this.fileController.onFailure.delete(this.UUID);
-            this.fileController.onLoadingStart.delete(this.UUID);
-        }
     }
 
     public static readonly styles = css`
@@ -233,9 +200,10 @@ export class FileCanvasElement extends AbstractFileConsumer {
             "is-loaded": this.loading === false,
             "is-success": isSuccess,
             "is-error": isError
-        }
+        } as const;
 
-        return html`<div ${ref(this.container)} class=${classMap(classes)} part="file-canvas-container">
+        return html`<div class=${classMap(classes)} part="file-canvas-container">
+    <div ${ref(this.container)}></div>
     ${this.renderPlaceholder()}
     ${this.renderError()}
 </div>`;

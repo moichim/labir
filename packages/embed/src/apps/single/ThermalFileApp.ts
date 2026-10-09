@@ -4,6 +4,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { ref } from "lit/directives/ref.js";
 import { AbstractSingleApp } from "./AbstractSingleApp";
 
+/** @deprecated */
 export class ThermalFileAppElement extends AbstractSingleApp {
 
     protected get instance(): Instance {

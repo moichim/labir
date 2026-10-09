@@ -1,12 +1,13 @@
 import { AvailableThermalPalette, Instance } from "@labirthermal/core";
 import { AbstractAppWithFiles } from "../AbstractAppWithFiles";
 import { property } from "lit/decorators/property.js";
-import { booleanConverter, FileProviderElement } from "../../index.export";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { html, nothing, PropertyValues } from "lit";
 import { initLocalesInTopLevelElement } from "../../translations/localeContext";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
 
+/** @deprecated */
 export abstract class AbstractSingleApp extends AbstractAppWithFiles {
 
 

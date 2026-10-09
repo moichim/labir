@@ -3,7 +3,7 @@ import { FileAnalysisSynchronisators } from "./FileAnalysisSynchronisators";
 import { ContextProvider, createContext } from "@lit/context";
 import { PropertyDeclaration, PropertyValueMap } from "lit";
 import { IBaseElement } from "../../controllers/IBaseElement";
-import { AnalysisList, CurrentFrameContext, durationContext, filaMayStopContext, fileAnalysisListContext, fileContext, fileCurrentFrameContext, fileCursorContext, fileFailureContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, readyContext } from "../providers/context/FileContexts";
+import { AnalysisList, CurrentFrameContext, durationContext, filaMayStopContext, fileAnalysisListContext, fileContext, fileCurrentFrameContext, fileCursorContext, fileFailureContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, readyContext, loadingContext } from "../providers/context/FileContexts";
 import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { GroupController } from "./GroupController";
 import { ManagerController } from "./ManagerController";
@@ -19,6 +19,7 @@ type IHostProperties = {
 
     file?: Instance;
     failure?: ThermalFileFailure;
+    loading: boolean;
 
     ms: number;
 
@@ -58,6 +59,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         fileController: INTERNAL_STATE_DECLARATION,
         file: INTERNAL_STATE_DECLARATION,
         failure: INTERNAL_STATE_DECLARATION,
+        loading: INTERNAL_STATE_DECLARATION,
         ms: { type: Number, reflect: true, attribute: "ms" },
         playbackSpeed: { type: Number, reflect: true, attribute: "speed" },
         analysis1: ANALYSIS_STATE_DECLARATION,
@@ -108,6 +110,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     private fileContextProvider: ContextProvider<typeof fileContext, IElementWithFileController>;
 
     private fileFailureContextProvider: ContextProvider<typeof fileFailureContext, IElementWithFileController>;
+    private readonly loadingContextProvider: ContextProvider<typeof loadingContext, IElementWithFileController>;
 
     private readyContextProvider: ContextProvider<typeof readyContext, IElementWithFileController>;
 
@@ -159,6 +162,11 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         this.fileFailureContextProvider = new ContextProvider(
             this.host,
             { context: fileFailureContext }
+        );
+
+        this.loadingContextProvider = new ContextProvider(
+            this.host,
+            { context: loadingContext, initialValue: false }
         );
 
         this.readyContextProvider = new ContextProvider(
@@ -359,6 +367,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
             this.host.ms = instance.timeline.currentMs;
         }
 
+        this.setLoading(false);
         this.onSuccess.call(instance);
 
 
@@ -471,6 +480,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         // Store the instance in the host
         this.host.file = instance;
         this._syncAssignment();
+        this.setLoading(false);
 
     }
 
@@ -478,6 +488,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
         this.host.file = undefined;
         this._syncAssignment();
+        this.setLoading(false);
 
     }
 
@@ -486,6 +497,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         this.removeInstance();
         this.host.failure = failure;
         this.fileFailureContextProvider.setValue( failure );
+        this.setLoading(false);
         this.onFailure.call(failure);
 
     }
@@ -596,8 +608,19 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     }
 
     public startLoading(): void {
+        this.host.failure = undefined;
+        this.fileFailureContextProvider.setValue(undefined);
+        this.setLoading(true);
         this.onLoadingStart.call();
         this.readyContextProvider.setValue(false);
+    }
+
+    /** Publishes loading independently of whether an old file is still available. */
+    private setLoading(loading: boolean): void {
+        if (this.host.loading !== loading) {
+            this.host.loading = loading;
+        }
+        this.loadingContextProvider.setValue(loading);
     }
 
     private endLoading(): void {

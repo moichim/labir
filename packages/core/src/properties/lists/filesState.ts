@@ -1,5 +1,6 @@
 import { Instance } from "../../file/instance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
+import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 import { zip } from "zip-slim"
@@ -114,6 +115,22 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
 
         } );
 
+
+    }
+
+    public async batchCreateInstances(
+        readers: ThermalFileReader[],
+        doReplaceExisting: boolean = false
+    ) {
+
+        const instances = await Promise.all( readers.map( async (reader) => await reader.createInstance(this.parent, false) ) );
+
+        if ( doReplaceExisting ) {
+            this.forEveryInstance(instance => instance.destroySelfAndBelow());
+            this.value = instances;
+        } else {
+            this.value = [...this.value, ...instances];
+        }
 
     }
 

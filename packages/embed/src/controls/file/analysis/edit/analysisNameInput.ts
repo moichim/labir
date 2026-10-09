@@ -16,26 +16,26 @@ export class AnalysisNameInput extends AbstractThermalElement {
     @state()
     protected name?: string;
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
 
-        if ( _changedProperties.has( "analysis" ) ) {
+        // Side effect of analysis changing - derive the displayed name before rendering.
+        if ( changedProperties.has( "analysis" ) ) {
+            this.name = this.analysis.name;
+        }
+    }
 
-            const oldAnalysis = _changedProperties.get( "analysis" ) as AbstractAnalysis;
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
 
-            if ( oldAnalysis ) {
-                oldAnalysis.onSetName.delete( this.UUID );
-            }
+        // Rebind the name-change listener after rendering when the input analysis changes.
+        if ( changedProperties.has( "analysis" ) ) {
+            const oldAnalysis = changedProperties.get( "analysis" ) as AbstractAnalysis | undefined;
+            oldAnalysis?.onSetName.delete(this.UUID);
 
-            const newAnalysis = this.analysis;
-
-            this.name = newAnalysis.name;
-
-            newAnalysis.onSetName.set(this.UUID, (value) => {
+            this.analysis.onSetName.set(this.UUID, (value) => {
                 this.name = value;
             });
-
-
         }
     }
 

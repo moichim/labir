@@ -20,10 +20,10 @@ export class RegistryRangeDisplay extends AbstractRegistryConsumer {
             return value.toString();
         }
     }})
-    fixed: number = 2;
+    public fixed: number = 2;
 
     @property({type: String, reflect: true, attribute: true})
-    separator: string = "-";
+    public separator: string = "-";
 
     protected render(): unknown {
 

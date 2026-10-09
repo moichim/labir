@@ -48,6 +48,7 @@ thermal-btn {
     }
 }`;
 
+
     protected renderTool(
         key: string,
         tool: ThermalTool
@@ -67,6 +68,7 @@ thermal-btn {
     ${unsafeSVG(tool.icon)}
 </thermal-btn>`
     }
+
 
     protected render(): unknown {
 

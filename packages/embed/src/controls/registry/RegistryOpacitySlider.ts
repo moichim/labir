@@ -7,8 +7,11 @@ import { registryOpacityContext } from "../../hierarchy/providers/context/Regist
 
 export class RegistryOpacitySlider extends AbstractRegistryConsumer {
 
-    @consume({context: registryOpacityContext, subscribe: true})
-    value!: number;
+    @consume({
+        context: registryOpacityContext, 
+        subscribe: true
+    })
+    public value!: number;
 
     protected containerRef: Ref<HTMLElement> = createRef();
 

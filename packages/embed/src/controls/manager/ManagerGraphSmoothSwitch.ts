@@ -12,26 +12,24 @@ export class ManagerGraphSmoothSwitch extends AbstractManagerConsumer {
 
     public static styles = css`
     
-        :host {}
+        :host {
+            display: inline-block;
+        }
 
     `;
 
     protected render(): unknown {
         return html`
-
-            <div>
-
+            <thermal-btn-group>
                 <thermal-btn
                     variant=${this.smooth ? "default" : "foreground"}
                     @click=${() => this.manager.graphSmooth.setGraphSmooth(false)}
                 >${t(T.straightlines)}</thermal-btn>
-
                 <thermal-btn
                     variant=${this.smooth ? "foreground" : "default"}
                     @click=${() => this.manager.graphSmooth.setGraphSmooth(true)}
                 >${t(T.smoothlines)}</thermal-btn>
-
-            </div>
+            </thermal-btn-group>
         `;
     }
 

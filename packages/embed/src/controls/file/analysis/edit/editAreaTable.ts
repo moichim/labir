@@ -47,31 +47,35 @@ export class AreaEditTable extends AbstractThermalElement {
 
 
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
 
-        if ( _changedProperties.has( "analysis" ) ) {
+        // Side effect of analysis changing - derive the displayed geometry and file bounds before rendering.
+        if ( changedProperties.has( "analysis" ) ) {
+            const analysis = this.analysis;
 
-            const oldAnalysis = _changedProperties.get( "analysis" ) as AbstractAnalysis;
+            this.top = analysis.top;
+            this.left = analysis.left;
+            this.width = analysis.width;
+            this.height = analysis.height;
+            this.right = analysis.left + analysis.width;
+            this.bottom = analysis.top + analysis.height;
+            this.maxX = analysis.file.width;
+            this.maxY = analysis.file.height;
+        }
+    }
 
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+
+        // Rebind the geometry-change listener after rendering whenever the input analysis changes.
+        if ( changedProperties.has( "analysis" ) ) {
+            const oldAnalysis = changedProperties.get( "analysis" ) as AbstractAnalysis | undefined;
             if ( oldAnalysis ) {
                 oldAnalysis.onSerializableChange.delete( this.UUID );
             }
 
-            const newAnalysis = this.analysis;
-
-            this.top = newAnalysis.top;
-            this.left = newAnalysis.left;
-            this.width = newAnalysis.width;
-            this.height = newAnalysis.height;
-            this.right = newAnalysis.left + newAnalysis.width;
-            this.bottom = newAnalysis.top + newAnalysis.height;
-            this.maxX = newAnalysis.file.width;
-            this.maxY = newAnalysis.file.height;
-
-
-
-            newAnalysis.onSerializableChange.set(this.UUID, (analysis) => {
+            this.analysis.onSerializableChange.set(this.UUID, (analysis) => {
                 this.top = analysis.top;
                 this.left = analysis.left;
                 this.width = analysis.width;
@@ -79,7 +83,6 @@ export class AreaEditTable extends AbstractThermalElement {
                 this.right = analysis.left + analysis.width;
                 this.bottom = analysis.top + analysis.height;
             });            
-
         }
     }
 

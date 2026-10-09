@@ -4,7 +4,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
 import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
-import { ThermalDialogElement } from "../../../../index.export";
+import { ThermalDialogElement } from "../../../../ui/Dialog";
 
 @customElement("connected-user-button")
 export class UserButton extends AbstractControlledConsumer {

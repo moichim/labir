@@ -5472,12 +5472,12 @@ var ThermalFileReader = class extends AbstractFileResult {
 		await this.baseInfo();
 		return this;
 	}
-	async createInstance(group) {
+	async createInstance(group, doAdd = true) {
 		const reader = this.cloneForInstance();
 		const baseInfo = await reader.baseInfo();
 		const firstFrame = await reader.frameData(0);
 		const instance = Instance.fromService(group, reader, baseInfo, firstFrame);
-		group.files.addFile(instance);
+		if (doAdd) group.files.addFile(instance);
 		return instance;
 	}
 };
@@ -7021,6 +7021,13 @@ var FilesState = class extends AbstractProperty {
 			document.body.removeChild(link);
 			link.remove();
 		});
+	}
+	async batchCreateInstances(readers, doReplaceExisting = false) {
+		const instances = await Promise.all(readers.map(async (reader) => await reader.createInstance(this.parent, false)));
+		if (doReplaceExisting) {
+			this.forEveryInstance((instance) => instance.destroySelfAndBelow());
+			this.value = instances;
+		} else this.value = [...this.value, ...instances];
 	}
 };
 

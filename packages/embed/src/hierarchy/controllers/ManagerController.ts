@@ -8,7 +8,7 @@ import { PropertyValues } from "lit";
 import { ThermalTool } from "@labirthermal/core";
 import { ThermalRegistry } from "@labirthermal/core";
 import { paletteConverter } from "../../utils/converters/paletteConverter";
-import { booleanConverter } from "../../index.export";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 interface IHostProperties {
 

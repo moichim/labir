@@ -56,19 +56,28 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         this.backup.clear();
     }
 
-    public backupReaders(
+    public backupReadersFromInstances(
         instances: Instance[]
     ): void {
         this.backup.clear();
         instances.forEach(instance => this.backup.add(instance.reader));
     }
 
+    public backupReaders(
+        readers: ThermalFileReader[]
+    ): void {
+        this.backup.clear();
+        readers.forEach(reader => this.backup.add(reader));
+    }
+
+
+
     public async restoreTheEntireBackup(): Promise<void> {
+
         this.host.fileController.removeInstance();
 
-        const requests = Array.from(this.backup).map(reader => reader.createInstance(this.group));
+        return this.group.files.batchCreateInstances(Array.from(this.backup), true);
 
-        await Promise.all(requests);
     }
 
     public async showOneAndBackup(
@@ -76,7 +85,8 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     ): Promise<void> {
         const reader = instance.reader;
         this.backup.clear();
-        this.backupReaders(this.group.files.value);
+        this.backupReadersFromInstances(this.group.files.value);
+        this.host.fileController.host.registryController.setHighlight(undefined);
         this.host.fileController.removeInstance();
         this.group.files.removeAllInstances();
         await reader.createInstance(this.group);
@@ -149,24 +159,24 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         slot?: string
     ): unknown {
 
-        return [
-            this._renderButton(
+        return html`<thermal-btn-group>
+            ${this._renderButton(
                 "list",
                 "micro",
                 "Switch to table view",
                 this._asTable,
                 () => this.setAsTable(true),
                 slot
-            ),
-            this._renderButton(
+            )}
+            ${this._renderButton(
                 "grid",
                 "micro",
                 "Switch to grid view",
                 !this._asTable,
                 () => this.setAsTable(false),
                 slot
-            )
-        ];
+            )}
+        </thermal-btn-group>`;
 
     }
 
@@ -248,6 +258,24 @@ export class GroupListingController extends AbstractHierarchyController<IElement
 
     }
 
+    private async handleFileDropAdd(
+        results: AbstractFileResult[]
+    ) {
+
+        const fileReaders: ThermalFileReader[] = [];
+
+        for ( const result of results ) {
+            if ( result instanceof ThermalFileReader) {
+                fileReaders.push(result);
+                this.backup.add(result);
+            }
+        }
+
+        await this.group.files.batchCreateInstances(fileReaders, false);
+        
+
+    }
+
     public renderListHeader(
         slot?: string
     ): unknown {
@@ -279,9 +307,10 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 iconStyle="micro"
                 variant="background"
                 @click=${() => {
-                this.clearBackup();
-                this.group.files.removeAllInstances();
-            }}
+                    this.host.fileController.host.registryController.setHighlight(undefined);
+                    this.clearBackup();
+                    this.group.files.removeAllInstances();
+                }}
             ></thermal-btn>
             <group-dropin-input 
                 slot="bar-pre"
@@ -290,27 +319,8 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 iconStyle="micro"
                 tooltip="Nahrát další soubory"
                 .onDrop=${async (results: AbstractFileResult[]) => {
-
-                const existingFiles = this.group.files.value.map(file => file.fileName);
-
-                await Promise.all(results
-                    .filter(result => {
-                        if (!(result instanceof ThermalFileReader)) {
-                            return false;
-                        }
-
-                        return !existingFiles.includes(result.fileName);
-
-                    })
-                    .map(async result => {
-                        if (result instanceof ThermalFileReader) {
-                            return await result.createInstance(this.group);
-                        }
-                    })
-                );
-
-                this.backupReaders(this.group.files.value);
-            }}
+                    await this.handleFileDropAdd(results);
+                }}
             ></group-dropin-input>
             <group-download-dropdown 
                 variant="background"
@@ -333,10 +343,6 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         const showDetail = () => {
             this.showOneAndBackup(instance);
         }
-
-        const headerStyle: StyleInfo = {
-
-        };
 
         return html`<file-provider 
             .file=${instance}

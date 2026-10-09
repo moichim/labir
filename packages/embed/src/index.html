@@ -104,23 +104,32 @@
 
 -->
 
-<h1>Dropin App</h1>
+  <h1>Dropin App</h1>
 
   <thermal-dropin-app tool="edit" label="Zkušební aplikace" advanced-palettes="true">
     <thermal-dialog slot="bar-pre">
       <thermal-btn slot="invoker">O aplikaci</thermal-btn>
       <div slot="content">Tady je informace o našem nástroji.</div>
     </thermal-dialog>
+    <thermal-btn-group slot="bar-pre">
+      <thermal-btn>Button 1</thermal-btn>
+      <thermal-btn>Button 2</thermal-btn>
+      <thermal-btn>Button 3</thermal-btn>
+      <thermal-btn>Button 4</thermal-btn>
+    </thermal-btn-group>
   </thermal-dropin-app>
 
 
   <h1>Thermal File App</h1>
 
-  <thermal-new-app thermal="/sequence.lrc" palette="jet" visible="/kitten.jpg" label="Lekce o něčem" author="Jan Jáchim"
-    license="CC BY-SA 4.0" smooth-thermograms="true" manager-slug="main-manager" registry-slug="registry-sample" group-slug="smrt" tool="edit" advanced-palettes="false" opacity="0.3" show-fullscreen="true" analysis1="Rectangle 0;rectangle;color:Blue;top:19;left:14;width:65;height:45;min" from="25" to="33" ms="5000"></thermal-file-app>
+  <thermal-new-app thermal="/sequence.lrc" palette="jet" visible="/kitten.jpg" label="Lekce o něčem"
+    author="Jan Jáchim" license="CC BY-SA 4.0" smooth-thermograms="true" manager-slug="main-manager"
+    registry-slug="registry-sample" group-slug="smrt" tool="edit" advanced-palettes="false" opacity="0.3"
+    show-fullscreen="true" analysis1="Rectangle 0;rectangle;color:Blue;top:19;left:14;width:65;height:45;min" from="25"
+    to="33" ms="5000"></thermal-new-app>
 
 
-    <!--
+  <!--
 
   <h1>Thermal File App - version 2</h1>
 
@@ -156,12 +165,12 @@
 
   -->
 
-  
-
-  
 
 
-<!--
+
+
+
+  <!--
 
 
   <h1>Apparent Temperature</h1>

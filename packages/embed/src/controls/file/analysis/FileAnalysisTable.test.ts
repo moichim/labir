@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Instance, ThermalFileReader } from "@labirthermal/core";
+import { Instance, ThermalFileReader, ThermalFileFailure } from "@labirthermal/core";
+import { FileErrors } from "../../../../../core/src/loading/workers/errors";
 import type { AbstractAnalysis } from "@labirthermal/core";
 import type { IParserObject } from "../../../../../core/src/loading/workers/parsers/structure";
 import { AbstractFileProvider } from "../../../hierarchy/abstraction/AbstractFileProvider";
@@ -11,6 +12,7 @@ import { ThermalBtnElement } from "../../../ui/Btn";
 import { FileAnalysisTableElement } from "./FileAnalysisTable";
 import { FileAnalysisRowElement } from "./FileAnalysisRow";
 import { FileAnalysisComplexElement } from "./FileAnalysisComplex";
+import { FileCanvasElement } from "../FileCanvas";
 
 vi.mock("../../../index.export", async () => ({
     ...await import("../../../utils/converters/booleanConverter"),
@@ -36,6 +38,7 @@ customElements.define("file-analysis-table", FileAnalysisTableElement);
 customElements.define("file-analysis-table-row", FileAnalysisRowElement);
 customElements.define("file-analysis-complex", FileAnalysisComplexElement);
 customElements.define("thermal-btn", ThermalBtnElement);
+customElements.define("test-loading-canvas", FileCanvasElement);
 
 describe("FileAnalysisTable", () => {
     let manager: ManagerProviderElement;
@@ -324,6 +327,151 @@ describe("FileAnalysisTable", () => {
         expect(rows()).toHaveLength(1);
         expect(rows()[0].analysis?.key).toBe("next");
         expect(next.analysis.layers.onSelectionChange.has(table.UUID)).toBe(true);
+    });
+
+    it("clears reflected selection when analysis is removed while the row is disconnected", async () => {
+        const row = new FileAnalysisRowElement();
+        area.setSelected(false, true);
+        row.analysis = area;
+        provider.append(row);
+        expect(await row.updateComplete).toBe(true);
+        expect(row.hasAttribute("selected")).toBe(true);
+
+        row.remove();
+        row.analysis = undefined;
+        provider.append(row);
+        expect(await row.updateComplete).toBe(true);
+        expect(row.hasAttribute("selected")).toBe(false);
+        expect(row.shadowRoot?.querySelector("td")).toBeNull();
+        expect(area.onValues.has(row.UUID)).toBe(false);
+        row.remove();
+    });
+
+    it("refreshes selection on reconnect when the analysis reference is unchanged", async () => {
+        const row = new FileAnalysisRowElement();
+        row.analysis = area;
+        provider.append(row);
+        await row.updateComplete;
+        expect(row.hasAttribute("selected")).toBe(false);
+
+        row.remove();
+        area.setSelected(false, true);
+        provider.append(row);
+        expect(await row.updateComplete).toBe(true);
+        expect(row.hasAttribute("selected")).toBe(true);
+        expect(area.onValues.has(row.UUID)).toBe(true);
+        row.remove();
+    });
+
+    it("publishes loading independently of the old file and supplies it to late consumers", async () => {
+        const canvas = new FileCanvasElement();
+        const mount = vi.spyOn(instance, "mountToDom").mockImplementation(() => {});
+        const unmount = vi.spyOn(instance, "unmountFromDom").mockImplementation(() => {});
+        const draw = vi.spyOn(instance, "draw").mockImplementation(() => {});
+        provider.append(canvas);
+        await settle();
+        await canvas.updateComplete;
+        expect(provider.loading).toBe(false);
+        expect(canvas.shadowRoot?.querySelector(".is-success")).not.toBeNull();
+        expect(mount).toHaveBeenCalledTimes(1);
+
+        provider.fileController.startLoading();
+        await settle();
+        await canvas.updateComplete;
+        expect(provider.loading).toBe(true);
+        expect(canvas.file).toBe(instance);
+        expect(canvas.shadowRoot?.querySelector(".is-loading")).not.toBeNull();
+        expect(mount).toHaveBeenCalledTimes(1);
+
+        const late = new FileCanvasElement();
+        provider.append(late);
+        await late.updateComplete;
+        expect(late.shadowRoot?.querySelector(".is-loading")).not.toBeNull();
+        late.remove();
+
+        provider.fileController.receiveInstance(instance);
+        await settle();
+        await canvas.updateComplete;
+        expect(provider.loading).toBe(false);
+        expect(canvas.shadowRoot?.querySelector(".is-success")).not.toBeNull();
+
+        draw.mockClear();
+        canvas.prefersGpu = false;
+        expect(await canvas.updateComplete).toBe(true);
+        expect(draw).toHaveBeenCalledTimes(1);
+        canvas.remove();
+        expect(unmount).toHaveBeenCalled();
+        provider.append(canvas);
+        expect(await canvas.updateComplete).toBe(true);
+        expect(mount).toHaveBeenCalledTimes(3);
+        canvas.remove();
+    });
+
+    it("preserves Lit child parts across real canvas mounting, replacement and reconnect", async () => {
+        const canvas = new FileCanvasElement();
+        canvas.prefersGpu = false;
+        vi.spyOn(instance, "draw").mockResolvedValue(undefined);
+        provider.append(canvas);
+        await settle();
+        expect(await canvas.updateComplete).toBe(true);
+        expect(instance.dom).toBeDefined();
+        expect(canvas.container.value?.parentElement?.getAttribute("part")).toBe("file-canvas-container");
+
+        provider.fileController.startLoading();
+        await settle();
+        await canvas.updateComplete;
+        expect(canvas.shadowRoot?.querySelector(".file-canvas-loading")).not.toBeNull();
+        const next = fixture();
+        vi.spyOn(next, "draw").mockResolvedValue(undefined);
+        provider.fileController.receiveInstance(next);
+        await settle();
+        await canvas.updateComplete;
+        expect(canvas.file).toBe(next);
+        expect(next.dom).toBeDefined();
+        expect(canvas.shadowRoot?.querySelector(".file-canvas-loading")).toBeNull();
+
+        canvas.remove();
+        expect(next.dom).toBeUndefined();
+        provider.append(canvas);
+        expect(await canvas.updateComplete).toBe(true);
+        expect(next.dom).toBeDefined();
+        provider.fileController.receiveFailure(
+            new ThermalFileFailure("missing.lrc", FileErrors.FILE_NOT_FOUND, "Missing file")
+        );
+        await settle();
+        await canvas.updateComplete;
+        expect(canvas.shadowRoot?.querySelector(".error-wrapper")).not.toBeNull();
+        expect(canvas.container.value?.children).toHaveLength(0);
+        canvas.remove();
+    });
+
+    it("publishes failure and ends loading for existing and newly connected consumers", async () => {
+        const canvas = new FileCanvasElement();
+        vi.spyOn(instance, "mountToDom").mockImplementation(() => {});
+        provider.append(canvas);
+        await settle();
+        await canvas.updateComplete;
+        provider.fileController.startLoading();
+        const failure = new ThermalFileFailure("missing.lrc", FileErrors.FILE_NOT_FOUND, "Missing file");
+        provider.fileController.receiveFailure(failure);
+        await settle();
+        await canvas.updateComplete;
+        expect(provider.loading).toBe(false);
+        expect(canvas.file).toBeUndefined();
+        expect(canvas.shadowRoot?.querySelector(".is-error")).not.toBeNull();
+
+        const late = new FileCanvasElement();
+        provider.append(late);
+        await late.updateComplete;
+        expect(late.shadowRoot?.querySelector(".is-error")).not.toBeNull();
+        provider.fileController.startLoading();
+        await settle();
+        await Promise.all([canvas.updateComplete, late.updateComplete]);
+        expect(provider.failure).toBeUndefined();
+        expect(late.shadowRoot?.querySelector(".is-loading")).not.toBeNull();
+        expect(late.shadowRoot?.querySelector(".error-wrapper")).toBeNull();
+        canvas.remove();
+        late.remove();
     });
 
     it("parses boolean attributes and restores inherited defaults when overrides are removed", async () => {

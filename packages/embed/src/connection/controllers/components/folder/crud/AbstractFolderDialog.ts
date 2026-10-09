@@ -4,10 +4,10 @@ import { css, CSSResultGroup, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref } from "lit/directives/ref.js";
-import { ThermalDialogElement } from "../../../../../index.export";
 import { T } from "../../../../../translations/Languages";
 import { BtnSizes, BtnVariants } from "../../../../../ui/Btn";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
+import { ThermalDialogElement } from "../../../../../ui/Dialog";
 
 /** A base class for all dialogs related to folder CRUD operations. */
 export abstract class AbstractFolderDialog extends AbstractControlledConsumer {

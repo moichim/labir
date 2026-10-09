@@ -1885,6 +1885,55 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
   copyAllSlotsToAllInstances(instance: Instance): void;
 }
 //#endregion
+//#region src/loading/workers/ThermalFileReader.d.ts
+/**
+ * Stores the file's `ArrayBuffer` and provides all the data for instance
+ * - this service is registered in FilesService
+ * - the instances are retrieved using `FilesService.loadOneFile`
+ */
+declare class ThermalFileReader extends AbstractFileResult {
+  readonly service: FilesService;
+  readonly parser: IParserObject;
+  /** For the purpose of testing we have a unique ID */
+  readonly id: number;
+  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
+  protected baseInfoCache?: ParsedFileBaseInfo;
+  readonly fileName: string;
+  private get pool();
+  protected originalBuffer?: ArrayBuffer;
+  protected _buffer: ArrayBuffer;
+  get buffer(): ArrayBuffer;
+  protected set buffer(value: ArrayBuffer);
+  constructor(service: FilesService, buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string, preserveOriginalBuffer?: boolean);
+  isSuccess(): boolean;
+  /** @todo This method relies on the functionality of filters. */
+  protected copyBuffer(buffer: ArrayBuffer): ArrayBuffer;
+  /** Create copy of the self so that the instance refers to its own ThermalFileReader */
+  protected cloneForInstance(): ThermalFileReader;
+  /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
+  baseInfo(): ReturnType<IParserObject["baseInfo"]>;
+  /**
+   * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data
+   *
+   * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
+   */
+  protected getFrameSubset(frameIndex: number): ReturnType<IParserObject["getFrameSubset"]>;
+  /** Read a given frame
+   * @todo Implement index range check
+   */
+  frameData(index: number): ReturnType<IParserObject["frameData"]>;
+  pointAnalysisData(x: number, y: number): ReturnType<IParserObject["pointAnalysisData"]>;
+  rectAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["rectAnalysisData"]>;
+  ellipsisAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["ellipsisAnalysisData"]>;
+  /**
+   * Recalculates the core array buffer using all available filters.
+   *
+   * This method does not emit anything - it only changes the array buffer.
+   */
+  applyFilters(filters: AbstractFilter[]): Promise<ThermalFileReader>;
+  createInstance(group: ThermalGroup, doAdd?: boolean): Promise<Instance>;
+}
+//#endregion
 //#region src/properties/lists/filesState.d.ts
 interface IWithFiles extends IBaseProperty {
   files: FilesState;
@@ -1910,6 +1959,7 @@ declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
    */
   forEveryInstance(fn: ((instance: Instance) => void)): void;
   downloadAllFiles(): void;
+  batchCreateInstances(readers: ThermalFileReader[], doReplaceExisting?: boolean): Promise<void>;
 }
 //#endregion
 //#region src/properties/cursor/CursorValueDrive.d.ts
@@ -2588,55 +2638,6 @@ declare class FilterContainer {
   removeFilter(filter: AbstractFilter): void;
   applyFilters(): void;
   getFiltersArray(): void;
-}
-//#endregion
-//#region src/loading/workers/ThermalFileReader.d.ts
-/**
- * Stores the file's `ArrayBuffer` and provides all the data for instance
- * - this service is registered in FilesService
- * - the instances are retrieved using `FilesService.loadOneFile`
- */
-declare class ThermalFileReader extends AbstractFileResult {
-  readonly service: FilesService;
-  readonly parser: IParserObject;
-  /** For the purpose of testing we have a unique ID */
-  readonly id: number;
-  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
-  protected baseInfoCache?: ParsedFileBaseInfo;
-  readonly fileName: string;
-  private get pool();
-  protected originalBuffer?: ArrayBuffer;
-  protected _buffer: ArrayBuffer;
-  get buffer(): ArrayBuffer;
-  protected set buffer(value: ArrayBuffer);
-  constructor(service: FilesService, buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string, preserveOriginalBuffer?: boolean);
-  isSuccess(): boolean;
-  /** @todo This method relies on the functionality of filters. */
-  protected copyBuffer(buffer: ArrayBuffer): ArrayBuffer;
-  /** Create copy of the self so that the instance refers to its own ThermalFileReader */
-  protected cloneForInstance(): ThermalFileReader;
-  /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
-  baseInfo(): ReturnType<IParserObject["baseInfo"]>;
-  /**
-   * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data
-   *
-   * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
-   */
-  protected getFrameSubset(frameIndex: number): ReturnType<IParserObject["getFrameSubset"]>;
-  /** Read a given frame
-   * @todo Implement index range check
-   */
-  frameData(index: number): ReturnType<IParserObject["frameData"]>;
-  pointAnalysisData(x: number, y: number): ReturnType<IParserObject["pointAnalysisData"]>;
-  rectAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["rectAnalysisData"]>;
-  ellipsisAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["ellipsisAnalysisData"]>;
-  /**
-   * Recalculates the core array buffer using all available filters.
-   *
-   * This method does not emit anything - it only changes the array buffer.
-   */
-  applyFilters(filters: AbstractFilter[]): Promise<ThermalFileReader>;
-  createInstance(group: ThermalGroup): Promise<Instance>;
 }
 //#endregion
 //#region src/file/utils/FilePngExport.d.ts

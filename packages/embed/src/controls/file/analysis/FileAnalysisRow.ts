@@ -40,8 +40,11 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
     @consume({ context: registryControllerContext, subscribe: true })
     private registryController!: RegistryController;
 
+    /** Actual subscription target, retained so old listeners can be removed after analysis changes. Not reactive. */
     private boundAnalysis?: AbstractAnalysis;
+    /** Tracks pointer presence to preserve highlighting while focus moves within the row. Not reactive. */
     private hovered: boolean = false;
+    /** Tracks focus presence to preserve highlighting while the pointer leaves the row. Not reactive. */
     private focused: boolean = false;
 
     protected get allowsEdit(): boolean {
@@ -58,13 +61,17 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
 
     protected willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
+        // Side effect of analysis changing - synchronize selection before rendering and rebind analysis listeners.
         if (changedProperties.has("analysis")) {
+            this.selected = this.analysis?.selected ?? false;
             this.bindAnalysis();
         }
     }
 
     connectedCallback(): void {
         super.connectedCallback();
+        // Refresh selection because it may have changed while disconnected, even without a new analysis reference.
+        this.selected = this.analysis?.selected ?? false;
         this.bindAnalysis();
         this.renderRoot.addEventListener("mouseover", this.handleMouseOver);
         this.renderRoot.addEventListener("mouseout", this.handleMouseOut);
@@ -86,6 +93,7 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
         super.disconnectedCallback();
     }
 
+    /** Replaces subscriptions to the previous analysis and refreshes the row when a new binding is established. */
     private bindAnalysis(): void {
         if (this.boundAnalysis === this.analysis || !this.isConnected) {
             return;
@@ -106,6 +114,7 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
         this.refresh();
     }
 
+    /** Removes all subscriptions from the actual bound analysis, not necessarily the current property value. */
     private unbindAnalysis(): void {
         const analysis = this.boundAnalysis;
         if (analysis) {

@@ -1,11 +1,9 @@
 import { Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
-import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
-import { state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../consumers/AbstractGroupConsumer";
 import type { IElementWithFileController } from "../controllers/FileController";
 import { FileController } from "../controllers/FileController";
-import { AnalysisList, loadingContext } from "../providers/context/FileContexts";
+import { AnalysisList } from "../providers/context/FileContexts";
 
 export abstract class AbstractFileProvider extends AbstractGroupConsumer implements IElementWithFileController {
 
@@ -19,8 +17,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
 
     public failure?: ThermalFileFailure;
 
-    @provide({ context: loadingContext })
-    @state()
+    /** Loading is managed and published by FileController, independently of file presence. */
     public loading: boolean = false;
 
     protected ready: boolean = false;

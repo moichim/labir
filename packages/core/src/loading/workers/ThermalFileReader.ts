@@ -170,7 +170,8 @@ export class ThermalFileReader extends AbstractFileResult {
 
 
     public async createInstance(
-        group: ThermalGroup
+        group: ThermalGroup,
+        doAdd: boolean = true
     ): Promise<Instance> {
 
         // Create a new instance with copied buffer
@@ -194,7 +195,9 @@ export class ThermalFileReader extends AbstractFileResult {
         const instance = Instance.fromService( group, reader, baseInfo, firstFrame );
 
         // Register the instance to the group
-        group.files.addFile( instance );
+        if (doAdd) {
+            group.files.addFile( instance );
+        }
 
         return instance;
     }

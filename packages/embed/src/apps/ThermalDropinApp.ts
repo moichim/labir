@@ -1,22 +1,18 @@
-import { AvailableThermalPalette, Instance, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
 import { provide } from "@lit/context";
 import { t } from "i18next";
-import type { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { css, html, PropertyValues } from "lit";
+import { property, state } from "lit/decorators.js";
+import { publicIpv4 } from "public-ip";
+import { FileController, IElementWithFileController } from "../hierarchy/controllers/FileController";
 import { GroupController, IElementWithGroupController } from "../hierarchy/controllers/GroupController";
 import { GroupListingController, GroupOrderby, GroupOrdering, IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { publicIpv4 } from "public-ip";
-import { GroupDropinElement } from "../controls/group/GroupDropinElement";
-import { GroupProviderElement } from "../index.export";
-import { T } from "../translations/Languages";
-import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
-import { BaseAppWithPngExportContext, pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../hierarchy/providers/context/pngExportContext";
 import { IElementWithManagerController, ManagerController } from "../hierarchy/controllers/ManagerController";
 import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
-import { FileController, IElementWithFileController } from "../hierarchy/controllers/FileController";
-import { PlaybackSpeeds } from "@labirthermal/core";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../hierarchy/providers/context/pngExportContext";
+import { T } from "../translations/Languages";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { AbstractApp } from "./AbstractApp";
 
 enum Mode {
@@ -99,7 +95,7 @@ export class DropinAppElement
     protected ip?: string;
 
     @state()
-    protected toDisplay: Instance[] = [];
+    public toDisplay: Instance[] = [];
 
 
 
@@ -129,6 +125,33 @@ export class DropinAppElement
         publicIpv4().then(ip => this.ip = ip);
     }
 
+    willUpdate(_changedProperties: PropertyValues<DropinAppElement>) {
+        super.willUpdate(_changedProperties);
+
+        // Side effect: update the display mode based on the number of instances to display
+        if (_changedProperties.has("toDisplay")) {
+
+            if (this.toDisplay.length === 0) {
+                this.displayMode = Mode.INPUT;
+            } else if (this.toDisplay.length === 1) {
+                this.displayMode = Mode.DETAIL;
+                this.fileController.receiveInstance(this.toDisplay[0]);
+                this.postLoadedProcessingAndApplyMinmax();
+            } else if (this.toDisplay.length > 1) {
+                this.displayMode = Mode.LIST;
+                this.postLoadedProcessingAndApplyMinmax();
+            }
+        }
+    }
+
+    /**
+     * Postprocess the registry and reset its range to apply min and max values.
+     */
+    private async postLoadedProcessingAndApplyMinmax() {
+        await this.registryObject.postLoadedProcessing();
+        this.registryObject.range.applyMinmax();
+    }
+
     updated(_changedProperties: PropertyValues<DropinAppElement>) {
         super.updated(_changedProperties);
         this.managerController.hostUpdatedWatcher(_changedProperties);
@@ -137,6 +160,8 @@ export class DropinAppElement
         this.groupListingController.hostUpdatedWatcher(_changedProperties);
         this.fileController.hostUpdatedWatcher(_changedProperties);
     }
+
+    private onValueChangeTimeout: ReturnType<typeof setTimeout> | undefined;
 
 
     public firstUpdated(_changedProperties: PropertyValues): void {
@@ -148,20 +173,17 @@ export class DropinAppElement
 
             this.groupObject.files.addListener(this.UUID, async (value) => {
 
-                this.toDisplay = value;
-
-                if (value.length === 0) {
-                    this.displayMode = Mode.INPUT;
-                } else if (value.length === 1) {
-                    this.displayMode = Mode.DETAIL;
-                    this.fileController.receiveInstance(this.toDisplay[0]);
-                    await this.registryObject.postLoadedProcessing();
-                    this.registryObject.range.applyMinmax();
-                } else if (value.length > 1) {
-                    this.displayMode = Mode.LIST;
-                    await this.registryObject.postLoadedProcessing();
-                    this.registryObject.range.applyMinmax();
+                // Clear the timeout if exists
+                if (this.onValueChangeTimeout !== undefined) {
+                    clearTimeout(this.onValueChangeTimeout);
                 }
+
+                // Set the new timeout to handle the value change
+                this.onValueChangeTimeout = setTimeout(async () => {
+                    // Set the to display array of instances
+                    this.toDisplay = value;
+
+                }, 0);
 
             });
 
@@ -215,22 +237,16 @@ export class DropinAppElement
         results: AbstractFileResult[]
     ) {
 
-        this.groupListingController.clearBackup();
+        // this.fileController.removeInstance();
 
-        this.fileController.removeInstance();
+        // this.groupListingController.clearBackup();
 
-        this.groupObject.files.removeAllInstances();
 
-        // Create new instances into the group
-        await Promise.all(results.map(async (result) => {
-            if (result instanceof ThermalFileReader) {
-                const instance = await result.createInstance(this.groupObject);
-                return instance;
+        const readers = results.filter(result => result instanceof ThermalFileReader);
 
-            }
-        }));
+        this.groupListingController.backupReaders(readers);
 
-        this.groupListingController.backupReaders(this.groupObject.files.value);
+        this.groupListingController.restoreTheEntireBackup();
     }
 
 
@@ -322,7 +338,7 @@ export class DropinAppElement
 
     protected renderDetail() {
 
-        return this.renderLayout( this.groupListingController.renderDetailBody() );
+        return this.renderLayout(this.groupListingController.renderDetailBody());
 
     }
 

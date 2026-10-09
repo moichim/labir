@@ -15,6 +15,8 @@ import { AbstractAppWithSingleFile } from "./AbstractAppWithSingleFile";
 
 const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4", "analysis5", "analysis6", "analysis7"];
 
+
+/** @deprecated */
 export class ThermalFileAppElement extends AbstractAppWithSingleFile {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();

@@ -23,8 +23,7 @@ export class ManagerPaletteDropdown extends AbstractPaletteSwitch {
     `;
 
     protected paletteTemplate(
-        palette: ThermalPaletteType,
-        className?: string
+        palette: ThermalPaletteType
     ) {
         return html`<span class="palette" style="background:${palette.gradient}"></span><span>${palette.name}</span>`;
     }

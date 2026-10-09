@@ -214,7 +214,7 @@ export class ThermalBtnElement extends AbstractThermalElement {
             --border-color: var( --thermal-slate );
             --border-color-hover: var( --border-color );
 
-            --radius: var(--thermal-radius);
+            --radius: var( --custom-radius, var( --thermal-radius ) );
             
             --shadow: none;
             --shadow-hover: var( --thermal-shadow );

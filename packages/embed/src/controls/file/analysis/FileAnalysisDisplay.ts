@@ -15,50 +15,74 @@ export class FileAnalysisDisplayElement extends AbstractFileConsumer {
     @state()
     protected analysis: AbstractAnalysis[] = [];
 
+    private boundFile?: Instance;
+
     public onFailure(error: ThermalFileFailure): void {
     }
 
-    public onInstanceCreated(instance: Instance): void {
-
-        this.hydrate(instance);
-
+    public onInstanceCreated(): void {
+        this.requestUpdate();
     }
 
     connectedCallback(): void {
         super.connectedCallback();
+        // Refresh the snapshot because analyses may have changed while disconnected.
         if (this.file) {
-            this.hydrate(this.file);
+            this.analysis = this.file.analysis.value;
+        }
+        this.bindFile();
+    }
+
+    disconnectedCallback(): void {
+        this.unbindFile();
+        super.disconnectedCallback();
+    }
+
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
+
+        // Side effect of file changing - mirror the analysis list before rendering, or clear it if no file is available.
+        if (changedProperties.has("file")) {
+            this.analysis = this.file?.analysis.value ?? [];
         }
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
 
-        if (_changedProperties.has("file")) {
-            if (this.file) {
-                this.hydrate(this.file);
-            }
+        // Rebind external listeners after rendering without changing reactive state in this hook.
+        if (changedProperties.has("file")) {
+            this.bindFile();
         }
     }
 
-
-    protected hydrate(file: Instance) {
-
-        // Mirror all analysis to local state
+    /**
+     * Observes analysis-list and frame changes on the current file while connected.
+     * Removes previous subscriptions and avoids registering twice for the same file.
+     */
+    private bindFile(): void {
+        if (!this.isConnected || this.boundFile === this.file) {
+            return;
+        }
+        this.unbindFile();
+        this.boundFile = this.file;
+        const file = this.boundFile;
+        if (!file) {
+            return;
+        }
         file.analysis.addListener(this.UUID, analysis => {
             this.analysis = analysis;
         });
-
-        // Set initial allSelected
-        this.analysis = file.analysis.value;
-
-        this.file?.timeline.onFrame.add(this.UUID, () => {
+        file.timeline.onFrame.add(this.UUID, () => {
             this.requestUpdate();
         });
+    }
 
-        this.file?.analysisData.addListener(this.UUID, () => {
-            // this.requestUpdate();
-        });
+    /** Removes both listeners from the actual subscribed file when replacing it or disconnecting. */
+    private unbindFile(): void {
+        this.boundFile?.analysis.removeListener(this.UUID);
+        this.boundFile?.timeline.onFrame.delete(this.UUID);
+        this.boundFile = undefined;
     }
 
     public static styles = css`

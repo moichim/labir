@@ -7,11 +7,11 @@ import { T } from "../../translations/Languages";
 
 export class FileInfoButton extends AbstractFileConsumer {
 
-    protected onFileLoaded(): void {}
+    protected onFileLoaded(): void { }
 
-    public onInstanceCreated(): void {}
+    public onInstanceCreated(): void { }
 
-    public onFailure(): void {}
+    public onFailure(): void { }
 
     static styles = css`
 
@@ -89,12 +89,12 @@ export class FileInfoButton extends AbstractFileConsumer {
         unit?: string
     ) {
 
-        const val = value.toFixed( fixed );
+        const val = value.toFixed(fixed);
         const output = unit !== undefined
             ? val + " " + unit
             : val;
 
-        return this.renderRow( label, output );
+        return this.renderRow(label, output);
     }
 
     protected renderDownloadRow(
@@ -103,20 +103,20 @@ export class FileInfoButton extends AbstractFileConsumer {
         href: string,
         title: string
     ) {
-        return this.renderRow( 
-            label, 
+        return this.renderRow(
+            label,
             `<span>${text}</span>
             <a href=${href} target="_blank" title="${title}" class="download">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                     <path fill-rule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
                 </svg>
-            </a>` 
+            </a>`
         );
     }
 
     protected render(): unknown {
 
-        if ( ! this.file ) {
+        if (!this.file) {
             return nothing;
         }
 
@@ -134,61 +134,61 @@ export class FileInfoButton extends AbstractFileConsumer {
 
                     <table>
 
-                        ${ unsafeHTML( this.renderRow( t(T.thermalfilename), this.file.fileName ) ) }
+                        ${unsafeHTML(this.renderRow(t(T.thermalfilename), this.file.fileName))}
 
-                        ${ unsafeHTML( this.renderDownloadRow( 
-                            t(T.thermalfileurl), 
-                            this.file.thermalUrl, 
-                            this.file.thermalUrl, 
-                            t(T.thermalfiledownload) 
-                        ) ) }
+                        ${unsafeHTML(this.renderDownloadRow(
+            t(T.thermalfileurl),
+            this.file.thermalUrl,
+            this.file.thermalUrl,
+            t(T.thermalfiledownload)
+        ))}
 
-                        ${ this.file.visibleUrl 
-                            ? unsafeHTML( this.renderDownloadRow( 
-                                t(T.visiblefileurl), 
-                                this.file.visibleUrl, 
-                                this.file.visibleUrl, 
-                                t(T.visiblefiledownload)
-                            ) )
-                            : nothing 
-                        }
+                        ${this.file.visibleUrl
+                ? unsafeHTML(this.renderDownloadRow(
+                    t(T.visiblefileurl),
+                    this.file.visibleUrl,
+                    this.file.visibleUrl,
+                    t(T.visiblefiledownload)
+                ))
+                : nothing
+            }
 
-                        ${ unsafeHTML( this.renderRow( 
-                            t(T.time), 
-                            TimeFormat.human( this.file.timestamp ) 
-                        ) ) }
+                        ${unsafeHTML(this.renderRow(
+                t(T.time),
+                TimeFormat.human(this.file.timestamp)
+            ))}
 
-                        ${ unsafeHTML( this.renderNumericalRow(
-                            t(T.duration),
-                            this.file.duration,
-                            0,
-                            "ms"
-                        ) ) }
+                        ${unsafeHTML(this.renderNumericalRow(
+                t(T.duration),
+                this.file.duration,
+                0,
+                "ms"
+            ))}
 
-                        ${ unsafeHTML( this.renderRow( 
-                            t(T.resolution), 
-                            `${this.file.width} x ${this.file.height}<small class="opaque">${this.file.pixels.length} pixels</small>` 
-                        ) ) }
+                        ${unsafeHTML(this.renderRow(
+                t(T.resolution),
+                `${this.file.width} x ${this.file.height}<small class="opaque">${this.file.pixels.length} pixels</small>`
+            ))}
 
-                        ${ unsafeHTML( this.renderNumericalRow(
-                            t(T.bytesize),
-                            this.file.bytesize,
-                            0
-                        ) ) }
+                        ${unsafeHTML(this.renderNumericalRow(
+                t(T.bytesize),
+                this.file.bytesize,
+                0
+            ))}
                         
-                        ${ unsafeHTML( this.renderNumericalRow(
-                            t(T.minimaltemperature),
-                            this.file.min,
-                            10,
-                            "°C"
-                        ) ) }
+                        ${unsafeHTML(this.renderNumericalRow(
+                t(T.minimaltemperature),
+                this.file.min,
+                10,
+                "°C"
+            ))}
 
-                        ${ unsafeHTML( this.renderNumericalRow(
-                            t(T.maximaltemperature),
-                            this.file.max,
-                            10,
-                            "°C"
-                        ) ) }
+                        ${unsafeHTML(this.renderNumericalRow(
+                t(T.maximaltemperature),
+                this.file.max,
+                10,
+                "°C"
+            ))}
 
                         
 
@@ -196,18 +196,18 @@ export class FileInfoButton extends AbstractFileConsumer {
 
                     <h2>${t(T.filetype)}</h2>
                     <table>
-                    ${ unsafeHTML( this.renderRow(
-                        t(T.type),
-                        this.file.reader.parser.name
-                    ) ) }
-                    ${ unsafeHTML( this.renderRow(
-                        t(T.description),
-                        this.file.reader.parser.description
-                    ) ) }
+                    ${unsafeHTML(this.renderRow(
+                t(T.type),
+                this.file.reader.parser.name
+            ))}
+                    ${unsafeHTML(this.renderRow(
+                t(T.description),
+                this.file.reader.parser.description
+            ))}
 
                     <tr>
                         <td>${t(T.supporteddevices)}</td>
-                        <td><ul>${this.file.reader.parser.devices.map( device => html`<li>
+                        <td><ul>${this.file.reader.parser.devices.map(device => html`<li>
                             <h3><a href="${device.deviceUrl}" target="_blank">${device.deviceName}</a></h3>
                             <div class="small">${device.deviceDescription}</div>
                             <div class="small">Manufactured by <a href="${device.manufacturerUrl}" target="_blank">${device.manufacturer}</a></div>

@@ -80,34 +80,44 @@ export class ThermalAppElement extends AbstractThermalElement {
 
     protected barItemsRef: Ref<HTMLDivElement> = createRef();
 
-    protected observer!: ResizeObserver;
+    /** Owns host resize observation; not reactive and released when disconnected. */
+    protected observer?: ResizeObserver;
 
+    /** Owns toolbar resize observation; recreated after the component reconnects. */
     private _overflowObserver: ResizeObserver | null = null;
 
+    /** Pending overflow measurement, coalesced and cancelled when disconnected. */
     private _rafId: number | null = null;
 
+    /** Final slot assignments from our last measurement, used to ignore self-induced slotchange events. */
+    private readonly _barSlotAssignments = new Map<string, Element[]>();
+
+    /** Stable callback so language changes do not accumulate subscriptions on reconnect. */
+    private readonly _handleLanguageChange = (language: string): void => {
+        this.language = language;
+    };
+
     private _handleFullscreenChange = (): void => {
-        if (!document.fullscreenElement) {
-            this.fullscreen = "off";
-        }
+        this.fullscreen = document.fullscreenElement === this ? "on" : "off";
     };
 
     connectedCallback(): void {
         super.connectedCallback();
 
-        window.addEventListener("fullscreenchange", this._handleFullscreenChange);
-
-
-        i18next.on("languageChanged", () => {
-            // this.log( "languageChanged", this.language, i18next.language );
+        document.addEventListener("fullscreenchange", this._handleFullscreenChange);
+        if (i18next.language !== undefined) {
             this.language = i18next.language;
-        });
+        }
+        i18next.on("languageChanged", this._handleLanguageChange);
+        this.requestUpdate();
 
     }
 
     disconnectedCallback(): void {
-        super.disconnectedCallback();
-        window.removeEventListener("fullscreenchange", this._handleFullscreenChange);
+        document.removeEventListener("fullscreenchange", this._handleFullscreenChange);
+        i18next.off("languageChanged", this._handleLanguageChange);
+        this.observer?.disconnect();
+        this.observer = undefined;
         if (this._overflowObserver) {
             this._overflowObserver.disconnect();
             this._overflowObserver = null;
@@ -116,6 +126,8 @@ export class ThermalAppElement extends AbstractThermalElement {
             cancelAnimationFrame(this._rafId);
             this._rafId = null;
         }
+        this._barSlotAssignments.clear();
+        super.disconnectedCallback();
     }
 
     private _toggleOverflow(): void {
@@ -149,21 +161,48 @@ export class ThermalAppElement extends AbstractThermalElement {
         if (!shadow) return;
 
         for (const name of ["pre", "content", "pre-bar", "bar-header"]) {
-            const slot = shadow.querySelector(`slot[name="${name}"]`) as HTMLSlotElement | null;
-            this._setSlotFlag(name, slot !== null && slot.assignedElements({ flatten: true }).length > 0);
+            const slot = shadow.querySelector<HTMLSlotElement>(`slot[name="${name}"]`);
+            const has = slot
+                ? slot.assignedElements({ flatten: true }).length > 0
+                : Array.from(this.children).some(child => {
+                    if (child.slot !== name) return false;
+                    return !(child instanceof HTMLSlotElement)
+                        || child.assignedElements({ flatten: true }).length > 0;
+                });
+            this._setSlotFlag(name, has);
         }
     }
 
-    protected firstUpdated(changedProperties: PropertyValues): void {
-        super.firstUpdated(changedProperties);
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
         this._syncSlotFlags();
     }
 
+    /** Ignores our own slot redistribution but measures externally changed toolbar contents. */
+    private _onBarSlotChange = (): void => {
+        for (const name of ["bar-pre", "bar-post", "bar-overflow"]) {
+            const current = this.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)
+                ?.assignedElements() ?? [];
+            const previous = this._barSlotAssignments.get(name);
+            if (!previous || previous.length !== current.length
+                || current.some((item, index) => item !== previous[index])) {
+                this._scheduleOverflowUpdate();
+                return;
+            }
+        }
+    };
+
     private _scheduleOverflowUpdate(): void {
-        if (this._rafId !== null) cancelAnimationFrame(this._rafId);
+        if (!this.isConnected || this._rafId !== null) return;
         this._rafId = requestAnimationFrame(() => {
             this._rafId = null;
+            if (!this.isConnected) return;
             this._doOverflowUpdate();
+            for (const name of ["bar-pre", "bar-post", "bar-overflow"]) {
+                const items = this.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)
+                    ?.assignedElements() ?? [];
+                this._barSlotAssignments.set(name, items);
+            }
         });
     }
 
@@ -194,6 +233,7 @@ export class ThermalAppElement extends AbstractThermalElement {
 
         if (allItems.length === 0) {
             this._overflowCount = 0;
+            this._overflowOpen = false;
             return;
         }
 
@@ -249,55 +289,19 @@ export class ThermalAppElement extends AbstractThermalElement {
         }
     }
 
-    protected update(changedProperties: PropertyValues): void {
-        super.update(changedProperties);
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+        if (!this.isConnected) return;
 
         if (
             this.observer === undefined
             && this.contentRef.value !== undefined
         ) {
 
-            this.observer = new ResizeObserver((entries) => {
-                const entry = entries[0];
-
-                if (this.fullscreen === "on" && this.contentRef.value) {
-
-                    const offsetHeight = 175;
-                    const offsetWidth = 0;
-
-                    const windowHeight = entry.contentRect.height;
-                    const windowWidth = entry.contentRect.width;
-
-                    const availableHeight = windowHeight - offsetHeight;
-                    const availableWidth = windowWidth - offsetWidth;
-
-
-                    const contentHeight = this.contentRef.value.offsetHeight;
-
-                    const aspect = 4 / 3;
-
-                    let width: number = 0;
-                    let height: number = 0;
-
-
-                    // If define by width only
-                    if (contentHeight < availableHeight) {
-                        width = availableWidth;
-                        height = width / aspect;
-                    } else {
-                        height = availableHeight;
-                        width = height * aspect;
-                    }
-
-                }
-
-                else if (this.fullscreen === "off" && this.contentRef.value) {
-
+            this.observer = new ResizeObserver(() => {
+                if (this.isConnected && this.fullscreen === "off" && this.contentRef.value) {
                     this.contentRef.value.removeAttribute( "style" );
-
                 }
-
-
             });
             this.observer.observe(this);
 
@@ -318,15 +322,25 @@ export class ThermalAppElement extends AbstractThermalElement {
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
         super.attributeChangedCallback(name, _old, value);
 
-        if (name === "fullscreen") {
+        if (name === "fullscreen" && _old !== value) {
             if (value === "on") {
-
-                this.requestFullscreen();
-                // ...
+                if (document.fullscreenElement === this) return;
+                if (typeof this.requestFullscreen !== "function") {
+                    this.log("Fullscreen API is unavailable");
+                    this.fullscreen = "off";
+                    return;
+                }
+                void this.requestFullscreen().catch(error => {
+                    this.log("Unable to enter fullscreen", error);
+                    this._handleFullscreenChange();
+                });
             } else if (value === "off" && _old !== null) {
-                // Only exit fullscreen if this is a real transition (not initial creation)
-                if (document.fullscreenElement)
-                    document.exitFullscreen();
+                if (document.fullscreenElement === this) {
+                    void document.exitFullscreen().catch(error => {
+                        this.log("Unable to exit fullscreen", error);
+                        this._handleFullscreenChange();
+                    });
+                }
             }
         }
 
@@ -647,9 +661,9 @@ export class ThermalAppElement extends AbstractThermalElement {
 
             <div class="bar-items" ${ref(this.barItemsRef)}>
 
-                <slot name="bar-pre" @slotchange=${this._scheduleOverflowUpdate}></slot>
+                <slot name="bar-pre" @slotchange=${this._onBarSlotChange}></slot>
                 <div class="bar-spacer"></div>
-                <slot name="bar-post" @slotchange=${this._scheduleOverflowUpdate}></slot>
+                <slot name="bar-post" @slotchange=${this._onBarSlotChange}></slot>
 
                 ${this.renderOverflowToggle()}
 
@@ -664,7 +678,7 @@ export class ThermalAppElement extends AbstractThermalElement {
         </div>
 
         <div class="bar-overflow-panel" ?hidden=${this._overflowCount === 0 || !this._overflowOpen}>
-            <slot name="bar-overflow"></slot>
+            <slot name="bar-overflow" @slotchange=${this._onBarSlotChange}></slot>
         </div>
 
         <div class="pre" ?hidden=${!this._hasPre}>

@@ -1,4 +1,4 @@
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { AbstractAnalysis, PointAnalysis } from "@labirthermal/core";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
@@ -6,7 +6,7 @@ import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 
 /** Trigger the edit dialog for an analysis */
-export class FileAnalisisEditElement extends AbstractThermalElement {
+export class FileAnalisisEditDialog extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;
@@ -17,27 +17,29 @@ export class FileAnalisisEditElement extends AbstractThermalElement {
     @state()
     protected type?: string;
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
 
-        if ( _changedProperties.has( "analysis" ) ) {
+        // Side effect of analysis changing - derive the dialog name and type before rendering.
+        if ( changedProperties.has( "analysis" ) ) {
+            this.name = this.analysis.name;
+            this.type = this.analysis.getType();
+        }
+    }
 
-            const oldAnalysis = _changedProperties.get( "analysis" ) as AbstractAnalysis;
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
 
+        // Rebind the name-change listener after rendering whenever the input analysis changes.
+        if ( changedProperties.has( "analysis" ) ) {
+            const oldAnalysis = changedProperties.get( "analysis" ) as AbstractAnalysis | undefined;
             if ( oldAnalysis ) {
                 oldAnalysis.onSetName.delete( this.UUID );
             }
 
-            const newAnalysis = this.analysis;
-            this.name = newAnalysis.name;
-            this.type = newAnalysis.getType();
-
-
-            newAnalysis.onSetName.set(this.UUID, (value) => {
+            this.analysis.onSetName.set(this.UUID, (value) => {
                 this.name = value;
             });
-
-
         }
     }
 

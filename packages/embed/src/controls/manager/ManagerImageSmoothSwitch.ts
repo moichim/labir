@@ -19,7 +19,8 @@ export class ManagerImageSmoothSwitch extends AbstractManagerConsumer {
     `;
 
     protected render(): unknown {
-        return html`<thermal-btn
+        return html`<thermal-btn-group>
+            <thermal-btn
     variant=${this.smooth ? "default" : "foreground"}
     @click=${() => this.manager.smooth.setSmooth(false)}
 >${t(T.pixelated)}</thermal-btn>
@@ -27,7 +28,8 @@ export class ManagerImageSmoothSwitch extends AbstractManagerConsumer {
 <thermal-btn
     variant=${this.smooth ? "foreground" : "default"}
     @click=${() => this.manager.smooth.setSmooth(true)}
->${t(T.smooth)}</thermal-btn>`;
+>${t(T.smooth)}</thermal-btn>
+        </thermal-btn-group>`;
     }
 
 }

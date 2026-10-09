@@ -21,11 +21,11 @@ export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
 
     @consume({ context: loadingContext, subscribe: true })
     @state()
-    protected loading: boolean = true;
+    protected loading: boolean = false;
 
     @consume({ context: fileContext, subscribe: true })
     @state()
-    protected file?: Instance;
+    public file?: Instance;
 
     @consume({ context: fileFailureContext, subscribe: true })
     @state()
@@ -63,7 +63,6 @@ export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
                 this.UUID,
                 instance => {
                     this.onInstanceCreated(instance);
-                    this.loading = false;
                 }
             );
 
@@ -71,7 +70,6 @@ export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
                 this.UUID,
                 error => {
                     this.onFailure(error);
-                    this.loading = false;
                 }
             );
 

@@ -1,10 +1,10 @@
 import { consume } from "@lit/context";
 import i18next, { t } from "i18next";
-import { html, LitElement, PropertyDeclaration } from "lit";
+import { html, LitElement } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { v4 as uuid } from "uuid";
-import { localeContext } from "../translations/localeContext";
 import { T } from "../translations/Languages";
+import { localeContext } from "../translations/localeContext";
 
 /** All the webcomponents of \@labirthermal/embed (and its extensions) should be based on the abstract class `AbstractThermalElement`. */
 export abstract class AbstractThermalElement extends LitElement {
@@ -26,7 +26,7 @@ export abstract class AbstractThermalElement extends LitElement {
         return this.UUID + "_" + msg;
     }
 
-    log( ...args: unknown[] ) {
+    public log( ...args: unknown[] ) {
         console.log( this.tagName, this.UUID.substring(0,5), ...args );
     }
 
@@ -38,11 +38,20 @@ export abstract class AbstractThermalElement extends LitElement {
     @consume({context: localeContext, subscribe: true})
     protected _locale?: string;
 
+    /** Stable callback so the global language subscription can be removed on disconnect. */
+    private readonly languageChanged = (locale: string): void => {
+        this._locale = locale;
+    };
+
     connectedCallback(): void {
         super.connectedCallback();
-        i18next.on("languageChanged", (locale) => {
-            this._locale = locale;
-        })
+        this._locale = i18next.language;
+        i18next.on("languageChanged", this.languageChanged);
+    }
+
+    disconnectedCallback(): void {
+        i18next.off("languageChanged", this.languageChanged);
+        super.disconnectedCallback();
     }
 
     protected i( str: string ): unknown {

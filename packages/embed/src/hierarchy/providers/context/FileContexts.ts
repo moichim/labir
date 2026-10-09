@@ -9,7 +9,7 @@ export const fileContext = createContext<Instance|undefined>( "file" );
 export const fileFailureContext = createContext<ThermalFileFailure|undefined>( "failure" );
 
 
-/** @deprecated Not used - remove */
+/** Whether a file request is in progress; independent of readiness or an existing instance. */
 export const loadingContext = createContext<boolean>( "file-loading" );
 
 

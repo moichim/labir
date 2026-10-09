@@ -1,13 +1,12 @@
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { ManagerController, managerControllerContext } from "../../hierarchy/controllers/ManagerController";
 import { managerAdvancedPalettesContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
 
-@customElement("display-panel")
 export class DisplayPanel extends AbstractThermalElement {
 
     static styles?: CSSResultGroup | undefined = css`
@@ -30,16 +29,18 @@ export class DisplayPanel extends AbstractThermalElement {
     protected render(): unknown {
         return html`
         <thermal-field label="${t(T.colourpalette)}" hint="Zvolte, jaké chcete používat palety.">
-            <thermal-btn 
-                variant="${!this.advancedPalettes ? 'foreground' : 'default'}"
-                @click=${() => this.managerController.setAdvancedPalettes( false )}
-                tooltip="IRON, JET, White hot, Black hot"
-            >Základní</thermal-btn>
-            <thermal-btn 
-                variant="${this.advancedPalettes ? 'foreground' : 'default'}"
-                @click=${() => this.managerController.setAdvancedPalettes( true )}
-                tooltip="Všechny dostupné palety"
-            >Pokročilé</thermal-btn>
+            <thermal-btn-group>
+                <thermal-btn 
+                    variant="${!this.advancedPalettes ? 'foreground' : 'default'}"
+                    @click=${() => this.managerController.setAdvancedPalettes( false )}
+                    tooltip="IRON, JET, White hot, Black hot"
+                >Základní</thermal-btn>
+                <thermal-btn 
+                    variant="${this.advancedPalettes ? 'foreground' : 'default'}"
+                    @click=${() => this.managerController.setAdvancedPalettes( true )}
+                    tooltip="Všechny dostupné palety"
+                >Pokročilé</thermal-btn>
+            </thermal-btn-group>
         </thermal-field>
         <thermal-field label="${t(T.filerendering)}" hint="${t(T.filerenderinghint)}">
             <manager-image-smooth-switch></manager-image-smooth-switch>

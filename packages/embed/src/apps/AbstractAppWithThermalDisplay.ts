@@ -3,7 +3,6 @@ import { appDisplayContext, AppDisplayController, IAppWithThermalDisplayControll
 import { AbstractApp } from "./AbstractApp";
 import { PaletteDrive } from "@labirthermal/core/src/properties/scale/PaletteDrive";
 import { property } from "lit/decorators.js"
-import { AbstractManagerProvider, AbstractRegistryProvider, booleanConverter } from "../index.export";
 import { numberRangeConverter } from "../utils/converters/numberRangeConverter";
 import { html, PropertyValues } from "lit";
 import { provide } from "@lit/context";
@@ -15,7 +14,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 const allowedPaletteKeys = Object.keys(ThermalPalettes);
 
 
-
+/** @deprecated */
 export class AbstractAppWithThermalDisplay extends AbstractApp implements IAppWithThermalDisplayController {
 
 

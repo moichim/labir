@@ -2,7 +2,6 @@ import { ThermalManager } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { property, state } from "lit/decorators.js";
 import { pngExportContext, IAppWithPngExport, PngExportController } from "../controllers/PngExportController";
-import { AbstractThermalElement } from "../index.export";
 import { AbstractApp } from "./AbstractApp";
 
 /**

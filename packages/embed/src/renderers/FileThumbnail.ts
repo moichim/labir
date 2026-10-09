@@ -85,7 +85,6 @@ export class FileThumbnailElement extends AbstractFileConsumer {
                     <file-label label="${ifDefined(this.label)}" grouping="${ifDefined(this.grouping)}"></file-label>
                 </h2>
                 <div>
-                    <file-opacity-icon></file-opacity-icon>
                     <thermal-btn size="sm" variant="background" @click=${() => this.ondetail?.(this.file!)}>${t(T.detail).toLocaleLowerCase()}</thermal-btn>
                     <file-range-propagator></file-range-propagator>
                     <file-dropdown>

@@ -1,8 +1,6 @@
-import { customElement } from "lit/decorators.js";
-import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { html } from "lit";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 
-@customElement("config-dialog")
 export class ConfigDialog extends AbstractThermalElement {
 
 

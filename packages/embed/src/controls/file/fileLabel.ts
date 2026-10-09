@@ -2,7 +2,7 @@ import { GridGrouping } from "@labirthermal/client";
 import { TimeFormat } from "@labirthermal/core";
 import { format } from "date-fns";
 import { css, nothing } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 
 export class FileLabelElement extends AbstractFileConsumer {

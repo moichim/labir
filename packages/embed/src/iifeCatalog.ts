@@ -10,7 +10,7 @@ import { AreaEditTable } from "./controls/file/analysis/edit/editAreaTable";
 import { EditpointTable } from "./controls/file/analysis/edit/editPointTable";
 import { FileAnalysisComplexElement } from "./controls/file/analysis/FileAnalysisComplex";
 import { FileAnalysisDisplayElement } from "./controls/file/analysis/FileAnalysisDisplay";
-import { FileAnalisisEditElement } from "./controls/file/analysis/FileAnalysisEdit";
+import { FileAnalisisEditDialog } from "./controls/file/analysis/FileAnalysisEdit";
 import { FileAnalysisGraphElement } from "./controls/file/analysis/FileAnalysisGraph";
 import { FileAnalysisRowElement } from "./controls/file/analysis/FileAnalysisRow";
 import { FileAnalysisTableElement } from "./controls/file/analysis/FileAnalysisTable";
@@ -60,6 +60,7 @@ import { FileThumbnailElement } from "./renderers/FileThumbnail";
 import { ThermalAppElement } from "./ui/App";
 import { ThermalBarElement } from "./ui/Bar";
 import { ThermalBtnElement } from "./ui/Btn";
+import { BtnGroupElement } from "./ui/BtnGroup";
 import { ThermalDialogElement } from "./ui/Dialog";
 import { ThermalDropdownElement } from "./ui/Dropdown";
 import { ThermalDropinElement } from "./ui/Dropin";
@@ -79,6 +80,7 @@ export const elementsUi = {
     "thermal-app": ThermalAppElement,
     "thermal-bar": ThermalBarElement,
     "thermal-btn": ThermalBtnElement,
+    "thermal-btn-group": BtnGroupElement,
     "thermal-dialog": ThermalDialogElement,
     "thermal-dropdown": ThermalDropdownElement,
     "thermal-dropin": ThermalDropinElement,
@@ -90,6 +92,10 @@ export const elementsUi = {
     "thermal-slot": ThermalSlotElement,
     "thermal-spinner": ThermalSpinnerElement,
     "thermal-tip": ThermalTipElement
+} as const;
+
+export const independentElements = {
+
 } as const;
 
 /**
@@ -156,7 +162,7 @@ const elementsFileControls = {
     "file-range-propagator": FileRangePropagator,
     "file-analysis-complex": FileAnalysisComplexElement,
     "file-analysis-display": FileAnalysisDisplayElement,
-    "file-analysis-edit": FileAnalisisEditElement,
+    "file-analysis-edit": FileAnalisisEditDialog,
     "file-analysis-graph": FileAnalysisGraphElement,
     "file-analysis-table-row": FileAnalysisRowElement,
     "file-analysis-table": FileAnalysisTableElement,
@@ -176,7 +182,7 @@ const elementsFileControls = {
 const elementsApplications = {
     "apparent-temperature-aat": AatAppElement,
     "thermal-dropin-app": DropinAppElement,
-    "thermal-file-app": ThermalFileAppElement,
+    // "thermal-file-app": ThermalFileAppNewElement,
     "thermal-group-app": ThermalGroupAppElement,
     "thermal-new-app": ThermalFileAppNewElement
 } as const;

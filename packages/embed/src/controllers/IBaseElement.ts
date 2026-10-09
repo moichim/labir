@@ -1,5 +1,5 @@
 import { ReactiveControllerHost } from "lit";
-import { AbstractThermalElement } from "../index.export";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
 export interface IBaseElement extends AbstractThermalElement, ReactiveControllerHost {
 

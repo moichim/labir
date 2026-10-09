@@ -1,6 +1,6 @@
-import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labirthermal/core";
+import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { css, html, nothing, PropertyValueMap } from "lit";
+import { css, html, nothing, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
@@ -18,7 +18,17 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
 
     protected ticksRef: Ref<HTMLDivElement> = createRef();
 
-    protected observer!: ResizeObserver;
+    /** Owns DOM size observation; not reactive because the observer itself is not rendered. */
+    protected observer?: ResizeObserver;
+
+    /** Actual subscription target, retained to remove listeners even after the provided registry changes. */
+    private boundRegistry?: ThermalRegistry;
+
+    /** Actual observed DOM node, retained for cleanup and observer restoration after reconnecting. */
+    private observedTicks?: HTMLDivElement;
+
+    @state()
+    private ticksWidth: number = 0;
 
     @consume({context: registryHighlightContext, subscribe: true})
     protected highlight?: ThermalRangeOrUndefined;
@@ -35,35 +45,87 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
     protected containerRef: Ref<HTMLElement> = createRef();
 
     connectedCallback(): void {
-
         super.connectedCallback();
+        this.bindRegistry();
+        this.minmax = this.boundRegistry?.minmax.value;
+        this.ticksWidth = this.ticksRef.value?.clientWidth ?? 0;
+        this.requestUpdate();
+    }
 
-        this.registry.minmax.addListener(this.UUID, value => {
+    disconnectedCallback(): void {
+        this.unbindRegistry();
+        this.disconnectObserver();
+        super.disconnectedCallback();
+    }
+
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
+
+        // Side effect of the provided registry changing - synchronize its range and subscriptions before rendering.
+        if (this.boundRegistry !== this.registryController?.registryObject && this.isConnected) {
+            this.bindRegistry();
+            this.minmax = this.boundRegistry?.minmax.value;
+        }
+
+        // Side effect of minmax or ticksWidth changing - derive tick positions and labels for the current render.
+        if (changedProperties.has("minmax") || changedProperties.has("ticksWidth")) {
+            this.calculateTicks(this.minmax, this.ticksWidth);
+        }
+    }
+
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+        this.observeTicks();
+    }
+
+    /** Subscribes once to the current registry while connected, replacing the previous range listener. */
+    private bindRegistry(): void {
+        const registry = this.registryController?.registryObject;
+        if (!this.isConnected || registry === this.boundRegistry) {
+            return;
+        }
+        this.unbindRegistry();
+        this.boundRegistry = registry;
+        registry?.minmax.addListener(this.UUID, value => {
             this.minmax = value;
-            if ( this.ticksRef.value ) {
-                this.calculateTicks(value, this.ticksRef.value.clientWidth);
+        });
+    }
+
+    /** Removes the listener from the actual subscribed registry rather than the current context value. */
+    private unbindRegistry(): void {
+        this.boundRegistry?.minmax.removeListener(this.UUID);
+        this.boundRegistry = undefined;
+    }
+
+    /** Observes the rendered ticks container and restores observation after reconnecting. */
+    private observeTicks(): void {
+        const ticks = this.isConnected ? this.ticksRef.value : undefined;
+        if (ticks === this.observedTicks) {
+            return;
+        }
+        this.disconnectObserver();
+        if (!ticks) {
+            return;
+        }
+        this.observedTicks = ticks;
+        this.observer = new ResizeObserver(entries => {
+            if (!this.isConnected || this.observedTicks !== ticks) {
+                return;
+            }
+            const entry = entries.find(entry => entry.target === ticks);
+            if (entry) {
+                this.ticksWidth = entry.contentRect.width;
             }
         });
-
-        this.minmax = this.registry.minmax.value;
-
+        this.observer.observe(ticks);
     }
 
-    protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
-
-        super.firstUpdated(_changedProperties);
-
-        this.observer = new ResizeObserver(entries => {
-
-            const entry = entries[0];
-            this.calculateTicks(this.minmax, entry.contentRect.width);
-
-        });
-
-        this.observer.observe(this.ticksRef.value!);
-
+    /** Releases observation without requiring the old node to remain in the Lit ref. */
+    private disconnectObserver(): void {
+        this.observer?.disconnect();
+        this.observer = undefined;
+        this.observedTicks = undefined;
     }
-
 
     protected clamp(input: number, min: number, max: number): number {
         return input < min ? min : input > max ? max : input;
@@ -194,10 +256,10 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
         let highlightLeft: number | undefined = undefined;
         let highlightWidth: number | undefined = undefined;
 
-        if ( this.registry.minmax.value && this.highlight ) {
+        if ( this.minmax && this.highlight ) {
 
-            const min = this.registry.minmax.value.min;
-            const minmax = this.registry.minmax.value.max - min;
+            const min = this.minmax.min;
+            const minmax = this.minmax.max - min;
 
             highlightLeft = (this.highlight.from - min) / minmax * 100;
             highlightWidth = (this.highlight.to - min) / minmax * 100 - highlightLeft;
