@@ -4,6 +4,7 @@ import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, html, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
+import { repeat } from "lit/directives/repeat.js";
 import { publicIpv4 } from "public-ip";
 import { FileController, IElementWithFileController } from "../hierarchy/controllers/FileController";
 import { GroupController, IElementWithGroupController } from "../hierarchy/controllers/GroupController";
@@ -211,6 +212,7 @@ export class DropinAppElement
 
 
     public static styles = css`
+        ${GroupListingController.styles}
     
         .layout {
         
@@ -219,6 +221,10 @@ export class DropinAppElement
             grid-template-columns: auto 1fr;
             gap: 1em;
         
+        }
+
+        .layout-content {
+            min-width: 0;
         }
 
         manager-tool-bar {
@@ -344,11 +350,11 @@ export class DropinAppElement
 
     public renderList() {
 
-        const map = this.toDisplay.map(instance => {
-
-            return this.groupListingController.renderThumbnail(instance);
-
-        });
+        const map = repeat(
+            this.toDisplay,
+            instance => instance.id,
+            instance => this.groupListingController.renderThumbnail(instance)
+        );
 
         return this.renderLayout(
             this.groupListingController.renderListContainer(map));

@@ -11,6 +11,7 @@ import {managerGraphFunctionContext} from "../../../hierarchy/providers/context/
 import { ThermalChartElement } from "./chart/chart";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
 /** High level component around `thermal-chart` that provides the functionality of a file analysis graph */
 export class FileAnalysisGraphElement extends AbstractFileConsumer {
@@ -27,6 +28,9 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
     @property({ type: Boolean, reflect: true })
     public hasDownloads: boolean = true;
 
+    @property({ reflect: true, converter: booleanConverter(false) })
+    public standalone: boolean = false;
+
     container: Ref<HTMLDivElement> = createRef();
 
     graphRef: Ref<ThermalChartElement> = createRef();
@@ -41,6 +45,13 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
     private chartDataCache?: unknown[][];
     private chartOptionsCache?: object;
     private chartOptionsCacheKey?: string;
+    private boundFile?: Instance;
+    private observer?: ResizeObserver;
+    private observedContainer?: HTMLDivElement;
+
+    private readonly receiveGraphData = (value: AnalysisDataStateValue): void => {
+        this.graphs = value;
+    };
 
     @consume({context: fileCurrentFrameContext, subscribe: true})
     protected currentFrame?: CurrentFrameContext;
@@ -64,44 +75,9 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
     protected graphSmooth: boolean = false;
 
     public onInstanceCreated(instance: Instance): void {
-
-
-        // Set the initial analysis data
         this.graphs = instance.analysisData.value;
-        
-
-        // Listen to changes in the analysis data
-        instance.analysisData.addListener(this.UUID, (value) => {
-            this.graphs = value;
-        });
-
-        
-
-        // Observe the graph width
-        if (this.container.value) {
-
-            this.graphWidth = this.container.value.clientWidth;
-
-            const observer = new ResizeObserver(entries => {
-                this.graphWidth = entries[0].contentRect.width;
-                this.graphHeight = entries[0].contentRect.height;
-
-                if (this.graphRef.value) {
-
-                    this.shadowLeft = this.graphRef.value.left;
-                    this.shadowTop = this.graphRef.value.top;
-                    this.shadowWidth = this.graphRef.value.w;
-                    this.shadowHeight = this.graphRef.value.h;
-                }
-            });
-
-            observer.observe(this.container.value);
-
-        }
-
         this.hydrated = true;
-
-
+        this.requestUpdate();
     }
 
     public connectedCallback(): void {
@@ -109,25 +85,91 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
 
         if ( this.file ) {
             this.graphs = this.file.analysisData.value;
-            this.file.analysisData.addListener( this.UUID, value => {
-                this.graphs = value;
-            } );
             this.hydrated = true;
         }
+        this.requestUpdate();
     }
 
+    public disconnectedCallback(): void {
+        this.unbindFile();
+        this.disconnectObserver();
+        super.disconnectedCallback();
+    }
 
-    public onFailure(): void { }
+    public onFailure(): void {
+        this.unbindFile();
+        this.disconnectObserver();
+    }
 
-    public update(changedProperties: PropertyValues): void {
-        super.update(changedProperties);
-        if (this.graphRef.value) {
-            this.shadowLeft = this.graphRef.value.left;
-            this.shadowTop = this.graphRef.value.top;
-            this.shadowWidth = this.graphRef.value.w;
-            this.shadowHeight = this.graphRef.value.h;
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
+        // Side effect of file changing - derive graph data before rendering the new file.
+        if (changedProperties.has("file")) {
+            this.graphs = this.file?.analysisData.value ?? { values: [[]], colors: [] };
+            this.hydrated = this.file !== undefined;
         }
     }
+
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+        // Bind after rendering so subscriptions and observers use the current DOM, including on reconnect.
+        this.bindFile();
+        this.toggleAttribute("data-has-graphs", !!this.file?.timeline.isSequence && this.graphs.colors.length > 0);
+        this.observeContainer();
+    }
+
+    private bindFile(): void {
+        if (!this.isConnected || this.boundFile === this.file) {
+            return;
+        }
+        this.unbindFile();
+        this.boundFile = this.file;
+        this.boundFile?.analysisData.addListener(this.UUID, this.receiveGraphData);
+    }
+
+    private unbindFile(): void {
+        this.boundFile?.analysisData.removeListener(this.UUID);
+        this.boundFile = undefined;
+    }
+
+    private observeContainer(): void {
+        const container = this.isConnected && this.standalone ? this.container.value : undefined;
+        if (container === this.observedContainer) {
+            return;
+        }
+        this.disconnectObserver();
+        if (!container) {
+            return;
+        }
+        this.observedContainer = container;
+        this.observer = new ResizeObserver(entries => {
+            if (!this.isConnected || this.observedContainer !== container) {
+                return;
+            }
+            const entry = entries.find(entry => entry.target === container);
+            if (entry) {
+                this.graphWidth = entry.contentRect.width;
+                this.graphHeight = entry.contentRect.height;
+            }
+        });
+        this.observer.observe(container);
+    }
+
+    private disconnectObserver(): void {
+        this.observer?.disconnect();
+        this.observer = undefined;
+        this.observedContainer = undefined;
+    }
+
+    private readonly syncChartArea = (): void => {
+        const chart = this.graphRef.value;
+        if (chart) {
+            this.shadowLeft = chart.left;
+            this.shadowTop = chart.top;
+            this.shadowWidth = chart.w;
+            this.shadowHeight = chart.h;
+        }
+    };
 
     protected downloadSVG = (svgEl: SVGElement, fileName: string) => {
 
@@ -314,6 +356,22 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
         :host {
             position: relative;
         }
+
+        :host([standalone="true"]) {
+            display: block;
+            height: var(--thermal-analysis-graph-height, 12rem);
+            min-width: 0;
+            margin-top: .5em;
+        }
+
+        :host([standalone="true"]:not([data-has-graphs])) {
+            display: none;
+        }
+
+        :host([standalone="true"]) .chart-container {
+            height: 100%;
+            width: 100%;
+        }
     
         google-chart {
             width: 100%;
@@ -338,7 +396,10 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
 
     protected render(): unknown {
 
-        if ( this.file?.timeline.isSequence === false ) {
+        if (
+            this.file?.timeline.isSequence === false
+            || (this.standalone && (!this.file || this.graphs.colors.length === 0))
+        ) {
             return nothing;
         }
 
@@ -358,7 +419,7 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
                 ` : nothing}
             </div>
         
-            <div ${ref(this.container)}">
+            <div class="chart-container" ${ref(this.container)}>
                 ${this.graphs.colors.length > 0
                 ? html`<thermal-chart 
                         ${ref(this.graphRef)}
@@ -367,6 +428,7 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
                         .data=${guard([this.graphs], () => this.getChartData())}
                         .onGraphClick=${this.handleGraphClick}
                         .onGraphHover=${this.handleGraphHover}
+                        @google-chart-ready=${this.syncChartArea}
                         .options=${guard([
                             this.graphs.colors,
                             this.graphSmooth,

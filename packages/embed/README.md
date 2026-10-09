@@ -65,6 +65,31 @@ The loading placeholder follows the configured track height, and tooltips and
 the component's reserved space adjust with it. Height changes do not change
 the selected temperature range.
 
+### Drop-in file listing layouts
+
+The drop-in app's grid/table switch keeps the same file providers, canvases,
+timelines and analysis components mounted. It changes the listing's
+`data-layout` attribute; CSS Grid handles the arrangement.
+
+Grid cards show the header, canvas, analyses and timeline in that order.
+Cards use their natural height instead of stretching to the tallest neighbour,
+so the white background ends with each card's visible content.
+
+Table rows have an unpadded media column (canvas and timeline) and
+a white details column (header, analyses and active graphs). The media sets
+the row height; longer details scroll within that height. Set
+the table-view preview-width slider to choose 20% to 80% of the row width,
+in 1% steps (default 50%). Grid view instead shows the column-count slider.
+Both settings are retained when switching layouts. Width changes are not animated.
+
+Listing analyses use separate `file-analysis-table` and `file-analysis-graph`
+components. Tables size naturally. `file-analysis-graph standalone="true"`
+hides itself when no sequence graph is active and measures its own display
+size. Active standalone graphs use `--thermal-analysis-graph-height` (default
+`12rem`). The existing detail layout using `file-analysis-complex` is unchanged.
+Resize observers can still update timeline ticks and graphs when their display
+size changes; layout switching does not recreate the thermal canvas.
+
 ### Analysis table
 
 `file-analysis-table` renders the analyses of its enclosing file provider. Both

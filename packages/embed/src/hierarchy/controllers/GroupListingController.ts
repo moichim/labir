@@ -3,7 +3,7 @@ import { IBaseElement } from "../../controllers/IBaseElement";
 import { AbstractHierarchyController } from "./AbstractHierarchyController";
 import { AbstractFileResult, Instance, ThermalFileReader, ThermalGroup, TimeFormat } from "@labirthermal/core";
 import { FileController } from "./FileController";
-import { html, nothing, PropertyValueMap } from "lit";
+import { css, html, PropertyValueMap } from "lit";
 import { StyleInfo, styleMap } from "lit/directives/style-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 
@@ -95,8 +95,120 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     public static CLASS_TABLE: string = "group-listing-table";
     public static CLASS_COLUMNS: string = "group-listing-columns";
 
+    public static readonly styles = css`
+        .group-listing {
+            display: grid;
+            width: 100%;
+            min-width: 0;
+            gap: 1em;
+            align-items: start;
+            grid-template-columns: repeat(var(--group-listing-columns, 3), minmax(0, 1fr));
+        }
+
+        .group-listing[data-layout="table"] {
+            grid-template-columns: minmax(0, 1fr);
+            overflow-x: auto;
+        }
+
+        .group-listing .file-card {
+            display: grid;
+            min-width: 0;
+            box-sizing: border-box;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas: "header" "canvas" "analysis" "timeline";
+            background: var(--thermal-background);
+            border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
+        }
+
+        .group-listing[data-layout="grid"] .file-media,
+        .group-listing[data-layout="grid"] .file-details,
+        .group-listing[data-layout="grid"] .file-details-content {
+            display: contents;
+        }
+
+        .file-card .file-header {
+            grid-area: header;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: center;
+            gap: .5em;
+            padding: .5em;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        .file-card .file-label {
+            cursor: pointer;
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .file-card file-canvas {
+            grid-area: canvas;
+            min-width: 0;
+        }
+
+        .file-card file-timeline {
+            grid-area: timeline;
+            display: block;
+            min-width: 0;
+        }
+
+        .file-card .file-analysis {
+            grid-area: analysis;
+            min-width: 0;
+            padding: .5em;
+            box-sizing: border-box;
+        }
+
+        .group-listing[data-layout="table"] .file-card {
+            grid-template-columns: var(--thermal-list-preview-width, 50%) minmax(0, 1fr);
+            grid-template-areas: "media details";
+            align-items: stretch;
+            background: transparent;
+        }
+
+        .group-listing[data-layout="table"] .file-media {
+            grid-area: media;
+            min-width: 0;
+            padding: 0;
+        }
+
+        .group-listing[data-layout="table"] .file-details {
+            grid-area: details;
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            background: var(--thermal-background);
+            border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
+        }
+
+        /* Only the media determines the row height; longer details scroll inside it. */
+        .group-listing[data-layout="table"] .file-details-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+        }
+
+        .group-listing[data-layout="table"] .file-details-content > * {
+            flex: none;
+        }
+    `;
+
     private _numColumns: number = 3;
     private _asTable: boolean = false;
+    private _previewWidth: number = 50;
+
+    public setPreviewWidth(width: number): void {
+        if (!Number.isInteger(width) || width < 20 || width > 80) {
+            throw new RangeError("Preview width must be an integer from 20 to 80 percent.");
+        }
+        this._previewWidth = width;
+        this.host.requestUpdate();
+    }
 
     public setNumColumns(numColumns: number): void {
         this._numColumns = numColumns;
@@ -112,22 +224,15 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         children: unknown
     ): unknown {
 
-        const styles: StyleInfo = {
-            width: "100%"
-        };
-
-        if (this._asTable) {
-            styles.display = "flex";
-            styles.flexDirection = "column";
-            styles.gap = "1em";
-        } else {
-            styles.display = "grid";
-            styles.gap = "1em";
-            styles.gridTemplateColumns = `repeat(${this._numColumns}, 1fr)`;
-        }
-
         return html`
-            <div style=${styleMap(styles)}>
+            <div
+                class="group-listing"
+                data-layout=${this._asTable ? "table" : "grid"}
+                style=${styleMap({
+                    "--group-listing-columns": String(this._numColumns),
+                    "--thermal-list-preview-width": `${this._previewWidth}%`
+                })}
+            >
                 ${children}
             </div>
         `;
@@ -184,11 +289,10 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         slot?: string
     ): unknown {
 
-        if (this._asTable) {
-            return nothing;
-        }
-
-        const max = Math.min(3, this.group.files.value.length);
+        const min = this._asTable ? 20 : 1;
+        const max = this._asTable ? 80 : Math.min(3, this.group.files.value.length);
+        const value = this._asTable ? this._previewWidth : this._numColumns;
+        const label = this._asTable ? "Šířka náhledu" : "Počet sloupců";
 
         const divStyles: StyleInfo = {
             display: "flex",
@@ -196,12 +300,17 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             fontSize: "small"
         };
 
-        return html`<div slot="${slot}" style=${styleMap(divStyles)}>
-        <input type="range" min="1" max="${max}" step="1" .value=${this._numColumns} @input=${(e: Event) => {
+        return html`<div slot=${ifDefined(slot)} style=${styleMap(divStyles)}>
+        <input type="range" aria-label=${label} min=${min} max=${max} step="1" .value=${String(value)} @input=${(e: Event) => {
                 const target = e.target as HTMLInputElement;
-                this.setNumColumns(parseInt(target.value, 10));
+                const next = parseInt(target.value, 10);
+                if (this._asTable) {
+                    this.setPreviewWidth(next);
+                } else {
+                    this.setNumColumns(next);
+                }
             }}>
-        <div style=${styleMap({ textAlign: "center", fontSize: ".7em",opacity: ".7", marginTop: "-0.2rem" })}>Columns: ${this._numColumns} sloupců</div>
+        <div style=${styleMap({ textAlign: "center", fontSize: ".7em",opacity: ".7", marginTop: "-0.2rem" })}>${label}: ${value}${this._asTable ? " %" : ""}</div>
         </div>`;
 
     }
@@ -344,7 +453,8 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             this.showOneAndBackup(instance);
         }
 
-        return html`<file-provider 
+        return html`<file-provider
+            class="file-card"
             .file=${instance}
             @mouseenter=${() => {
                 this.host.groupController.registryController.setHighlight({
@@ -356,56 +466,70 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 this.host.groupController.registryController.setHighlight(undefined);
             }}
         >
-            <header style="display: flex; justify-content: flex-start; gap: .5em; align-items: center; background: var(--thermal-background); padding: .5em; width: 100%; box-sizing: border-box; height: 3em; border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;">
-                <div style="cursor: pointer;" @click=${showDetail}>
-                    <div>${TimeFormat.human(instance.timestamp)}</div>
-                    <div style="font-size: small; opacity: .5;">${instance.fileName}</div>
+            <div class="file-media">
+                <file-canvas></file-canvas>
+                <file-timeline></file-timeline>
+            </div>
+            <div class="file-details">
+                <div class="file-details-content">
+                    <header class="file-header">
+                        <div class="file-label" @click=${showDetail}>
+                            <div>${TimeFormat.human(instance.timestamp)}</div>
+                            <div style="font-size: small; opacity: .5;">${instance.fileName}</div>
+                        </div>
+
+                        <div style="flex-grow: 1;"></div>
+                        <thermal-btn
+                            tooltip="Smazat soubor"
+                            icon="trash"
+                            iconStyle="micro"
+                            @click=${async () => {
+
+                                this.backup.delete(instance.reader);
+
+                                this.group.files.removeAllInstances();
+
+                                await this.restoreTheEntireBackup();
+
+                                this.host.requestUpdate();
+
+                            }}
+                        ></thermal-btn>
+                        <file-download-dropdown>
+                            <thermal-icon
+                                icon="download"
+                                variant="micro"
+                                slot="invoker"
+                                style="width: 1.1em;"
+                            ></thermal-icon>
+                        </file-download-dropdown>
+                        <thermal-btn
+                            icon="range"
+                            iconStyle="outline"
+                            @click=${() => {
+                                this.host.groupController.registryController.registryObject.range.imposeRange({
+                                    from: instance.min,
+                                    to: instance.max
+                                });
+                            }}
+                        ></thermal-btn>
+                        <thermal-btn
+                            tooltip="Zobrazit detail"
+                            icon="eye"
+                            iconStyle="solid"
+                            @click=${showDetail}
+                        ></thermal-btn>
+                    </header>
+                    <div class="file-analysis">
+                        <file-analysis-table
+                            table-mode="compact"
+                            forceinteractiveanalysis="true"
+                            graph-activation-enabled="true"
+                        ></file-analysis-table>
+                        <file-analysis-graph standalone="true"></file-analysis-graph>
+                    </div>
                 </div>
-
-                <div style="flex-grow: 1;"></div>
-                <thermal-btn
-                    tooltip="Smazat soubor"
-                    icon="trash"
-                    iconStyle="micro"
-                    @click=${async () => {
-
-                        this.backup.delete(instance.reader);
-
-                        this.group.files.removeAllInstances();
-
-                        await this.restoreTheEntireBackup();
-
-                        this.host.requestUpdate();
-
-                    }}
-                ></thermal-btn>
-                <file-download-dropdown>
-                    <thermal-icon
-                        icon="download"
-                        variant="micro"
-                        slot="invoker"
-                        style="width: 1.1em;"
-                    ></thermal-icon>
-                </file-download-dropdown>
-                <thermal-btn
-                    icon="range"
-                    iconStyle="outline"
-                    @click=${() => {
-                        this.host.groupController.registryController.registryObject.range.imposeRange({
-                            from: instance.min,
-                            to: instance.max
-                        });
-                    }}
-                ></thermal-btn>
-                <thermal-btn
-                    tooltip="Zobrazit detail"
-                    icon="eye"
-                    iconStyle="solid"
-                    @click=${showDetail}
-                ></thermal-btn>
-            </header>
-            <file-canvas></file-canvas>
-            <file-timeline></file-timeline>
+            </div>
         </file-provider>`;
 
     }
