@@ -405,6 +405,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 ></thermal-btn>
             </header>
             <file-canvas></file-canvas>
+            <file-timeline></file-timeline>
         </file-provider>`;
 
     }
