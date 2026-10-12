@@ -1,9 +1,11 @@
 ---
-name: lit-update-lifecycle
-description: "Use when diagnosing Lit warnings about updates scheduled after an update, reviewing reactive property or @state assignments in Lit lifecycle methods, or deciding between willUpdate and updated."
+name: embed-lit-update-lifecycle
+description: "Use for the embed package (@labirthermal/webcomponents) in packages/embed when diagnosing Lit change-in-update warnings about updates scheduled after an update, reviewing reactive property or @state assignments in Lit lifecycle methods, or deciding between willUpdate and updated."
 ---
 
-# Lit Update Lifecycle Review
+# Embed Lit Update Lifecycle Review Workflow
+
+This workflow targets components in `packages/embed` (`@labirthermal/webcomponents`). Trace relevant callbacks and dependencies as needed, but do not apply embed-specific recommendations to other packages. The `embed-` prefix identifies the intended package; it does not impose a technical path filter.
 
 Use this workflow to explain or review Lit update-cycle issues one component at a time. Do not edit files unless the user explicitly asks for implementation; when the user is making the changes, give focused recommendations and review each revision.
 

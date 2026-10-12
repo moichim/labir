@@ -4,7 +4,6 @@ import {
     GroupController,
     groupControllerContext
 } from "../controllers/GroupController";
-import { groupContext } from "../providers/context/GroupContext";
 import { AbstractRegistryConsumer } from "./AbstractRegistryConsumer";
 
 export abstract class AbstractGroupConsumer extends AbstractRegistryConsumer {
