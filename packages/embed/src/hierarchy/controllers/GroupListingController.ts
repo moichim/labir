@@ -1,11 +1,15 @@
-import { GroupController } from "./GroupController";
-import { IBaseElement } from "../../controllers/IBaseElement";
+import type { GroupController } from "./GroupController";
+import type { IBaseElement } from "../../controllers/IBaseElement";
 import { AbstractHierarchyController } from "./AbstractHierarchyController";
-import { AbstractFileResult, Instance, ThermalFileReader, ThermalGroup, TimeFormat } from "@labirthermal/core";
-import { FileController } from "./FileController";
-import { css, html, PropertyValueMap } from "lit";
-import { StyleInfo, styleMap } from "lit/directives/style-map.js";
+import type { AbstractFileResult, Instance, ThermalGroup} from "@labirthermal/core";
+import { ThermalFileReader, TimeFormat } from "@labirthermal/core";
+import type { FileController } from "./FileController";
+import type { PropertyValueMap } from "lit";
+import { css, html } from "lit";
+import type { StyleInfo} from "lit/directives/style-map.js";
+import { styleMap } from "lit/directives/style-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { repeat } from "lit/directives/repeat.js";
 
 export enum GroupOrderby {
     DATE = "date",
@@ -16,6 +20,12 @@ export enum GroupOrderby {
 export enum GroupOrdering {
     ASC = "asc",
     DESC = "desc"
+}
+
+export interface GroupListingRenderOptions {
+    allowFileChanges?: boolean;
+    onOpenDetail?: (instance: Instance) => void;
+    onCloseDetail?: () => void;
 }
 
 type IHostProperties = {
@@ -158,7 +168,6 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         .file-card .file-analysis {
             grid-area: analysis;
             min-width: 0;
-            padding: .5em;
             box-sizing: border-box;
         }
 
@@ -363,7 +372,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             return emptyRendererFn?.();
         }
 
-        return this._orderFiles().map(fileRendererFn);
+        return repeat(this._orderFiles(), file => file.id, fileRendererFn);
 
     }
 
@@ -386,7 +395,8 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     }
 
     public renderListHeader(
-        slot?: string
+        slot?: string,
+        options: GroupListingRenderOptions = {}
     ): unknown {
 
         const divStyles: StyleInfo = {
@@ -408,9 +418,11 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 style="cursor: default; font-size: .9em;"
                 icon="folder"
                 iconStyle="micro"
-            >${this.group.files.value.length} nahraných souborů</thermal-btn>
+            >${options.allowFileChanges === false
+                ? `Počet souborů: ${this.group.files.value.length}`
+                : `${this.group.files.value.length} nahraných souborů`}</thermal-btn>
 
-            <thermal-btn
+            ${options.allowFileChanges === false ? undefined : html`<thermal-btn
                 tooltip="Smazat všechny soubory a nahrát nové"
                 icon="trash"
                 iconStyle="micro"
@@ -430,7 +442,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 .onDrop=${async (results: AbstractFileResult[]) => {
                     await this.handleFileDropAdd(results);
                 }}
-            ></group-dropin-input>
+            ></group-dropin-input>`}
             <group-download-dropdown 
                 variant="background"
                 icon="download"
@@ -446,11 +458,16 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     }
 
     public renderThumbnail(
-        instance: Instance
+        instance: Instance,
+        options: GroupListingRenderOptions = {}
     ) {
 
         const showDetail = () => {
-            this.showOneAndBackup(instance);
+            if (options.onOpenDetail) {
+                options.onOpenDetail(instance);
+            } else {
+                this.showOneAndBackup(instance);
+            }
         }
 
         return html`<file-provider
@@ -479,7 +496,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                         </div>
 
                         <div style="flex-grow: 1;"></div>
-                        <thermal-btn
+                        ${options.allowFileChanges === false ? undefined : html`<thermal-btn
                             tooltip="Smazat soubor"
                             icon="trash"
                             iconStyle="micro"
@@ -494,7 +511,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                                 this.host.requestUpdate();
 
                             }}
-                        ></thermal-btn>
+                        ></thermal-btn>`}
                         <file-download-dropdown>
                             <thermal-icon
                                 icon="download"
@@ -536,7 +553,8 @@ export class GroupListingController extends AbstractHierarchyController<IElement
 
     public renderDetailHeader(
         instance: Instance,
-        slot?: string
+        slot?: string,
+        options: GroupListingRenderOptions = {}
     ): unknown {
 
         const divStyles: StyleInfo = {
@@ -551,10 +569,13 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             gap: "0.5em"
         };
 
-        const isSingular = this.backup.size <= 1;
+        const isSingular = !options.onCloseDetail && this.backup.size <= 1;
+        const fileCount = options.onCloseDetail ? this.group.files.value.length : this.backup.size;
 
         const backLabel = isSingular ? "Zavřít" : "Zpět";
-        const backTooltip = isSingular ? "Zavřít soubor a nahrát nový/é" : `Zpět na Vašich ${ this.backup.size } souborů`;
+        const backTooltip = options.allowFileChanges === false
+            ? "Zpět na seznam souborů"
+            : isSingular ? "Zavřít soubor a nahrát nový/é" : `Zpět na Vašich ${ fileCount } souborů`;
         const backIcon = isSingular ? "close" : "back";
         const backIconStyle = isSingular ? "micro" : "micro";
 
@@ -582,7 +603,9 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 tooltip="${backTooltip}"
                 variant="foreground"
                 @click=${() => {
-                    if ( this.backup.size <= 1 ) {
+                    if (options.onCloseDetail) {
+                        options.onCloseDetail();
+                    } else if ( this.backup.size <= 1 ) {
                         this.group.files.removeAllInstances();
                         this.host.fileController.removeInstance();
                         this.host.requestUpdate();

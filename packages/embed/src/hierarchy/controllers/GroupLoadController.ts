@@ -1,11 +1,12 @@
-import { html, PropertyValueMap } from "lit";
-import { IBaseElement } from "../../controllers/IBaseElement";
-import { AbstractHierarchyController, HostReactiveProperties } from "./AbstractHierarchyController";
-import { GroupController } from "./GroupController";
-import { createContext, ContextProvider } from "@lit/context";
-import { Instance } from "@labirthermal/core/src/file/instance";
-import { Batch, ThermalGroup } from "@labirthermal/core";
-import { ThermalFileFailure } from "@labirthermal/core";
+import type { PropertyValueMap } from "lit";
+import type { IBaseElement } from "../../controllers/IBaseElement";
+import type { HostReactiveProperties } from "./AbstractHierarchyController";
+import { AbstractHierarchyController } from "./AbstractHierarchyController";
+import type { GroupController } from "./GroupController";
+import { createContext } from "@lit/context";
+import type { ThermalGroup} from "@labirthermal/core";
+import { ThermalFileFailure, ThermalFileReader } from "@labirthermal/core";
+import type { GroupListingController } from "./GroupListingController";
 
 type IHostProperties = {
     filesString?: string;
@@ -13,6 +14,7 @@ type IHostProperties = {
 
 export interface IElementWithGroupLoadController extends IBaseElement, IHostProperties {
     groupController: GroupController;
+    groupListingController: GroupListingController;
     groupLoadController: GroupLoadController;
 }
 
@@ -32,7 +34,7 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
         return this._UUID;
     }
 
-    public static HOST_PROPERTIES: HostReactiveProperties<IHostProperties> = {
+    public static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties> = {
         filesString: { type: String, reflect: true, attribute: "group-files" }
     }
 
@@ -48,12 +50,7 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
         return this.host.groupController.groupObject;
     }
 
-    private get _files(): Instance[] {
-        return this.host.groupController.groupObject.files.value;
-    }
-
-
-    private _groupLoadControllerContextProvider: ContextProvider<typeof groupLoadControllerContext, IElementWithGroupLoadController>;
+    public errors: string[] = [];
 
     constructor(
         host: IElementWithGroupLoadController
@@ -62,74 +59,27 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
 
         this._UUID = host.UUID + "_group-load-controller";
 
-        this._groupLoadControllerContextProvider = new ContextProvider(host, {
-            context: groupLoadControllerContext, 
-            initialValue: this 
-        });
     }
 
 
     hostConnected(): void {
+
+        this.log( this.host.filesString );
         
-        this.group.files.addListener(
-            this.UUID,
-            value => {
-                this.host.filesString = this._filesToAttribute(value);
-            }
-        );
+        if ( this.host.filesString ) {
+
+            const requests = this._parseAttribute(this.host.filesString); 
+            this._load( requests );
+
+        }
 
     }
 
     hostDisconnected(): void {
-        throw new Error("Method not implemented.");
+        // Do nothing for now
     }
 
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithGroupLoadController>): void {
-        
-        if ( value.has( "filesString" ) ) {
-
-            const filesString = this.host.filesString;
-            const requests = this._parseAttribute( filesString ?? "" );
-
-            // Zkontroluj, zda se změnila některá URL souboru - zda se liší od aktuálních souborů z hlediska thermal, visible či label
-            let _hasChanged: boolean = false;
-
-            let _missingFiles: GroupLoaderFileRequest[] = [...requests];
-            let _existingFiles: Instance[] = [...this._files];
-
-            for ( const file of _existingFiles ) {
-
-                let found
-
-            }
-
-            if ( requests.length > 0 ) {
-                this._load( requests );
-            }
-
-        }
-
-
-    }
-
-    public _filesToAttribute(
-        files: Instance[]
-    ): string | undefined {
-
-        if ( !files || files.length === 0 ) {
-            return undefined;
-        }
-
-        return files.map(file => {
-            const segments = [];
-            if ( file.thermalUrl ) {
-                segments.push(`${GroupLoadController.FILE_THERMAL_KEY}${GroupLoadController.FILE_COMPONENT_SEPAROATOR}${file.thermalUrl}`);
-            }
-            if ( file.visibleUrl ) {
-                segments.push(`${GroupLoadController.FILE_VISIBLE_KEY}${GroupLoadController.FILE_COMPONENT_SEPAROATOR}${file.visibleUrl}`);
-            }
-            return segments.join(GroupLoadController.FILE_SEGMENT_SEPAROATOR);
-        }).join(GroupLoadController.FILE_RECORD_SEPARATOR);
 
     }
 
@@ -147,6 +97,8 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
                 let visible: string | undefined;
                 let label: string | undefined;
 
+                this.log("Parsing record:", record);
+
                 record
                     .trim()
                     .split(GroupLoadController.FILE_SEGMENT_SEPAROATOR)
@@ -155,6 +107,10 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
                         let [key, value] = segment.split(GroupLoadController.FILE_COMPONENT_SEPAROATOR);
                         key = key.trim();
                         value = value?.trim();
+                        this.log("Parsed key:", key, "Parsed value:", value);
+
+                        this.log("Parsing segment:", segment);
+
                         switch(key) {
                             case GroupLoadController.FILE_THERMAL_KEY:
                                 thermal = value;
@@ -180,9 +136,11 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
 
     }
 
-    private _load(
+    private async _load(
         requests: GroupLoaderFileRequest[]
     ) {
+
+        this.log("Starting to load group with requests", requests);
 
         // If no files are requested, clear the group
         if ( requests.length === 0 ) {
@@ -190,63 +148,49 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
             return;
         }
 
-        let batch: Batch | undefined;
+        const registry = this.group.registry;
+        const service = registry.service;
+        this.errors = [];
+        registry.loading.markAsLoading();
 
-        const onResult = ( label: string | undefined ) => {
-            return async ( result: Instance | ThermalFileFailure ) => {
-                if ( result instanceof Instance && label ) {
-                    result.setLabel(label);
+        try {
+            const results = await Promise.all(requests.map(async request => ({
+                result: await service.loadFile(request.thermal, request.visible),
+                label: request.label
+            })));
+
+            for (const item of results) {
+                if (item.result instanceof ThermalFileFailure) {
+                    this.errors.push(`${item.result.thermalUrl}: ${item.result.message}`);
+                    this.log("File loading failed", item.result);
                 }
             }
-        }
 
-        for ( const request of requests ) {
-
-            if ( !batch ) {
-                batch = this.group.registry.batch.request(
-                    request.thermal,
-                    request.visible,
-                    this.group,
-                    onResult(request.label)
-                )
-            } else {
-                batch.request(
-                    request.thermal,
-                    request.visible,
-                    this.group,
-                    onResult(request.label)
-                )
-            }
-        }
-
-        if ( batch ) {
-            batch.close();
-            batch.onResolve.set(
-                this.UUID,
-                () => {
-                    this.host.requestUpdate();
-                }
+            const filteredResults = results.filter(
+                (item): item is { result: ThermalFileReader; label: string | undefined } =>
+                    item.result instanceof ThermalFileReader
             );
+
+            this.host.groupListingController.backupReaders(filteredResults.map(item => item.result));
+            await this.host.groupListingController.restoreTheEntireBackup();
+
+            for (const file of this.group.files.value) {
+                const matchingResult = filteredResults.find(item => item.result === file.reader);
+                if (matchingResult?.label !== undefined) {
+                    file.setLabel(matchingResult.label);
+                }
+            }
+
+            await registry.postLoadedProcessing();
+            registry.range.applyMinmax();
+        } catch (error) {
+            this.errors.push(error instanceof Error ? error.message : String(error));
+            this.log("Group loading failed", error);
+        } finally {
+            registry.loading.markAsLoaded();
+            this.host.requestUpdate();
         }
 
-    }
-
-    public renderFiles(
-        itemInner: unknown
-    ): unknown {
-        return this.group.files.value.map( file => {
-
-            return html`<file-provider .file=${file}>
-                ${itemInner}
-            </file-provider>`;
-
-        } );
-    }
-
-    public mapFiles(
-        callback: (instance: Instance) => unknown
-    ): unknown[] {
-        return this.group.files.value.map( file => callback(file) );
     }
 
 

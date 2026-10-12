@@ -90,6 +90,34 @@ size. Active standalone graphs use `--thermal-analysis-graph-height` (default
 Resize observers can still update timeline ticks and graphs when their display
 size changes; layout switching does not recreate the thermal canvas.
 
+### Preloaded group application
+
+`thermal-group-app` loads the initial `group-files` attribute and displays the
+same grid/table listing and detail controls as the drop-in app, without file
+upload or deletion controls:
+
+```html
+<thermal-group-app
+  group-files="thermal~https://example.com/first.lrc|label~First;thermal~https://example.com/second.lrc"
+></thermal-group-app>
+```
+
+Set `group-files` before connecting the element. Later attribute changes do
+not reload the group. Open a file using its heading or detail button; the back
+button returns to the listing, including for a group containing only one file.
+Opening and closing details does not replace the group's instances, preserving
+labels, analyses and playback state. Palette, range, analysis and download
+controls remain available. Loading failures are displayed alongside any files
+that loaded successfully.
+
+The shared `GroupListingController` rendering methods accept optional
+`GroupListingRenderOptions`. `allowFileChanges: false` hides file upload and
+deletion controls; `onOpenDetail` and `onCloseDetail` let the host select a
+detail without replacing the group's contents. Omitting these options preserves
+the drop-in app's existing behavior.
+With `allowFileChanges: false`, the file count and back-button tooltip also use
+neutral wording rather than referring to uploaded files or the user's files.
+
 ### Analysis table
 
 `file-analysis-table` renders the analyses of its enclosing file provider. Both

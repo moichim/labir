@@ -86,6 +86,66 @@ afterEach(() => {
 });
 
 describe("GroupListingController layouts", () => {
+    it("keeps file mutation controls enabled by default and hides them for a preloaded group", () => {
+        const host = new TestListing();
+        const file = fixture("first");
+        Object.assign(host, {
+            groupController: { groupObject: { files: { value: [file] } } }
+        });
+        const container = document.createElement("div");
+        render(host.groupListingController.renderListHeader(), container);
+        expect(container.textContent).toContain("1 nahraných souborů");
+        expect(container.querySelector("group-dropin-input")).not.toBeNull();
+        expect(container.querySelector('[icon="trash"]')).not.toBeNull();
+
+        render(host.groupListingController.renderListHeader(undefined, { allowFileChanges: false }), container);
+        expect(container.textContent).toContain("Počet souborů: 1");
+        expect(container.textContent).not.toContain("nahraných");
+        expect(container.querySelector("group-dropin-input")).toBeNull();
+        expect(container.querySelector('[icon="trash"]')).toBeNull();
+        expect(container.querySelector("group-download-dropdown")).not.toBeNull();
+
+        Object.assign(host, { files: [file] });
+        render(host.groupListingController.renderList(
+            instance => host.groupListingController.renderThumbnail(instance, { allowFileChanges: false })
+        ), container);
+        expect(container.querySelector('[icon="trash"]')).toBeNull();
+        expect(container.querySelector('[icon="eye"]')).not.toBeNull();
+        expect(container.querySelector("file-download-dropdown")).not.toBeNull();
+    });
+
+    it("delegates detail opening and closing without removing even a single file", () => {
+        const host = new TestListing();
+        const file = fixture("first");
+        const removeAllInstances = vi.fn();
+        Object.assign(host, {
+            groupController: { groupObject: { files: { value: [file], removeAllInstances } } }
+        });
+        const onOpenDetail = vi.fn();
+        const onCloseDetail = vi.fn();
+        const options = { allowFileChanges: false, onOpenDetail, onCloseDetail };
+        const container = document.createElement("div");
+        render(host.groupListingController.renderList(
+            instance => host.groupListingController.renderThumbnail(instance, options)
+        ), container);
+        container.querySelector<HTMLElement>('[icon="eye"]')!.click();
+        expect(onOpenDetail).toHaveBeenCalledWith(file);
+
+        render(host.groupListingController.renderList(
+            instance => host.groupListingController.renderDetailHeader(instance, undefined, options)
+        ), container);
+        expect(container.textContent).toContain("Zpět");
+        expect(container.querySelector('[icon="back"]')?.getAttribute("tooltip")).toBe("Zpět na seznam souborů");
+        container.querySelector<HTMLElement>('[icon="back"]')!.click();
+        expect(onCloseDetail).toHaveBeenCalledOnce();
+        expect(removeAllInstances).not.toHaveBeenCalled();
+
+        render(host.groupListingController.renderList(
+            instance => host.groupListingController.renderDetailHeader(instance, undefined, { onCloseDetail })
+        ), container);
+        expect(container.querySelector('[icon="back"]')?.getAttribute("tooltip")).toBe("Zpět na Vašich 1 souborů");
+    });
+
     it("preserves providers, canvases and mounts across repeated layout and column changes", async () => {
         const host = new TestListing();
         const file = fixture("first");
