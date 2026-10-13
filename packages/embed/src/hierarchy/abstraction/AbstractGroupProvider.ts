@@ -17,6 +17,13 @@ export abstract class AbstractGroupProvider extends AbstractRegistryConsumer imp
 
     public autoclearGroup: boolean = true;
 
+    willUpdate(
+        values: PropertyValues<AbstractGroupProvider>
+    ): void {
+        super.willUpdate?.(values);
+        this.groupController.hostWillUpdateWatcher(values);
+    }
+
     updated(
         values: PropertyValues<AbstractGroupProvider>
     ): void {

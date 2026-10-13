@@ -13,7 +13,7 @@ import { AbstractApp } from "./AbstractApp";
 import { IElementWithFileController } from "../hierarchy/controllers/FileController";
 import { IElementWithFileLoadController } from "../hierarchy/controllers/FileLoadController";
 
-export class ThermalFileAppNewElement 
+export class ThermalFileAppElement 
 extends AbstractApp 
 implements 
     IElementWithManagerController, 
@@ -93,7 +93,7 @@ implements
     thermal: string | undefined;
     visible: string | undefined;
 
-    willUpdate(_changedProperties: PropertyValues<ThermalFileAppNewElement>) {
+    willUpdate(_changedProperties: PropertyValues<ThermalFileAppElement>) {
         super.willUpdate(_changedProperties);
         this.managerController.hostWillUpdateWatcher(_changedProperties);
         this.registryController.hostWillUpdateWatcher(_changedProperties);
@@ -102,7 +102,7 @@ implements
         this.fileController.hostWillUpdateWatcher(_changedProperties);
     }
 
-    protected updated(_changedProperties: PropertyValues<ThermalFileAppNewElement>) {
+    protected updated(_changedProperties: PropertyValues<ThermalFileAppElement>) {
         super.updated(_changedProperties);
         this.managerController.hostUpdatedWatcher(_changedProperties);
         this.registryController.hostUpdatedWatcher(_changedProperties);

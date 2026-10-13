@@ -129,6 +129,12 @@ export class DropinAppElement
     willUpdate(_changedProperties: PropertyValues<DropinAppElement>) {
         super.willUpdate(_changedProperties);
 
+        this.managerController.hostWillUpdateWatcher(_changedProperties);
+        this.registryController.hostWillUpdateWatcher(_changedProperties);
+        this.groupController.hostWillUpdateWatcher(_changedProperties);
+        this.groupListingController.hostWillUpdateWatcher(_changedProperties);
+        this.fileController.hostWillUpdateWatcher(_changedProperties);
+
         // Side effect: update the display mode based on the number of instances to display
         if (_changedProperties.has("toDisplay")) {
 

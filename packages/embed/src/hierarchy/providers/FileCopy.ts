@@ -8,7 +8,14 @@ import { IElementWithManagerController, ManagerController } from "../controllers
 import { IElementWithRegistryController, RegistryController } from "../controllers/RegistryController";
 
 /** This element creates a completely isolated hierarchy tree for the given original file. The file is copied and all contexts are exposed independently of the original context. */
-export class FileCopyElement extends AbstractThermalElement implements IElementWithManagerController, IElementWithRegistryController, IElementWithGroupController, IElementWithFileController {
+export class FileCopyElement 
+extends AbstractThermalElement 
+implements 
+    IElementWithManagerController, 
+    IElementWithRegistryController, 
+    IElementWithGroupController, 
+    IElementWithFileController 
+{
 
     public static properties = {
         ...ManagerController.HOST_PROPERTIES,

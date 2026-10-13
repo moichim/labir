@@ -46,18 +46,16 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
     }
 
     hostWillUpdateWatcher(value: PropertyValueMap<IElementWithFileLoadController>): void {
-        // Do nothing
+        if (value.has("thermal") && this.host.thermal) {
+            this._load(this.host.thermal, this.host.visible);
+        }
     }
 
 
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileLoadController>): void {
-
-        if (value.has("thermal") && this.host.thermal) {
-            this._load(this.host.thermal, this.host.visible);
-        }
-
-
+        // Do nothing for now
     }
+    
 
     hostConnected(): void {
         // Do nothing for now

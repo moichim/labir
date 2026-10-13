@@ -409,9 +409,6 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             justifyContent: "flex-start",
             alignItems: "center",
             boxSizing: "border-box",
-            // background: "var(--thermal-background)",
-            // borderRadius: "var(--thermal-radius)",
-            // padding: "0.5em",
             gap: "0.5em"
         };
 

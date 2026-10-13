@@ -42,25 +42,18 @@ export class FileMirrorElement extends AbstractFileProvider {
     })
     public visible?: string;
 
-    @property({ type: String })
     public analysis1?: string;
 
-    @property({ type: String })
     public analysis2?: string;
 
-    @property({ type: String })
     public analysis3?: string;
 
-    @property({ type: String })
     public analysis4?: string;
 
-    @property({ type: String })
     public analysis5?: string;
 
-    @property({ type: String })
     public analysis6?: string;
 
-    @property({ type: String })
     public analysis7?: string;
 
 

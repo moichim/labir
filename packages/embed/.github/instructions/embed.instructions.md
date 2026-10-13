@@ -18,6 +18,7 @@ applyTo: "packages/embed/**"
 
 - For Lit `change-in-update` warnings, reactive property or `@state` assignments in lifecycle methods, or decisions between `willUpdate` and `updated`, load [embed-lit-update-lifecycle](../skills/embed-lit-update-lifecycle/SKILL.md). It can also be invoked manually as `/embed-lit-update-lifecycle`.
 - Preserve that skill's distinction between review and requested implementation. Do not treat every reactive write in `updated()` as a bug or prescribe one lifecycle hook for all side effects.
+- For formatting, documenting, or refactoring Lit web components or classes with JSDoc, custom method documentation, controller property exclusions, and clean readable code, load [embed-format-component](../skills/embed-format-component/SKILL.md). It can also be invoked manually as `/embed-format-component`.
 
 ## Verification
 

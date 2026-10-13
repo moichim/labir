@@ -465,7 +465,9 @@ export class AatAppElement extends AbstractThermalElement implements IWithlocale
                 </thermal-dialog>
 
                 ${this.t !== undefined || this.v !== undefined || this.ha !== undefined
-                ? html`<thermal-btn @click=${() => {
+                ? html`<thermal-btn 
+                slot="bar-pre"
+                @click=${() => {
                     this.temperature = undefined;
                     this.ha = undefined;
                     this.ta = undefined;

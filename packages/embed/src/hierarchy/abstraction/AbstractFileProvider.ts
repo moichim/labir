@@ -44,7 +44,10 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
 
     public autoHighlight: boolean = false;
 
-
+    public willUpdate(values: PropertyValues<AbstractFileProvider>): void {
+        super.willUpdate?.(values);
+        this.fileController.hostWillUpdateWatcher(values);
+    }
 
     public updated(_changedProperties: PropertyValues<AbstractFileProvider>): void {
         super.updated(_changedProperties);

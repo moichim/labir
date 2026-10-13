@@ -38,6 +38,11 @@ export abstract class AbstractRegistryProvider extends AbstractManagerConsumer i
         }
     }
 
+    willUpdate(values: PropertyValues<AbstractRegistryProvider>): void {
+        super.willUpdate?.(values);
+        this.registryController.hostWillUpdateWatcher(values);
+    }
+
 
     protected updated(_changedProperties: PropertyValues<AbstractRegistryProvider>): void {
 

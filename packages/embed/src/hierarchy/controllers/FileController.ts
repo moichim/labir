@@ -259,12 +259,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     }
 
     hostWillUpdateWatcher(value: PropertyValueMap<IElementWithFileController>): void {
-        // Do nothing
-    }
-
-
-    hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileController>): void {
-
+        
         // Update the file assignment
         if (value.has("file")) this._syncAssignment();
 
@@ -284,6 +279,14 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
             }
 
         }
+    }
+
+
+    hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileController>): void {
+
+        
+
+        
 
 
     }

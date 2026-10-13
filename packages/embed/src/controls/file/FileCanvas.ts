@@ -8,6 +8,14 @@ import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileCons
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 
+/**
+ * The component rendering the file canvas through `@labirthermal/core` functionality.
+ * 
+ * Extends `AbstractFileConsumer`, therefore needs to be in a webcomponent providing the necessary contexts.
+ * 
+ * @package @labirthermal/embed
+ * @author Jan Jáchim <jachim@ntc.zcu.cz>
+ */
 export class FileCanvasElement extends AbstractFileConsumer {
 
     /** Dedicated core-owned mount target; must not contain any Lit-managed child parts. */
@@ -16,11 +24,9 @@ export class FileCanvasElement extends AbstractFileConsumer {
     /** Actual DOM-mounted instance, retained for cleanup even before a pending file update completes. Not reactive. */
     private mountedInstance?: Instance;
 
+    /** Indicates whether the component prefers to use GPU for rendering... */
     @property({ type: Boolean, attribute: "prefers-gpu" })
     public prefersGpu: boolean = true;
-
-    @property({ converter: booleanConverter(false) })
-    public norender: boolean = false;
 
     public onInstanceCreated(): void {
         this.requestUpdate();
@@ -38,6 +44,8 @@ export class FileCanvasElement extends AbstractFileConsumer {
     protected updated(_changedProperties: PropertyValues<FileCanvasElement>): void {
 
         super.updated(_changedProperties);
+        
+        // Do nothing when the component is not connected or the container is not yet available.
         if (!this.isConnected || !this.container.value) return;
 
         // Synchronize the mount after rendering, including reconnection without a file property change.
@@ -49,8 +57,9 @@ export class FileCanvasElement extends AbstractFileConsumer {
                 this.mountedInstance = this.file;
                 this.file.draw();
             }
-        } else if (_changedProperties.has("prefersGpu") && this.mountedInstance) {
-            // Apply GPU changes after rendering without drawing twice when a new file is mounted.
+        } 
+        // Apply GPU changes after rendering without drawing twice when a new file is mounted.
+        else if (_changedProperties.has("prefersGpu") && this.mountedInstance) {
             this.mountedInstance.setPreferWebGl(this.prefersGpu);
             this.mountedInstance.draw();
         }

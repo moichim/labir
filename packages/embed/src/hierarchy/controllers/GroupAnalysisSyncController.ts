@@ -120,10 +120,6 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
     }
 
     hostWillUpdateWatcher(changed: PropertyValueMap<IElementWithGroupAnalysisSyncController>): void {
-        // Do nothing
-    }
-
-    hostUpdatedWatcher(changed: PropertyValueMap<IElementWithGroupAnalysisSyncController>): void {
         if (!this._group) return;
         if (changed.has("groupAnalysisSyncOn")) {
             if (!this.host.groupAnalysisSyncOn) {
@@ -132,6 +128,10 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
             }
             if (!this.on || !this._initialized) this._initialize();
         }
+    }
+
+    hostUpdatedWatcher(changed: PropertyValueMap<IElementWithGroupAnalysisSyncController>): void {
+        if (!this._group) return;
         if (!this.on) return;
         const slots = SLOT_NUMBERS.filter(slot =>
             changed.has(this._property(slot)) && this._hostValue(slot) !== this._values.get(slot)

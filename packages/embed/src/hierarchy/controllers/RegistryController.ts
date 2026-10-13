@@ -240,11 +240,6 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
     hostWillUpdateWatcher(
         value: PropertyValues<IElementWithRegistryController>
     ): void {
-    }
-
-    hostUpdatedWatcher(
-        value: PropertyValues<IElementWithRegistryController>
-    ): void {
 
         if (value.has("opacity")) {
             this.setOpacity(this.host.opacity ?? 1);
@@ -262,6 +257,14 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
             }
 
         }
+        
+    }
+
+    hostUpdatedWatcher(
+        value: PropertyValues<IElementWithRegistryController>
+    ): void {
+
+        
 
     }
 
