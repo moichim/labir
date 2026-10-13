@@ -1,9 +1,8 @@
-import { CallbacksManager, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import { AbstractAnalysis, CallbacksManager, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
 import { FileAnalysisSynchronisators } from "./FileAnalysisSynchronisators";
 import { ContextProvider, createContext } from "@lit/context";
 import { PropertyDeclaration, PropertyValueMap } from "lit";
-import { IBaseElement } from "../../controllers/IBaseElement";
-import { AnalysisList, CurrentFrameContext, durationContext, filaMayStopContext, fileAnalysisListContext, fileContext, fileCurrentFrameContext, fileCursorContext, fileFailureContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, readyContext, loadingContext } from "../providers/context/FileContexts";
+import { IBaseElement } from "../AbstractThermalElement";
 import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { GroupController } from "./GroupController";
 import { ManagerController } from "./ManagerController";
@@ -39,8 +38,69 @@ type IHostProperties = {
 
 export interface IElementWithFileController extends IBaseElement, IHostProperties { }
 
+/** A crucial context for exporting the `FileController` object. */
 export const fileControllerContext = createContext<FileController>("file-controller-context");
 
+/** A crucial context exposing the `Instance` object from `FileController`. */
+export const fileContext = createContext<Instance | undefined>("file-object-context");
+
+/** Expose the file error value from the `FileController`. */
+export const fileFailureContext = createContext<ThermalFileFailure | undefined>("file-failure-object");
+
+/** Whether a file request is in progress; independent of readiness or an existing instance. */
+export const fileLoadingContext = createContext<boolean>("file-loading");
+
+/** File ready value from the `FileController` */
+export const fileReadyContext = createContext<boolean>("file-ready-context");
+
+/**. Current file MS value exposed as context. */
+export const fileMsContext = createContext<number>("file-ms-context");
+
+/** File time cursor indicvates the MS on which an arbitrary HTML may be recplaced. Undended to share across elements such as timeline ang graph. In those, the context shall be set on hover using `FileController.setFileTimeCursorPercentage()` */
+export const fileTimeCursorContext = createContext<number | undefined>("file-time-cursor");
+
+/** The `FileController` exposes the current file frame values as context. Current time is not possible to set by modification of this context. To change the current frame, it is necessary to use either:
+ * - a) the `FileController.setMs()`
+ * - b) the internal methods of `@labirthermal/core` `Instance["timeline"]` methods such as play, pause, setTimeRelative etc..
+ */
+export type FileControllerCurrentFrameType = {
+    index: number;
+    ms: number;
+    time: string;
+    percentage: number;
+    absolute: number;
+};
+export const fileCurrentFrameContext = createContext<FileControllerCurrentFrameType | undefined>("file-current-frame-context");
+
+/** The duration of the file is exposed from the `FileController` with the value pre-calculated for consumers */
+export type FileControllerDurationContextType = {
+    /** The file duration in ms */
+    ms: number;
+    /** The file formatted duration as string */
+    time: string;
+};
+
+/** Exposes the current file duration from `FileController` */
+export const fileDurationContext = createContext<FileControllerDurationContextType | undefined>("file-duration-context");
+
+/** Exposes the current playing state from `FileController`.  */
+export const filePlayingContext = createContext<boolean>("file-playing-context");
+
+/** Exposes the current playback speed value from `FileController`. */
+export const filePlaybackSpeedContext = createContext<PlaybackSpeeds | undefined>("file-playback-speed");
+
+/** Exposes the current recording state from `FileController`. */
+export const fileRecordingContext = createContext<boolean>("file-is-recording-state");
+
+/** Exposes the current may stop state from the `FileController` */
+export const filaMayStopContext = createContext<boolean>("file-may-stop-state");
+
+/** Exposes the array of current analyses from the `FileController` */
+export const fileAnalysisListContext = createContext<AbstractAnalysis[]>("file-analysis-list");
+
+
+
+/** Unified properties of an analysis attribute of the host webcomponent */
 const ANALYSIS_STATE_DECLARATION: PropertyDeclaration = { type: String, reflect: true };
 
 export class FileController extends AbstractHierarchyController<IElementWithFileController> {
@@ -110,15 +170,15 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     private fileContextProvider: ContextProvider<typeof fileContext, IElementWithFileController>;
 
     private fileFailureContextProvider: ContextProvider<typeof fileFailureContext, IElementWithFileController>;
-    private readonly loadingContextProvider: ContextProvider<typeof loadingContext, IElementWithFileController>;
+    private readonly loadingContextProvider: ContextProvider<typeof fileLoadingContext, IElementWithFileController>;
 
-    private readyContextProvider: ContextProvider<typeof readyContext, IElementWithFileController>;
+    private readyContextProvider: ContextProvider<typeof fileReadyContext, IElementWithFileController>;
 
-    private fileDurationContextProvider: ContextProvider<typeof durationContext, IElementWithFileController>;
+    private fileDurationContextProvider: ContextProvider<typeof fileDurationContext, IElementWithFileController>;
 
     private fileCurrentFrameContextProvider: ContextProvider<typeof fileCurrentFrameContext, IElementWithFileController>;
 
-    private fileCursorContextProvider: ContextProvider<typeof fileCursorContext, IElementWithFileController>;
+    private fileCursorContextProvider: ContextProvider<typeof fileTimeCursorContext, IElementWithFileController>;
 
     private fileMsContextProvider: ContextProvider<typeof fileMsContext, IElementWithFileController>;
 
@@ -166,17 +226,17 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
         this.loadingContextProvider = new ContextProvider(
             this.host,
-            { context: loadingContext, initialValue: false }
+            { context: fileLoadingContext, initialValue: false }
         );
 
         this.readyContextProvider = new ContextProvider(
             this.host,
-            { context: readyContext, initialValue: false }
+            { context: fileReadyContext, initialValue: false }
         );
 
         this.fileDurationContextProvider = new ContextProvider(
             this.host,
-            { context: durationContext }
+            { context: fileDurationContext }
         );
 
         this.fileCurrentFrameContextProvider = new ContextProvider(
@@ -186,7 +246,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
         this.fileCursorContextProvider = new ContextProvider(
             this.host,
-            { context: fileCursorContext }
+            { context: fileTimeCursorContext }
         );
 
         this.fileMsContextProvider = new ContextProvider(
@@ -636,3 +696,5 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
 
 }
+
+

@@ -1,18 +1,17 @@
-import type { Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html, nothing } from "lit";
 import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-import { fileAnalysisListContext } from "../../../hierarchy/providers/context/FileContexts";
-import type { AnalysisList } from "../../../hierarchy/providers/context/FileContexts";
-import { interactiveAnalysisContext } from "../../../hierarchy/providers/context/ManagerContext";
+import { fileAnalysisListContext } from "../../../hierarchy/controllers/FileController";
+import { interactiveAnalysisContext } from "../../../hierarchy/controllers/ManagerController";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
-import { optionalBooleanConverter } from "./AnalysisTableOptions";
 import type { AnalysisTableMode } from "./AnalysisTableOptions";
+import { optionalBooleanConverter } from "./AnalysisTableOptions";
 
 export class FileAnalysisTableElement extends AbstractFileConsumer {
 
@@ -40,7 +39,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
 
     @consume({ context: fileAnalysisListContext, subscribe: true })
     @state()
-    protected analysis: AnalysisList = [];
+    protected analysis: AbstractAnalysis[] = [];
 
     private boundFile?: Instance;
 

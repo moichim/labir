@@ -1,11 +1,10 @@
 import { t } from "i18next";
 import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 
-// @customElement( "thermal-dialog" )
 export class ThermalDialogElement extends LitElement {
 
     static shadowRootOptions: ShadowRootInit = {

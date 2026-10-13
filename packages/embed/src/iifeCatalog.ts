@@ -1,6 +1,6 @@
 import { AatAppElement } from "./apps/AustralianApparentTemperature";
 import { DropinAppElement } from "./apps/ThermalDropinApp";
-import { ThermalFileAppElement } from "./apps/ThermalFileAppNew";
+import { ThermalFileAppElement } from "./apps/ThermalFileApp";
 import { ThermalGroupAppElement } from "./apps/ThermalGroupApp";
 import { ThermalChartElement } from "./controls/file/analysis/chart/chart";
 import { AnalysisColorDropdown } from "./controls/file/analysis/edit/analysisColorDropdown";
@@ -49,7 +49,6 @@ import { RegistryRangeFullButton } from "./controls/registry/RegistryRangeFullBu
 import { RegistryRangeSlider } from "./controls/registry/RegistryRangeSlider";
 import { RegistryTicksBar } from "./controls/registry/RegistryTicksBar";
 import { FileCopyElement } from "./hierarchy/providers/FileCopy";
-import { FileMirrorElement } from "./hierarchy/providers/FileMirror";
 import { FileProviderElement } from "./hierarchy/providers/FileProvider";
 import { GroupProviderElement } from "./hierarchy/providers/GroupProvider";
 import { ManagerProviderElement } from "./hierarchy/providers/ManagerProvider";
@@ -107,8 +106,6 @@ export const elementsProviders = {
     "manager-provider": ManagerProviderElement,
 
     "file-copy": FileCopyElement,
-
-    "file-mirror": FileMirrorElement,
 
 } as const;
 

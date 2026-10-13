@@ -4,7 +4,7 @@ import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { filePlaybackSpeedContext } from "../../hierarchy/providers/context/FileContexts";
+import { filePlaybackSpeedContext } from "../../hierarchy/controllers/FileController";
 import { T } from "../../translations/Languages";
 import { ThermalDropdownElement } from "../../ui/Dropdown";
 

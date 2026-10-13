@@ -1,6 +1,6 @@
 import { PropertyDeclaration, PropertyValues } from "lit";
 import { AbstractReactiveController } from "../../controllers/AbstractReactiveController";
-import { IBaseElement } from "../../controllers/IBaseElement";
+import { IBaseElement } from "../AbstractThermalElement";
 
 /** Common internal state for host elements that should be only internal states. */
 export const INTERNAL_STATE_DECLARATION: PropertyDeclaration = { reflect: false, state: true }

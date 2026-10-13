@@ -1,9 +1,8 @@
-import { Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
 import { html, PropertyValues } from "lit";
 import { AbstractGroupConsumer } from "../consumers/AbstractGroupConsumer";
 import type { IElementWithFileController } from "../controllers/FileController";
 import { FileController } from "../controllers/FileController";
-import { AnalysisList } from "../providers/context/FileContexts";
 
 export abstract class AbstractFileProvider extends AbstractGroupConsumer implements IElementWithFileController {
 
@@ -31,7 +30,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
     public playing: boolean = false;
 
     /** List of all analyses taken from the `Instance.analysis.layers.all` */
-    public analyses: AnalysisList = [];
+    public analyses: AbstractAnalysis[] = [];
 
 
     public analysis1?: string;

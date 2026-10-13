@@ -1,5 +1,5 @@
 import { html, nothing, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import icons from "../utils/icons";
@@ -7,7 +7,6 @@ import icons from "../utils/icons";
 // Define the type for the icon factory functions
 type IconFactory = Record<string, (classes?: string, css?: string) => string>;
 
-// @customElement("thermal-icon")
 export class ThermalIconElement extends AbstractThermalElement {
 
 
@@ -35,10 +34,7 @@ export class ThermalIconElement extends AbstractThermalElement {
     protected updated(_changedProperties: PropertyValues): void {
 
         super.updated(_changedProperties);
-
-
         this.updateIcon();
-
 
     }
 

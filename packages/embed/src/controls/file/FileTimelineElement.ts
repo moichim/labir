@@ -7,7 +7,7 @@ import { property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { CurrentFrameContext, durationContext, DurationContext, filaMayStopContext, fileCurrentFrameContext, FileCursorContext, fileCursorContext, filePlayingContext } from "../../hierarchy/providers/context/FileContexts";
+import { FileControllerCurrentFrameType, fileDurationContext, FileControllerDurationContextType, filaMayStopContext, fileCurrentFrameContext, filePlayingContext, fileTimeCursorContext } from "../../hierarchy/controllers/FileController";
 import { T } from "../../translations/Languages";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
 
@@ -21,18 +21,18 @@ export class FileTimelineElement extends AbstractFileConsumer {
 
     @consume({ context: fileCurrentFrameContext, subscribe: true })
     @state()
-    protected currentFrame?: CurrentFrameContext;
+    protected currentFrame?: FileControllerCurrentFrameType;
 
-    @consume({ context: durationContext, subscribe: true })
+    @consume({ context: fileDurationContext, subscribe: true })
     @state()
-    protected duration?: DurationContext;
+    protected duration?: FileControllerDurationContextType;
 
     @consume({ context: filaMayStopContext, subscribe: true })
     @state()
     protected mayStop: boolean = true;
 
-    @consume({ context: fileCursorContext, subscribe: true })
-    protected cursor: FileCursorContext;
+    @consume({ context: fileTimeCursorContext, subscribe: true })
+    protected cursor: typeof fileTimeCursorContext["__context__"];
 
     protected timelineRef: Ref<HTMLDivElement> = createRef()
     protected barRef: Ref<HTMLDivElement> = createRef();

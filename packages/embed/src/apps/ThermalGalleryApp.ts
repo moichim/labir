@@ -10,7 +10,7 @@ import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { ThermalFileElement } from "../utils/multipleFiles/ThermalFile";
 import { ThermalGroup } from "../utils/multipleFiles/ThermalGroup";
-import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../hierarchy/providers/context/pngExportContext";
+import { AbstractApp } from "./AbstractApp";
 
 type ParsedFile = {
     lrc: string;
@@ -35,7 +35,7 @@ enum STATE {
 }
 
 @customElement("thermal-gallery-app")
-export class ThermalGalleryApp extends BaseAppWithPngExportContext {
+export class ThermalGalleryApp extends AbstractApp {
 
     public get manager(): ThermalManager {
         return this.registryRef.value!.registryObject.manager;
@@ -73,22 +73,6 @@ export class ThermalGalleryApp extends BaseAppWithPngExportContext {
 
     protected registryRef: Ref<RegistryProviderElement> = createRef();
 
-
-    @provide({ context: pngExportWidthContext })
-    protected pngExportWidth: number = 1200;
-
-    @provide({ context: pngExportWidthSetterContext })
-    protected pngExportWidthSetterContext = (value: number) => {
-        this.pngExportWidth = value;
-    }
-
-    @provide({ context: pngExportFsContext })
-    protected pngExportFs: number = 20;
-
-    @provide({ context: pngExportFsSetterContext })
-    protected pngExportFsSetterContext = (value: number) => {
-        this.pngExportFs = value;
-    }
 
     @provide({ context: localeContext })
     @property({ reflect: true, converter: localeConverter })

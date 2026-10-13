@@ -2,7 +2,7 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html } from "lit";
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
-import { managerSmoothContext } from "../../hierarchy/providers/context/ManagerContext";
+import { managerSmoothContext } from "../../hierarchy/controllers/ManagerController";
 import { T } from "../../translations/Languages";
 
 export class ManagerImageSmoothSwitch extends AbstractManagerConsumer {

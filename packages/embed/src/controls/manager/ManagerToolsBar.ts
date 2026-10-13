@@ -6,7 +6,7 @@ import { state } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
-import { toolContext } from "../../hierarchy/providers/context/ManagerContext";
+import { toolContext } from "../../hierarchy/controllers/ManagerController";
 import { T } from "../../translations/Languages";
 
 

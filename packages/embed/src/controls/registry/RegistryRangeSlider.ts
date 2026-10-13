@@ -5,9 +5,13 @@ import { property, state } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import type { RegistryController } from "../../hierarchy/controllers/RegistryController";
-import type { ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
-import { managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
-import { registryLoadingContext, registryMaxContext, registryMinContext, registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
+import type { ManagerPaletteContext } from "../../hierarchy/controllers/ManagerController";
+import { managerPaletteContext } from "../../hierarchy/controllers/ManagerController";
+import { registryMaxContext } from "../../hierarchy/controllers/RegistryController";
+import { registryMinContext } from "../../hierarchy/controllers/RegistryController";
+import { registryLoadingContext } from "../../hierarchy/controllers/RegistryController";
+import { registryRangeToContext } from "../../hierarchy/controllers/RegistryController";
+import { registryRangeFromContext } from "../../hierarchy/controllers/RegistryController";
 
 type Handle = "from" | "to";
 type Range = { from: number; to: number };

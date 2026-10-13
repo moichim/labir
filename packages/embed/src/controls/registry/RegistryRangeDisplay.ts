@@ -2,7 +2,8 @@ import { consume } from "@lit/context";
 import { html, nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
-import { registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
+import { registryRangeToContext } from "../../hierarchy/controllers/RegistryController";
+import { registryRangeFromContext } from "../../hierarchy/controllers/RegistryController";
 
 export class RegistryRangeDisplay extends AbstractRegistryConsumer {
 

@@ -1,6 +1,6 @@
 import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
 import { PropertyValueMap } from "lit";
-import { IBaseElement } from "../../controllers/IBaseElement";
+import { IBaseElement } from "../AbstractThermalElement";
 import { AbstractHierarchyController, HostReactiveProperties } from "./AbstractHierarchyController";
 import { FileController } from "./FileController";
 

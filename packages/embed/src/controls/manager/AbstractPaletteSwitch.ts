@@ -3,7 +3,9 @@ import { consume } from "@lit/context";
 import { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
-import { managerAdvancedPalettesContext, managerPaletteContext, ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { managerAdvancedPalettesContext } from "../../hierarchy/controllers/ManagerController";
+import { managerPaletteContext } from "../../hierarchy/controllers/ManagerController";
+import { ManagerPaletteContext } from "../../hierarchy/controllers/ManagerController";
 
 export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 

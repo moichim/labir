@@ -1,17 +1,17 @@
-import { TimeFormat } from "@labirthermal/core";
 import type { AnalysisDataStateValue, Instance } from "@labirthermal/core";
+import { TimeFormat } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { guard } from "lit/directives/guard.js";
-import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-import { fileCursorContext, FileCursorContext, fileCurrentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
-import {managerGraphFunctionContext} from "../../../hierarchy/providers/context/ManagerContext";
-import { ThermalChartElement } from "./chart/chart";
 import { t } from "i18next";
+import { css, html, nothing, PropertyValues } from "lit";
+import { property, state } from "lit/decorators.js";
+import { guard } from "lit/directives/guard.js";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
+import { FileControllerCurrentFrameType, fileCurrentFrameContext, fileTimeCursorContext } from "../../../hierarchy/controllers/FileController";
+import { managerGraphFunctionContext } from "../../../hierarchy/controllers/ManagerController";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { ThermalChartElement } from "./chart/chart";
 
 /** High level component around `thermal-chart` that provides the functionality of a file analysis graph */
 export class FileAnalysisGraphElement extends AbstractFileConsumer {
@@ -54,10 +54,10 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
     };
 
     @consume({context: fileCurrentFrameContext, subscribe: true})
-    protected currentFrame?: CurrentFrameContext;
+    protected currentFrame?: FileControllerCurrentFrameType;
 
-    @consume({ context: fileCursorContext, subscribe: true })
-    protected cursor: FileCursorContext;
+    @consume({ context: fileTimeCursorContext, subscribe: true })
+    protected cursor: typeof fileTimeCursorContext["__context__"];
 
     @state()
     protected shadowLeft: number = 0;

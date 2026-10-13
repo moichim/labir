@@ -3,7 +3,7 @@ import { css, html } from "lit";
 import { live } from "lit/directives/live.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
-import { registryOpacityContext } from "../../hierarchy/providers/context/RegistryContext";
+import { registryOpacityContext } from "../../hierarchy/controllers/RegistryController";
 
 export class RegistryOpacitySlider extends AbstractRegistryConsumer {
 

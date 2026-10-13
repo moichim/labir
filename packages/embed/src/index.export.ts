@@ -81,7 +81,7 @@ export { AbstractRegistryConsumer } from "./hierarchy/consumers/AbstractRegistry
 export { GroupAnalysisSyncController, groupAnalysisSyncContext } from "./hierarchy/controllers/GroupAnalysisSyncController";
 export type { IElementWithGroupAnalysisSyncController } from "./hierarchy/controllers/GroupAnalysisSyncController";
 export { ConfigController, configContext } from "./hierarchy/controllers/ConfigController";
-export type { ConfigContextValue, ConfigSettings, GroupExportSettings, PngExportSettings } from "./hierarchy/controllers/ConfigController";
+export type { ConfigSettings, GroupExportSettings, PngExportSettings } from "./hierarchy/controllers/ConfigController";
 
 // Independent controls
 export { AppInfoButton } from "./controls/independent/AppInfoButton";

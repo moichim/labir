@@ -1,5 +1,5 @@
 import type { PropertyValueMap } from "lit";
-import type { IBaseElement } from "../../controllers/IBaseElement";
+import type { IBaseElement } from "../AbstractThermalElement";
 import type { HostReactiveProperties } from "./AbstractHierarchyController";
 import { AbstractHierarchyController } from "./AbstractHierarchyController";
 import type { GroupController } from "./GroupController";

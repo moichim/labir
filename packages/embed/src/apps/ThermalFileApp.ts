@@ -7,7 +7,7 @@ import { FileLoadController } from "../hierarchy/controllers/FileLoadController"
 import { IElementWithManagerController, ManagerController } from "../hierarchy/controllers/ManagerController";
 import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
 import { IElementWithGroupController, GroupController } from "../hierarchy/controllers/GroupController";
-import { interactiveAnalysisContext } from "../hierarchy/providers/context/ManagerContext";
+import { interactiveAnalysisContext } from "../hierarchy/controllers/ManagerController";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 import { AbstractApp } from "./AbstractApp";
 import { IElementWithFileController } from "../hierarchy/controllers/FileController";

@@ -7,7 +7,7 @@ import { createRef, ref } from "lit/directives/ref.js";
 import type { Ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { configContext } from "../../hierarchy/controllers/ConfigController";
-import type { ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
+import type { ConfigController } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
 import type { ThermalDialogElement } from "../../ui/Dialog";
 import type { ThermalDropdownElement } from "../../ui/Dropdown";
@@ -16,7 +16,7 @@ export class FileDownloadButton extends AbstractFileConsumer {
 
     @state()
     @consume({ context: configContext, subscribe: true })
-    protected config?: ConfigContextValue;
+    protected configController?: ConfigController;
 
     @state()
     protected hasGraphs: boolean = false;
@@ -78,12 +78,12 @@ export class FileDownloadButton extends AbstractFileConsumer {
                 <thermal-btn 
                     slot="option"
                     @click=${() => this.file!.export.downloadPng({
-                        width: this.config?.settings.export.png.width ?? 1350,
-                        fontSize: this.config?.settings.export.png.fontSize,
-                        showAnalysis: this.config?.settings.export.png.analyses,
-                        showThermalScale: this.config?.settings.export.png.thermalScale,
-                        showFileDate: this.config?.settings.export.png.fileDate,
-                        showFileName: this.config?.settings.export.png.fileName
+                        width: this.configController?.settings.export.png.width ?? 1350,
+                        fontSize: this.configController?.settings.export.png.fontSize,
+                        showAnalysis: this.configController?.settings.export.png.analyses,
+                        showThermalScale: this.configController?.settings.export.png.thermalScale,
+                        showFileDate: this.configController?.settings.export.png.fileDate,
+                        showFileName: this.configController?.settings.export.png.fileName
                     })}
                     pre="PNG"
                     align="left"

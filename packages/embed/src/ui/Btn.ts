@@ -1,17 +1,16 @@
-import { customElement, property } from "lit/decorators.js";
-import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
+import { arrow, autoUpdate, computePosition, flip, offset, Placement, shift } from '@floating-ui/dom';
 import { css, html, nothing } from "lit";
+import { property } from "lit/decorators.js";
 import { ref } from "lit/directives/ref.js";
-import icons from "../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { computePosition, flip, shift, offset, arrow, autoUpdate, Placement } from '@floating-ui/dom';
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { booleanConverter } from "../utils/converters/booleanConverter";
+import icons from "../utils/icons";
 
 export type BtnVariants = "primary" | "foreground" | "background" | "default" | "breadcrumb";
 
 export type BtnSizes = "sm" | "md" | "lg" | "xl";
 
-// @customElement( "thermal-btn" )
 export class ThermalBtnElement extends AbstractThermalElement {
 
     @property({type: String, attribute: "tooltip-placement"})

@@ -1,7 +1,7 @@
 import type { Instance, ThermalGroup } from "@labirthermal/core";
 import { ContextProvider, createContext } from "@lit/context";
 import type { PropertyDeclaration, PropertyValueMap } from "lit";
-import type { IBaseElement } from "../../controllers/IBaseElement";
+import type { IBaseElement } from "../AbstractThermalElement";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { stringOrUndefinedConverter } from "../../utils/converters/stringOrUndefinedConverter";
 import type { HostReactiveProperties } from "./AbstractHierarchyController";

@@ -4,7 +4,7 @@ import { css, CSSResultGroup, html } from "lit";
 import { state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { ManagerController, managerControllerContext } from "../../hierarchy/controllers/ManagerController";
-import { managerAdvancedPalettesContext } from "../../hierarchy/providers/context/ManagerContext";
+import { managerAdvancedPalettesContext } from "../../hierarchy/controllers/ManagerController";
 import { T } from "../../translations/Languages";
 
 export class DisplayPanel extends AbstractThermalElement {

@@ -1,6 +1,5 @@
-import { AvailableThermalPalette, ThermalManager, ThermalManagerOptions, ThermalPalettes } from "@labirthermal/core";
-import { IBaseElement } from "../../controllers/IBaseElement";
-import { managerAdvancedPalettesContext, managerContext, managerGraphFunctionContext, managerPaletteContext, ManagerPaletteContext, managerSmoothContext, toolContext } from "../providers/context/ManagerContext";
+import { AvailableThermalPalette, ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
+import { IBaseElement } from "../AbstractThermalElement";
 import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { createOrGetManager } from "../providers/getters";
 import { ContextProvider, createContext } from "@lit/context";
@@ -40,8 +39,21 @@ interface IHostProperties {
 
 export interface IElementWithManagerController extends IBaseElement, IHostProperties {}
 
+export type ManagerPaletteContext = {
+    key: AvailableThermalPalette;
+    data: ThermalPaletteType;
+};
+
 /** Exposes the main manager controller with all its setters and direct access to the host element values. */
 export const managerControllerContext = createContext<ManagerController>("manager-controller-context");
+
+export const managerContext = createContext<ThermalManager>("manager-instance");
+export const managerPaletteContext = createContext<ManagerPaletteContext>("manager-palette-context");
+export const managerAdvancedPalettesContext = createContext<boolean>("manager-advanced-palettes-context");
+export const managerSmoothContext = createContext<boolean>("manager-smooth-context");
+export const managerGraphFunctionContext = createContext<boolean>("manager-graph-function-context");
+export const toolContext = createContext<ThermalTool>("tool-context");
+export const interactiveAnalysisContext = createContext<boolean>("interactive-analysis-context");
 
 export class ManagerController extends AbstractHierarchyController<IElementWithManagerController> {
 
@@ -447,3 +459,6 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     }
 
 }
+
+
+

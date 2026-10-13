@@ -1,5 +1,5 @@
 import { createContext } from "@lit/context";
-import { IBaseElement } from "../../controllers/IBaseElement";
+import { IBaseElement } from "../AbstractThermalElement";
 import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { ThermalGroup } from "@labirthermal/core";
 import { ManagerController } from "./ManagerController";
@@ -7,7 +7,6 @@ import { RegistryController } from "./RegistryController";
 import { ContextProvider } from "@lit/context";
 import { PropertyValueMap } from "lit";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { groupContext } from "../providers/context/GroupContext";
 
 type IHostProperties = {
 
@@ -28,6 +27,8 @@ type IHostProperties = {
 export interface IElementWithGroupController extends IHostProperties, IBaseElement {}
 
 export const groupControllerContext = createContext<GroupController>("group-controller-context");
+
+export const groupObjectContext = createContext<ThermalGroup>("group-object-context");
 
 export class GroupController extends AbstractHierarchyController<IElementWithGroupController> {
     
@@ -61,7 +62,7 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
 
     private groupControllerContextProvider: ContextProvider<typeof groupControllerContext, IElementWithGroupController>;
 
-    private groupObjectContextProvider: ContextProvider<typeof groupContext, IElementWithGroupController>;
+    private groupObjectContextProvider: ContextProvider<typeof groupObjectContext, IElementWithGroupController>;
 
 
     constructor(
@@ -78,7 +79,7 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
 
         this.groupObjectContextProvider = new ContextProvider(
             this.host,
-            { context: groupContext }
+            { context: groupObjectContext }
         );
 
     }

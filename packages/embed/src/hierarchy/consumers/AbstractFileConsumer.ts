@@ -3,7 +3,10 @@ import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
 import type { FileController } from "../controllers/FileController";
 import { fileControllerContext } from "../controllers/FileController";
-import { fileContext, fileFailureContext, fileRecordingContext, loadingContext } from "../providers/context/FileContexts";
+import { fileRecordingContext } from "../controllers/FileController";
+import { fileLoadingContext } from "../controllers/FileController";
+import { fileFailureContext } from "../controllers/FileController";
+import { fileContext } from "../controllers/FileController";
 import { AbstractGroupConsumer } from "./AbstractGroupConsumer";
 
 export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
@@ -19,7 +22,7 @@ export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
         return `${this.UUID}__internal_callback`;
     }
 
-    @consume({ context: loadingContext, subscribe: true })
+    @consume({ context: fileLoadingContext, subscribe: true })
     @state()
     protected loading: boolean = false;
 

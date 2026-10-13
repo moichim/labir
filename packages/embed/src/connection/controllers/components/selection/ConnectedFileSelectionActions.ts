@@ -6,7 +6,7 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
 import { ThermalGroup, zip } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
+import { groupObjectContext } from "../../../../hierarchy/controllers/GroupController";
 
 @customElement("connected-file-selection-actions")
 export class ConnectedFileSelectionActions extends AbstractControlledConsumer {
@@ -22,7 +22,7 @@ export class ConnectedFileSelectionActions extends AbstractControlledConsumer {
     private dialogClearAnalysesRef: Ref<ThermalDialog> = createRef();
     private dialogMoveRef: Ref<ConnectedLocationSelector> = createRef();
 
-    @consume( { context: groupContext, subscribe: true } )
+    @consume( { context: groupObjectContext, subscribe: true } )
     private group?: ThermalGroup;
 
 

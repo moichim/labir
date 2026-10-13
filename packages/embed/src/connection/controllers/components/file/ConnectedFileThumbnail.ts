@@ -6,7 +6,7 @@ import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } fr
 import { customElement, property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
+import { groupObjectContext } from "../../../../hierarchy/controllers/GroupController";
 import { FileProviderElement } from "../../../../hierarchy/providers/FileProvider";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
@@ -20,7 +20,7 @@ export class FileThumbnail extends AbstractControlledConsumer {
 
 
 
-    @consume({ context: groupContext, subscribe: true })
+    @consume({ context: groupObjectContext, subscribe: true })
     @state()
     protected group?: ThermalGroup;
 

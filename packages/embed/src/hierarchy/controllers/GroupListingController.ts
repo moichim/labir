@@ -1,5 +1,5 @@
 import type { GroupController } from "./GroupController";
-import type { IBaseElement } from "../../controllers/IBaseElement";
+import type { IBaseElement } from "../AbstractThermalElement";
 import { AbstractHierarchyController } from "./AbstractHierarchyController";
 import type { AbstractFileResult, Instance, ThermalGroup} from "@labirthermal/core";
 import { ThermalFileReader, TimeFormat } from "@labirthermal/core";

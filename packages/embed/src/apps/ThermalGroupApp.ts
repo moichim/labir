@@ -1,22 +1,20 @@
-import type { ThermalManager, AvailableThermalPalette, ThermalRegistry, ThermalRangeOrUndefined, ThermalGroup, Instance, ThermalFileFailure, PlaybackSpeeds } from "@labirthermal/core";
+import type { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
+import { css, html } from "lit";
 import type { IElementWithFileController } from "../hierarchy/controllers/FileController";
 import { FileController } from "../hierarchy/controllers/FileController";
 import type { IElementWithGroupController } from "../hierarchy/controllers/GroupController";
 import { GroupController } from "../hierarchy/controllers/GroupController";
-import type { IElementWithGroupLoadController } from "../hierarchy/controllers/GroupLoadController";
-import { GroupLoadController } from "../hierarchy/controllers/GroupLoadController";
-import type { IElementWithManagerController} from "../hierarchy/controllers/ManagerController";
-import { ManagerController } from "../hierarchy/controllers/ManagerController";
-import type { IElementWithRegistryController} from "../hierarchy/controllers/RegistryController";
-import { RegistryController } from "../hierarchy/controllers/RegistryController";
-import { AbstractApp } from "./AbstractApp";
-import type { PropertyValues } from "lit";
-import { css, html } from "lit";
-import { provide } from "@lit/context";
 import type { IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
 import { GroupListingController, GroupOrderby, GroupOrdering } from "../hierarchy/controllers/GroupListingController";
+import type { IElementWithGroupLoadController } from "../hierarchy/controllers/GroupLoadController";
+import { GroupLoadController } from "../hierarchy/controllers/GroupLoadController";
+import type { IElementWithManagerController } from "../hierarchy/controllers/ManagerController";
+import { ManagerController } from "../hierarchy/controllers/ManagerController";
+import type { IElementWithRegistryController } from "../hierarchy/controllers/RegistryController";
+import { RegistryController } from "../hierarchy/controllers/RegistryController";
+import { AbstractApp } from "./AbstractApp";
 
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../hierarchy/providers/context/pngExportContext";
 
 export class ThermalGroupAppElement
     extends AbstractApp
@@ -94,22 +92,6 @@ export class ThermalGroupAppElement
 
     groupLoadController: GroupLoadController = new GroupLoadController(this);
     filesString?: string | undefined;
-
-    @provide({ context: pngExportWidthContext })
-    protected pngExportWidth: number = 1200;
-
-    @provide({ context: pngExportWidthSetterContext })
-    protected pngExportWidthSetter = (value: number) => {
-        this.pngExportWidth = value;
-    };
-
-    @provide({ context: pngExportFsContext })
-    protected pngExportFs: number = 20;
-
-    @provide({ context: pngExportFsSetterContext })
-    protected pngExportFsSetter = (value: number) => {
-        this.pngExportFs = value;
-    };
 
     private subscribedGroup?: ThermalGroup;
 

@@ -5,7 +5,7 @@ import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import type { RegistryController } from "../../../../../hierarchy/controllers/RegistryController";
 import { registryControllerContext } from "../../../../../hierarchy/controllers/RegistryController";
-import { registryContext } from "../../../../../hierarchy/providers/context/RegistryContext";
+import { registryObjectContext } from "../../../../../hierarchy/controllers/RegistryController";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-subfolders-grid")
@@ -36,7 +36,7 @@ export class SubfoldersGrid extends AbstractControlledConsumer {
     public onSelectionChange: (selected: string[]) => void = () => { };
 
     @state()
-    @consume({ context: registryContext, subscribe: true })
+    @consume({ context: registryObjectContext, subscribe: true })
     protected registry!: ThermalRegistry;
 
     protected firstUpdated(_changedProperties: PropertyValues): void {

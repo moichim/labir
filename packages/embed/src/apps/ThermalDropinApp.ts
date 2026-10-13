@@ -11,7 +11,6 @@ import { GroupController, IElementWithGroupController } from "../hierarchy/contr
 import { GroupListingController, GroupOrderby, GroupOrdering, IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
 import { IElementWithManagerController, ManagerController } from "../hierarchy/controllers/ManagerController";
 import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../hierarchy/providers/context/pngExportContext";
 import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { AbstractApp } from "./AbstractApp";
@@ -97,25 +96,6 @@ export class DropinAppElement
 
     @state()
     public toDisplay: Instance[] = [];
-
-
-
-    @provide({ context: pngExportWidthContext })
-    protected pngExportWidth: number = 1200;
-
-    @provide({ context: pngExportWidthSetterContext })
-    protected pngExportWidthSetterContext = (value: number) => {
-        this.pngExportWidth = value;
-    }
-
-
-    @provide({ context: pngExportFsContext })
-    protected pngExportFs: number = 20;
-
-    @provide({ context: pngExportFsSetterContext })
-    protected pngExportFsSetterContext = (value: number) => {
-        this.pngExportFs = value;
-    }
 
     @provide({ context: localeContext })
     @property({ reflect: true, converter: localeConverter })

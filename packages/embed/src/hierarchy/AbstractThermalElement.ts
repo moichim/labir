@@ -1,6 +1,6 @@
 import { consume } from "@lit/context";
 import i18next, { t } from "i18next";
-import { html, LitElement } from "lit";
+import { html, LitElement, ReactiveControllerHost } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { v4 as uuid } from "uuid";
 import { T } from "../translations/Languages";
@@ -63,7 +63,9 @@ export abstract class AbstractThermalElement extends LitElement {
         return t( T[key] );
     }
 
-    
-
-
 }
+
+export interface IBaseElement 
+extends 
+    AbstractThermalElement
+{}

@@ -5,7 +5,7 @@ import { css, CSSResultGroup, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { cache } from "lit/directives/cache.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { BaseAppWithPngExportContext } from "../../../hierarchy/providers/context/pngExportContext";
+import { AbstractApp } from "../../../apps/AbstractApp";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
 import { AppWithClientController, ClientController } from "../ClientController";
@@ -15,7 +15,7 @@ import { AppWithDisplayController, DisplayController, DisplayState, FileListDisp
 import { AppWithFileSelectionController, FileSelectionController } from "../FileSelectionController";
 import { AppWithFolderSelectionController, FolderSelectionController } from "../FolderSelectionController";
 
-export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
+export abstract class AbstractConnectedApp extends AbstractApp
     implements
     AppWithClientController,
     AppWithContentController,

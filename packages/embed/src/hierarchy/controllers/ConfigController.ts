@@ -1,5 +1,5 @@
 import { ContextProvider, createContext } from "@lit/context";
-import type { IBaseElement } from "../../controllers/IBaseElement";
+import type { IBaseElement } from "../AbstractThermalElement";
 import { AbstractReactiveController } from "../../controllers/AbstractReactiveController";
 
 export interface PngExportSettings {
@@ -27,15 +27,11 @@ export interface ConfigSettings {
     };
 }
 
-export interface ConfigContextValue {
-    settings: ConfigSettings;
-    setPngSetting<K extends keyof PngExportSettings>(key: K, value: PngExportSettings[K]): void;
-    setGroupSetting<K extends keyof GroupExportSettings>(key: K, value: GroupExportSettings[K]): void;
-    setShowAllOptions(value: boolean): void;
-}
+/** Exposes the general configuration context for the application. Setters are here. */
+export const configContext = createContext<ConfigController>("config-context");
 
-export const configContext = createContext<ConfigContextValue>("config-context");
 
+/** Handles the global configuration related to the PNG exports */
 export class ConfigController extends AbstractReactiveController<IBaseElement> {
     
     private readonly _UUID: string;
@@ -74,7 +70,7 @@ export class ConfigController extends AbstractReactiveController<IBaseElement> {
 
         this.contextProvider = new ContextProvider(host, {
             context: configContext,
-            initialValue: this._createContextValue()
+            initialValue: this
         });
     }
 
@@ -86,10 +82,66 @@ export class ConfigController extends AbstractReactiveController<IBaseElement> {
         return this._settings;
     }
 
-    public readonly setPngSetting = <K extends keyof PngExportSettings>(
+        // --- PNG Export Settery ---
+
+    public setPngWidth(value: number): void {
+        const width = Math.max(100, value); // volitelná ochrana proti neplatným hodnotám
+        this._setPngSetting("width", width);
+    }
+
+    public setPngFontSize(value: number): void {
+        const fontSize = Math.max(6, value);
+        this._setPngSetting("fontSize", fontSize);
+    }
+
+    public setPngAnalyses(value: boolean): void {
+        this._setPngSetting("analyses", value);
+    }
+
+    public setPngThermalScale(value: boolean): void {
+        this._setPngSetting("thermalScale", value);
+    }
+
+    public setPngFileName(value: boolean): void {
+        this._setPngSetting("fileName", value);
+    }
+
+    public setPngFileDate(value: boolean): void {
+        this._setPngSetting("fileDate", value);
+    }
+
+    public setPngLicense(value: boolean): void {
+        this._setPngSetting("license", value);
+    }
+
+    // --- Group Export Settery ---
+
+    public setGroupColumns(value: number): void {
+        const columns = Math.max(1, value);
+        this._setGroupSetting("columns", columns);
+    }
+
+    public setGroupGroupName(value: boolean): void {
+        this._setGroupSetting("groupName", value);
+    }
+
+    // --- Visibility ---
+
+    public setShowAllOptions(value: boolean): void {
+        this._settings = {
+            ...this._settings,
+            visibility: {
+                ...this._settings.visibility,
+                showAllOptions: value
+            }
+        };
+        this._publish();
+    }
+
+    private _setPngSetting<K extends keyof PngExportSettings>(
         key: K,
         value: PngExportSettings[K]
-    ): void => {
+    ): void {
         this._settings = {
             ...this._settings,
             export: {
@@ -103,10 +155,10 @@ export class ConfigController extends AbstractReactiveController<IBaseElement> {
         this._publish();
     };
 
-    public readonly setGroupSetting = <K extends keyof GroupExportSettings>(
+    private _setGroupSetting<K extends keyof GroupExportSettings>(
         key: K,
         value: GroupExportSettings[K]
-    ): void => {
+    ): void {
         this._settings = {
             ...this._settings,
             export: {
@@ -120,27 +172,11 @@ export class ConfigController extends AbstractReactiveController<IBaseElement> {
         this._publish();
     };
 
-    public readonly setShowAllOptions = (value: boolean): void => {
-        this._settings = {
-            ...this._settings,
-            visibility: {
-                ...this._settings.visibility,
-                showAllOptions: value
-            }
-        };
-        this._publish();
-    };
-
-    private _createContextValue(): ConfigContextValue {
-        return {
-            settings: this._settings,
-            setPngSetting: this.setPngSetting,
-            setGroupSetting: this.setGroupSetting,
-            setShowAllOptions: this.setShowAllOptions
-        };
-    }
 
     private _publish(): void {
-        this.contextProvider.setValue(this._createContextValue());
+        this.contextProvider.setValue(this, true);
     }
 }
+
+
+

@@ -1,11 +1,11 @@
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html } from "lit";
 import type { CSSResultGroup } from "lit";
+import { css, html } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
+import type { ConfigController } from "../../hierarchy/controllers/ConfigController";
 import { configContext } from "../../hierarchy/controllers/ConfigController";
-import type { ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
 
 export class GroupDownloadDropdown extends AbstractGroupConsumer {
@@ -18,7 +18,7 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
 
     @state()
     @consume({ context: configContext, subscribe: true })
-    private config?: ConfigContextValue;
+    private configController?: ConfigController;
 
     @property({ type: String, reflect: true })
     public icon?: string;
@@ -31,8 +31,8 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
 
     protected render(): unknown {
 
-        const png = this.config?.settings.export.png;
-        const groupSettings = this.config?.settings.export.group;
+        const png = this.configController?.settings.export.png;
+        const groupSettings = this.configController?.settings.export.group;
         const dropdownClass = this.classList.contains( "small" ) ? "small" : "";
 
 

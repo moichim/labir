@@ -1,13 +1,12 @@
 import { computePosition, flip, inline, offset, shift } from "@floating-ui/dom";
 import { LitElement, PropertyValueMap, css, html } from "lit";
-import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js';
+import { property, queryAssignedElements } from 'lit/decorators.js';
 import { classMap } from "lit/directives/class-map.js";
-import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { BtnSizes, BtnVariants } from "./Btn";
 
-// @customElement("thermal-dropdown")
 export class ThermalDropdownElement extends AbstractThermalElement {
 
     static shadowRootOptions: ShadowRootInit = {

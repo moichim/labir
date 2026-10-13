@@ -1,8 +1,7 @@
 import { ThermalGroup, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { ContextProvider, createContext } from "@lit/context";
 import { PropertyValues } from "lit";
-import { IBaseElement } from "../../controllers/IBaseElement";
-import { registryContext, registryHighlightContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "../providers/context/RegistryContext";
+import { IBaseElement } from "../AbstractThermalElement";
 import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { ManagerController } from "./ManagerController";
 
@@ -36,7 +35,41 @@ type IHostProperties = {
 
 export interface IElementWithRegistryController extends IBaseElement, IHostProperties { }
 
+/** Exposes the current `RegistryController`. This is very important. */
 export const registryControllerContext = createContext<RegistryController>("registry-controller-context");
+
+/** Exposes the current `ThermalRegistry` object from the `RegistryController`. */
+export const registryObjectContext = createContext<ThermalRegistry>("registry-object-context");
+
+/** Exposes the current opacity value context from the `RegistryController`. */
+export const registryOpacityContext = createContext<number>("registry-opacity");
+
+/** Exposes the current range from value from the `RegistryController`. */
+export const registryRangeFromContext = createContext<undefined | number>("registry-range-from");
+
+/** Exposes the current range to value from the `RegistryController`. */
+export const registryRangeToContext = createContext<undefined | number>("registry-range-to");
+
+/** Exposes the current registry loading value from the `RegistryController`. */
+export const registryLoadingContext = createContext<boolean>("registry-loading");
+
+/** Exposes the current registry min context from the `RegistryController` */
+export const registryMinContext = createContext<number | undefined>("registry-min");
+
+/** Exposes the current registry max value from the `RegistryController` */
+export const registryMaxContext = createContext<number | undefined>("registry-max");
+
+/**
+ * Highlight is an optional range of temperatures highlighted graphically on the thermal scale. It is used to indicate for example:
+ * - what is the range of a file within min/max of the entire group
+ * - what is the range of an analysis within the min/max of a file
+ * - what is the min/max of a group of files within multiple groups of files
+ *
+ * This context is exposed by a registry provider. It need to be consumed manually.
+ */
+
+export const registryHighlightContext = createContext<ThermalRangeOrUndefined>("registry-highlight");
+
 
 export class RegistryController extends AbstractHierarchyController<IElementWithRegistryController> {
 
@@ -81,7 +114,7 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
 
     private readonly registryControllerContextProvider: ContextProvider<typeof registryControllerContext, IElementWithRegistryController>;
 
-    private readonly registryObjectContextProvider: ContextProvider<typeof registryContext, IElementWithRegistryController>;
+    private readonly registryObjectContextProvider: ContextProvider<typeof registryObjectContext, IElementWithRegistryController>;
 
     private readonly opacityContextProvider: ContextProvider<typeof registryOpacityContext, IElementWithRegistryController>;
 
@@ -119,7 +152,7 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
         // Create the registry core object
         this.registryObjectContextProvider = new ContextProvider(
             this.host,
-            { context: registryContext }
+            { context: registryObjectContext }
         );
 
 
@@ -385,3 +418,6 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
 
 
 }
+
+
+

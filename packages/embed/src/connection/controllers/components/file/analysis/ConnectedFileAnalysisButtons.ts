@@ -3,7 +3,7 @@ import { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { fileContext } from "../../../../../hierarchy/providers/context/FileContexts";
+import { fileContext } from "../../../../../hierarchy/controllers/FileController";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 import { slotOrNothing } from "../../../apps/directives/SlotOrNothing";
 

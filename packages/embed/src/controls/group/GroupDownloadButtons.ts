@@ -1,12 +1,12 @@
+import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html } from "lit";
 import type { CSSResultGroup } from "lit";
+import { css, html } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
+import type { ConfigController } from "../../hierarchy/controllers/ConfigController";
 import { configContext } from "../../hierarchy/controllers/ConfigController";
-import type { ConfigContextValue } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
-import { consume } from "@lit/context";
 
 export class GroupDownloadButtons extends AbstractGroupConsumer {
 
@@ -15,7 +15,7 @@ export class GroupDownloadButtons extends AbstractGroupConsumer {
 
     @state()
     @consume({ context: configContext, subscribe: true })
-    protected config?: ConfigContextValue;
+    protected configController?: ConfigController;
 
     static styles?: CSSResultGroup | undefined = css`
 
@@ -47,8 +47,8 @@ export class GroupDownloadButtons extends AbstractGroupConsumer {
 
     protected render(): unknown {
 
-        const png = this.config?.settings.export.png;
-        const group = this.config?.settings.export.group;
+        const png = this.configController?.settings.export.png;
+        const group = this.configController?.settings.export.group;
 
         return html`
         

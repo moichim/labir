@@ -2,7 +2,7 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html } from "lit";
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
-import { managerGraphFunctionContext } from "../../hierarchy/providers/context/ManagerContext";
+import { managerGraphFunctionContext } from "../../hierarchy/controllers/ManagerController";
 import { T } from "../../translations/Languages";
 
 export class ManagerGraphSmoothSwitch extends AbstractManagerConsumer {

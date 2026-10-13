@@ -1,8 +1,7 @@
 import { css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-// @customElement("thermal-tip")
 export class ThermalTipElement extends AbstractThermalElement {
 
     @property({type: String})

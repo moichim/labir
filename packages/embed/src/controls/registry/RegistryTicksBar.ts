@@ -4,7 +4,7 @@ import { css, html, nothing, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
-import { registryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
+import { registryHighlightContext } from "../../hierarchy/controllers/RegistryController";
 
 type TickType = {
     percentage: number,
