@@ -97,24 +97,6 @@ implements
     thermal: string | undefined;
     visible: string | undefined;
 
-    willUpdate(_changedProperties: PropertyValues<ThermalFileAppElement>) {
-        super.willUpdate(_changedProperties);
-        this.managerController.hostWillUpdateWatcher(_changedProperties);
-        this.registryController.hostWillUpdateWatcher(_changedProperties);
-        this.groupController.hostWillUpdateWatcher(_changedProperties);
-        this.fileLoadController.hostWillUpdateWatcher(_changedProperties);
-        this.fileController.hostWillUpdateWatcher(_changedProperties);
-    }
-
-    protected updated(_changedProperties: PropertyValues<ThermalFileAppElement>) {
-        super.updated(_changedProperties);
-        this.managerController.hostUpdatedWatcher(_changedProperties);
-        this.registryController.hostUpdatedWatcher(_changedProperties);
-        this.groupController.hostUpdatedWatcher(_changedProperties);
-        this.fileLoadController.hostUpdatedWatcher(_changedProperties);
-        this.fileController.hostUpdatedWatcher(_changedProperties);
-    }
-
     static styles = css`
     
         .layout {

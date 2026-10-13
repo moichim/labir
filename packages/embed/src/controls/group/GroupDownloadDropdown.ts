@@ -35,7 +35,6 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
         const groupSettings = this.configController?.settings.export.group;
         const dropdownClass = this.classList.contains( "small" ) ? "small" : "";
 
-
         return html`
         
             <thermal-dropdown class="download ${dropdownClass}" .variant=${this.variant} .icon=${this.icon} .iconStyle=${this.iconStyle}>

@@ -281,8 +281,8 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
             { context: fileAnalysisListContext, initialValue: [] }
         );
 
-        this._propagateHighlightCache = ( event: MouseEvent|FocusEvent ) => this._propagateHighlight();
-        this._unpropagateHighlightCache = ( event: MouseEvent|FocusEvent ) => this._unpropagateHighlight();
+        this._propagateHighlightCache = () => this._propagateHighlight();
+        this._unpropagateHighlightCache = () => this._unpropagateHighlight();
 
 
     }
@@ -344,14 +344,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     }
 
 
-    hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileController>): void {
-
-        
-
-        
-
-
-    }
+    hostUpdatedWatcher(): void {}
 
     private _propagateContexts(
         instance: Instance

@@ -104,7 +104,7 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
         this.disconnectObserver();
     }
 
-    protected willUpdate(changedProperties: PropertyValues): void {
+    willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
         // Side effect of file changing - derive graph data before rendering the new file.
         if (changedProperties.has("file")) {
@@ -113,7 +113,7 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
         }
     }
 
-    protected updated(changedProperties: PropertyValues): void {
+    updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
         // Bind after rendering so subscriptions and observers use the current DOM, including on reconnect.
         this.bindFile();

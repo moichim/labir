@@ -3,8 +3,8 @@ import { AbstractAddTool } from "@labirthermal/core";
 import { t } from "i18next";
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import type { Ref} from "lit/directives/ref.js";
+import { property, state } from "lit/decorators.js";
+import type { Ref } from "lit/directives/ref.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
@@ -153,7 +153,7 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
         this.boundFile = undefined;
     }
 
-    protected willUpdate(changedProperties: PropertyValues): void {
+    willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
 
         // Side effect of file changing - derive analysis and graph presence before rendering the new file.
@@ -163,7 +163,7 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
         }
     }
 
-    protected updated(changedProperties: PropertyValues): void {
+    updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
 
         // Rebind external listeners after rendering without scheduling another update.

@@ -69,7 +69,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
         this.requestUpdate();
     }
 
-    public onFailure(error: ThermalFileFailure): void {
+    public onFailure(): void {
         // Do nothing
     }
 
@@ -85,7 +85,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
     }
 
     
-    protected updated(changedProperties: PropertyValues): void {
+    updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
         
         /** Rebinds the selection listener when the provided file instance changes. */

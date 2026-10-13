@@ -2,7 +2,7 @@ import type { PlaybackSpeeds } from "@labirthermal/core";
 import { playbackSpeed } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html, nothing } from "lit";
+import { html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { filePlaybackSpeedContext } from "../../hierarchy/controllers/FileController";

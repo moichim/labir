@@ -1,11 +1,11 @@
 import type { AbstractAnalysis, PointAnalysis } from "@labirthermal/core";
+import { t } from "i18next";
 import type { PropertyValues } from "lit";
 import { css, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import type { Ref } from "lit/directives/ref.js";
 import { createRef } from "lit/directives/ref.js";
 import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
-import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 
 /** 

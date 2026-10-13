@@ -20,8 +20,7 @@ export class FileAnalysisDisplayElement extends AbstractFileConsumer {
 
     private boundFile?: Instance;
 
-    public onFailure(error: ThermalFileFailure): void {
-    }
+    public onFailure(): void {}
 
     public onInstanceCreated(): void {
         this.requestUpdate();
@@ -41,7 +40,7 @@ export class FileAnalysisDisplayElement extends AbstractFileConsumer {
         super.disconnectedCallback();
     }
 
-    protected willUpdate(changedProperties: PropertyValues): void {
+    willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
 
         // Side effect of file changing - mirror the analysis list before rendering, or clear it if no file is available.
@@ -50,7 +49,7 @@ export class FileAnalysisDisplayElement extends AbstractFileConsumer {
         }
     }
 
-    protected updated(changedProperties: PropertyValues): void {
+    updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
 
         // Rebind external listeners after rendering without changing reactive state in this hook.

@@ -3,9 +3,9 @@ import { provide } from "@lit/context";
 import { t } from "i18next";
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { property, queryAssignedElements, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import type { Ref} from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import type { RegistryProviderElement } from "../hierarchy/providers/RegistryProvider";
 import { T } from "../translations/Languages";
@@ -37,7 +37,6 @@ enum STATE {
     FILE = "file"
 }
 
-@customElement("thermal-gallery-app")
 export class ThermalGalleryApp extends AbstractApp {
 
     public get manager(): ThermalManager {

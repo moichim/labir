@@ -1,15 +1,14 @@
-import { customElement, state } from "lit/decorators.js";
-import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
-import type { CSSResultGroup} from "lit";
+import type { ThermalGroup } from "@labirthermal/core";
+import { consume } from "@lit/context";
+import type { CSSResultGroup } from "lit";
 import { css, html, nothing } from "lit";
-import type { ThermalDialog } from "packages/embed/src/ui/Dialog";
+import { customElement, state } from "lit/decorators.js";
 import type { Ref } from "lit/directives/ref.js";
 import { createRef, ref } from "lit/directives/ref.js";
-import type { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
-import type { ThermalGroup} from "@labirthermal/core";
-import { zip } from "@labirthermal/core";
-import { consume } from "@lit/context";
 import { groupObjectContext } from "../../../../hierarchy/controllers/GroupController";
+import type { ThermalDialogElement } from "../../../../index.export";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
+import type { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
 
 @customElement("connected-folder-selection-actions")
 export class ConnectedFolderSelectionActions extends AbstractControlledConsumer {
@@ -20,9 +19,9 @@ export class ConnectedFolderSelectionActions extends AbstractControlledConsumer 
     @state()
     private total: number = 0;
 
-    private dialogDeleteRef: Ref<ThermalDialog> = createRef();
-    private dialogSaveAnalysesRef: Ref<ThermalDialog> = createRef();
-    private dialogClearAnalysesRef: Ref<ThermalDialog> = createRef();
+    private dialogDeleteRef: Ref<ThermalDialogElement> = createRef();
+    private dialogSaveAnalysesRef: Ref<ThermalDialogElement> = createRef();
+    private dialogClearAnalysesRef: Ref<ThermalDialogElement> = createRef();
     private dialogMoveRef: Ref<ConnectedLocationSelector> = createRef();
 
     @consume( { context: groupObjectContext, subscribe: true } )
@@ -91,10 +90,6 @@ export class ConnectedFolderSelectionActions extends AbstractControlledConsumer 
             slot="option"
             @click=${ () => {
                 this.dialogDeleteRef.value?.setOpen();
-
-                this.display
-
-
             } }
             icon="grid"
             iconStyle="micro"
@@ -110,9 +105,7 @@ export class ConnectedFolderSelectionActions extends AbstractControlledConsumer 
             this.progress = 0;
             this.total = this.selectionFolder.array.length;
 
-            await this.selectionFolder.forEverySelectedAsync(async folder => {
-
-                // await this.client.api.routes.post.deleteFolder(folder.path, folder.folderName).execute();
+            await this.selectionFolder.forEverySelectedAsync(async () => {
 
                 this.progress++;
 

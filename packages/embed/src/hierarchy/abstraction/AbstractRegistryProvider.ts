@@ -1,8 +1,7 @@
 import type { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
-import type { PropertyValues } from "lit";
 import { html } from "lit";
 import { AbstractManagerConsumer } from "../consumers/AbstractManagerConsumer";
-import type { IElementWithRegistryController} from "../controllers/RegistryController";
+import type { IElementWithRegistryController } from "../controllers/RegistryController";
 import { RegistryController } from "../controllers/RegistryController";
 
 export abstract class AbstractRegistryProvider extends AbstractManagerConsumer implements IElementWithRegistryController {
@@ -38,20 +37,6 @@ export abstract class AbstractRegistryProvider extends AbstractManagerConsumer i
         if (this.autoclear === true && this.registryObject !== undefined) {
             this.manager.removeRegistry(this.registryObject.id);
         }
-    }
-
-    willUpdate(values: PropertyValues<AbstractRegistryProvider>): void {
-        super.willUpdate?.(values);
-        this.registryController.hostWillUpdateWatcher(values);
-    }
-
-
-    protected updated(_changedProperties: PropertyValues<AbstractRegistryProvider>): void {
-
-        super.updated(_changedProperties);
-
-        this.registryController.hostUpdatedWatcher(_changedProperties);
-
     }
 
 

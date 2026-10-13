@@ -1,6 +1,6 @@
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 
 export class FileDropdown extends AbstractThermalElement {
@@ -15,7 +15,7 @@ export class FileDropdown extends AbstractThermalElement {
     protected expand() { this.expanded = true; }
     protected collapse() { this.expanded = false; }
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
         if ( _changedProperties.has( "expanded" ) ) {
             if ( this.expanded === true ) {

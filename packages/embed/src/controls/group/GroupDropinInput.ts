@@ -1,15 +1,14 @@
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 
-import type { DropinElementListener} from "@labirthermal/core";
-import { ThermalFileReader } from "@labirthermal/core";
+import type { DropinElementListener } from "@labirthermal/core";
 import { t } from "i18next";
 import type { PropertyValues } from "lit";
 import { css, html } from "lit";
-import type { Ref} from 'lit/directives/ref.js';
+import { ifDefined } from "lit/directives/if-defined.js";
+import type { Ref } from 'lit/directives/ref.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { T } from "../../translations/Languages";
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
-import { ifDefined } from "lit/directives/if-defined.js";
 
 export class GroupDropinInputElement extends AbstractGroupDropin {
 

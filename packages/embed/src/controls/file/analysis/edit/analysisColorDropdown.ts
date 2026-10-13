@@ -1,10 +1,10 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
-import type { AbstractAnalysis} from "@labirthermal/core";
+import type { AbstractAnalysis } from "@labirthermal/core";
 import { availableAnalysisColors } from "@labirthermal/core";
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
-import {map} from 'lit/directives/map.js';
+import { property, state } from "lit/decorators.js";
+import { map } from 'lit/directives/map.js';
+import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
 
 /** 
  * Render the dropdown for color selection of an analysis. Property `analysis` needs to be passed down from the parent component 

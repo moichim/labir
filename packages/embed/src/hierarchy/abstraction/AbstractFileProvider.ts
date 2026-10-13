@@ -1,5 +1,4 @@
 import type { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
-import type { PropertyValues } from "lit";
 import { html } from "lit";
 import { AbstractGroupConsumer } from "../consumers/AbstractGroupConsumer";
 import type { IElementWithFileController } from "../controllers/FileController";
@@ -44,18 +43,6 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
 
     public autoHighlight: boolean = false;
 
-    public willUpdate(values: PropertyValues<AbstractFileProvider>): void {
-        super.willUpdate?.(values);
-        this.fileController.hostWillUpdateWatcher(values);
-    }
-
-    public updated(_changedProperties: PropertyValues<AbstractFileProvider>): void {
-        super.updated(_changedProperties);
-
-        this.fileController.hostUpdatedWatcher(_changedProperties);
-
-    }
-
 
     /** Register instance callback listeners. @deprecated */
     public recieveInstance(
@@ -68,9 +55,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
 
 
     /** @deprecated */
-    public removeInstance(
-        instance: Instance
-    ) {
+    public removeInstance() {
 
         this.fileController.removeInstance();
 
@@ -79,7 +64,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
 
     public deleteFile() {
         if (this.file) {
-            this.removeInstance(this.file);
+            this.removeInstance();
         }
     }
 

@@ -15,8 +15,6 @@ import { T } from "../../translations/Languages";
 import type { Tick} from "../../utils/timelineTicks";
 import { calculateTicks, renderTicks, ticksCss } from "../../utils/timelineTicks";
 
-const isChromium = "chrome" in window;
-
 export class FileTimelineElement extends AbstractFileConsumer {
 
     @consume({ context: filePlayingContext, subscribe: true })

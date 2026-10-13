@@ -54,7 +54,7 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
     }
 
 
-    hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileLoadController>): void {
+    hostUpdatedWatcher(): void {
         // Do nothing for now
     }
     

@@ -46,7 +46,11 @@ export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
     }
 
     public toggle() {
-        this.on ? this.turnOff() : this.turnOn();
+        if (this.on) {
+            this.turnOff();
+        } else {
+            this.turnOn();
+        }
     }
 
     public static styles?: CSSResultGroup | undefined = css`

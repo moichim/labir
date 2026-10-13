@@ -23,7 +23,7 @@ export class UserButton extends AbstractControlledConsumer {
         this.client.subscribeToLoadingChanges(this);
 
 
-        this.client.api.auth.onIdentity.set(this.UUID, (identity) => {
+        this.client.api.auth.onIdentity.set(this.UUID, () => {
             this.message = undefined;
         });
     }
@@ -194,7 +194,7 @@ export class UserButton extends AbstractControlledConsumer {
 
         const userName = this.client.identity?.meta.name ?? this.client.identity?.meta.login;
 
-        if (!userName === undefined) {
+        if (userName !== undefined) {
             return nothing;
         }
 

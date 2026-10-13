@@ -12,6 +12,11 @@ export type HostReactiveProperties<T> = {
 /** Abstract base class for controllers related to the hierarchy of `@labirthermal/core`.  */
 export abstract class AbstractHierarchyController<T extends IBaseElement> extends AbstractReactiveController<T> {
 
+    constructor(host: T) {
+        super(host);
+        this.host.initHierarchy().register( this );
+    }
+
     abstract hostWillUpdateWatcher(value: PropertyValues<T>): void;
 
     abstract hostUpdatedWatcher(value: PropertyValues<T>): void;

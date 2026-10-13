@@ -294,12 +294,8 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
         
     }
 
-    hostUpdatedWatcher(
-        value: PropertyValues<IElementWithRegistryController>
-    ): void {
-
-        
-
+    hostUpdatedWatcher(): void {
+        // Do nothing
     }
 
     public addOrGetGroup(

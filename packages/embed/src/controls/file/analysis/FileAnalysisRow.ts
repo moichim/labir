@@ -59,7 +59,7 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
         }
     };
 
-    protected willUpdate(changedProperties: PropertyValues): void {
+    willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
         // Side effect of analysis changing - synchronize selection before rendering and rebind analysis listeners.
         if (changedProperties.has("analysis")) {

@@ -990,9 +990,9 @@ export class VideoRecorder {
 
         try {
             // Načti jako Image s data: URL
-            let imageToDraw: HTMLImageElement;
+            // let imageToDraw: HTMLImageElement;
             
-            imageToDraw = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const imageToDraw = await new Promise<HTMLImageElement>((resolve, reject) => {
                 const img = new Image();
                 img.width = this.exportWidth;
                 img.height = this.exportHeight;

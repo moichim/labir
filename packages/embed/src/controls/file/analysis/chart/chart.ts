@@ -710,8 +710,6 @@ export class ThermalChartElement extends LitElement {
   }
 }
 
-// customElements.define('thermal-chart', ThermalChart);
-
 declare global {
   interface HTMLElementTagNameMap {
     'thermal-chart': ThermalChartElement;

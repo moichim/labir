@@ -8,25 +8,25 @@ export class ThermalPosterElement extends AbstractThermalElement {
     @state()
     protected loaded: boolean = false;
 
-    @property({type: Boolean, reflect: true})
+    @property({ type: Boolean, reflect: true })
     public loading: boolean = true;
 
-    @property({type: String})
+    @property({ type: String })
     public icon?: string;
 
-    @property({type: String})
+    @property({ type: String })
     public iconStyle?: string;
 
-    @property({type: String})
+    @property({ type: String })
     public message?: string;
 
-    @property({type: String})
+    @property({ type: String })
     public bordercolor: string = "var(--thermal-slate)";
 
-    @property({type: String})
+    @property({ type: String })
     public bgcolor: string = "var(--thermal-slate-light)";
 
-    @property({type: String})
+    @property({ type: String })
     public textcolor: string = "var(--thermal-slate-dark)";
 
     protected updated(_changedProperties: PropertyValues): void {
@@ -64,22 +64,17 @@ export class ThermalPosterElement extends AbstractThermalElement {
 
         const content = [];
 
-        if ( this.loading ) {
+        if (this.loading) {
             content.push(html`<thermal-spinner style="display: block"></thermal-spinner>`);
         } else {
-            if ( 
-                true
-                // this.icon && this.iconStyle 
-            ) {
-                content.push(html`<thermal-icon icon="${this.icon}" variant="${this.iconStyle}" style="height: 2em; aspect-ratio: 1 / 1; display: block;"></thermal-icon>`);
-            }
+            content.push(html`<thermal-icon icon="${this.icon}" variant="${this.iconStyle}" style="height: 2em; aspect-ratio: 1 / 1; display: block;"></thermal-icon>`);
 
-            if ( this.message ) {
+            if (this.message) {
                 content.push(html`<div>${this.message}</div>`);
             }
         }
 
-        content.push( html`<slot></slot>` );
+        content.push(html`<slot></slot>`);
 
         return content;
 

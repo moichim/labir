@@ -164,7 +164,7 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
         this.requestUpdate();
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
         // Nastav výchozí název souboru z .lrc souboru

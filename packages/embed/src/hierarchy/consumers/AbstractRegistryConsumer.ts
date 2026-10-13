@@ -1,9 +1,8 @@
 import type { ThermalRegistry } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { registryObjectContext } from "../controllers/RegistryController";
-import { AbstractManagerConsumer } from "./AbstractManagerConsumer";
-import type { RegistryController} from "../controllers/RegistryController";
+import type { RegistryController } from "../controllers/RegistryController";
 import { registryControllerContext } from "../controllers/RegistryController";
+import { AbstractManagerConsumer } from "./AbstractManagerConsumer";
 
 export abstract class AbstractRegistryConsumer extends AbstractManagerConsumer {
 

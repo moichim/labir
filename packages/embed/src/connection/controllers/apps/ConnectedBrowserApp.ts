@@ -1,7 +1,6 @@
-import type { ThermalManager } from "@labirthermal/core";
 import type { Identity } from "@labirthermal/client";
+import type { ThermalManager } from "@labirthermal/core";
 import { html, nothing } from "lit";
-import { customElement } from "lit/decorators.js";
 import { createRef } from "lit/directives/ref.js";
 import type { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 import { AbstractConnectedApp } from "../abstraction/AbstractConnectedApp";
@@ -12,7 +11,6 @@ import { connectedFolderGrid } from "./directives/layout/ConnectedFolderGridDire
 import { connectedFolderSubfolders } from "./directives/layout/ConnectedFolderSubfoldersDirective";
 import { userFolders } from "./directives/layout/UserFoldersDirective";
 
-@customElement("connected-browser-app")
 export class ControllerApp extends AbstractConnectedApp {
 
     private managerProviderRef = createRef<ManagerProviderElement>();

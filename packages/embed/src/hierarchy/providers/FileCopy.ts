@@ -170,14 +170,6 @@ implements
         this.analysis7 = undefined;
     }
 
-    willUpdate(_changedProperties: PropertyValues<FileCopyElement>): void {
-        super.willUpdate(_changedProperties);
-        this.managerController.hostWillUpdateWatcher(_changedProperties);
-        this.registryController.hostWillUpdateWatcher(_changedProperties);
-        this.groupController.hostWillUpdateWatcher(_changedProperties);
-        this.fileController.hostWillUpdateWatcher(_changedProperties);
-    }
-
     updated(_changedProperties: PropertyValues<FileCopyElement>): void {
         super.updated(_changedProperties);
 
@@ -186,10 +178,6 @@ implements
             if (this.withAnalyses) this.copyAnalysesFromParent();
             else this.clearAnalyses();
         }
-        this.managerController.hostUpdatedWatcher(_changedProperties);
-        this.registryController.hostUpdatedWatcher(_changedProperties);
-        this.groupController.hostUpdatedWatcher(_changedProperties);
-        this.fileController.hostUpdatedWatcher(_changedProperties);
     }
 
     static styles?: CSSResultGroup | undefined = css`

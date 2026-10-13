@@ -1,15 +1,14 @@
-import type { GroupController } from "./GroupController";
-import type { IBaseElement } from "../AbstractThermalElement";
-import { AbstractHierarchyController } from "./AbstractHierarchyController";
-import type { AbstractFileResult, Instance, ThermalGroup} from "@labirthermal/core";
+import type { AbstractFileResult, Instance, ThermalGroup } from "@labirthermal/core";
 import { ThermalFileReader, TimeFormat } from "@labirthermal/core";
-import type { FileController } from "./FileController";
-import type { PropertyValueMap } from "lit";
 import { css, html } from "lit";
-import type { StyleInfo} from "lit/directives/style-map.js";
-import { styleMap } from "lit/directives/style-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { repeat } from "lit/directives/repeat.js";
+import type { StyleInfo } from "lit/directives/style-map.js";
+import { styleMap } from "lit/directives/style-map.js";
+import type { IBaseElement } from "../AbstractThermalElement";
+import { AbstractHierarchyController } from "./AbstractHierarchyController";
+import type { FileController } from "./FileController";
+import type { GroupController } from "./GroupController";
 
 export enum GroupOrderby {
     DATE = "date",
@@ -335,12 +334,12 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         // throw new Error("Method not implemented.");
     }
 
-    hostWillUpdateWatcher(value: PropertyValueMap<IElementWithGroupListingController>): void {
-        // throw new Error("Method not implemented.");
+    hostWillUpdateWatcher(): void {
+        // Do nothing
     }
 
-    hostUpdatedWatcher(value: PropertyValueMap<IElementWithGroupListingController>): void {
-        // throw new Error("Method not implemented.");
+    hostUpdatedWatcher(): void {
+        // Do nothing
     }
 
     private _orderFiles(): Instance[] {

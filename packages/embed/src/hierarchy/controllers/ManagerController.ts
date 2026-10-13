@@ -278,14 +278,8 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
     }
 
 
-    hostUpdatedWatcher(
-        value: PropertyValues<IElementWithManagerController>
-    ): void {
-
-        if (!value) return;
-
-        
-
+    hostUpdatedWatcher(): void {
+        // Do nothing
     }
 
 

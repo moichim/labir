@@ -11,10 +11,6 @@ export class FileAnalysisSynchronisator {
         return value?.trim() || undefined;
     }
 
-    private get UUID_LISTENER(): string {
-        return this._controller.UUID + "_" + this._attribute;
-    }
-
     private readonly _attribute: keyof IElementWithFileController;
 
     private get _attributeValue(): string | undefined {

@@ -1,16 +1,15 @@
 import type { Instance, ThermalFileFailure } from "@labirthermal/core";
-import { AbstractSingleVideoExport } from "./AbstractSingleVideoExport";
-import { customElement, state } from "lit/decorators.js";
 import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html } from "lit";
+import { css, html, nothing } from "lit";
+import { state } from "lit/decorators.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import { T } from "../../../translations/Languages";
+import { AbstractSingleVideoExport } from "./AbstractSingleVideoExport";
 import { exportConfigDirective, SingleVideoExportConfigDirective } from "./directives/SingleVideoExportConfigDirective";
 import { exportLayoutDirective, SingleVideoExportLayoutDirective } from "./directives/SingleVideoExportLayoutDirective";
 import { singleVideoProviders } from "./directives/SingleVideoExportProvidersDirective";
-import type { Ref} from "lit/directives/ref.js";
-import { createRef, ref } from "lit/directives/ref.js";
 import { RecordingPhase } from "./ISingleVideoExportElement";
-import {nothing} from "lit";
-import { T } from "../../../translations/Languages";
 
 export class FileVideoExportPanel extends AbstractSingleVideoExport {
 
@@ -32,9 +31,7 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
     public onInstanceCreated(instance: Instance): void {
         this.parentHasAnalyses = instance.analysis.value.length > 0;
     }
-    public onFailure(error: ThermalFileFailure): void {
-        // throw new Error("Method not implemented.");
-    }
+    public onFailure(): void {}
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -47,7 +44,7 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
         this.exportSizeObserver?.disconnect();
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
         // Zajisti, že observer je nastaven po renderování
         this.setupResizeObserver();
@@ -323,9 +320,6 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
                                 this.setAutoScale(checked);
                             }}
                         >Automatické přiblížení</thermal-radio>
-                        
-                        
-                        
                         
                     </div>
                 </div>

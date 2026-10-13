@@ -1,9 +1,9 @@
 import type { AbstractAnalysis, AbstractAreaAnalysis } from "@labirthermal/core";
+import { t } from "i18next";
 import type { PropertyValues } from "lit";
 import { css, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
-import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 
 /** 

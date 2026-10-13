@@ -1,9 +1,8 @@
 import type { AvailableThermalPalette, ThermalManager } from "@labirthermal/core";
-import type { PropertyValues } from "lit";
 import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { AbstractThermalElement } from "../AbstractThermalElement";
-import type { IElementWithManagerController} from "../controllers/ManagerController";
+import type { IElementWithManagerController } from "../controllers/ManagerController";
 import { ManagerController } from "../controllers/ManagerController";
 import { removeManager } from "../providers/getters";
 
@@ -63,16 +62,6 @@ export abstract class AbstractManagerProvider extends AbstractThermalElement imp
         if (this.autoclear === true && this.managerObject !== undefined) {
             removeManager(this.managerObject);
         }
-    }
-
-    willUpdate(changedProperties: PropertyValues<AbstractManagerProvider>): void {
-        super.willUpdate(changedProperties);
-        this.managerController.hostWillUpdateWatcher(changedProperties);
-    }
-
-    public updated(changedProperties: PropertyValues<AbstractManagerProvider>): void {
-        super.updated(changedProperties);
-        this.managerController.hostUpdatedWatcher(changedProperties);
     }
 
     protected render(): unknown {

@@ -19,7 +19,7 @@ export class FileAnalisisEditDialog extends AbstractThermalElement {
     @state()
     protected type?: string;
 
-    protected willUpdate(changedProperties: PropertyValues): void {
+    willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
 
         // Side effect of analysis changing - derive the dialog name and type before rendering.
@@ -29,7 +29,7 @@ export class FileAnalisisEditDialog extends AbstractThermalElement {
         }
     }
 
-    protected updated(changedProperties: PropertyValues): void {
+    updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
 
         // Rebind the name-change listener after rendering whenever the input analysis changes.

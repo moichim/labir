@@ -1,13 +1,13 @@
-import type { Instance } from "@labirthermal/core"
-import { t } from "i18next"
-import type { CSSResultGroup} from "lit";
-import { css, html } from "lit"
-import { customElement, property } from "lit/decorators.js"
-import { ifDefined } from "lit/directives/if-defined.js"
-import { AbstractFileConsumer } from "../hierarchy/consumers/AbstractFileConsumer"
-import { T } from "../translations/Languages"
-import { booleanConverter } from "../utils/converters/booleanConverter"
 import type { GridGrouping } from "@labirthermal/client";
+import type { Instance } from "@labirthermal/core";
+import { t } from "i18next";
+import type { CSSResultGroup } from "lit";
+import { css, html } from "lit";
+import { property } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { AbstractFileConsumer } from "../hierarchy/consumers/AbstractFileConsumer";
+import { T } from "../translations/Languages";
+import { booleanConverter } from "../utils/converters/booleanConverter";
 
 export class FileThumbnailElement extends AbstractFileConsumer {
 

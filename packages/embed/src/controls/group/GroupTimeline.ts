@@ -1,12 +1,12 @@
-import type { Instance} from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 import { ThermalFileFailure } from "@labirthermal/core";
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import type { Ref } from "lit/directives/ref.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
-import type { Tick} from "../../utils/timelineTicks";
+import type { Tick } from "../../utils/timelineTicks";
 import { calculateTicks, renderTicks, ticksCss } from "../../utils/timelineTicks";
 
 
@@ -70,7 +70,7 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
 
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
 
@@ -199,9 +199,11 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
     }
 
     protected handlePlayButtonClick() {
-        this.group.playback.playing
-            ? this.group.playback.stop()
-            : this.group.playback.play();
+        if (this.group.playback.playing) {
+            this.group.playback.stop();
+        } else {
+            this.group.playback.play();
+        }
     }
 
     protected handleTimelineClick(event: MouseEvent) {

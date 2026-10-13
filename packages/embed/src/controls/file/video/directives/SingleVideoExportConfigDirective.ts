@@ -1,10 +1,10 @@
-import { directive, Directive } from "lit/directive.js";
-import type { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 import { css, html } from "lit";
+import { directive, Directive } from "lit/directive.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { QUALITY_HIGH, QUALITY_LOW, QUALITY_MEDIUM, QUALITY_VERY_HIGH, QUALITY_VERY_LOW } from "mediabunny";
 import { slotOrNothing } from "../../../../connection/controllers/apps/directives/SlotOrNothing";
-import { Quality, QUALITY_HIGH, QUALITY_LOW, QUALITY_MEDIUM, QUALITY_VERY_HIGH, QUALITY_VERY_LOW } from "mediabunny";
 import { T } from "../../../../translations/Languages";
+import type { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 
 export class SingleVideoExportConfigDirective extends Directive {
 

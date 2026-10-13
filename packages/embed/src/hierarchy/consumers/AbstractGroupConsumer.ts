@@ -1,7 +1,8 @@
 import type { ThermalGroup } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import type {
-    GroupController} from "../controllers/GroupController";
+    GroupController
+} from "../controllers/GroupController";
 import {
     groupControllerContext
 } from "../controllers/GroupController";

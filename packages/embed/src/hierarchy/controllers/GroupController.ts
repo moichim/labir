@@ -1,13 +1,11 @@
-import { createContext } from "@lit/context";
-import type { IBaseElement } from "../AbstractThermalElement";
-import type { HostReactiveProperties} from "./AbstractHierarchyController";
-import { AbstractHierarchyController, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import type { ThermalGroup } from "@labirthermal/core";
+import { ContextProvider, createContext } from "@lit/context";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
+import type { IBaseElement } from "../AbstractThermalElement";
+import type { HostReactiveProperties } from "./AbstractHierarchyController";
+import { AbstractHierarchyController, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import type { ManagerController } from "./ManagerController";
 import type { RegistryController } from "./RegistryController";
-import { ContextProvider } from "@lit/context";
-import type { PropertyValueMap } from "lit";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 type IHostProperties = {
 
@@ -104,11 +102,11 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
 
     }
 
-    hostWillUpdateWatcher(value: PropertyValueMap<IElementWithGroupController>): void {
+    hostWillUpdateWatcher(): void {
         // Do nothing
     }
 
-    hostUpdatedWatcher(value: PropertyValueMap<IElementWithGroupController>): void {
+    hostUpdatedWatcher(): void {
         // Do nothing
     }
 

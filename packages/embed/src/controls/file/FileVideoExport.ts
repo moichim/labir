@@ -1,6 +1,6 @@
 import type { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import type { Ref } from "lit/directives/ref.js";
 import { createRef, ref } from "lit/directives/ref.js";
@@ -47,12 +47,8 @@ export class FileVideoExportButton extends AbstractFileConsumer {
 
 
 
-    public onInstanceCreated(instance: Instance): void {
-        // throw new Error("Method not implemented.");
-    }
-    public onFailure(error: ThermalFileFailure): void {
-        // throw new Error("Method not implemented.");
-    }
+    public onInstanceCreated(): void {}
+    public onFailure(): void {}
 
 
     public renderDialog(): unknown {

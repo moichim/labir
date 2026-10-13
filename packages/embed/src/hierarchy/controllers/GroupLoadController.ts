@@ -1,11 +1,10 @@
+import type { ThermalGroup } from "@labirthermal/core";
+import { ThermalFileFailure, ThermalFileReader } from "@labirthermal/core";
 import type { PropertyValueMap } from "lit";
 import type { IBaseElement } from "../AbstractThermalElement";
 import type { HostReactiveProperties } from "./AbstractHierarchyController";
 import { AbstractHierarchyController } from "./AbstractHierarchyController";
 import type { GroupController } from "./GroupController";
-import { createContext } from "@lit/context";
-import type { ThermalGroup} from "@labirthermal/core";
-import { ThermalFileFailure, ThermalFileReader } from "@labirthermal/core";
 import type { GroupListingController } from "./GroupListingController";
 
 type IHostProperties = {
@@ -283,7 +282,7 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
         }
     }
 
-    hostUpdatedWatcher(value: PropertyValueMap<IElementWithGroupLoadController>): void {
+    hostUpdatedWatcher(): void {
         // Do nothing for now
     }
 
