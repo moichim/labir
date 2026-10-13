@@ -1,5 +1,5 @@
-import { Instance } from "@labirthermal/core";
-import { Quality } from "mediabunny";
+import type { Instance } from "@labirthermal/core";
+import type { Quality } from "mediabunny";
 
 export enum VideoExportSkin {
     LIGHT = "light",

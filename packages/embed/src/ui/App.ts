@@ -1,10 +1,12 @@
 import i18next, { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { cache } from "lit/directives/cache.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { map } from "lit/directives/map.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { languagesObject, T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";

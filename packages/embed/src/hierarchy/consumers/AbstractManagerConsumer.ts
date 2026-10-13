@@ -1,7 +1,8 @@
-import { ThermalManager } from "@labirthermal/core";
+import type { ThermalManager } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { AbstractThermalElement } from "../AbstractThermalElement";
-import { ManagerController, managerControllerContext } from "../controllers/ManagerController";
+import type { ManagerController} from "../controllers/ManagerController";
+import { managerControllerContext } from "../controllers/ManagerController";
 
 
 export abstract class AbstractManagerConsumer extends AbstractThermalElement {

@@ -1,6 +1,8 @@
-import { LitElement, PropertyValueMap, css, html, nothing } from "lit";
+import type { PropertyValueMap} from "lit";
+import { LitElement, css, html, nothing } from "lit";
 import { state } from 'lit/decorators.js';
-import { Ref, createRef, ref } from "lit/directives/ref.js";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 
 export class ThermalBarElement extends LitElement {
 

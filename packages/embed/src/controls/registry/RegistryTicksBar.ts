@@ -1,8 +1,10 @@
-import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { css, html, nothing, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { registryHighlightContext } from "../../hierarchy/controllers/RegistryController";
 

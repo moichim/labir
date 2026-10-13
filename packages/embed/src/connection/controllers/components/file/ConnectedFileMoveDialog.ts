@@ -1,9 +1,11 @@
 import { html, nothing } from "lit";
 import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ConnectedLocationSelector, LocationSelectorMode } from "../selection/move/ConnectedLocationSelector";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import type { ConnectedLocationSelector} from "../selection/move/ConnectedLocationSelector";
+import { LocationSelectorMode } from "../selection/move/ConnectedLocationSelector";
 import { customElement, property } from "lit/decorators.js";
-import { FileInfo } from "@labirthermal/client";
+import type { FileInfo } from "@labirthermal/client";
 
 @customElement("connected-file-move-dialog")
 export class ConnectedFileMoveDialog extends AbstractControlledConsumer {

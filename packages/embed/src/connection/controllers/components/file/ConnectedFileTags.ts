@@ -1,4 +1,4 @@
-import { FileInfo, FolderInfo, TagInfo } from "@labirthermal/client";
+import type { FileInfo, FolderInfo, TagInfo } from "@labirthermal/client";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";

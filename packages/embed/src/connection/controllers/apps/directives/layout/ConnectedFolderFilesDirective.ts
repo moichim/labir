@@ -1,6 +1,6 @@
-import { BreadcrumbItem, FileInfo } from "@labirthermal/client";
+import type { BreadcrumbItem, FileInfo } from "@labirthermal/client";
 import { html, nothing } from "lit";
-import { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
+import type { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { DirectiveHelpers } from "../DirectiveHelpers";
 import { slotOrNothing } from "../SlotOrNothing";
 

@@ -1,11 +1,12 @@
-import { GridGrouping } from "@labirthermal/client"
+import type { GridGrouping } from "@labirthermal/client"
 import { t } from "i18next"
-import { css, CSSResultGroup, html, nothing } from "lit"
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit"
 import { property } from "lit/decorators.js"
 import { AbstractFileConsumer } from "../hierarchy/consumers/AbstractFileConsumer"
 import { T } from "../translations/Languages"
 import { booleanConverter } from "../utils/converters/booleanConverter"
-import { Instance } from "@labirthermal/core"
+import type { Instance } from "@labirthermal/core"
 
 export class FileDetailElement extends AbstractFileConsumer {
 

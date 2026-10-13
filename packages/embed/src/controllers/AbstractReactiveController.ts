@@ -1,5 +1,5 @@
-import { ReactiveController } from "lit";
-import { IBaseElement } from "../hierarchy/AbstractThermalElement";
+import type { ReactiveController } from "lit";
+import type { IBaseElement } from "../hierarchy/AbstractThermalElement";
 
 export abstract class AbstractReactiveController<T extends IBaseElement> implements ReactiveController {
 

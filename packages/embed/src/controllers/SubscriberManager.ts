@@ -1,5 +1,5 @@
 import { CallbacksManager } from "@labirthermal/core";
-import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
+import type { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
 export class SubscriberManager extends CallbacksManager< () => void > {
 

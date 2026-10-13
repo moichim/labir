@@ -1,12 +1,14 @@
-import { AbstractAnalysis, CallbacksManager, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import type { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import { CallbacksManager } from "@labirthermal/core";
 import { FileAnalysisSynchronisators } from "./FileAnalysisSynchronisators";
 import { ContextProvider, createContext } from "@lit/context";
-import { PropertyDeclaration, PropertyValueMap } from "lit";
-import { IBaseElement } from "../AbstractThermalElement";
-import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
-import { GroupController } from "./GroupController";
-import { ManagerController } from "./ManagerController";
-import { RegistryController } from "./RegistryController";
+import type { PropertyDeclaration, PropertyValueMap } from "lit";
+import type { IBaseElement } from "../AbstractThermalElement";
+import type { HostReactiveProperties} from "./AbstractHierarchyController";
+import { AbstractHierarchyController, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
+import type { GroupController } from "./GroupController";
+import type { ManagerController } from "./ManagerController";
+import type { RegistryController } from "./RegistryController";
 
 type IHostProperties = {
 

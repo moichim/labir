@@ -1,6 +1,7 @@
-import { Identity } from "@labirthermal/client";
+import type { Identity } from "@labirthermal/client";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../translations/Languages";
 import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";

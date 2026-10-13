@@ -1,5 +1,6 @@
-import { AbstractAnalysis } from "@labirthermal/core";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import type { AbstractAnalysis } from "@labirthermal/core";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
 

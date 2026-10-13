@@ -1,11 +1,14 @@
-import { BreadcrumbItem, FolderInfo } from "@labirthermal/client";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { BreadcrumbItem, FolderInfo } from "@labirthermal/client";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { map } from "lit/directives/map.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { StyleInfo, styleMap } from "lit/directives/style-map.js";
-import { ThermalDialogElement } from "../../../../../ui/Dialog";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import type { StyleInfo} from "lit/directives/style-map.js";
+import { styleMap } from "lit/directives/style-map.js";
+import type { ThermalDialogElement } from "../../../../../ui/Dialog";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 
@@ -326,7 +329,7 @@ export class ConnectedLocationSelector extends AbstractControlledConsumer {
 
         let actionButton: unknown = nothing;
 
-        let clickAction: () => void = () => {
+        const clickAction: () => void = () => {
             if ( disabled ) {
                 return;
             }

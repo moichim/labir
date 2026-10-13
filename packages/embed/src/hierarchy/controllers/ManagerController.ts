@@ -1,11 +1,13 @@
-import { AvailableThermalPalette, ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
-import { IBaseElement } from "../AbstractThermalElement";
-import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
+import type { AvailableThermalPalette, ThermalManager, ThermalPaletteType } from "@labirthermal/core";
+import { ThermalManagerOptions, ThermalPalettes } from "@labirthermal/core";
+import type { IBaseElement } from "../AbstractThermalElement";
+import type { HostReactiveProperties} from "./AbstractHierarchyController";
+import { AbstractHierarchyController, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import { createOrGetManager } from "../providers/getters";
 import { ContextProvider, createContext } from "@lit/context";
-import { PropertyValues } from "lit";
-import { ThermalTool } from "@labirthermal/core";
-import { ThermalRegistry } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
+import type { ThermalTool } from "@labirthermal/core";
+import type { ThermalRegistry } from "@labirthermal/core";
 import { paletteConverter } from "../../utils/converters/paletteConverter";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 

@@ -5,7 +5,7 @@ import { ConfigController } from "../hierarchy/controllers/ConfigController";
 import { initLocalesInTopLevelElement, localeContext, localeConverter } from "../translations/localeContext";
 import type { Locales } from "../translations/localeContext";
 import { booleanConverter } from "../utils/converters/booleanConverter";
-import { PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
 export abstract class AbstractApp extends AbstractThermalElement implements IWithlocale {

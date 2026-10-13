@@ -1,17 +1,21 @@
-import { AvailableThermalPalette, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry, ThermalGroup, Instance, ThermalFileFailure, PlaybackSpeeds } from "@labirthermal/core";
+import type { AvailableThermalPalette, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry, ThermalGroup, Instance, ThermalFileFailure, PlaybackSpeeds } from "@labirthermal/core";
 import { provide } from "@lit/context";
-import { css, html, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { css, html } from "lit";
 import { property } from "lit/decorators.js";
 import { FileController } from "../hierarchy/controllers/FileController";
 import { FileLoadController } from "../hierarchy/controllers/FileLoadController";
-import { IElementWithManagerController, ManagerController } from "../hierarchy/controllers/ManagerController";
-import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
-import { IElementWithGroupController, GroupController } from "../hierarchy/controllers/GroupController";
+import type { IElementWithManagerController} from "../hierarchy/controllers/ManagerController";
+import { ManagerController } from "../hierarchy/controllers/ManagerController";
+import type { IElementWithRegistryController} from "../hierarchy/controllers/RegistryController";
+import { RegistryController } from "../hierarchy/controllers/RegistryController";
+import type { IElementWithGroupController} from "../hierarchy/controllers/GroupController";
+import { GroupController } from "../hierarchy/controllers/GroupController";
 import { interactiveAnalysisContext } from "../hierarchy/controllers/ManagerController";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 import { AbstractApp } from "./AbstractApp";
-import { IElementWithFileController } from "../hierarchy/controllers/FileController";
-import { IElementWithFileLoadController } from "../hierarchy/controllers/FileLoadController";
+import type { IElementWithFileController } from "../hierarchy/controllers/FileController";
+import type { IElementWithFileLoadController } from "../hierarchy/controllers/FileLoadController";
 
 export class ThermalFileAppElement 
 extends AbstractApp 

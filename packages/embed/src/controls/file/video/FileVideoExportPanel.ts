@@ -1,11 +1,13 @@
-import { Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { AbstractSingleVideoExport } from "./AbstractSingleVideoExport";
 import { customElement, state } from "lit/decorators.js";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html } from "lit";
 import { exportConfigDirective, SingleVideoExportConfigDirective } from "./directives/SingleVideoExportConfigDirective";
 import { exportLayoutDirective, SingleVideoExportLayoutDirective } from "./directives/SingleVideoExportLayoutDirective";
 import { singleVideoProviders } from "./directives/SingleVideoExportProvidersDirective";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { RecordingPhase } from "./ISingleVideoExportElement";
 import {nothing} from "lit";
 import { T } from "../../../translations/Languages";

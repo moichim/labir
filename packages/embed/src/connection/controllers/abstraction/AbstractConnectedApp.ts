@@ -1,19 +1,25 @@
 import Client from "@labirthermal/client";
 import type { AvailableThermalPalette } from "@labirthermal/core";
 import { provide } from "@lit/context";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { cache } from "lit/directives/cache.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { AbstractApp } from "../../../apps/AbstractApp";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
-import { AppWithClientController, ClientController } from "../ClientController";
-import { AppWithContentController, ContentController } from "../ContentController";
+import type { AppWithClientController} from "../ClientController";
+import { ClientController } from "../ClientController";
+import type { AppWithContentController} from "../ContentController";
+import { ContentController } from "../ContentController";
 import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, FileSelectionControllerContext, FolderSelectionControllerContext } from "../controllersContexts";
-import { AppWithDisplayController, DisplayController, DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
-import { AppWithFileSelectionController, FileSelectionController } from "../FileSelectionController";
-import { AppWithFolderSelectionController, FolderSelectionController } from "../FolderSelectionController";
+import type { AppWithDisplayController} from "../DisplayController";
+import { DisplayController, DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
+import type { AppWithFileSelectionController} from "../FileSelectionController";
+import { FileSelectionController } from "../FileSelectionController";
+import type { AppWithFolderSelectionController} from "../FolderSelectionController";
+import { FolderSelectionController } from "../FolderSelectionController";
 
 export abstract class AbstractConnectedApp extends AbstractApp
     implements

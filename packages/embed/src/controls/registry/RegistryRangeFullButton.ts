@@ -1,6 +1,7 @@
 import { t } from "i18next";
 import { html } from "lit";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { T } from "../../translations/Languages";
 

@@ -1,7 +1,8 @@
 import { t } from "i18next";
 import { LitElement, css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
-import { Ref, createRef, ref } from "lit/directives/ref.js";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 

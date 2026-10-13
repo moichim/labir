@@ -1,4 +1,5 @@
-import { playbackSpeed, PlaybackSpeeds } from "@labirthermal/core";
+import type { PlaybackSpeeds } from "@labirthermal/core";
+import { playbackSpeed } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";

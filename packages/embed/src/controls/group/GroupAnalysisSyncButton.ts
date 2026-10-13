@@ -1,5 +1,6 @@
 import { t } from "i18next";
-import { css, CSSResultGroup, html } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
 import { property } from "lit/decorators.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { T } from "../../translations/Languages";

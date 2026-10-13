@@ -1,4 +1,5 @@
-import { css, CSSResultGroup, html, TemplateResult } from "lit";
+import type { CSSResultGroup, TemplateResult } from "lit";
+import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { AbstractFolderThumbnail } from "./AbstractFolderThumbnail";
 

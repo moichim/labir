@@ -1,7 +1,9 @@
 import { property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
-import { AbstractAnalysis, PointAnalysis } from "@labirthermal/core";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import type { AbstractAnalysis} from "@labirthermal/core";
+import { PointAnalysis } from "@labirthermal/core";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html } from "lit";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 

@@ -1,11 +1,13 @@
 import { computePosition, flip, inline, offset, shift } from "@floating-ui/dom";
-import { LitElement, PropertyValueMap, css, html } from "lit";
+import type { PropertyValueMap} from "lit";
+import { LitElement, css, html } from "lit";
 import { property, queryAssignedElements } from 'lit/decorators.js';
 import { classMap } from "lit/directives/class-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { Ref, createRef, ref } from "lit/directives/ref.js";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
-import { BtnSizes, BtnVariants } from "./Btn";
+import type { BtnSizes, BtnVariants } from "./Btn";
 
 export class ThermalDropdownElement extends AbstractThermalElement {
 

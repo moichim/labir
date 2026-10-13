@@ -1,10 +1,11 @@
-import { FileInfo } from "@labirthermal/client";
-import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
+import type { FileInfo } from "@labirthermal/client";
+import type { CSSResultGroup, TemplateResult } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
 import icons from "../../../../../utils/icons";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
-import { FileListDisplayMode } from "../../../DisplayController";
+import type { FileListDisplayMode } from "../../../DisplayController";
 
 @customElement("connected-file-list")
 export class ConnectedFolderFileList extends AbstractControlledConsumer {

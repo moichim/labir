@@ -1,4 +1,5 @@
-import { arrow, autoUpdate, computePosition, flip, offset, Placement, shift } from '@floating-ui/dom';
+import type { Placement} from '@floating-ui/dom';
+import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { css, html, nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { ref } from "lit/directives/ref.js";

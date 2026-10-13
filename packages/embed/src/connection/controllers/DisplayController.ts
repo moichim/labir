@@ -1,8 +1,8 @@
-import { ReactiveController } from "lit";
-import { AppWithContentController, ContentController } from "./ContentController";
-import { FileInfo, FolderInfo } from "@labirthermal/client";
+import type { ReactiveController } from "lit";
+import type { AppWithContentController, ContentController } from "./ContentController";
+import type { FileInfo, FolderInfo } from "@labirthermal/client";
 import { CallbacksManager } from "@labirthermal/core";
-import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
+import type { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AbstractConnectedController } from "./AbstractConnectedController";
 
 export enum DisplayState {

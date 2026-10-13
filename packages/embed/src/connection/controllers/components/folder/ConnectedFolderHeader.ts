@@ -1,5 +1,6 @@
-import { BreadcrumbItem } from "@labirthermal/client";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { BreadcrumbItem } from "@labirthermal/client";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import icons from "../../../../utils/icons";
 import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";

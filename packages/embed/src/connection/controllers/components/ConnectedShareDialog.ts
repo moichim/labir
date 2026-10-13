@@ -2,14 +2,16 @@ import type { AvailableThermalPalette } from "@labirthermal/core";
 import type { FileInfo, FolderInfo } from "@labirthermal/client";
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { managerPaletteContext } from "../../../hierarchy/controllers/ManagerController";
 import { registryRangeToContext } from "../../../hierarchy/controllers/RegistryController";
 import { registryRangeFromContext } from "../../../hierarchy/controllers/RegistryController";
 import { T } from "../../../translations/Languages";
 import { AbstractControlledConsumer } from "../abstraction/AbstractControlledConsumer";
-import { DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
+import type { FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
+import { DisplayState } from "../DisplayController";
 
 @customElement("connected-share-dialog")
 export class ConnectedShareDialog extends AbstractControlledConsumer {
@@ -211,7 +213,7 @@ export class ConnectedShareDialog extends AbstractControlledConsumer {
 
     private assambleUrl(): string {
 
-        let link = this.client.api.getPublicUrl();
+        const link = this.client.api.getPublicUrl();
 
         const segments: Record<string, string> = {};
 

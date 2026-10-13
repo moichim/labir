@@ -1,4 +1,4 @@
-import { AvailableThermalPalette, ThermalPaletteType } from "@labirthermal/core";
+import type { AvailableThermalPalette, ThermalPaletteType } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html } from "lit";
 import { T } from "../../translations/Languages";

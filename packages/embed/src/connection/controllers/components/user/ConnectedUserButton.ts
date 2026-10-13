@@ -1,10 +1,11 @@
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
+import type { CSSResultGroup, TemplateResult } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
 import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
-import { ThermalDialogElement } from "../../../../ui/Dialog";
+import type { ThermalDialogElement } from "../../../../ui/Dialog";
 
 @customElement("connected-user-button")
 export class UserButton extends AbstractControlledConsumer {

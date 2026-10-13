@@ -1,6 +1,7 @@
-import { BreadcrumbItem } from "@labirthermal/client";
+import type { BreadcrumbItem } from "@labirthermal/client";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
+import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { T } from "../../../translations/Languages";

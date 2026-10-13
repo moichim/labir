@@ -1,9 +1,11 @@
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, CSSResultGroup, html } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
 import { state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
-import { ManagerController, managerControllerContext } from "../../hierarchy/controllers/ManagerController";
+import type { ManagerController} from "../../hierarchy/controllers/ManagerController";
+import { managerControllerContext } from "../../hierarchy/controllers/ManagerController";
 import { managerAdvancedPalettesContext } from "../../hierarchy/controllers/ManagerController";
 import { T } from "../../translations/Languages";
 

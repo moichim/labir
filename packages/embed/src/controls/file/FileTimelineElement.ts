@@ -1,15 +1,19 @@
-import { Instance } from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { format } from "date-fns";
 import { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
-import { FileControllerCurrentFrameType, fileDurationContext, FileControllerDurationContextType, filaMayStopContext, fileCurrentFrameContext, filePlayingContext, fileTimeCursorContext } from "../../hierarchy/controllers/FileController";
+import type { FileControllerCurrentFrameType, FileControllerDurationContextType} from "../../hierarchy/controllers/FileController";
+import { fileDurationContext, filaMayStopContext, fileCurrentFrameContext, filePlayingContext, fileTimeCursorContext } from "../../hierarchy/controllers/FileController";
 import { T } from "../../translations/Languages";
-import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
+import type { Tick} from "../../utils/timelineTicks";
+import { calculateTicks, renderTicks, ticksCss } from "../../utils/timelineTicks";
 
 const isChromium = "chrome" in window;
 

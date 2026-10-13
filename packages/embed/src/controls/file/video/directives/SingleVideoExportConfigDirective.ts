@@ -1,5 +1,5 @@
 import { directive, Directive } from "lit/directive.js";
-import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
+import type { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 import { css, html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { slotOrNothing } from "../../../../connection/controllers/apps/directives/SlotOrNothing";

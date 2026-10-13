@@ -1,9 +1,13 @@
-import { Instance, ThermalFileFailure } from "@labirthermal/core";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import type { Instance} from "@labirthermal/core";
+import { ThermalFileFailure } from "@labirthermal/core";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
-import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
+import type { Tick} from "../../utils/timelineTicks";
+import { calculateTicks, renderTicks, ticksCss } from "../../utils/timelineTicks";
 
 
 

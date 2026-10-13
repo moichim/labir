@@ -1,18 +1,26 @@
-import { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import { ThermalFileReader } from "@labirthermal/core";
 import type { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
 import { provide } from "@lit/context";
 import { t } from "i18next";
-import { css, html, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { css, html } from "lit";
 import { property, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import { publicIpv4 } from "public-ip";
-import { FileController, IElementWithFileController } from "../hierarchy/controllers/FileController";
-import { GroupController, IElementWithGroupController } from "../hierarchy/controllers/GroupController";
-import { GroupListingController, GroupOrderby, GroupOrdering, IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
-import { IElementWithManagerController, ManagerController } from "../hierarchy/controllers/ManagerController";
-import { IElementWithRegistryController, RegistryController } from "../hierarchy/controllers/RegistryController";
+import type { IElementWithFileController } from "../hierarchy/controllers/FileController";
+import { FileController } from "../hierarchy/controllers/FileController";
+import type { IElementWithGroupController } from "../hierarchy/controllers/GroupController";
+import { GroupController } from "../hierarchy/controllers/GroupController";
+import type { IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
+import { GroupListingController, GroupOrderby, GroupOrdering } from "../hierarchy/controllers/GroupListingController";
+import type { IElementWithManagerController} from "../hierarchy/controllers/ManagerController";
+import { ManagerController } from "../hierarchy/controllers/ManagerController";
+import type { IElementWithRegistryController} from "../hierarchy/controllers/RegistryController";
+import { RegistryController } from "../hierarchy/controllers/RegistryController";
 import { T } from "../translations/Languages";
-import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
+import type { IWithlocale, Locales } from "../translations/localeContext";
+import { initLocalesInTopLevelElement, localeContext, localeConverter } from "../translations/localeContext";
 import { AbstractApp } from "./AbstractApp";
 
 enum Mode {

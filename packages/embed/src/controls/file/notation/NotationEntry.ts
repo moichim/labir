@@ -1,4 +1,5 @@
-import { html, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { html } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { durationConverter } from "../../../utils/converters/durationConverter";

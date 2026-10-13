@@ -1,7 +1,7 @@
-import { PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
 import { FileAnalysisSynchronisator } from "./FileAnalysisSynchronisator";
 import type { FileController } from "./FileController";
-import { Instance } from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 
 export class FileAnalysisSynchronisators {
 

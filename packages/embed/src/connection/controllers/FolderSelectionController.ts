@@ -1,8 +1,8 @@
 import { CallbacksManager } from "@labirthermal/core";
-import { FolderInfo } from "@labirthermal/client";
-import { ReactiveController } from "lit";
-import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
-import { AppWithDisplayController, DisplayController } from "./DisplayController";
+import type { FolderInfo } from "@labirthermal/client";
+import type { ReactiveController } from "lit";
+import type { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
+import type { AppWithDisplayController, DisplayController } from "./DisplayController";
 
 
 export interface AppWithFolderSelectionController extends AppWithDisplayController {

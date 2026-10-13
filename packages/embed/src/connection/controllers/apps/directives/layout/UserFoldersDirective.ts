@@ -1,7 +1,7 @@
 import { directive } from "lit/directive.js";
-import { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
+import type { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
-import { Identity } from "@labirthermal/client";
+import type { Identity } from "@labirthermal/client";
 import { html } from "lit";
 
 class UserFoldersDirective extends AbstractLayoutDirective {

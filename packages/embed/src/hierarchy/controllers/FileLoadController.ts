@@ -1,8 +1,10 @@
-import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
-import { PropertyValueMap } from "lit";
-import { IBaseElement } from "../AbstractThermalElement";
-import { AbstractHierarchyController, HostReactiveProperties } from "./AbstractHierarchyController";
-import { FileController } from "./FileController";
+import type { ThermalGroup, ThermalRegistry } from "@labirthermal/core";
+import { Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { PropertyValueMap } from "lit";
+import type { IBaseElement } from "../AbstractThermalElement";
+import type { HostReactiveProperties } from "./AbstractHierarchyController";
+import { AbstractHierarchyController } from "./AbstractHierarchyController";
+import type { FileController } from "./FileController";
 
 type IHostProperties = {
 

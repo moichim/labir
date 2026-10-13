@@ -1,8 +1,8 @@
 import { CallbacksManager } from "@labirthermal/core";
-import { ApiResponseType, BreadcrumbItem, FolderInfo, GetGridDataType, FileInfo, TreeItem } from "@labirthermal/client";
-import { ReactiveController } from "lit";
-import { AppWithClientController, ClientController } from "./ClientController";
-import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
+import type { ApiResponseType, BreadcrumbItem, FolderInfo, GetGridDataType, FileInfo, TreeItem } from "@labirthermal/client";
+import type { ReactiveController } from "lit";
+import type { AppWithClientController, ClientController } from "./ClientController";
+import type { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AbstractConnectedController } from "./AbstractConnectedController";
 
 /** 

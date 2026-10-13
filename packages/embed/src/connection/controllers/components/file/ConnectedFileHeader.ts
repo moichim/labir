@@ -1,5 +1,6 @@
 import { TimeFormat } from "@labirthermal/core";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 

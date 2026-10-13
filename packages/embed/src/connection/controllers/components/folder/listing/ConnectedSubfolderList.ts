@@ -1,5 +1,6 @@
-import { FolderInfo } from "@labirthermal/client";
-import { css, CSSResultGroup, html } from "lit";
+import type { FolderInfo } from "@labirthermal/client";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 import { FolderListDisplayMode } from "../../../DisplayController";

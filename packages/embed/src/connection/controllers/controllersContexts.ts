@@ -1,9 +1,9 @@
 import { createContext } from "@lit/context";
-import { ClientController } from "./ClientController";
-import { ContentController } from "./ContentController";
-import { DisplayController } from "./DisplayController";
-import { FileSelectionController } from "./FileSelectionController";
-import { FolderSelectionController } from "./FolderSelectionController";
+import type { ClientController } from "./ClientController";
+import type { ContentController } from "./ContentController";
+import type { DisplayController } from "./DisplayController";
+import type { FileSelectionController } from "./FileSelectionController";
+import type { FolderSelectionController } from "./FolderSelectionController";
 
 export const ControlledClientContext = createContext<ClientController>("controlled-client-controller");
 

@@ -1,11 +1,11 @@
 import { consume } from "@lit/context";
 import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
-import { ClientController } from "../ClientController";
-import { ContentController } from "../ContentController";
+import type { ClientController } from "../ClientController";
+import type { ContentController } from "../ContentController";
 import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, FileSelectionControllerContext, FolderSelectionControllerContext } from "../controllersContexts";
-import { DisplayController } from "../DisplayController";
-import { FileSelectionController } from "../FileSelectionController";
-import { FolderSelectionController } from "../FolderSelectionController";
+import type { DisplayController } from "../DisplayController";
+import type { FileSelectionController } from "../FileSelectionController";
+import type { FolderSelectionController } from "../FolderSelectionController";
 
 export abstract class AbstractControlledConsumer extends AbstractThermalElement {
 

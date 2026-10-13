@@ -1,6 +1,7 @@
-import { css, html, nothing, PropertyValueMap } from "lit";
+import type { PropertyValueMap } from "lit";
+import { css, html, nothing } from "lit";
 
-import { ThermalRegistry } from "@labirthermal/core";
+import type { ThermalRegistry } from "@labirthermal/core";
 import { property, state } from "lit/decorators.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { booleanConverter } from "../../utils/converters/booleanConverter";

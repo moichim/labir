@@ -1,6 +1,7 @@
 import { customElement, property } from "lit/decorators.js";
-import { FileInfo, FolderInfo } from "@labirthermal/client";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { FileInfo, FolderInfo } from "@labirthermal/client";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { t } from "i18next";
 import { T } from "../../../../../translations/Languages";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";

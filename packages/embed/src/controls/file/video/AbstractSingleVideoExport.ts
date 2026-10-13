@@ -1,12 +1,15 @@
-import { Instance } from "@labirthermal/core";
-import { PropertyValues } from "lit";
+import type { Instance } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
-import { createRef, Ref } from "lit/directives/ref.js";
-import { Quality, QUALITY_VERY_HIGH } from "mediabunny";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef } from "lit/directives/ref.js";
+import type { Quality} from "mediabunny";
+import { QUALITY_VERY_HIGH } from "mediabunny";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-import { FileCopyElement } from "../../../hierarchy/providers/FileCopy";
+import type { FileCopyElement } from "../../../hierarchy/providers/FileCopy";
 import { VideoRecorder } from "./internals/VideoRecorder";
-import { ISingleVideoExportElement, RecordingPhase, SingleVideoRenderProps, VideoExportSkin } from "./ISingleVideoExportElement";
+import type { ISingleVideoExportElement, SingleVideoRenderProps} from "./ISingleVideoExportElement";
+import { RecordingPhase, VideoExportSkin } from "./ISingleVideoExportElement";
 
 export abstract class AbstractSingleVideoExport extends AbstractFileConsumer implements ISingleVideoExportElement {
 

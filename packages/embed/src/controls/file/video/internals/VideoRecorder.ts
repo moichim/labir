@@ -1,6 +1,6 @@
-import { Instance } from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 import { BufferTarget, Mp4OutputFormat, Output, VideoSample, VideoSampleSource } from "mediabunny";
-import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
+import type { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 import { RecordingPhase } from "../ISingleVideoExportElement";
 
 /**

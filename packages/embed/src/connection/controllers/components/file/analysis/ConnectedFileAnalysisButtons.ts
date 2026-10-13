@@ -1,7 +1,8 @@
-import { FileInfo } from "@labirthermal/client";
-import { Instance } from "@labirthermal/core";
+import type { FileInfo } from "@labirthermal/client";
+import type { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { fileContext } from "../../../../../hierarchy/controllers/FileController";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";

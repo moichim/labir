@@ -1,6 +1,6 @@
-import { BreadcrumbItem, FolderInfo } from "@labirthermal/client";
+import type { BreadcrumbItem, FolderInfo } from "@labirthermal/client";
 import { html, nothing } from "lit";
-import { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
+import type { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { slotOrNothing } from "../SlotOrNothing";
 
 import { directive } from "lit/directive.js";

@@ -171,7 +171,7 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
         label?: string
     ): string | undefined {
 
-        let thermal = this.stringOrUndefined(thermalUrl);
+        const thermal = this.stringOrUndefined(thermalUrl);
         visibleUrl = this.stringOrUndefined(visibleUrl);
         label = this.stringOrUndefined(label);
 

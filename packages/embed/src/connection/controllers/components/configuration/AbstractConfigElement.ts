@@ -1,4 +1,5 @@
-import { css, CSSResultGroup, html } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 

@@ -1,5 +1,6 @@
-import { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
-import { html, PropertyValues } from "lit";
+import type { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
+import { html } from "lit";
 import { AbstractGroupConsumer } from "../consumers/AbstractGroupConsumer";
 import type { IElementWithFileController } from "../controllers/FileController";
 import { FileController } from "../controllers/FileController";

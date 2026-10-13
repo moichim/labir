@@ -1,4 +1,4 @@
-import { Instance } from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 import { t } from "i18next";
 import { property } from "lit/decorators.js";
 import { T } from "../../../translations/Languages";

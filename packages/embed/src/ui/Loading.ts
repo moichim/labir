@@ -1,4 +1,5 @@
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 

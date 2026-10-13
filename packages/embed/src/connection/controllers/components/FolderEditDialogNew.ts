@@ -1,6 +1,7 @@
-import { FolderInfo } from "@labirthermal/client";
+import type { FolderInfo } from "@labirthermal/client";
 import { t } from "i18next";
-import { css, CSSResultGroup, html } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../translations/Languages";
 import { AbstractFolderDialog } from "./folder/crud/AbstractFolderDialog";

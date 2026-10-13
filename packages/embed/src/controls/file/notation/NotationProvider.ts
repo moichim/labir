@@ -1,7 +1,9 @@
-import { Instance } from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, notationCurrentContext, NotationCurrentContext, notationDurationContext, notationListContext, NotationListContext } from "./NotationContext";
-import { html, PropertyValues } from "lit";
+import type { IWithNotationContext, NotationCurrentContext, NotationListContext } from "./NotationContext";
+import { getCurrentNotationsByMs, grabNotationsFromSlot, notationCurrentContext, notationDurationContext, notationListContext } from "./NotationContext";
+import type { PropertyValues } from "lit";
+import { html } from "lit";
 import { provide } from "@lit/context";
 import { customElement, queryAssignedElements, state } from "lit/decorators.js";
 

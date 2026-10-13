@@ -2,7 +2,7 @@ import { publicIpv4 } from "public-ip";
 import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { property, state } from "lit/decorators.js";
 import { Instance } from "@labirthermal/core/src/file/instance";
-import { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
+import type { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
 
 export abstract class AbstractGroupDropin extends AbstractGroupConsumer {
 

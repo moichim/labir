@@ -1,14 +1,15 @@
-import { Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { when } from 'lit/directives/when.js';
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../translations/Languages";
-import { BtnSizes, BtnVariants } from "../../ui/Btn";
-import { ThermalDialogElement } from "../../ui/Dialog";
-import { FileVideoExportPanel } from "./video/FileVideoExportPanel";
+import type { BtnSizes, BtnVariants } from "../../ui/Btn";
+import type { ThermalDialogElement } from "../../ui/Dialog";
+import type { FileVideoExportPanel } from "./video/FileVideoExportPanel";
 
 export class FileVideoExportButton extends AbstractFileConsumer {
 
@@ -34,7 +35,7 @@ export class FileVideoExportButton extends AbstractFileConsumer {
     public label: string = "Exportovat video";
 
     @property({ type: String, reflect: true })
-    public pre?: String;
+    public pre?: string;
 
     private dialogRef: Ref<ThermalDialogElement> = createRef();
     private panelRef?: Ref<FileVideoExportPanel> = createRef();

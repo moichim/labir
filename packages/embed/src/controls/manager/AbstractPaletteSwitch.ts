@@ -1,11 +1,12 @@
-import { AvailableThermalPalette, ThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
+import type { AvailableThermalPalette, ThermalPaletteType } from "@labirthermal/core";
+import { ThermalPalettes } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
 import { managerAdvancedPalettesContext } from "../../hierarchy/controllers/ManagerController";
 import { managerPaletteContext } from "../../hierarchy/controllers/ManagerController";
-import { ManagerPaletteContext } from "../../hierarchy/controllers/ManagerController";
+import type { ManagerPaletteContext } from "../../hierarchy/controllers/ManagerController";
 
 export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 

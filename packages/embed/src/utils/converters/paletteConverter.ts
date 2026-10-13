@@ -1,4 +1,5 @@
-import { AvailableThermalPalette, ThermalPalettes } from "@labirthermal/core";
+import type { AvailableThermalPalette} from "@labirthermal/core";
+import { ThermalPalettes } from "@labirthermal/core";
 
 /** A unified converter for thermal palettes. Recommended usage:
  * @example

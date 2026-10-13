@@ -1,9 +1,11 @@
-import { FolderInfo } from "@labirthermal/client";
+import type { FolderInfo } from "@labirthermal/client";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
-import { ConnectedLocationSelector, LocationSelectorMode } from "../../selection/move/ConnectedLocationSelector";
+import type { ConnectedLocationSelector} from "../../selection/move/ConnectedLocationSelector";
+import { LocationSelectorMode } from "../../selection/move/ConnectedLocationSelector";
 
 @customElement("connected-folder-move-dialog")
 export class ConnectedFolderMoveDialog extends AbstractControlledConsumer {

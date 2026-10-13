@@ -1,9 +1,10 @@
-import { ThermalGroup, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { ThermalGroup, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { ContextProvider, createContext } from "@lit/context";
-import { PropertyValues } from "lit";
-import { IBaseElement } from "../AbstractThermalElement";
-import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
-import { ManagerController } from "./ManagerController";
+import type { PropertyValues } from "lit";
+import type { IBaseElement } from "../AbstractThermalElement";
+import type { HostReactiveProperties} from "./AbstractHierarchyController";
+import { AbstractHierarchyController, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
+import type { ManagerController } from "./ManagerController";
 
 type IHostProperties = {
 

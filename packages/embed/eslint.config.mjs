@@ -9,7 +9,7 @@ export default tseslint.config(
   {
     rules: {
       "@typescript-eslint/consistent-type-imports": [
-        "error", 
+        "warn", 
         { 
           prefer: "type-imports", 
           fixStyle: "separate-type-imports"

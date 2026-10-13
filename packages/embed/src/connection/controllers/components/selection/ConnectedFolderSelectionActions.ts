@@ -1,10 +1,13 @@
 import { customElement, state } from "lit/decorators.js";
 import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { ThermalDialog } from "packages/embed/src/ui/Dialog";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
-import { ThermalGroup, zip } from "@labirthermal/core";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
+import type { ThermalDialog } from "packages/embed/src/ui/Dialog";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import type { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
+import type { ThermalGroup} from "@labirthermal/core";
+import { zip } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { groupObjectContext } from "../../../../hierarchy/controllers/GroupController";
 

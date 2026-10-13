@@ -1,7 +1,9 @@
-import { FileInfo, FolderInfo, GetGridDataType } from "@labirthermal/client";
-import { ThermalRegistry, TimeFormat } from "@labirthermal/core";
+import type { FileInfo, FolderInfo, GetGridDataType } from "@labirthermal/client";
+import type { ThermalRegistry} from "@labirthermal/core";
+import { TimeFormat } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import type { RegistryController } from "../../../../../hierarchy/controllers/RegistryController";
 import { registryControllerContext } from "../../../../../hierarchy/controllers/RegistryController";

@@ -1,11 +1,16 @@
-import { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import type { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { AbstractThermalElement } from "../AbstractThermalElement";
-import { FileController, IElementWithFileController } from "../controllers/FileController";
-import { GroupController, IElementWithGroupController } from "../controllers/GroupController";
-import { IElementWithManagerController, ManagerController } from "../controllers/ManagerController";
-import { IElementWithRegistryController, RegistryController } from "../controllers/RegistryController";
+import type { IElementWithFileController } from "../controllers/FileController";
+import { FileController } from "../controllers/FileController";
+import type { IElementWithGroupController } from "../controllers/GroupController";
+import { GroupController } from "../controllers/GroupController";
+import type { IElementWithManagerController} from "../controllers/ManagerController";
+import { ManagerController } from "../controllers/ManagerController";
+import type { IElementWithRegistryController} from "../controllers/RegistryController";
+import { RegistryController } from "../controllers/RegistryController";
 
 /** This element creates a completely isolated hierarchy tree for the given original file. The file is copied and all contexts are exposed independently of the original context. */
 export class FileCopyElement 

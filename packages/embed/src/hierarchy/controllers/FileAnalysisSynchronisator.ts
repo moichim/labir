@@ -1,5 +1,5 @@
-import { Instance } from "@labirthermal/core";
-import { PropertyValues } from "lit";
+import type { Instance } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
 import type { FileController, IElementWithFileController } from "./FileController";
 
 export class FileAnalysisSynchronisator {

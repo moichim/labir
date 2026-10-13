@@ -1,4 +1,4 @@
-import { Translation } from "../Languages";
+import type { Translation } from "../Languages";
 
 export const cy: Translation = {
     moreoptions: "Mwy o opsiynau",

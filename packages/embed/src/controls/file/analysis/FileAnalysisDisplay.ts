@@ -1,9 +1,12 @@
-import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
 import { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { state } from "lit/decorators.js";
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { StyleInfo, styleMap } from "lit/directives/style-map.js";
+import type { Ref} from 'lit/directives/ref.js';
+import { createRef, ref } from 'lit/directives/ref.js';
+import type { StyleInfo} from "lit/directives/style-map.js";
+import { styleMap } from "lit/directives/style-map.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../../translations/Languages";
 

@@ -2,16 +2,19 @@ import type { AnalysisDataStateValue, Instance } from "@labirthermal/core";
 import { TimeFormat } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { guard } from "lit/directives/guard.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
-import { FileControllerCurrentFrameType, fileCurrentFrameContext, fileTimeCursorContext } from "../../../hierarchy/controllers/FileController";
+import type { FileControllerCurrentFrameType} from "../../../hierarchy/controllers/FileController";
+import { fileCurrentFrameContext, fileTimeCursorContext } from "../../../hierarchy/controllers/FileController";
 import { managerGraphFunctionContext } from "../../../hierarchy/controllers/ManagerController";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
-import { ThermalChartElement } from "./chart/chart";
+import type { ThermalChartElement } from "./chart/chart";
 
 /** High level component around `thermal-chart` that provides the functionality of a file analysis graph */
 export class FileAnalysisGraphElement extends AbstractFileConsumer {

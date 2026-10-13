@@ -1,7 +1,9 @@
-import { ThermalGroup } from "@labirthermal/core";
-import { html, PropertyValues } from "lit";
+import type { ThermalGroup } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
+import { html } from "lit";
 import { AbstractRegistryConsumer } from "../consumers/AbstractRegistryConsumer";
-import { GroupController, IElementWithGroupController } from "../controllers/GroupController";
+import type { IElementWithGroupController } from "../controllers/GroupController";
+import { GroupController } from "../controllers/GroupController";
 
 export abstract class AbstractGroupProvider extends AbstractRegistryConsumer implements IElementWithGroupController {
 

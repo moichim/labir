@@ -1,9 +1,9 @@
-import { ThermalManager } from "@labirthermal/core";
-import { Identity } from "@labirthermal/client";
+import type { ThermalManager } from "@labirthermal/core";
+import type { Identity } from "@labirthermal/client";
 import { html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { createRef } from "lit/directives/ref.js";
-import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
+import type { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 import { AbstractConnectedApp } from "../abstraction/AbstractConnectedApp";
 import { DisplayState, FolderListDisplayMode } from "../DisplayController";
 import { connectedFileDetail } from "./directives/layout/ConnectedFileDetailDirective";

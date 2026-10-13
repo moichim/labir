@@ -1,7 +1,9 @@
-import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
-import { html, PropertyValues } from "lit";
+import type { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
+import { html } from "lit";
 import { AbstractManagerConsumer } from "../consumers/AbstractManagerConsumer";
-import { IElementWithRegistryController, RegistryController } from "../controllers/RegistryController";
+import type { IElementWithRegistryController} from "../controllers/RegistryController";
+import { RegistryController } from "../controllers/RegistryController";
 
 export abstract class AbstractRegistryProvider extends AbstractManagerConsumer implements IElementWithRegistryController {
 

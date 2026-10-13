@@ -1,5 +1,6 @@
 import { t } from "i18next";
-import { html, Part } from "lit";
+import type { Part } from "lit";
+import { html } from "lit";
 import { Directive } from "lit/directive.js";
 import { T } from "../../../../translations/Languages";
 import { DirectiveHelpers } from "./DirectiveHelpers";

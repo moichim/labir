@@ -1,9 +1,11 @@
 import type { Instance } from "@labirthermal/core";
 import { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
+import type { Ref} from 'lit/directives/ref.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";

@@ -1,11 +1,12 @@
 import { createContext } from "@lit/context";
-import { IBaseElement } from "../AbstractThermalElement";
-import { AbstractHierarchyController, HostReactiveProperties, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
-import { ThermalGroup } from "@labirthermal/core";
-import { ManagerController } from "./ManagerController";
-import { RegistryController } from "./RegistryController";
+import type { IBaseElement } from "../AbstractThermalElement";
+import type { HostReactiveProperties} from "./AbstractHierarchyController";
+import { AbstractHierarchyController, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
+import type { ThermalGroup } from "@labirthermal/core";
+import type { ManagerController } from "./ManagerController";
+import type { RegistryController } from "./RegistryController";
 import { ContextProvider } from "@lit/context";
-import { PropertyValueMap } from "lit";
+import type { PropertyValueMap } from "lit";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 type IHostProperties = {

@@ -1,9 +1,10 @@
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { booleanConverter } from "../utils/converters/booleanConverter";
-import { BtnSizes, BtnVariants } from "./Btn";
+import type { BtnSizes, BtnVariants } from "./Btn";
 
 export class ThermalExpandableElement extends AbstractThermalElement {
 

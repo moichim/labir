@@ -1,6 +1,7 @@
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
-import { T } from "../../../../../translations/Languages";
+import type { T } from "../../../../../translations/Languages";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 import { DirectiveHelpers } from "../../../apps/directives/DirectiveHelpers";
 

@@ -1,4 +1,5 @@
-import { html, nothing, PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
+import { html, nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";

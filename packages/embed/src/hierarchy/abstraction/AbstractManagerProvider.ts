@@ -1,8 +1,10 @@
-import { AvailableThermalPalette, ThermalManager } from "@labirthermal/core";
-import { html, PropertyValues } from "lit";
+import type { AvailableThermalPalette, ThermalManager } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
+import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { AbstractThermalElement } from "../AbstractThermalElement";
-import { IElementWithManagerController, ManagerController } from "../controllers/ManagerController";
+import type { IElementWithManagerController} from "../controllers/ManagerController";
+import { ManagerController } from "../controllers/ManagerController";
 import { removeManager } from "../providers/getters";
 
 export abstract class AbstractManagerProvider extends AbstractThermalElement implements IElementWithManagerController {

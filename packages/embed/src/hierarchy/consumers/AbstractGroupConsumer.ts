@@ -1,7 +1,8 @@
-import { ThermalGroup } from "@labirthermal/core";
+import type { ThermalGroup } from "@labirthermal/core";
 import { consume } from "@lit/context";
+import type {
+    GroupController} from "../controllers/GroupController";
 import {
-    GroupController,
     groupControllerContext
 } from "../controllers/GroupController";
 import { AbstractRegistryConsumer } from "./AbstractRegistryConsumer";

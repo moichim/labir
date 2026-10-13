@@ -1,7 +1,8 @@
 import { CallbacksManager } from "@labirthermal/core";
-import Client, { Identity, ServerInfo } from "@labirthermal/client";
-import { ReactiveController } from "lit";
-import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
+import type { Identity, ServerInfo } from "@labirthermal/client";
+import type Client from "@labirthermal/client";
+import type { ReactiveController } from "lit";
+import type { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AbstractConnectedController } from "./AbstractConnectedController";
 
 /** Public properties for application elements using ClientController */

@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-import { css, CSSResultGroup, html, nothing, PropertyValues } from 'lit';
+import type { CSSResultGroup, PropertyValues } from 'lit';
+import { css, html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 
-import { Instance } from '@labirthermal/core';
+import type { Instance } from '@labirthermal/core';
 import { AbstractGroupConsumer } from '../../hierarchy/consumers/AbstractGroupConsumer';
 
 import '@google-web-components/google-chart';

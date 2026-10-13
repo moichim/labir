@@ -1,7 +1,8 @@
 import { customElement, property, state } from "lit/decorators.js";
-import { html, css, CSSResultGroup } from "lit";
-import { FileInfo } from "@labirthermal/client";
-import { BtnSizes, BtnVariants } from "../../../../ui/Btn";
+import type { CSSResultGroup } from "lit";
+import { html, css } from "lit";
+import type { FileInfo } from "@labirthermal/client";
+import type { BtnSizes, BtnVariants } from "../../../../ui/Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { T } from "../../../../translations/Languages";
 import { t } from "i18next";

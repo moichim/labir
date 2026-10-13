@@ -1,13 +1,14 @@
-import { FolderInfo } from "@labirthermal/client";
+import type { FolderInfo } from "@labirthermal/client";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { T } from "../../../../../translations/Languages";
-import { BtnSizes, BtnVariants } from "../../../../../ui/Btn";
+import type { BtnSizes, BtnVariants } from "../../../../../ui/Btn";
 import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
-import { ThermalDialogElement } from "../../../../../ui/Dialog";
+import type { ThermalDialogElement } from "../../../../../ui/Dialog";
 
 /** A base class for all dialogs related to folder CRUD operations. */
 export abstract class AbstractFolderDialog extends AbstractControlledConsumer {

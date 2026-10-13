@@ -1,13 +1,16 @@
 import { provide } from "@lit/context";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { T } from "../translations/Languages";
-import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
+import type { IWithlocale, Locales } from "../translations/localeContext";
+import { initLocalesInTopLevelElement, localeContext, localeConverter } from "../translations/localeContext";
 
 enum VUNIT {
     mps = "mps",

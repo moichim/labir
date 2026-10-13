@@ -1,6 +1,6 @@
 import { nothing } from "lit";
-import { ClientController } from "../../ClientController";
-import { FolderInfo, FileInfo } from "@labirthermal/client";
+import type { ClientController } from "../../ClientController";
+import type { FolderInfo, FileInfo } from "@labirthermal/client";
 
 /** Utilities for rendering */
 export class DirectiveHelpers {

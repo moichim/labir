@@ -1,5 +1,5 @@
 import { directive, Directive } from "lit/directive.js";
-import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
+import type { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 import { html, nothing } from "lit";
 import { ref } from "lit/directives/ref.js";
 import { exportConfigDirective } from "./SingleVideoExportConfigDirective";

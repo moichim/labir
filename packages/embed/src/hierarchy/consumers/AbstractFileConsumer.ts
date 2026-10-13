@@ -1,4 +1,4 @@
-import { Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
 import type { FileController } from "../controllers/FileController";

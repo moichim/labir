@@ -1,6 +1,6 @@
 import { customElement, property } from "lit/decorators.js";
 import { AbstractFileButton } from "./AbstractFileButton";
-import { Instance } from "@labirthermal/core";
+import type { Instance } from "@labirthermal/core";
 
 /** @deprecated Who knows what that is? */
 export class FileButtonElement extends AbstractFileButton {
