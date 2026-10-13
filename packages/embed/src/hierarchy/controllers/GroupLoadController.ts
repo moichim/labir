@@ -63,8 +63,6 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
 
 
     hostConnected(): void {
-
-        this.log( this.host.filesString );
         
         if ( this.host.filesString ) {
 
@@ -77,6 +75,9 @@ export class GroupLoadController extends AbstractHierarchyController<IElementWit
 
     hostDisconnected(): void {
         // Do nothing for now
+    }
+
+    hostWillUpdateWatcher(value: PropertyValueMap<IElementWithGroupLoadController>): void {
     }
 
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithGroupLoadController>): void {

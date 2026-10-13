@@ -102,6 +102,10 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
 
     }
 
+    hostWillUpdateWatcher(value: PropertyValueMap<IElementWithGroupController>): void {
+        // Do nothing
+    }
+
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithGroupController>): void {
         // Do nothing
     }

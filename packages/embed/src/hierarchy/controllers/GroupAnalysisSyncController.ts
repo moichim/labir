@@ -119,6 +119,10 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
         this._initialized = false;
     }
 
+    hostWillUpdateWatcher(changed: PropertyValueMap<IElementWithGroupAnalysisSyncController>): void {
+        // Do nothing
+    }
+
     hostUpdatedWatcher(changed: PropertyValueMap<IElementWithGroupAnalysisSyncController>): void {
         if (!this._group) return;
         if (changed.has("groupAnalysisSyncOn")) {

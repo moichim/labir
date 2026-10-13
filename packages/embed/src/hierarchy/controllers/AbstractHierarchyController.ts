@@ -12,6 +12,8 @@ export type HostReactiveProperties<T> = {
 /** Abstract base class for controllers related to the hierarchy of `@labirthermal/core`.  */
 export abstract class AbstractHierarchyController<T extends IBaseElement> extends AbstractReactiveController<T> {
 
+    abstract hostWillUpdateWatcher(value: PropertyValues<T>): void;
+
     abstract hostUpdatedWatcher(value: PropertyValues<T>): void;
 
     /** Retrieve the default slug from the host element, falling back to the element UUID. Should be called only in host connected. */

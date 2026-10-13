@@ -193,7 +193,6 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
 
         // Add the smooth thermograms listener
         this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
-        this.managerObject.smooth.setSmooth(this.host.smoothThermograms);
 
 
         // Smooth graph flag
@@ -229,26 +228,13 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
 
     hostUpdate(): void {
 
-        // 1. Změnila se paleta na hostiteli oproti manažeru?
-        if (this.host.palette && this.host.palette !== this.managerObject.palette.value) {
-            this.setPalette(this.host.palette);
-        }
-
-        // Update the advanced palettes if they have changed on the host
-        if (this.host.advancedPalettes && this.host.advancedPalettes !== this.advancedPalettesContextProvider.value) {
-            this.setAdvancedPalettes(this.host.advancedPalettes);
-        }
-
     }
 
-
-    hostUpdatedWatcher(
+    hostWillUpdateWatcher(
         value: PropertyValues<IElementWithManagerController>
     ): void {
 
-        if (!value) {
-            return;
-        }
+        if (!value) return;
 
         // If the palette property changed in the element, update it internally
         if (value.has("palette")) {
@@ -274,6 +260,17 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         if (value.has("tool")) {
             this._setToolByKey(this.host.tool);
         }
+
+    }
+
+
+    hostUpdatedWatcher(
+        value: PropertyValues<IElementWithManagerController>
+    ): void {
+
+        if (!value) return;
+
+        
 
     }
 
@@ -381,6 +378,9 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         value: ThermalTool
     ): void {
 
+        // Make sure the value belongs to this manager's available tools
+        value = this._toolStringToObject(value.key);
+
         // If the host's property differs from the new tool, update it
         if (value && value.key !== this.host.tool) {
             this.host.tool = value.key;
@@ -415,7 +415,7 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
 
         // If the invalid tool was selected, return the current tool instead
         if (!selectedTool) {
-            this.managerObject.tool.tools["inspect"];
+            return this.managerObject.tool.tools["inspect"];
         }
 
         return selectedTool;
@@ -438,6 +438,10 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         // If the context value differs, set it in the context provider
         if (this.smoothGraphContextProvider.value !== value) {
             this.smoothGraphContextProvider.setValue(value);
+        }
+
+        if ( this.managerObject.graphSmooth.value !== value ) {
+            this.managerObject.graphSmooth.setGraphSmooth(value);
         }
 
     }

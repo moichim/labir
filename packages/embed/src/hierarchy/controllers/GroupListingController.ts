@@ -335,6 +335,10 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         // throw new Error("Method not implemented.");
     }
 
+    hostWillUpdateWatcher(value: PropertyValueMap<IElementWithGroupListingController>): void {
+        // throw new Error("Method not implemented.");
+    }
+
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithGroupListingController>): void {
         // throw new Error("Method not implemented.");
     }

@@ -65,12 +65,11 @@ export abstract class AbstractManagerProvider extends AbstractThermalElement imp
 
     willUpdate(changedProperties: PropertyValues<AbstractManagerProvider>): void {
         super.willUpdate(changedProperties);
-        this.log("Will update called with changed properties", changedProperties);
+        this.managerController.hostWillUpdateWatcher(changedProperties);
     }
 
     public updated(changedProperties: PropertyValues<AbstractManagerProvider>): void {
         super.updated(changedProperties);
-        this.log("Updated called with changed properties", changedProperties);
         this.managerController.hostUpdatedWatcher(changedProperties);
     }
 

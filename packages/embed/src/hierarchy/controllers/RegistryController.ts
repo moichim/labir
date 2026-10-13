@@ -237,6 +237,11 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
 
     }
 
+    hostWillUpdateWatcher(
+        value: PropertyValues<IElementWithRegistryController>
+    ): void {
+    }
+
     hostUpdatedWatcher(
         value: PropertyValues<IElementWithRegistryController>
     ): void {

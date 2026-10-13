@@ -45,6 +45,10 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
         this._UUID = host.UUID;
     }
 
+    hostWillUpdateWatcher(value: PropertyValueMap<IElementWithFileLoadController>): void {
+        // Do nothing
+    }
+
 
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileLoadController>): void {
 

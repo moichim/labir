@@ -37,6 +37,12 @@ export interface ConfigContextValue {
 export const configContext = createContext<ConfigContextValue>("config-context");
 
 export class ConfigController extends AbstractReactiveController<IBaseElement> {
+    
+    private readonly _UUID: string;
+    
+    public get UUID(): string {
+        return this._UUID;
+    }
 
     private _settings: ConfigSettings = {
         export: {
@@ -63,6 +69,8 @@ export class ConfigController extends AbstractReactiveController<IBaseElement> {
 
     constructor(host: IBaseElement) {
         super(host);
+
+        this._UUID = this.host.UUID + "__config-controller";
 
         this.contextProvider = new ContextProvider(host, {
             context: configContext,

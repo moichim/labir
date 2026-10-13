@@ -258,6 +258,10 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     }
 
+    hostWillUpdateWatcher(value: PropertyValueMap<IElementWithFileController>): void {
+        // Do nothing
+    }
+
 
     hostUpdatedWatcher(value: PropertyValueMap<IElementWithFileController>): void {
 
