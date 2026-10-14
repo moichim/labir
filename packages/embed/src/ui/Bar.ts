@@ -179,3 +179,9 @@ export class ThermalBarElement extends LitElement {
 
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-bar": ThermalBarElement;
+    }
+}

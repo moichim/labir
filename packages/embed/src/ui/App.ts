@@ -710,3 +710,9 @@ export class ThermalAppElement extends AbstractThermalElement {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-app": ThermalAppElement;
+    }
+}

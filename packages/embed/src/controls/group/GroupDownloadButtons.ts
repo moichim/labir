@@ -52,12 +52,12 @@ export class GroupDownloadButtons extends AbstractGroupConsumer {
 
         return html`
         
-                <button class="default" @click=${() => this.group.files.downloadAllFiles()}>${t(T.downloadoriginalfiles)}</button>
+                <button class="default" @click=${() => this.groupObject.files.downloadAllFiles()}>${t(T.downloadoriginalfiles)}</button>
             
-                <button class="default" @click=${() => this.group.forEveryInstance(instance => instance.export.downloadPng())}>${t(T.pngofindividualimages)}</button>
+                <button class="default" @click=${() => this.groupObject.forEveryInstance(instance => instance.export.downloadPng())}>${t(T.pngofindividualimages)}</button>
             
             
-                <button class="default" @click=${() => this.group.analysisSync.png.downloadPng({
+                <button class="default" @click=${() => this.groupObject.analysisSync.png.downloadPng({
                     columns: group?.columns,
                     showAnalysis: png?.analyses,
                     showFileDate: png?.fileDate,
@@ -68,7 +68,7 @@ export class GroupDownloadButtons extends AbstractGroupConsumer {
                     fontSize: png?.fontSize
         })}>${t(T.pngofentiregroup)}</button>
             
-                <button class="default" @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}>${t(T.csvofanalysisdata)}</button>
+                <button class="default" @click=${() => { this.groupObject.analysisSync.csv.downloadAsCsv() }}>${t(T.csvofanalysisdata)}</button>
         
         `;
 
@@ -76,4 +76,10 @@ export class GroupDownloadButtons extends AbstractGroupConsumer {
 
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-download-buttons": GroupDownloadButtons;
+    }
 }

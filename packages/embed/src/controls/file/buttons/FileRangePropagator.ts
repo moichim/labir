@@ -54,6 +54,10 @@ export class FileRangePropagator extends AbstractFileButton {
         return t(T.range).toLowerCase();
     }
 
+}
 
-
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-range-propagator": FileRangePropagator;
+    }
 }

@@ -1,11 +1,16 @@
 import type { ReactiveController } from "lit";
-import type { IBaseElement } from "../hierarchy/AbstractThermalElement";
+import type {  AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-export abstract class AbstractReactiveController<T extends IBaseElement> implements ReactiveController {
+
+/** 
+ * This is the abstract class for all reactive controllers from the `@labirthermal/webcomponents` package. 
+ * @module @labirthermal/webcomponents
+ */
+export abstract class AbstractReactiveController<T extends AbstractThermalElement> implements ReactiveController {
 
     host: T;
 
-    /** Implement this method to combine the host UUID and a unique marker of the controller. */
+    /** Implement this method somehow to combine the host UUID and a unique marker of the controller. */
     public abstract get UUID(): string;
 
     constructor(host: T) {

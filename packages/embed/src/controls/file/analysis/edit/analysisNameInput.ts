@@ -24,6 +24,7 @@ export class AnalysisNameInput extends AbstractThermalElement {
         if ( changedProperties.has( "analysis" ) ) {
             this.name = this.analysis.name;
         }
+
     }
 
     protected updated(changedProperties: PropertyValues): void {
@@ -38,6 +39,7 @@ export class AnalysisNameInput extends AbstractThermalElement {
                 this.name = value;
             });
         }
+
     }
 
 
@@ -64,4 +66,10 @@ export class AnalysisNameInput extends AbstractThermalElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "analysis-name": AnalysisNameInput;
+    }
 }

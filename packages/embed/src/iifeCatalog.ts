@@ -24,7 +24,7 @@ import { FileInfoButton } from "./controls/file/FileInfoButton";
 import { FileLabelElement } from "./controls/file/fileLabel";
 import { FilePlaybackSpeedDropdown } from "./controls/file/FilePlaybackSpeedDropdown";
 import { FileTimelineElement } from "./controls/file/FileTimelineElement";
-import { FileVideoExportButton } from "./controls/file/FileVideoExport";
+import { FileVideoExportButton } from "./controls/file/FileVideoExportButton";
 import { FileVideoExportPanel } from "./controls/file/video/FileVideoExportPanel";
 import { GroupAnalysisSyncButton } from "./controls/group/GroupAnalysisSyncButton";
 import { GroupChartElement } from "./controls/group/GroupChartElement";
@@ -183,7 +183,10 @@ const elementsApplications = {
     // "thermal-new-app": ThermalFileAppNewElement
 } as const;
 
-
+/** 
+ * All the webcomponents from the @labirthermal/webcomponents package in a list for the purpose of its registration in `defineAllWebcomponents`.
+ * @see {@link defineAllWebcomponents}
+ */
 export const elementsAll = {
     ...elementsUi,
     ...elementsProviders,

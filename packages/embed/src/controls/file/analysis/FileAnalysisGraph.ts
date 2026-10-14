@@ -83,6 +83,7 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
         this.requestUpdate();
     }
 
+
     public connectedCallback(): void {
         super.connectedCallback();
 
@@ -505,4 +506,10 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
 
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-graph": FileAnalysisGraphElement;
+    }
 }

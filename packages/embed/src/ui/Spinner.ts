@@ -55,3 +55,9 @@ export class ThermalSpinnerElement extends AbstractThermalElement {
     
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-spinner": ThermalSpinnerElement;
+    }
+}

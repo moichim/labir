@@ -13,10 +13,10 @@ export class GroupRangePropagatorElement extends AbstractGroupConsumer {
 
         this.onmouseenter = () => {
 
-            if (this.group && this.group.minmax.value && this.registryController) {
+            if (this.groupObject && this.groupObject.minmax.value && this.registryController) {
                 this.registryController.setHighlight({
-                    from: this.group.minmax.value.min,
-                    to: this.group.minmax.value.max
+                    from: this.groupObject.minmax.value.min,
+                    to: this.groupObject.minmax.value.max
                 });
             }
 
@@ -31,10 +31,10 @@ export class GroupRangePropagatorElement extends AbstractGroupConsumer {
         }
 
         this.onclick = () => {
-            if (this.group && this.group.minmax.value) {
-                this.group.registry.range.imposeRange({
-                    from: this.group.minmax.value.min,
-                    to: this.group.minmax.value.max
+            if (this.groupObject && this.groupObject.minmax.value) {
+                this.groupObject.registry.range.imposeRange({
+                    from: this.groupObject.minmax.value.min,
+                    to: this.groupObject.minmax.value.max
                 });
             }
         }
@@ -50,4 +50,10 @@ export class GroupRangePropagatorElement extends AbstractGroupConsumer {
 
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-range-propagator": GroupRangePropagatorElement;
+    }
 }

@@ -14,6 +14,7 @@ export class FileLrcButton extends AbstractFileButton {
             link.download = this.file.fileName;
             link.click();
         }
+
     }
 
     getDefaultLabel(): string {
@@ -22,4 +23,10 @@ export class FileLrcButton extends AbstractFileButton {
 
     
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-download-lrc": FileLrcButton;
+    }
 }

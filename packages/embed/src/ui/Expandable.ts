@@ -119,3 +119,9 @@ thermal-icon {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-expandable": ThermalExpandableElement;
+    }
+}

@@ -67,6 +67,7 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
         super.disconnectedCallback();
     }
 
+
     public onInstanceCreated(): void {
         this.requestUpdate();
     }
@@ -242,7 +243,7 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
     }
 
     protected renderCurrentTooltip() {
-        return html`${t(T[this.manager.tool.value.description as keyof typeof T] )}`;
+        return html`${t(T[this.managerObject.tool.value.description as keyof typeof T] )}`;
     }
 
     protected renderAddAnalysis() {
@@ -417,4 +418,10 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-complex": FileAnalysisComplexElement;
+    }
 }

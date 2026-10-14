@@ -163,3 +163,9 @@ export class FileVideoExportButton extends AbstractFileConsumer {
 
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-video-export-button": FileVideoExportButton;
+    }
+}

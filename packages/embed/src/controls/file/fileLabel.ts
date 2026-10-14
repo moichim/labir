@@ -21,6 +21,7 @@ export class FileLabelElement extends AbstractFileConsumer {
         :host {
             display: contents;
         }
+
     `;
 
     protected render(): unknown {
@@ -45,8 +46,15 @@ export class FileLabelElement extends AbstractFileConsumer {
 
         }
 
+
         return this.file.fileName;
 
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-label": FileLabelElement;
+    }
 }

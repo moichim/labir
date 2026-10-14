@@ -48,11 +48,11 @@ export class GroupChartElement extends AbstractGroupConsumer {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-        this.group.files.addListener(this.UUID, () => {
-            this.group.analysisGraph.turnOn();
+        this.groupObject.files.addListener(this.UUID, () => {
+            this.groupObject.analysisGraph.turnOn();
         });
 
-        this.group.analysisGraph.addListener(this.UUID, value => {
+        this.groupObject.analysisGraph.addListener(this.UUID, value => {
 
             if (value !== undefined) {
                 this.data = value.data;
@@ -124,4 +124,10 @@ export class GroupChartElement extends AbstractGroupConsumer {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-chart": GroupChartElement;
+    }
 }

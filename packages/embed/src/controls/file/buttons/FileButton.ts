@@ -27,6 +27,7 @@ export class FileButtonElement extends AbstractFileButton {
         if ( this.onAction && this.file ) {
             this.onAction( this.file );
         }
+
     }
 
     getDefaultLabel(): string {
@@ -35,4 +36,10 @@ export class FileButtonElement extends AbstractFileButton {
 
     
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-button": FileButtonElement;
+    }
 }

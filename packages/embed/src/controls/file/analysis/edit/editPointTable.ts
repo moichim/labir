@@ -48,6 +48,7 @@ export class EditpointTable extends AbstractThermalElement {
             this.maxX = analysis.file.width;
             this.maxY = analysis.file.height;
         }
+
     }
 
     protected updated(changedProperties: PropertyValues): void {
@@ -59,6 +60,7 @@ export class EditpointTable extends AbstractThermalElement {
             if ( oldAnalysis ) {
                 oldAnalysis.onSerializableChange.delete( this.UUID );
             }
+
 
             this.analysis.onSerializableChange.set(this.UUID, (analysis) => {
                 this.top = analysis.top;
@@ -136,4 +138,10 @@ export class EditpointTable extends AbstractThermalElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "edit-point": EditpointTable;
+    }
 }

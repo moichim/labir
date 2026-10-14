@@ -23,6 +23,7 @@ export class FileDropdown extends AbstractThermalElement {
             } else {
                 this.classList.remove( "expanded" );
             }
+
         }
     }
 
@@ -64,6 +65,7 @@ export class FileDropdown extends AbstractThermalElement {
             }
 
         }
+
 
         .backdrop {
             display: none;
@@ -123,4 +125,10 @@ export class FileDropdown extends AbstractThermalElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-dropdown-elt": FileDropdown;
+    }
 }

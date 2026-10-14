@@ -77,3 +77,9 @@ export class ThermalIconElement extends AbstractThermalElement {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-icon": ThermalIconElement;
+    }
+}

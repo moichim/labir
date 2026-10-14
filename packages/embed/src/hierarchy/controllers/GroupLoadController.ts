@@ -34,17 +34,6 @@ type IHostProperties = {
  *     groupListingController: GroupListingController; // Created here or inherited from parent context
  *     groupLoadController = new GroupLoadController(this);
  * 
- *     willUpdate(changedProperties: PropertyValueMap<MyClass>) {
- *         super.willUpdate(changedProperties);
- *         // will update watchers of other controllers
- *         this.groupLoadController.hostWillUpdate(changedProperties);
- *     }
- * 
- *      updated(changedProperties: PropertyValueMap<MyClass>) {
- *         super.updated(changedProperties);
- *         // updated watchers of other controllers
- *         this.groupLoadController.hostUpdated(changedProperties);
- *     }
  * 
  * }
  * ```

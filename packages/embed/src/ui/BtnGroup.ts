@@ -37,3 +37,9 @@ export class BtnGroupElement extends AbstractThermalElement {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-btn-group": BtnGroupElement;
+    }
+}

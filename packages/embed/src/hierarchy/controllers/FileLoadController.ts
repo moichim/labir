@@ -13,11 +13,29 @@ type IHostProperties = {
 
 }
 
+/** 
+ * An element that implements `FileLoadController` 
+ * @see {@link FileLoadController}
+ */
 export interface IElementWithFileLoadController extends IBaseElement, IHostProperties {
     fileController: FileController,
     fileLoadController: FileLoadController
 }
 
+/** 
+ * When appended to an element with `FileController`, takes care of loading the file from the host attributes such as `thermal` and `visible`.
+ * 
+ * The element using `FileLoadController` needs to implement `IElementWithFileLoadController`
+ * 
+ * Public reactive properties of the host:
+ * - `thermal`: The thermal file to be loaded.
+ * - `visible`: The visibility setting for the thermal file.
+ * 
+ * @see {@link FileLoadController.HOST_PROPERTIES}
+ * 
+ * @module @labirthermal/webcomponents
+ * @author Jan Jáchim <jachim@gmail.com>
+ * */
 export class FileLoadController extends AbstractHierarchyController<IElementWithFileLoadController> {
 
     private _UUID: string;

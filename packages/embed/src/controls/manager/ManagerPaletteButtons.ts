@@ -29,11 +29,17 @@ export class ManagerPaletteButtons extends AbstractPaletteSwitch {
 
         return this.palettes.map((palette => html`<thermal-btn 
     @click=${() => this.onSelect(palette.slug as AvailableThermalPalette)} 
-    variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "default"}"
+    variant="${palette.name === this.managerObject.palette.currentPalette.name ? "background" : "default"}"
     tooltip="${t(T.palettename, { name: palette.name })}"
 >
     ${this.paletteTemplate(palette)}
 </thermal-btn>`));
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "manager-palette-buttons": ManagerPaletteButtons;
+    }
 }

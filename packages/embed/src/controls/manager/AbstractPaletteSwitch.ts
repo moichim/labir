@@ -6,7 +6,7 @@ import { property, state } from "lit/decorators.js";
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
 import { managerAdvancedPalettesContext } from "../../hierarchy/controllers/ManagerController";
 import { managerPaletteContext } from "../../hierarchy/controllers/ManagerController";
-import type { ManagerPaletteContext } from "../../hierarchy/controllers/ManagerController";
+import type { ManagerPaletteContextType } from "../../hierarchy/controllers/ManagerController";
 
 export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 
@@ -25,7 +25,7 @@ export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 
     @consume({ context: managerPaletteContext, subscribe: true })
     @state()
-    protected value!: ManagerPaletteContext;
+    protected value!: ManagerPaletteContextType;
 
     protected willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
@@ -64,7 +64,7 @@ export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 
     /** Handle user input events */
     protected onSelect(palette: AvailableThermalPalette) {
-        this.manager.palette.setPalette(palette);
+        this.managerObject.palette.setPalette(palette);
     }
 
 

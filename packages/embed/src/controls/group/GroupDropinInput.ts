@@ -131,7 +131,7 @@ export class GroupDropinInputElement extends AbstractGroupDropin {
 
     if (this.container.value !== undefined) {
 
-      this.listener = this.manager.service.handleDropzone(this.container.value, true);
+      this.listener = this.managerObject.service.handleDropzone(this.container.value, true);
 
       this.listener.onMouseEnter.add(this.UUID, () => {
         this.hover = true;
@@ -196,4 +196,10 @@ export class GroupDropinInputElement extends AbstractGroupDropin {
   }
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-dropin-input": GroupDropinInputElement;
+    }
 }

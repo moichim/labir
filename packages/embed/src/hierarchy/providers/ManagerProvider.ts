@@ -11,3 +11,9 @@ export class ManagerProviderElement extends AbstractManagerProvider {
     public slug!: string;
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "manager-provider": ManagerProviderElement;
+    }
+}

@@ -26,26 +26,52 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 }) : target, mod));
 
 //#endregion
+let _labirthermal_core = require("@labirthermal/core");
 let lit = require("lit");
 let _lit_context = require("@lit/context");
 let i18next = require("i18next");
 i18next = __toESM(i18next);
 let lit_directives_unsafe_svg_js = require("lit/directives/unsafe-svg.js");
-let uuid = require("uuid");
+let lit_directives_if_defined_js = require("lit/directives/if-defined.js");
+let lit_directives_repeat_js = require("lit/directives/repeat.js");
+let lit_directives_style_map_js = require("lit/directives/style-map.js");
 let lit_decorators_js = require("lit/decorators.js");
 let lit_directives_cache_js = require("lit/directives/cache.js");
-let lit_directives_if_defined_js = require("lit/directives/if-defined.js");
 let lit_directives_map_js = require("lit/directives/map.js");
 let lit_directives_ref_js = require("lit/directives/ref.js");
 let _floating_ui_dom = require("@floating-ui/dom");
 let lit_directives_class_map_js = require("lit/directives/class-map.js");
-let _labirthermal_core = require("@labirthermal/core");
-let lit_directives_style_map_js = require("lit/directives/style-map.js");
 let lit_directives_live_js = require("lit/directives/live.js");
 require("@google-web-components/google-chart");
 let public_ip = require("public-ip");
 let date_fns = require("date-fns");
+let lit_directives_when_js = require("lit/directives/when.js");
+let lit_directives_unsafe_html_js = require("lit/directives/unsafe-html.js");
+let lit_directives_guard_js = require("lit/directives/guard.js");
+let _labirthermal_client = require("@labirthermal/client");
+let mediabunny = require("mediabunny");
+let lit_directive_js = require("lit/directive.js");
 
+//#region src/utils/converters/numberRangeConverter.ts
+const numberRangeConverter = (emptyValue, min, max) => {
+	const fromAttribute = (value) => {
+		if (value === void 0 || value === null || typeof value === "string" || typeof value === "number") return emptyValue;
+		const valueNumber = Number(value);
+		if (isNaN(valueNumber)) return emptyValue;
+		if (valueNumber < min) return min;
+		if (valueNumber > max) return max;
+		return valueNumber;
+	};
+	const toAttribute = (value) => {
+		return String(value);
+	};
+	return {
+		fromAttribute,
+		toAttribute
+	};
+};
+
+//#endregion
 //#region src/utils/converters/booleanConverter.ts
 const booleanConverter = (emptyValue) => {
 	const fromAttribute = (value) => {
@@ -60,6 +86,45 @@ const booleanConverter = (emptyValue) => {
 		fromAttribute,
 		toAttribute
 	};
+};
+
+//#endregion
+//#region src/utils/converters/paletteConverter.ts
+/** A unified converter for thermal palettes. Recommended usage:
+* @example
+* ```ts
+* import { paletteConverter } from "path/to/paletteConverter";
+* class MyComponent extends LitElement {
+*      @property({
+*          type: String,
+*          reflect: true,
+*          converter: paletteConverter,
+*      })
+*      public palette: AvailableThermalPalette = "iron"; // IRON is used as default
+* }
+* ```
+*/
+const paletteConverter = {
+	fromAttribute: (value) => {
+		if (value === void 0 || value === null || typeof value !== "string" || value === "" || !(value in _labirthermal_core.ThermalPalettes)) return "iron";
+		return value;
+	},
+	toAttribute: (value) => value
+};
+
+//#endregion
+//#region src/utils/converters/stringOrUndefinedConverter.ts
+const stringOrUndefinedConverter = {
+	fromAttribute(value) {
+		if (typeof value !== "string") return;
+		const trimmed = value.trim();
+		if (trimmed.length === 0) return;
+		return trimmed;
+	},
+	toAttribute(value) {
+		const trimmed = value?.trim();
+		return trimmed?.length ? trimmed : void 0;
+	}
 };
 
 //#endregion
@@ -92,6 +157,36 @@ const durationConverter = {
 		}
 	}
 };
+
+//#endregion
+//#region src/utils/getContrastColor.ts
+const contrastColors = /* @__PURE__ */ new Map();
+/** Choose the higher WCAG contrast against an opaque CSS background color. */
+function getContrastColor(backgroundColor) {
+	const cached = contrastColors.get(backgroundColor);
+	if (cached) return cached;
+	const probe = document.createElement("span");
+	probe.style.color = backgroundColor;
+	if (!probe.style.color) throw new Error(`Invalid background color: ${backgroundColor}`);
+	probe.style.display = "none";
+	document.body.append(probe);
+	const normalized = getComputedStyle(probe).color;
+	probe.remove();
+	const match = normalized.match(/^rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)$/);
+	if (!match || match[4] !== void 0 && Number(match[4]) !== 1) throw new Error(`Expected an opaque RGB background color: ${backgroundColor}`);
+	const linear = [
+		Number(match[1]),
+		Number(match[2]),
+		Number(match[3])
+	].map((channel) => {
+		const srgb = channel / 255;
+		return srgb <= .04045 ? srgb / 12.92 : ((srgb + .055) / 1.055) ** 2.4;
+	});
+	const luminance = .2126 * linear[0] + .7152 * linear[1] + .0722 * linear[2];
+	const result = (luminance + .05) / .05 >= 1.05 / (luminance + .05) ? "#000000" : "#FFFFFF";
+	contrastColors.set(backgroundColor, result);
+	return result;
+}
 
 //#endregion
 //#region src/utils/icons.ts
@@ -203,6 +298,9 @@ const svg = {
             <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z" />
             <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
         </svg>` },
+	clock: { outline: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+</svg>` },
 	close: {
 		outline: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -390,10 +488,6 @@ const createIcons = () => {
 * Použití: icons.folder.outline("my-class", "color: red")
 */
 const icons = createIcons();
-
-//#endregion
-//#region src/translations/localeContext.ts
-const localeContext = (0, _lit_context.createContext)("localeContext");
 
 //#endregion
 //#region src/translations/Languages.ts
@@ -708,6 +802,148 @@ const languages = [
 const languagesObject = Object.fromEntries(languages.map((l) => [l.code, l]));
 
 //#endregion
+//#region src/translations/localeContext.ts
+const localeContext = (0, _lit_context.createContext)("localeContext");
+const initLocalesInTopLevelElement = (element) => {
+	i18next.default.on("languageChanged", (locale) => {
+		element.locale = locale;
+	});
+	if (element.locale === void 0) element.locale = i18next.default.language;
+	else i18next.default.changeLanguage(element.locale);
+};
+const localeMap = {
+	cs: [
+		"cs",
+		"cz",
+		"cs_CZ",
+		"cs_CS"
+	],
+	fr: [
+		"fr",
+		"fr_FR",
+		"fr_CA"
+	],
+	de: [
+		"de",
+		"de_DE",
+		"de_AT",
+		"de_CH"
+	],
+	cy: [
+		"cy",
+		"cy_GB",
+		"cy"
+	],
+	en: [
+		"en",
+		"en_US",
+		"en_GB",
+		"en_CA",
+		"en_AU",
+		"en_NZ",
+		"en_IE",
+		"en_ZA"
+	]
+};
+const localeConverter = {
+	fromAttribute: (value) => {
+		let safe = void 0;
+		let index = 0;
+		while (index < Object.keys(localeMap).length && safe === void 0) {
+			const key = Object.keys(localeMap)[index];
+			if (localeMap[key].includes(value)) safe = key;
+			index++;
+		}
+		return safe ?? "en";
+	},
+	toAttribute: (value) => {
+		return value;
+	}
+};
+
+//#endregion
+//#region src/utils/shortId.ts
+/**
+* Generation of short, collision-free identifiers used instead of full-length UUIDs.
+*
+* The identifiers are only ever used at runtime (as map keys, DOM ids and log prefixes),
+* they are never persisted nor shared between pages. Therefore a short random string
+* is sufficient - and uniqueness within the current document is guaranteed by keeping
+* a registry of all identifiers issued so far.
+*
+* @module \@labirthermal/webcomponents
+* @author Jan Jáchim <jachim@ntc.zcu.cz>
+*/
+/** Alphabet used for the generated identifiers. Lowercase letters and digits only, so that the ids are safe to use in DOM ids, CSS selectors and slugs. */
+const ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
+/** Default length of a generated identifier. 8 characters of the 36-letter alphabet give ~2.8e12 combinations. */
+const DEFAULT_LENGTH = 8;
+/** All identifiers issued within the current document. Guarantees that no two identifiers ever collide. */
+const issuedIds = /* @__PURE__ */ new Set();
+/** Fill the given array with random values, preferring the Web Crypto API and falling back to `Math.random`. */
+const fillRandom = (buffer) => {
+	const cryptoObject = typeof globalThis !== "undefined" ? globalThis.crypto : void 0;
+	if (cryptoObject && typeof cryptoObject.getRandomValues === "function") {
+		cryptoObject.getRandomValues(buffer);
+		return buffer;
+	}
+	for (let i = 0; i < buffer.length; i++) buffer[i] = Math.floor(Math.random() * 256);
+	return buffer;
+};
+/** Generate a random string of the given length using the {@link ALPHABET}. */
+const randomString = (length) => {
+	const buffer = fillRandom(new Uint8Array(length));
+	let result = "";
+	for (let i = 0; i < length; i++) result += ALPHABET[buffer[i] % 36];
+	return result;
+};
+/**
+* Generate a short identifier that is guaranteed to be unique within the current document.
+*
+* Should the random value happen to be taken already, a new one is generated. After
+* a few unsuccessful attempts the identifier is lengthened, so that the function
+* always terminates even when an extreme number of identifiers is in use.
+*
+* @param length The requested number of characters. Defaults to 8.
+* @returns A unique lowercase alphanumeric identifier.
+*/
+const generateShortId = (length = DEFAULT_LENGTH) => {
+	let currentLength = Math.max(1, Math.floor(length));
+	let attempts = 0;
+	while (true) {
+		const candidate = randomString(currentLength);
+		if (!issuedIds.has(candidate)) {
+			issuedIds.add(candidate);
+			return candidate;
+		}
+		attempts++;
+		if (attempts % 5 === 0) currentLength++;
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/HierarchyUpdatesHub.ts
+/** Perform updates in the hierarchy for all registered controllers */
+var HierarchyUpdatesHub = class {
+	constructor() {
+		this._controllers = [];
+	}
+	/** Zaregistruje controller do hubu */
+	register(controller) {
+		this._controllers.push(controller);
+		return controller;
+	}
+	/** Zavolá willUpdate na všech zaregistrovaných controllerech */
+	willUpdate(changedProperties) {
+		for (const controller of this._controllers) controller.hostWillUpdateWatcher?.(changedProperties);
+	}
+	/** Zavolá updated na všech zaregistrovaných controllerech */
+	updated(changedProperties) {
+		for (const controller of this._controllers) controller.hostUpdatedWatcher?.(changedProperties);
+	}
+};
+
+//#endregion
 //#region \0@oxc-project+runtime@0.114.0/helpers/decorateMetadata.js
 function __decorateMetadata(k, v) {
 	if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -724,17 +960,55 @@ function __decorate(decorators, target, key, desc) {
 
 //#endregion
 //#region src/hierarchy/AbstractThermalElement.ts
-/** All the webcomponents of \@labirthermal/embed (and its extensions) should be based on the abstract class `AbstractThermalElement`. */
+/** 
+* All the webcomponents of \@labirthermal/embed (and its extensions) should be based on the abstract class `AbstractThermalElement`. 
+* 
+* Functionality:
+* - listens to the locale context for rerender
+* - is able to handle hierarchy controllers through the `HierarchyUpdatesHub` mechanism
+* - generates a short unique identifier (`UUID`) for each instance
+* - provides helpers such as:
+*   - `t` for translation
+*   - `i` for rendering SVG strings safely
+*   - `log` for standardized logging with tag name and UUID
+*   - `getUUID` for generating unique identifiers with a message
+* 
+* @see {@link HierarchyUpdatesHub}
+* 
+* @module @labirthermal/webcomponents
+* @author Jan Jáchim <jachim@ntc.zcu.cz>
+*/
 var AbstractThermalElement = class extends lit.LitElement {
+	constructor(..._args) {
+		super(..._args);
+		this.languageChanged = (locale) => {
+			this._locale = locale;
+		};
+	}
+	/** 
+	* Get the hierarchy for the purpose of managing updates using hierarchy controllers 
+	* @see {@link HierarchyUpdatesHub}
+	* @internal
+	*/
+	initHierarchy() {
+		if (!this._hierarchy) this._hierarchy = new HierarchyUpdatesHub();
+		return this._hierarchy;
+	}
+	/** 
+	* A short identifier of this instance, generated lazily. 
+	* It is guaranteed to be unique within the current document.
+	* @see {@link generateShortId}
+	*/
 	get UUID() {
-		if (this._UUID === void 0) this._UUID = (0, uuid.v4)();
+		if (this._UUID === void 0) this._UUID = generateShortId();
 		return this._UUID;
 	}
 	getUUID(msg) {
 		return this.UUID + "_" + msg;
 	}
+	/** A standardised way to log messages to the console prepending this webcomponent's tag name and UUID for easier identification */
 	log(...args) {
-		console.log(this.tagName, this.UUID.substring(0, 5), ...args);
+		console.log(this.tagName, this.UUID, ...args);
 	}
 	static {
 		this.shadowRootOptions = {
@@ -744,16 +1018,34 @@ var AbstractThermalElement = class extends lit.LitElement {
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		i18next.default.on("languageChanged", (locale) => {
-			this._locale = locale;
-		});
+		this._locale = i18next.default.language;
+		i18next.default.on("languageChanged", this.languageChanged);
 	}
+	disconnectedCallback() {
+		i18next.default.off("languageChanged", this.languageChanged);
+		super.disconnectedCallback();
+	}
+	/** 
+	* Renders an SVG string safely using the unsafeSVG directive 
+	* @see {@link unsafeSVG}
+	*/
 	i(str) {
 		return lit.html`${(0, lit_directives_unsafe_svg_js.unsafeSVG)(str)}`;
 	}
-	/** Returns a translated string */
+	/** 
+	* Returns a translated string 
+	* @see {@link T}
+	*/
 	t(key) {
 		return (0, i18next.t)(T[key]);
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate?.(changedProperties);
+		this._hierarchy?.willUpdate(changedProperties);
+	}
+	updated(changedProperties) {
+		super.updated?.(changedProperties);
+		this._hierarchy?.updated(changedProperties);
 	}
 };
 __decorate([(0, _lit_context.consume)({
@@ -762,69 +1054,2201 @@ __decorate([(0, _lit_context.consume)({
 }), __decorateMetadata("design:type", String)], AbstractThermalElement.prototype, "_locale", void 0);
 
 //#endregion
-//#region src/hierarchy/providers/context/FileContexts.ts
-/** A crucial context exposing the `Instance` object from `AbstractFileProvider` to `AbstractFileConsumers`. */
-const fileContext = (0, _lit_context.createContext)("file");
-const fileFailureContext = (0, _lit_context.createContext)("failure");
-/** @deprecated Not used - remove */
-const loadingContext = (0, _lit_context.createContext)("file-loading");
-const readyContext = (0, _lit_context.createContext)("file-ready-context");
-const fileProviderContext = (0, _lit_context.createContext)("file-provider-element");
-const fileMsContext = (0, _lit_context.createContext)("file-ms-context");
-const fileCursorContext = (0, _lit_context.createContext)("file-cursor");
-const fileCurrentFrameContext = (0, _lit_context.createContext)("playback");
-const durationContext = (0, _lit_context.createContext)("duration");
-const filePlayingContext = (0, _lit_context.createContext)("file-playing-context");
-const filePlaybackSpeedContext = (0, _lit_context.createContext)("file-playback-speed");
-/** @deprecated */
-const fileRecordingContext = (0, _lit_context.createContext)("recording");
-/** @deprecated */
-const filaMayStopContext = (0, _lit_context.createContext)("mayStop");
-const fileAnalysisListContext = (0, _lit_context.createContext)("analysislist");
-
-//#endregion
-//#region src/hierarchy/providers/context/GroupContext.ts
-const groupContext = (0, _lit_context.createContext)("group-instance");
-
-//#endregion
-//#region src/hierarchy/providers/context/RegistryContext.ts
-const registryContext = (0, _lit_context.createContext)("registry-instance");
-const registryOpacityContext = (0, _lit_context.createContext)("registry-opacity");
-const registryRangeFromContext = (0, _lit_context.createContext)("registry-range-from");
-const registryRangeToContext = (0, _lit_context.createContext)("registry-range-to");
-const registryLoadingContext = (0, _lit_context.createContext)("registry-loading");
-const registryMinContext = (0, _lit_context.createContext)("registry-min");
-const registryMaxContext = (0, _lit_context.createContext)("registry-max");
+//#region src/controllers/AbstractReactiveController.ts
 /** 
+* This is the abstract class for all reactive controllers from the `@labirthermal/webcomponents` package. 
+* @module @labirthermal/webcomponents
+*/
+var AbstractReactiveController = class {
+	constructor(host) {
+		this.host = host;
+		host.addController(this);
+	}
+	/** Logs anything using the host's logging mechanism. Adds the controller's className as the first argument. */
+	log(...args) {
+		this.host.log(this.constructor.name, ...args);
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/AbstractHierarchyController.ts
+/** 
+* Common internal state for host elements that should be only internal states. 
+* @module @labirthermal/core
+* @author Jan Jáchim <jachim@zcu.cz>
+* @see {@link AbstractReactiveController}
+*/
+const INTERNAL_STATE_DECLARATION = {
+	reflect: false,
+	state: true
+};
+/** 
+* Abstract base class for controllers related to the hierarchy of `@labirthermal/core`.  
+* 
+* This type of controllers has a special way of updating depending on the lifecycle of its host element.
+* 
+* In the constructor of this controller, the constructor is added to the {@link HierarchyUpdatesHub} and therefore all the updates are trigged directly by the corresponding `willUpdate` and `updated` methods of the host.
+* 
+* When working with various side effects and callbacks, it is important to split operations correctly in 
+* - a) `hostWillUpdateWatcher` - for setting properties/states as side effects before render
+* - b) `hostUpdatedWatcher` - for binding listeners & other stuff after the host is rendered.
+* 
+*/
+var AbstractHierarchyController = class extends AbstractReactiveController {
+	constructor(host) {
+		super(host);
+		this.host.initHierarchy().register(this);
+	}
+	/** Retrieve the default slug from the host element, falling back to the element UUID. Should be called only in host connected. */
+	_getDefaultSlugFromHost(primaryAttributeName) {
+		return this.host.getAttribute(primaryAttributeName) ?? this.host.getAttribute("slug") ?? this.UUID;
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/FileAnalysisSynchronisator.ts
+var FileAnalysisSynchronisator = class FileAnalysisSynchronisator {
+	/** Lit.js is using null for removed attributes - we need normalize the value to either string or undefined. */
+	static normalize(value) {
+		return value?.trim() || void 0;
+	}
+	get _attributeValue() {
+		return this._controller.host[this._attribute];
+	}
+	set _attributeValue(value) {
+		if (value !== this._controller.host[this._attribute]) this._controller.host[this._attribute] = value;
+	}
+	get _mountKey() {
+		return `${this._controller.UUID}_slot_${this._slotNumber}`;
+	}
+	get _internalSerialized() {
+		return this._slotObject?.serialized;
+	}
+	get _slotObject() {
+		return this._fileObject?.slots.getSlot(this._slotNumber);
+	}
+	constructor(_controller, _slotNumber) {
+		this._controller = _controller;
+		this._slotNumber = _slotNumber;
+		this._attribute = `analysis${this._slotNumber}`;
+	}
+	/** Enables the listeners and internal objects necessary for synchronisation of the file analysis slot */
+	fileAssigned(instance, coreWins = false) {
+		this._fileObject = instance;
+		instance.slots.getOnSerializeManager(this._slotNumber)?.set(this._controller.UUID, (value) => {
+			if (value !== this._attributeValue) this._attributeValue = value;
+		});
+		const syncAction = () => {
+			const attribute = FileAnalysisSynchronisator.normalize(this._attributeValue);
+			if (coreWins || attribute === void 0) this._attributeValue = this._slotObject?.serialized;
+			else this._applyToCore(attribute);
+		};
+		if (instance.dom?.built) syncAction();
+		else instance.onMount.set(this._mountKey, () => {
+			syncAction();
+		});
+	}
+	/** Deactivates the listeners and internal objects - stopping the synchronisation of analyses */
+	fileUnassigned() {
+		this._fileObject?.slots.getOnSerializeManager(this._slotNumber)?.delete(this._controller.UUID);
+		this._fileObject?.onMount.delete(this._mountKey);
+		this._fileObject = void 0;
+	}
+	/** Looks for the changed attributes of the host and propagates them to internal state if necessary */
+	handleHostUpdate(changedValues) {
+		if (changedValues.has(this._attribute)) {
+			const value = FileAnalysisSynchronisator.normalize(this._attributeValue);
+			if (this._internalSerialized !== value) {
+				if (this._fileObject?.dom?.built) this._applyToCore(value);
+			}
+		}
+	}
+	/** Very carrefully propagate the host attribute value to the analysis slot - this method manipulates the internal state of @labirthermal/core */
+	_applyToCore(value) {
+		const file = this._fileObject;
+		if (!file) return;
+		const slot = this._slotObject;
+		if (value === void 0) {
+			if (slot) file.slots.removeSlotAndAnalysis(this._slotNumber);
+		} else if (slot) {
+			slot.recieveSerialized(value);
+			const canvasRoot = file.dom?.canvasLayer?.getLayerRoot();
+			if (canvasRoot && !canvasRoot.contains(slot.analysis.layerRoot)) canvasRoot.appendChild(slot.analysis.layerRoot);
+		} else file.slots.createAnalysisFromSerialized(value, this._slotNumber)?.setSelected();
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/FileAnalysisSynchronisators.ts
+var FileAnalysisSynchronisators = class {
+	constructor(_controller) {
+		this._controller = _controller;
+		this._synchronisators = [];
+		for (let i = 1; i <= 7; i++) this._synchronisators.push(new FileAnalysisSynchronisator(this._controller, i));
+	}
+	_forEach(callback) {
+		for (const synchronisator of this._synchronisators) callback(synchronisator);
+	}
+	/** Every synchronisator object will look into the changed properties and update its internal state accordingly */
+	handleHostUpdate(changedValues) {
+		this._forEach((synchronisator) => synchronisator.handleHostUpdate(changedValues));
+	}
+	/** Every synchronisator will be notified that a file has been assigned */
+	handleFileAssigned(instance, coreWins = false) {
+		this._forEach((synchronisator) => synchronisator.fileAssigned(instance, coreWins));
+	}
+	/** Every synchronisator will be notified that a file has been removed */
+	handleFileUnassigned() {
+		this._forEach((synchronisator) => synchronisator.fileUnassigned());
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/FileController.ts
+/** A crucial context for exporting the `FileController` object. */
+const fileControllerContext = (0, _lit_context.createContext)("file-controller-context");
+/** A crucial context exposing the `Instance` object from `FileController`. */
+const fileContext = (0, _lit_context.createContext)("file-object-context");
+/** Expose the file error value from the `FileController`. */
+const fileFailureContext = (0, _lit_context.createContext)("file-failure-object");
+/** Whether a file request is in progress; independent of readiness or an existing instance. */
+const fileLoadingContext = (0, _lit_context.createContext)("file-loading");
+/** File ready value from the `FileController` */
+const fileReadyContext = (0, _lit_context.createContext)("file-ready-context");
+/**. Current file MS value exposed as context. */
+const fileMsContext = (0, _lit_context.createContext)("file-ms-context");
+/** File time cursor indicvates the MS on which an arbitrary HTML may be recplaced. Undended to share across elements such as timeline ang graph. In those, the context shall be set on hover using `FileController.setFileTimeCursorPercentage()` */
+const fileTimeCursorContext = (0, _lit_context.createContext)("file-time-cursor");
+const fileCurrentFrameContext = (0, _lit_context.createContext)("file-current-frame-context");
+/** Exposes the current file duration from `FileController` */
+const fileDurationContext = (0, _lit_context.createContext)("file-duration-context");
+/** Exposes the current playing state from `FileController`.  */
+const filePlayingContext = (0, _lit_context.createContext)("file-playing-context");
+/** Exposes the current playback speed value from `FileController`. */
+const filePlaybackSpeedContext = (0, _lit_context.createContext)("file-playback-speed");
+/** Exposes the current recording state from `FileController`. */
+const fileRecordingContext = (0, _lit_context.createContext)("file-is-recording-state");
+/** Exposes the current may stop state from the `FileController` */
+const fileMayStopContext = (0, _lit_context.createContext)("file-may-stop-state");
+/** Exposes the array of current analyses from the `FileController` */
+const fileAnalysisListContext = (0, _lit_context.createContext)("file-analysis-list");
+/** Unified properties of an analysis attribute of the host webcomponent */
+const ANALYSIS_STATE_DECLARATION = {
+	type: String,
+	reflect: true
+};
+/** The `FileController` is responsible for managing the state and interactions related to a file within the hierarchy. 
+* 
+* @author Jan Jáchim <jachim@zcu.cz>
+* @module @labirthermal/webcomponents
+*/
+var FileController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			managerController: INTERNAL_STATE_DECLARATION,
+			registryController: INTERNAL_STATE_DECLARATION,
+			groupController: INTERNAL_STATE_DECLARATION,
+			fileController: INTERNAL_STATE_DECLARATION,
+			file: INTERNAL_STATE_DECLARATION,
+			failure: INTERNAL_STATE_DECLARATION,
+			loading: INTERNAL_STATE_DECLARATION,
+			ms: {
+				type: Number,
+				reflect: true,
+				attribute: "ms"
+			},
+			playbackSpeed: {
+				type: Number,
+				reflect: true,
+				attribute: "speed"
+			},
+			analysis1: ANALYSIS_STATE_DECLARATION,
+			analysis2: ANALYSIS_STATE_DECLARATION,
+			analysis3: ANALYSIS_STATE_DECLARATION,
+			analysis4: ANALYSIS_STATE_DECLARATION,
+			analysis5: ANALYSIS_STATE_DECLARATION,
+			analysis6: ANALYSIS_STATE_DECLARATION,
+			analysis7: ANALYSIS_STATE_DECLARATION,
+			autoHighlight: {
+				type: Boolean,
+				reflect: true,
+				attribute: "autohighlight"
+			}
+		};
+	}
+	get fileObject() {
+		return this.host.file;
+	}
+	get failure() {
+		return this.host.failure;
+	}
+	get ms() {
+		return this.host.ms;
+	}
+	get playbackSpeed() {
+		return this.host.playbackSpeed;
+	}
+	get analysis1() {
+		return this.host.analysis1;
+	}
+	get analysis2() {
+		return this.host.analysis2;
+	}
+	get analysis3() {
+		return this.host.analysis3;
+	}
+	get analysis4() {
+		return this.host.analysis4;
+	}
+	get analysis5() {
+		return this.host.analysis5;
+	}
+	get analysis6() {
+		return this.host.analysis6;
+	}
+	get analysis7() {
+		return this.host.analysis7;
+	}
+	get autoHighlight() {
+		return this.host.autoHighlight;
+	}
+	get ready() {
+		return this.readyContextProvider.value;
+	}
+	get recording() {
+		return this.fileRecordingContextProvider.value;
+	}
+	get playing() {
+		return this.filePlayingContextProvider.value;
+	}
+	get mayStop() {
+		return this.fileMayStopContextProvider.value;
+	}
+	get cursor() {
+		return this.fileCursorContextProvider.value;
+	}
+	get currentFrame() {
+		return this.fileCurrentFrameContextProvider.value;
+	}
+	get analyses() {
+		return this.fileAnalysesContextProvider.value;
+	}
+	get duration() {
+		return this.fileDurationContextProvider.value;
+	}
+	constructor(host) {
+		super(host);
+		this.onLoadingStart = new _labirthermal_core.CallbacksManager();
+		this.onSuccess = new _labirthermal_core.CallbacksManager();
+		this.onFailure = new _labirthermal_core.CallbacksManager();
+		this._analysisSynchronisators = new FileAnalysisSynchronisators(this);
+		this._UUID = host.UUID + "_file-controller";
+		this.fileControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: fileControllerContext,
+			initialValue: this
+		});
+		this.fileContextProvider = new _lit_context.ContextProvider(this.host, { context: fileContext });
+		this.fileFailureContextProvider = new _lit_context.ContextProvider(this.host, { context: fileFailureContext });
+		this.loadingContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: fileLoadingContext,
+			initialValue: false
+		});
+		this.readyContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: fileReadyContext,
+			initialValue: false
+		});
+		this.fileDurationContextProvider = new _lit_context.ContextProvider(this.host, { context: fileDurationContext });
+		this.fileCurrentFrameContextProvider = new _lit_context.ContextProvider(this.host, { context: fileCurrentFrameContext });
+		this.fileCursorContextProvider = new _lit_context.ContextProvider(this.host, { context: fileTimeCursorContext });
+		this.fileMsContextProvider = new _lit_context.ContextProvider(this.host, { context: fileMsContext });
+		this.filePlaybackSpeedContextProvider = new _lit_context.ContextProvider(this.host, { context: filePlaybackSpeedContext });
+		this.filePlayingContextProvider = new _lit_context.ContextProvider(this.host, { context: filePlayingContext });
+		this.fileRecordingContextProvider = new _lit_context.ContextProvider(this.host, { context: fileRecordingContext });
+		this.fileMayStopContextProvider = new _lit_context.ContextProvider(this.host, { context: fileMayStopContext });
+		this.fileAnalysesContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: fileAnalysisListContext,
+			initialValue: []
+		});
+		this._propagateHighlightCache = () => this._propagateHighlight();
+		this._unpropagateHighlightCache = () => this._unpropagateHighlight();
+	}
+	hostConnected() {
+		this.host.addEventListener("mouseenter", this._propagateHighlightCache);
+		this.host.addEventListener("focus", this._propagateHighlightCache);
+		this.host.addEventListener("mouseleave", this._unpropagateHighlightCache);
+		this.host.addEventListener("blur", this._unpropagateHighlightCache);
+		if (this._attached) {
+			this._propagateContexts(this._attached);
+			this._bindListeners(this._attached, true);
+		}
+	}
+	hostDisconnected() {
+		this.host.removeEventListener("mouseenter", this._propagateHighlightCache);
+		this.host.removeEventListener("focus", this._propagateHighlightCache);
+		this.host.removeEventListener("mouseleave", this._unpropagateHighlightCache);
+		this.host.removeEventListener("blur", this._unpropagateHighlightCache);
+		this._unpropagateHighlight();
+		if (this._attached) this._unbindListeners(this._attached);
+	}
+	hostWillUpdateWatcher(value) {
+		if (value.has("file")) this._syncAssignment();
+		this._analysisSynchronisators.handleHostUpdate(value);
+		if (value.has("ms")) this.setMs(this.host.ms);
+		if (value.has("playbackSpeed") && this.host.file && this.host.file.timeline.isSequence) {
+			if (this.host.playbackSpeed !== this.host.file.timeline.playbackSpeed) this.host.file.timeline.playbackSpeed = this.host.playbackSpeed;
+		}
+	}
+	hostUpdatedWatcher() {}
+	_propagateContexts(instance) {
+		this.fileContextProvider.setValue(instance);
+		this.readyContextProvider.setValue(true);
+		this.fileDurationContextProvider.setValue({
+			ms: instance.timeline.duration,
+			time: instance.timeline.formatDuration(instance.timeline.duration)
+		});
+		this._propagateInstanceCurrentFrame(instance);
+		this._propagateInstanceAnalysesArray(instance);
+		this.fileMsContextProvider.setValue(instance.timeline.currentMs);
+		this.filePlaybackSpeedContextProvider.setValue(instance.timeline.playbackSpeed);
+		this.filePlayingContextProvider.setValue(instance.timeline.isPlaying);
+		this.fileMayStopContextProvider.setValue(instance.recording.mayStop);
+		this.fileRecordingContextProvider.setValue(instance.recording.value);
+	}
+	_resetAllContexts() {
+		this.readyContextProvider.setValue(false);
+		this.fileDurationContextProvider.setValue(void 0);
+		this.fileCurrentFrameContextProvider.setValue(void 0);
+		this.fileAnalysesContextProvider.setValue([]);
+		this.fileContextProvider.setValue(void 0);
+		this.fileRecordingContextProvider.setValue(false);
+		this.filePlayingContextProvider.setValue(false);
+		this.fileMayStopContextProvider.setValue(true);
+		this.fileMsContextProvider.setValue(0);
+		this.fileCursorContextProvider.setValue(void 0);
+	}
+	_syncAssignment() {
+		const next = this.host.file;
+		if (next === this._attached) return;
+		const previous = this._attached;
+		if (previous) this._detach(previous);
+		if (next) this._attach(next, previous !== void 0);
+		else {
+			this._resetAllContexts();
+			this.host.ms = 0;
+		}
+	}
+	_attach(instance, isReplacement) {
+		this._attached = instance;
+		this.fileContextProvider.setValue(instance);
+		this.host.failure = void 0;
+		this.fileFailureContextProvider.setValue(void 0);
+		if (this.host.playbackSpeed !== void 0) instance.timeline.playbackSpeed = this.host.playbackSpeed;
+		this._propagateContexts(instance);
+		this._bindListeners(instance);
+		if (!isReplacement && this.host.ms > 0 && instance.timeline.isSequence) this.setMs(this.host.ms);
+		else this.host.ms = instance.timeline.currentMs;
+		this.setLoading(false);
+		this.onSuccess.call(instance);
+	}
+	_detach(instance) {
+		this._unbindListeners(instance);
+		this._unpropagateHighlight();
+		this._attached = void 0;
+		instance.unmountFromDom();
+	}
+	_bindListeners(instance, coreWins = false) {
+		instance.timeline.callbacksPlay.set(this.UUID, () => {
+			this.filePlayingContextProvider.setValue(true);
+		});
+		instance.timeline.callbacksPause.set(this.UUID, () => {
+			this.filePlayingContextProvider.setValue(false);
+		});
+		instance.timeline.callbacksStop?.set(this.UUID, () => {
+			this.filePlayingContextProvider.setValue(false);
+		});
+		instance.timeline.callbacksEnd?.set(this.UUID, () => {
+			this.filePlayingContextProvider.setValue(false);
+		});
+		instance.timeline.callbacksChangeFrame.set(this.UUID, (frame) => {
+			const value = {
+				ms: frame.relative,
+				time: instance.timeline.currentTime,
+				percentage: instance.timeline.currentPercentage,
+				index: frame.index,
+				absolute: frame.absolute
+			};
+			this.fileCurrentFrameContextProvider.setValue(value);
+			this.host.ms = frame.relative;
+			this.fileMsContextProvider.setValue(frame.relative);
+		});
+		instance.timeline.callbackdPlaybackSpeed.set(this.UUID, (speed) => {
+			this.host.playbackSpeed = speed;
+			this.filePlaybackSpeedContextProvider.setValue(speed);
+		});
+		instance.recording.callbackMayStop.set(this.UUID, (value) => {
+			this.fileMayStopContextProvider.setValue(value);
+		});
+		instance.recording.addListener(this.UUID, (value) => {
+			this.fileRecordingContextProvider.setValue(value);
+		});
+		instance.analysis.addListener(this.UUID, (value) => {
+			this.fileAnalysesContextProvider.setValue(value);
+		});
+		this._analysisSynchronisators.handleFileAssigned(instance, coreWins);
+	}
+	_unbindListeners(instance) {
+		instance.timeline.callbacksPlay.delete(this.UUID);
+		instance.timeline.callbacksPause.delete(this.UUID);
+		instance.timeline.callbacksStop.delete(this.UUID);
+		instance.timeline.callbacksEnd.delete(this.UUID);
+		instance.timeline.callbacksChangeFrame.delete(this.UUID);
+		instance.timeline.callbackdPlaybackSpeed.delete(this.UUID);
+		instance.recording.removeListener(this.UUID);
+		instance.recording.callbackMayStop?.delete(this.UUID);
+		instance.analysis.removeListener(this.UUID);
+		this._analysisSynchronisators.handleFileUnassigned();
+	}
+	/** 
+	* This is crucial - once the instance is loaded or retrieved somewhere, all the magic happens. Existence of this method enables controller to change the instance at any time. 
+	*/
+	receiveInstance(instance) {
+		this.host.file = instance;
+		this._syncAssignment();
+		this.setLoading(false);
+	}
+	removeInstance() {
+		this.host.file = void 0;
+		this._syncAssignment();
+		this.setLoading(false);
+	}
+	receiveFailure(failure) {
+		this.removeInstance();
+		this.host.failure = failure;
+		this.fileFailureContextProvider.setValue(failure);
+		this.setLoading(false);
+		this.onFailure.call(failure);
+	}
+	_propagateInstanceCurrentFrame(instance) {
+		this.fileCurrentFrameContextProvider.setValue({
+			ms: instance.timeline.currentMs,
+			time: instance.timeline.currentTime,
+			percentage: instance.timeline.currentPercentage,
+			index: instance.timeline.currentStep.index,
+			absolute: instance.timeline.currentStep.absolute
+		});
+	}
+	_propagateInstanceAnalysesArray(instance) {
+		this.fileAnalysesContextProvider.setValue(instance.analysis.layers.all);
+	}
+	setTimeCursorPercentage(percentage) {
+		if (percentage !== void 0 && !Number.isFinite(percentage)) return;
+		const value = percentage === void 0 ? void 0 : Math.max(0, Math.min(percentage, 100));
+		if (value !== this.fileCursorContextProvider.value) this.fileCursorContextProvider.setValue(value);
+	}
+	setTimePercentage(percentage) {
+		const file = this._attached;
+		if (!file?.timeline.isSequence) return;
+		const clampedPercentage = Math.max(0, Math.min(percentage, 100));
+		if (clampedPercentage !== file.timeline.currentPercentage) file.timeline.setValueByPercent(clampedPercentage);
+	}
+	play() {
+		this._attached?.timeline.play();
+	}
+	stop() {
+		this._attached?.timeline.stop();
+	}
+	pause() {
+		this._attached?.timeline.pause();
+	}
+	setMs(value) {
+		const file = this._attached;
+		if (!file?.timeline.isSequence) return;
+		const clampedRelativeTime = Math.max(0, Math.min(value, file.timeline.duration));
+		if (clampedRelativeTime !== file.timeline.currentMs) file.timeline.setRelativeTime(clampedRelativeTime);
+	}
+	/** Impose this file's highlight into the registry */
+	_propagateHighlight() {
+		if (this.autoHighlight && this.fileObject) {
+			this.host.setAttribute("is-highlight", "true");
+			this.host.registryController.setHighlight({
+				from: this.fileObject.min,
+				to: this.fileObject.max
+			});
+		}
+	}
+	/** Remove the highlight from the registry */
+	_unpropagateHighlight() {
+		if (this.host.hasAttribute("is-highlight")) {
+			this.host.removeAttribute("is-highlight");
+			this.host.registryController.setHighlight(void 0);
+		}
+	}
+	startLoading() {
+		this.host.failure = void 0;
+		this.fileFailureContextProvider.setValue(void 0);
+		this.setLoading(true);
+		this.onLoadingStart.call();
+		this.readyContextProvider.setValue(false);
+	}
+	/** Publishes loading independently of whether an old file is still available. */
+	setLoading(loading) {
+		if (this.host.loading !== loading) this.host.loading = loading;
+		this.loadingContextProvider.setValue(loading);
+	}
+	endLoading() {
+		this.readyContextProvider.setValue(true);
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/FileLoadController.ts
+/** 
+* When appended to an element with `FileController`, takes care of loading the file from the host attributes such as `thermal` and `visible`.
+* 
+* The element using `FileLoadController` needs to implement `IElementWithFileLoadController`
+* 
+* Public reactive properties of the host:
+* - `thermal`: The thermal file to be loaded.
+* - `visible`: The visibility setting for the thermal file.
+* 
+* @see {@link FileLoadController.HOST_PROPERTIES}
+* 
+* @module @labirthermal/webcomponents
+* @author Jan Jáchim <jachim@gmail.com>
+* */
+var FileLoadController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	get group() {
+		return this.host.fileController.host.groupController.groupObject;
+	}
+	get registry() {
+		return this.group.registry;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			thermal: {
+				type: String,
+				reflect: true,
+				attribute: "thermal"
+			},
+			visible: {
+				type: String,
+				reflect: true,
+				attribute: "visible"
+			}
+		};
+	}
+	constructor(host) {
+		super(host);
+		this._UUID = host.UUID;
+	}
+	hostWillUpdateWatcher(value) {
+		if (value.has("thermal") && this.host.thermal) this._load(this.host.thermal, this.host.visible);
+	}
+	hostUpdatedWatcher() {}
+	hostConnected() {}
+	hostDisconnected() {}
+	async _load(lrc, visible) {
+		if (this.host.fileController.fileObject) this.group.files.removeFile(this.host.fileController.fileObject);
+		this.host.fileController.startLoading();
+		return this.registry.batch.request(lrc, visible, this.group, async (result) => {
+			if (result instanceof _labirthermal_core.Instance) this.host.fileController.receiveInstance(result);
+			else if (result instanceof _labirthermal_core.ThermalFileFailure) this.host.fileController.receiveFailure(result);
+		});
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/GroupController.ts
+/**
+* Exposes the `GroupController` instance to the `AbstractGroupConsumer` elements.
+* @see {@link GroupController}
+* @module @labirthermal/embed
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
+const groupControllerContext = (0, _lit_context.createContext)("group-controller-context");
+/**
+* Exposes the internal `ThermalGroup` object from the `GroupController`.
+* 
+* @see {@link GroupController}
+* @see {@link ThermalGroup}
+* @module @labirthermal/embed
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
+const groupObjectContext = (0, _lit_context.createContext)("group-object-context");
+var GroupController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			managerController: INTERNAL_STATE_DECLARATION,
+			registryController: INTERNAL_STATE_DECLARATION,
+			groupSlug: {
+				type: String,
+				reflect: true,
+				attribute: "group-slug"
+			},
+			groupObject: INTERNAL_STATE_DECLARATION,
+			autoclearGroup: {
+				type: Boolean,
+				reflect: true,
+				attribute: "autoclear-group",
+				converter: booleanConverter(true)
+			},
+			groupController: INTERNAL_STATE_DECLARATION
+		};
+	}
+	get groupObject() {
+		return this.host.groupObject;
+	}
+	get registryController() {
+		return this.host.registryController;
+	}
+	get slug() {
+		return this.host.groupSlug;
+	}
+	get autoclearGroup() {
+		return this.host.autoclearGroup;
+	}
+	constructor(host) {
+		super(host);
+		this._UUID = host.UUID + "_group-controller";
+		this.groupControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: groupControllerContext,
+			initialValue: this
+		});
+		this.groupObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: groupObjectContext });
+	}
+	hostConnected() {
+		const slug = this._getDefaultSlugFromHost("group-slug");
+		this.host.groupSlug = slug;
+		this.host.groupObject = this.host.registryController.addOrGetGroup(slug);
+		this.groupObjectContextProvider.setValue(this.host.groupObject);
+	}
+	hostDisconnected() {
+		if (this.autoclearGroup && this.host.groupObject) this.host.registryController.removeGroup(this.host.groupObject);
+	}
+	hostWillUpdateWatcher() {}
+	hostUpdatedWatcher() {}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/GroupLoadController.ts
+/**
+* Reactive controller for loading thermal and visible files into a {@link ThermalGroup}
+* driven by the host element's `group-files` attribute.
+*
+* ### Functionality & Data Flow
+* - **Declarative & Reactive:** Watches the host property `filesString` (reflected from `group-files`).
+*   Whenever the attribute or property value changes, this controller parses the request string and loads
+*   all requested files through the registry's `FilesService`.
+* - **Unidirectional Synchronization:** Changes to the `group-files` attribute/property are propagated
+*   inward to the group's internal files collection. Subsequent runtime changes to the group (such as files
+*   added via drag-and-drop, deleted via UI, or reordered) are intentionally **NOT** reflected back to
+*   the attribute, preventing unwanted update loops.
+* - **Clearing on Empty:** If the attribute is removed or set to empty, all instances are removed from the group.
+* - **Backup & Listing Integration:** Automatically backs up file readers into the host's
+*   {@link GroupListingController} and restores them so that the group listing stays synchronized.
+*
+* ### Attribute Format (`group-files`)
+* The attribute encodes an array of file requests into a compact delimited string without requiring JSON:
+* - Records are delimited by `;` ({@link GroupLoadController.FILE_RECORD_SEPARATOR}).
+* - Key-value segments inside each record are delimited by `|` ({@link GroupLoadController.FILE_SEGMENT_SEPAROATOR}).
+* - Keys and values are separated by `~` ({@link GroupLoadController.FILE_COMPONENT_SEPAROATOR}).
+* - Recognized keys:
+*   - `thermal` (required): URL of the thermal file (`.lrc`).
+*   - `visible` (optional): URL of the corresponding visible spectrum image.
+*   - `label` (optional): Human-readable label assigned to the file instance.
+*
+* @example Format syntax
+* ```text
+* thermal~<url>[|visible~<url>][|label~<text>];thermal~<url>[|label~<text>]
+* ```
+*
+* @example Single file
+* ```html
+* <thermal-group-app group-files="thermal~./record.lrc|label~Engine"></thermal-group-app>
+* ```
+*
+* @example Multiple files with visual pairs and labels
+* ```html
+* <thermal-group-app
+*   group-files="thermal~./t1.lrc|visible~./v1.jpg|label~Pre-test;thermal~./t2.lrc|label~Post-test">
+* </thermal-group-app>
+* ```
+*
+* @example Programmatic encoding and decoding
+* ```ts
+* // Decode an attribute string to structured requests:
+* const requests = GroupLoadController.decodeAttribute("thermal~file.lrc|label~Motor");
+*
+* // Encode structured requests back into an attribute string:
+* const attrValue = GroupLoadController.encodeFileRequests([
+*   { thermal: "file1.lrc", visible: "file1.png", label: "Front" },
+*   { thermal: "file2.lrc", label: "Rear" }
+* ]);
+* host.setAttribute("group-files", attrValue!);
+* ```
+*
+* @see {@link IElementWithGroupLoadController} for host requirements.
+* @see {@link GroupListingController} for how the loaded files are displayed and ordered.
+*/
+var GroupLoadController = class GroupLoadController extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = { filesString: {
+			type: String,
+			reflect: true,
+			attribute: "group-files"
+		} };
+	}
+	static {
+		this.FILE_RECORD_SEPARATOR = ";";
+	}
+	static {
+		this.FILE_SEGMENT_SEPAROATOR = "|";
+	}
+	static {
+		this.FILE_COMPONENT_SEPAROATOR = "~";
+	}
+	static {
+		this.FILE_THERMAL_KEY = "thermal";
+	}
+	static {
+		this.FILE_VISIBLE_KEY = "visible";
+	}
+	static {
+		this.FILE_LABEL_KEY = "label";
+	}
+	static {
+		this.FILE_NOTE_KEY = "note";
+	}
+	get group() {
+		return this.host.groupController.groupObject;
+	}
+	/** Makes sure the value is either a non-empty string or undefined. */
+	static stringOrUndefined(value) {
+		if (typeof value === "string") value = value.trim();
+		return value ?? void 0;
+	}
+	/** Encodes one attribute to a string segment. */
+	static encodeAttribute(key, value) {
+		return `${key}${this.FILE_COMPONENT_SEPAROATOR}${value ?? ""}`;
+	}
+	/** Encodes a file request into a string suitable for the fileString attribute (publically known as `group-files`) */
+	static encodeFileRequest(thermalUrl, visibleUrl, label) {
+		const thermal = this.stringOrUndefined(thermalUrl);
+		visibleUrl = this.stringOrUndefined(visibleUrl);
+		label = this.stringOrUndefined(label);
+		if (!thermal) return;
+		if (!visibleUrl || !label) return this.encodeAttribute(this.FILE_THERMAL_KEY, thermalUrl);
+		let value = this.encodeAttribute(this.FILE_THERMAL_KEY, thermalUrl);
+		if (visibleUrl) value += this.FILE_SEGMENT_SEPAROATOR + this.encodeAttribute(this.FILE_VISIBLE_KEY, visibleUrl);
+		if (label) value += this.FILE_SEGMENT_SEPAROATOR + this.encodeAttribute(this.FILE_LABEL_KEY, label);
+		return value;
+	}
+	/** Encode multiple files into a string suitable for the public attribute `group-files` of a webcomponent with `GroupLoadController` */
+	encodeFileRequests(requests) {
+		if (!requests || requests.length === 0) return;
+		return requests.map((request) => GroupLoadController.encodeFileRequest(request.thermal, request.visible, request.label)).filter((encoded) => encoded !== void 0).join(GroupLoadController.FILE_RECORD_SEPARATOR) || void 0;
+	}
+	/** Takes a string and convert it into an array of `GroupLoaderFileRequest` that can be used by `GroupLoadController._load( requests )` */
+	static decodeAttribute(value) {
+		return value.split(GroupLoadController.FILE_RECORD_SEPARATOR).map((record) => {
+			let thermal;
+			let visible;
+			let label;
+			record.trim().split(GroupLoadController.FILE_SEGMENT_SEPAROATOR).forEach((segment) => {
+				let [key, value] = segment.split(GroupLoadController.FILE_COMPONENT_SEPAROATOR);
+				key = key.trim();
+				value = value?.trim();
+				switch (key) {
+					case GroupLoadController.FILE_THERMAL_KEY:
+						thermal = value;
+						break;
+					case GroupLoadController.FILE_VISIBLE_KEY:
+						visible = value;
+						break;
+					case GroupLoadController.FILE_LABEL_KEY:
+						label = value;
+						break;
+				}
+			});
+			if (!thermal) return;
+			return {
+				thermal,
+				visible,
+				label
+			};
+		}).filter((item) => item !== void 0);
+	}
+	constructor(host) {
+		super(host);
+		this.errors = [];
+		this._UUID = host.UUID + "_group-load-controller";
+	}
+	hostConnected() {}
+	hostDisconnected() {}
+	hostWillUpdateWatcher(value) {
+		if (value.has("filesString")) this._loadFromAttributes();
+	}
+	hostUpdatedWatcher() {}
+	_loadFromAttributes() {
+		const requests = this.host.filesString ? GroupLoadController.decodeAttribute(this.host.filesString) : [];
+		this._load(requests);
+	}
+	/** Loads the files  specified in the `requests` array. */
+	async _load(requests) {
+		if (requests.length === 0) {
+			this.group.files.removeAllInstances();
+			return;
+		}
+		const registry = this.group.registry;
+		const service = registry.service;
+		this.errors = [];
+		registry.loading.markAsLoading();
+		try {
+			const results = await Promise.all(requests.map(async (request) => ({
+				result: await service.loadFile(request.thermal, request.visible),
+				label: request.label
+			})));
+			for (const item of results) if (item.result instanceof _labirthermal_core.ThermalFileFailure) this.errors.push(`${item.result.thermalUrl}: ${item.result.message}`);
+			const filteredResults = results.filter((item) => item.result instanceof _labirthermal_core.ThermalFileReader);
+			this.host.groupListingController.backupReaders(filteredResults.map((item) => item.result));
+			await this.host.groupListingController.restoreTheEntireBackup();
+			for (const file of this.group.files.value) {
+				const matchingResult = filteredResults.find((item) => item.result === file.reader);
+				if (matchingResult?.label !== void 0) file.setLabel(matchingResult.label);
+			}
+			await registry.postLoadedProcessing();
+			registry.range.applyMinmax();
+		} catch (error) {
+			this.errors.push(error instanceof Error ? error.message : String(error));
+		} finally {
+			registry.loading.markAsLoaded();
+			this.host.requestUpdate();
+		}
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/GroupListingController.ts
+/**
+* Indicates how to order the files in a group. Used by {@link GroupListingController}
+* @module @labirthermal/webcomponents
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
+let GroupOrderby = /* @__PURE__ */ function(GroupOrderby) {
+	GroupOrderby["DATE"] = "date";
+	GroupOrderby["LABEL"] = "label";
+	GroupOrderby["MANUAL"] = "manual";
+	return GroupOrderby;
+}({});
+/**
+* Indicates how to order the files in a group. Used by {@link GroupListingController}
+* @module @labirthermal/webcomponents
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
+let GroupOrdering = /* @__PURE__ */ function(GroupOrdering) {
+	GroupOrdering["ASC"] = "asc";
+	GroupOrdering["DESC"] = "desc";
+	return GroupOrdering;
+}({});
+var GroupListingController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	get group() {
+		return this.host.groupController.groupObject;
+	}
+	get hasBackup() {
+		return this.backup.size > 0;
+	}
+	constructor(host) {
+		super(host);
+		this.backup = /* @__PURE__ */ new Set();
+		this._numColumns = 3;
+		this._asTable = false;
+		this._previewWidth = 50;
+		this._UUID = host.UUID + "_group-display-controller";
+	}
+	clearBackup() {
+		this.backup.clear();
+	}
+	backupReadersFromInstances(instances) {
+		this.backup.clear();
+		instances.forEach((instance) => this.backup.add(instance.reader));
+	}
+	backupReaders(readers) {
+		this.backup.clear();
+		readers.forEach((reader) => this.backup.add(reader));
+	}
+	async restoreTheEntireBackup() {
+		this.host.fileController.removeInstance();
+		return this.group.files.batchCreateInstances(Array.from(this.backup), true);
+	}
+	async showOneAndBackup(instance) {
+		const reader = instance.reader;
+		this.backup.clear();
+		this.backupReadersFromInstances(this.group.files.value);
+		this.host.fileController.host.registryController.setHighlight(void 0);
+		this.host.fileController.removeInstance();
+		this.group.files.removeAllInstances();
+		await reader.createInstance(this.group);
+	}
+	static {
+		this.CLASS_TABLE = "group-listing-table";
+	}
+	static {
+		this.CLASS_COLUMNS = "group-listing-columns";
+	}
+	static {
+		this.styles = lit.css`
+        .group-listing {
+            display: grid;
+            width: 100%;
+            min-width: 0;
+            gap: 1em;
+            align-items: start;
+            grid-template-columns: repeat(var(--group-listing-columns, 3), minmax(0, 1fr));
+        }
+
+        .group-listing[data-layout="table"] {
+            grid-template-columns: minmax(0, 1fr);
+            overflow-x: auto;
+        }
+
+        .group-listing .file-card {
+            display: grid;
+            min-width: 0;
+            box-sizing: border-box;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas: "header" "canvas" "analysis" "timeline";
+            background: var(--thermal-background);
+            border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
+        }
+
+        .group-listing[data-layout="grid"] .file-media,
+        .group-listing[data-layout="grid"] .file-details,
+        .group-listing[data-layout="grid"] .file-details-content {
+            display: contents;
+        }
+
+        .file-card .file-header {
+            grid-area: header;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: center;
+            gap: .5em;
+            padding: .5em;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        .file-card .file-label {
+            cursor: pointer;
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .file-card file-canvas {
+            grid-area: canvas;
+            min-width: 0;
+        }
+
+        .file-card file-timeline {
+            grid-area: timeline;
+            display: block;
+            min-width: 0;
+        }
+
+        .file-card .file-analysis {
+            grid-area: analysis;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        .group-listing[data-layout="table"] .file-card {
+            grid-template-columns: var(--thermal-list-preview-width, 50%) minmax(0, 1fr);
+            grid-template-areas: "media details";
+            align-items: stretch;
+            background: transparent;
+        }
+
+        .group-listing[data-layout="table"] .file-media {
+            grid-area: media;
+            min-width: 0;
+            padding: 0;
+        }
+
+        .group-listing[data-layout="table"] .file-details {
+            grid-area: details;
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            background: var(--thermal-background);
+            border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
+        }
+
+        /* Only the media determines the row height; longer details scroll inside it. */
+        .group-listing[data-layout="table"] .file-details-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+        }
+
+        .group-listing[data-layout="table"] .file-details-content > * {
+            flex: none;
+        }
+    `;
+	}
+	setPreviewWidth(width) {
+		if (!Number.isInteger(width) || width < 20 || width > 80) throw new RangeError("Preview width must be an integer from 20 to 80 percent.");
+		this._previewWidth = width;
+		this.host.requestUpdate();
+	}
+	setNumColumns(numColumns) {
+		this._numColumns = numColumns;
+		this.host.requestUpdate();
+	}
+	setAsTable(asTable) {
+		this._asTable = asTable;
+		this.host.requestUpdate();
+	}
+	renderListContainer(children) {
+		return lit.html`
+            <div
+                class="group-listing"
+                data-layout=${this._asTable ? "table" : "grid"}
+                style=${(0, lit_directives_style_map_js.styleMap)({
+			"--group-listing-columns": String(this._numColumns),
+			"--thermal-list-preview-width": `${this._previewWidth}%`
+		})}
+            >
+                ${children}
+            </div>
+        `;
+	}
+	_renderButton(icon, iconStyle, tooltip, active, onClick, slot) {
+		return lit.html`
+            <thermal-btn
+                icon="${icon}"
+                iconStyle="${iconStyle}"
+                tooltip=${(0, lit_directives_if_defined_js.ifDefined)(active ? void 0 : tooltip)}
+                variant=${active ? "background" : "default"}
+                @click=${onClick}
+                slot=${slot}
+            >
+            </thermal-btn>
+        `;
+	}
+	renderLayoutSwitch(slot) {
+		return lit.html`<thermal-btn-group>
+            ${this._renderButton("list", "micro", "Switch to table view", this._asTable, () => this.setAsTable(true), slot)}
+            ${this._renderButton("grid", "micro", "Switch to grid view", !this._asTable, () => this.setAsTable(false), slot)}
+        </thermal-btn-group>`;
+	}
+	renderColumnsSlider(slot) {
+		const min = this._asTable ? 20 : 1;
+		const max = this._asTable ? 80 : Math.min(3, this.group.files.value.length);
+		const value = this._asTable ? this._previewWidth : this._numColumns;
+		const label = this._asTable ? "Šířka náhledu" : "Počet sloupců";
+		return lit.html`<div slot=${(0, lit_directives_if_defined_js.ifDefined)(slot)} style=${(0, lit_directives_style_map_js.styleMap)({
+			display: "flex",
+			flexDirection: "column",
+			fontSize: "small"
+		})}>
+        <input type="range" aria-label=${label} min=${min} max=${max} step="1" .value=${String(value)} @input=${(e) => {
+			const target = e.target;
+			const next = parseInt(target.value, 10);
+			if (this._asTable) this.setPreviewWidth(next);
+			else this.setNumColumns(next);
+		}}>
+        <div style=${(0, lit_directives_style_map_js.styleMap)({
+			textAlign: "center",
+			fontSize: ".7em",
+			opacity: ".7",
+			marginTop: "-0.2rem"
+		})}>${label}: ${value}${this._asTable ? " %" : ""}</div>
+        </div>`;
+	}
+	hostConnected() {}
+	hostDisconnected() {}
+	hostWillUpdateWatcher() {}
+	hostUpdatedWatcher() {}
+	_orderFiles() {
+		const files = Array.from(this.group.files.value);
+		switch (this.host.orderby) {
+			case GroupOrderby.LABEL:
+				if (this.host.ordering === GroupOrdering.ASC) files.sort((a, b) => (a.label ?? "").localeCompare(b.label ?? ""));
+				else files.sort((a, b) => (b.label ?? "").localeCompare(a.label ?? ""));
+				break;
+			case GroupOrderby.DATE:
+				if (this.host.ordering === GroupOrdering.ASC) files.sort((a, b) => a.timestamp - b.timestamp);
+				else files.sort((a, b) => b.timestamp - a.timestamp);
+				break;
+		}
+		return files;
+	}
+	renderList(fileRendererFn, emptyRendererFn) {
+		if (this.group.files.value.length === 0) return emptyRendererFn?.();
+		return (0, lit_directives_repeat_js.repeat)(this._orderFiles(), (file) => file.id, fileRendererFn);
+	}
+	async handleFileDropAdd(results) {
+		const fileReaders = [];
+		for (const result of results) if (result instanceof _labirthermal_core.ThermalFileReader) {
+			fileReaders.push(result);
+			this.backup.add(result);
+		}
+		await this.group.files.batchCreateInstances(fileReaders, false);
+	}
+	renderListHeader(slot, options = {}) {
+		return lit.html`<div slot="${slot}" style=${(0, lit_directives_style_map_js.styleMap)({
+			display: "flex",
+			flexDirection: "row",
+			justifyContent: "flex-start",
+			alignItems: "center",
+			boxSizing: "border-box",
+			gap: "0.5em"
+		})}>
+
+            <thermal-btn 
+                variant="text" 
+                style="cursor: default; font-size: .9em;"
+                icon="folder"
+                iconStyle="micro"
+            >${options.allowFileChanges === false ? `Počet souborů: ${this.group.files.value.length}` : `${this.group.files.value.length} nahraných souborů`}</thermal-btn>
+
+            ${options.allowFileChanges === false ? void 0 : lit.html`<thermal-btn
+                tooltip="Smazat všechny soubory a nahrát nové"
+                icon="trash"
+                iconStyle="micro"
+                variant="background"
+                @click=${() => {
+			this.host.fileController.host.registryController.setHighlight(void 0);
+			this.clearBackup();
+			this.group.files.removeAllInstances();
+		}}
+            ></thermal-btn>
+            <group-dropin-input 
+                slot="bar-pre"
+                variant="background"
+                icon="upload"
+                iconStyle="micro"
+                tooltip="Nahrát další soubory"
+                .onDrop=${async (results) => {
+			await this.handleFileDropAdd(results);
+		}}
+            ></group-dropin-input>`}
+            <group-download-dropdown 
+                variant="background"
+                icon="download"
+                iconStyle="micro"
+            >
+                <span slot="invoker">Stáhnout skupinu</span>
+            </group-download-dropdown>
+            <div style="flex-grow: 1;"></div>
+            ${this.renderLayoutSwitch()}
+            ${this.renderColumnsSlider()}
+        </div>`;
+	}
+	renderThumbnail(instance, options = {}) {
+		const showDetail = () => {
+			if (options.onOpenDetail) options.onOpenDetail(instance);
+			else this.showOneAndBackup(instance);
+		};
+		return lit.html`<file-provider
+            class="file-card"
+            .file=${instance}
+            @mouseenter=${() => {
+			this.host.groupController.registryController.setHighlight({
+				from: instance.min,
+				to: instance.max
+			});
+		}}
+            @mouseleave=${() => {
+			this.host.groupController.registryController.setHighlight(void 0);
+		}}
+        >
+            <div class="file-media">
+                <file-canvas></file-canvas>
+                <file-timeline></file-timeline>
+            </div>
+            <div class="file-details">
+                <div class="file-details-content">
+                    <header class="file-header">
+                        <div class="file-label" @click=${showDetail}>
+                            <div>${_labirthermal_core.TimeFormat.human(instance.timestamp)}</div>
+                            <div style="font-size: small; opacity: .5;">${instance.fileName}</div>
+                        </div>
+
+                        <div style="flex-grow: 1;"></div>
+                        ${options.allowFileChanges === false ? void 0 : lit.html`<thermal-btn
+                            tooltip="Smazat soubor"
+                            icon="trash"
+                            iconStyle="micro"
+                            @click=${async () => {
+			this.backup.delete(instance.reader);
+			this.group.files.removeAllInstances();
+			await this.restoreTheEntireBackup();
+			this.host.requestUpdate();
+		}}
+                        ></thermal-btn>`}
+                        <file-download-dropdown>
+                            <thermal-icon
+                                icon="download"
+                                variant="micro"
+                                slot="invoker"
+                                style="width: 1.1em;"
+                            ></thermal-icon>
+                        </file-download-dropdown>
+                        <thermal-btn
+                            icon="range"
+                            iconStyle="outline"
+                            @click=${() => {
+			this.host.groupController.registryController.registryObject.range.imposeRange({
+				from: instance.min,
+				to: instance.max
+			});
+		}}
+                        ></thermal-btn>
+                        <thermal-btn
+                            tooltip="Zobrazit detail"
+                            icon="eye"
+                            iconStyle="solid"
+                            @click=${showDetail}
+                        ></thermal-btn>
+                    </header>
+                    <div class="file-analysis">
+                        <file-analysis-table
+                            table-mode="compact"
+                            forceinteractiveanalysis="true"
+                            graph-activation-enabled="true"
+                        ></file-analysis-table>
+                        <file-analysis-graph standalone="true"></file-analysis-graph>
+                    </div>
+                </div>
+            </div>
+        </file-provider>`;
+	}
+	renderDetailHeader(instance, slot, options = {}) {
+		const divStyles = {
+			display: "flex",
+			flexDirection: "row",
+			justifyContent: "flex-start",
+			alignItems: "center",
+			boxSizing: "border-box",
+			gap: "0.5em"
+		};
+		const isSingular = !options.onCloseDetail && this.backup.size <= 1;
+		const fileCount = options.onCloseDetail ? this.group.files.value.length : this.backup.size;
+		const backLabel = isSingular ? "Zavřít" : "Zpět";
+		const backTooltip = options.allowFileChanges === false ? "Zpět na seznam souborů" : isSingular ? "Zavřít soubor a nahrát nový/é" : `Zpět na Vašich ${fileCount} souborů`;
+		const backIcon = isSingular ? "close" : "back";
+		const backIconStyle = isSingular ? "micro" : "micro";
+		return lit.html`<div style=${(0, lit_directives_style_map_js.styleMap)(divStyles)} slot=${slot}>
+
+            <thermal-btn 
+                variant="text" 
+                tooltip="Název souboru" 
+                style="cursor: default; font-size: .9em;"
+                icon="image"
+                iconStyle="micro"
+            >${instance.fileName}</thermal-btn>
+
+            <thermal-btn 
+                variant="text" 
+                tooltip="Čas pořízení snímku" 
+                style="cursor: default; font-size: .9em;"
+                icon="clock"
+                iconStyle="outline"
+            >${_labirthermal_core.TimeFormat.human(instance.timestamp)}</thermal-btn>
+
+            <thermal-btn
+                icon=${backIcon}
+                iconStyle=${backIconStyle}
+                tooltip="${backTooltip}"
+                variant="foreground"
+                @click=${() => {
+			if (options.onCloseDetail) options.onCloseDetail();
+			else if (this.backup.size <= 1) {
+				this.group.files.removeAllInstances();
+				this.host.fileController.removeInstance();
+				this.host.requestUpdate();
+			} else this.restoreTheEntireBackup();
+		}}
+            >${backLabel}</thermal-btn>
+            <file-info-button>
+                <thermal-btn 
+                    slot="invoker" 
+                    icon="info" 
+                    iconStyle="solid"
+                    variant="background"
+                >Informace o souboru</thermal-btn>
+            </file-info-button>
+
+            <file-download-dropdown
+                icon="download"
+                iconStyle="micro"
+                variant="background"
+            ></file-download-dropdown>
+
+        </div>`;
+	}
+	/** Assumes the contexts to be provided by the host element */
+	renderDetailBody() {
+		return lit.html`<div style=${(0, lit_directives_style_map_js.styleMap)({
+			display: "grid",
+			gridTemplateColumns: "1fr 1fr",
+			gap: "1em",
+			width: "100%"
+		})}>
+            <div>
+                <file-canvas></file-canvas>
+                <file-timeline></file-timeline>
+            </div>
+            <file-analysis-complex
+                table-mode="full"
+                forceinteractiveanalysis="true"
+                graph-activation-enabled="true"
+            ></file-analysis-complex>
+        </div>`;
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/GroupAnalysisSyncController.ts
+const SLOT_NUMBERS = [
+	1,
+	2,
+	3,
+	4,
+	5,
+	6,
+	7
+];
+const groupAnalysisSyncContext = (0, _lit_context.createContext)("group-analysis-sync-context");
+/**
+* Binds analysis1-analysis7 to group slots while groupAnalysisSyncOn is true.
+* Initial nonempty host values win; otherwise existing file slots are adopted.
+* Later empty values delete slots. Analyses without slots are left untouched.
+*/
+var GroupAnalysisSyncController = class GroupAnalysisSyncController extends AbstractHierarchyController {
+	get UUID() {
+		return this.host.UUID + "_group-analysis-sync-controller";
+	}
+	static {
+		this.ANALYSIS_PROPERTY_DECLARATION = {
+			type: String,
+			reflect: true,
+			converter: stringOrUndefinedConverter
+		};
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			groupAnalysisSyncOn: {
+				type: Boolean,
+				reflect: true,
+				converter: booleanConverter(false),
+				attribute: "group-analysis-sync-on"
+			},
+			analysis1: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis2: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis3: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis4: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis5: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis6: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
+			analysis7: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION
+		};
+	}
+	get on() {
+		return this._onContextProvider.value;
+	}
+	constructor(host) {
+		super(host);
+		this._files = /* @__PURE__ */ new Set();
+		this._values = /* @__PURE__ */ new Map();
+		this._fileValues = /* @__PURE__ */ new Map();
+		this._applying = false;
+		this._changingCore = false;
+		this._initialized = false;
+		this._onContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: groupAnalysisSyncContext,
+			initialValue: false
+		});
+	}
+	_property(slot) {
+		return `analysis${slot}`;
+	}
+	_hostValue(slot) {
+		return this.host[this._property(slot)]?.trim() || void 0;
+	}
+	_setOn(value) {
+		this.host.groupAnalysisSyncOn = value;
+		this._onContextProvider.setValue(value);
+	}
+	hostConnected() {
+		this._group = this.host.groupController.groupObject;
+		const group = this._group;
+		group.analysisSync.addListener(this.UUID, (value) => {
+			if (this._changingCore) return;
+			this._setOn(value);
+			if (!value) {
+				this._initialized = false;
+				return;
+			}
+			queueMicrotask(() => {
+				if (this._group === group && this.on && group.analysisSync.value) this._initialize();
+			});
+		});
+		group.files.addListener(this.UUID, () => this._syncFiles());
+		group.registry.onProcessingEnd.set(this.UUID, () => this.onLoaded());
+		this._setOn(this.host.groupAnalysisSyncOn || group.analysisSync.value);
+		this._syncFiles();
+		if (this.on) this._initialize();
+	}
+	hostDisconnected() {
+		this._group?.analysisSync.removeListener(this.UUID);
+		this._group?.files.removeListener(this.UUID);
+		this._group?.registry.onProcessingEnd.delete(this.UUID);
+		for (const file of this._files) this._unbindFile(file);
+		this._files.clear();
+		this._fileValues.clear();
+		this._group = void 0;
+		this._initialized = false;
+	}
+	hostWillUpdateWatcher(changed) {
+		if (!this._group) return;
+		if (changed.has("groupAnalysisSyncOn")) {
+			if (!this.host.groupAnalysisSyncOn) {
+				this.turnOff();
+				return;
+			}
+			if (!this.on || !this._initialized) this._initialize();
+		}
+	}
+	hostUpdatedWatcher(changed) {
+		if (!this._group) return;
+		if (!this.on) return;
+		const slots = SLOT_NUMBERS.filter((slot) => changed.has(this._property(slot)) && this._hostValue(slot) !== this._values.get(slot));
+		if (slots.length) this._applyHostValues(slots);
+	}
+	_syncFiles() {
+		const group = this._group;
+		if (!group) return;
+		for (const file of this._files) if (!group.files.value.includes(file)) {
+			this._unbindFile(file);
+			this._files.delete(file);
+		}
+		for (const file of group.files.value) {
+			if (this._files.has(file)) continue;
+			this._files.add(file);
+			const values = /* @__PURE__ */ new Map();
+			this._fileValues.set(file, values);
+			for (const slot of SLOT_NUMBERS) file.slots.getOnSerializeManager(slot)?.set(this.UUID, (value) => {
+				const unchanged = values.has(slot) && values.get(slot) === value;
+				values.set(slot, value);
+				if (unchanged) return;
+				if (!this.on || this._applying || file !== group.analysisSync.currentPointer) return;
+				this._values.set(slot, value);
+				this.host[this._property(slot)] = value;
+			});
+			file.onMount.set(this.UUID, () => this.onLoaded());
+		}
+		if (this.on) this.onLoaded();
+	}
+	_unbindFile(file) {
+		for (const slot of SLOT_NUMBERS) file.slots.getOnSerializeManager(slot)?.delete(this.UUID);
+		file.onMount.delete(this.UUID);
+		this._fileValues.delete(file);
+	}
+	_getFirstInstanceWithAnalyses() {
+		return this._group?.files.value.find((file) => SLOT_NUMBERS.some((slot) => file.slots.hasSlot(slot)));
+	}
+	_initialize() {
+		const group = this._group;
+		if (!group) return;
+		this._setOn(true);
+		if (!this._initialized) {
+			const hasAttributes = SLOT_NUMBERS.some((slot) => this._hostValue(slot) !== void 0);
+			const pointer = group.analysisSync.currentPointer;
+			const source = pointer && group.files.value.includes(pointer) ? pointer : this._getFirstInstanceWithAnalyses() ?? group.files.value[0];
+			if (!hasAttributes && source) this._analysesFromInstanceToGroup(source);
+			this._initialized = hasAttributes || source !== void 0;
+		}
+		this._enableCore();
+		if (this._initialized) this._applyHostValues(SLOT_NUMBERS);
+	}
+	_enableCore() {
+		const group = this._group;
+		if (!group) return;
+		const pointer = group.analysisSync.currentPointer;
+		const source = pointer && group.files.value.includes(pointer) ? pointer : group.files.value.find((file) => file.dom?.built) ?? group.files.value[0];
+		if (!source) {
+			group.analysisSync.setCurrentPointer(void 0);
+			return;
+		}
+		this._changingCore = true;
+		try {
+			if (!group.analysisSync.value) group.analysisSync.turnOn(source);
+			else if (source !== pointer) group.analysisSync.setCurrentPointer(source);
+		} finally {
+			this._changingCore = false;
+		}
+	}
+	_applyHostValues(slots) {
+		const group = this._group;
+		if (!group) return;
+		for (const slot of slots) this._values.set(slot, this._hostValue(slot));
+		this._applying = true;
+		const pointer = group.analysisSync.currentPointer;
+		group.analysisSync.setCurrentPointer(void 0);
+		try {
+			for (const file of this._files) {
+				if (!file.dom?.built) continue;
+				for (const slot of slots) {
+					this._applySlot(file, slot, this._values.get(slot));
+					this._fileValues.get(file)?.set(slot, file.slots.getSlot(slot)?.analysis.toSerialized());
+				}
+			}
+		} finally {
+			if (pointer && group.files.value.includes(pointer)) group.analysisSync.setCurrentPointer(pointer);
+			this._applying = false;
+		}
+	}
+	_applySlot(file, slotNumber, value) {
+		const slot = file.slots.getSlot(slotNumber);
+		if (value === void 0) {
+			if (slot) file.slots.removeSlotAndAnalysis(slotNumber);
+			return;
+		}
+		const sameType = slot?.analysis.toSerialized().split(";")[1]?.trim() === value.split(";")[1]?.trim();
+		if (slot && sameType) {
+			if (!slot.analysis.serializedIsValid(value)) {
+				this.log("Invalid group analysis slot value", slotNumber, file.id);
+				return;
+			}
+			if (slot.analysis.toSerialized() !== value) slot.recieveSerialized(value);
+			const root = file.dom?.canvasLayer?.getLayerRoot();
+			if (root && !root.contains(slot.analysis.layerRoot)) root.appendChild(slot.analysis.layerRoot);
+		} else if (!file.slots.createAnalysisFromSerialized(value, slotNumber)) this.log("Unable to create group analysis slot", slotNumber, file.id);
+	}
+	onLoaded() {
+		if (!this.on || this._applying) return;
+		if (!this._initialized) this._initialize();
+		else {
+			this._enableCore();
+			this._applyHostValues(SLOT_NUMBERS);
+		}
+	}
+	_analysesFromInstanceToGroup(instance) {
+		for (const slot of SLOT_NUMBERS) {
+			const value = instance.slots.getSlot(slot)?.analysis.toSerialized();
+			this._values.set(slot, value);
+			this.host[this._property(slot)] = value;
+		}
+	}
+	turnOnOnFirstInstanceWithAnalyses() {
+		const instance = this._getFirstInstanceWithAnalyses();
+		if (instance) this.turnOn(instance);
+	}
+	turnOnWithAttributeAnalyses() {
+		this._setOn(true);
+		this._initialized = true;
+		this._enableCore();
+		this._applyHostValues(SLOT_NUMBERS);
+	}
+	turnOn(instance) {
+		if (!this._group?.files.value.includes(instance)) {
+			this.log("Cannot synchronize analyses from a file outside the group", instance.id);
+			return;
+		}
+		this._analysesFromInstanceToGroup(instance);
+		this._setOn(true);
+		this._initialized = true;
+		this._changingCore = true;
+		try {
+			this._group.analysisSync.turnOn(instance);
+		} finally {
+			this._changingCore = false;
+		}
+		this._applyHostValues(SLOT_NUMBERS);
+	}
+	turnOff() {
+		this._setOn(false);
+		this._initialized = false;
+		this._changingCore = true;
+		try {
+			if (this._group?.analysisSync.value) this._group.analysisSync.turnOff();
+		} finally {
+			this._changingCore = false;
+		}
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/RegistryController.ts
+/** Exposes the current `RegistryController`. This is very important. */
+const registryControllerContext = (0, _lit_context.createContext)("registry-controller-context");
+/** Exposes the current `ThermalRegistry` object from the `RegistryController`. */
+const registryObjectContext = (0, _lit_context.createContext)("registry-object-context");
+/** Exposes the current opacity value context from the `RegistryController`. */
+const registryOpacityContext = (0, _lit_context.createContext)("registry-opacity");
+/** Exposes the current range from value from the `RegistryController`. */
+const registryRangeFromContext = (0, _lit_context.createContext)("registry-range-from");
+/** Exposes the current range to value from the `RegistryController`. */
+const registryRangeToContext = (0, _lit_context.createContext)("registry-range-to");
+/** Exposes the current registry loading value from the `RegistryController`. */
+const registryLoadingContext = (0, _lit_context.createContext)("registry-loading");
+/** Exposes the current registry min context from the `RegistryController` */
+const registryMinContext = (0, _lit_context.createContext)("registry-min");
+/** Exposes the current registry max value from the `RegistryController` */
+const registryMaxContext = (0, _lit_context.createContext)("registry-max");
+/**
 * Highlight is an optional range of temperatures highlighted graphically on the thermal scale. It is used to indicate for example:
 * - what is the range of a file within min/max of the entire group
 * - what is the range of an analysis within the min/max of a file
 * - what is the min/max of a group of files within multiple groups of files
-* 
+*
 * This context is exposed by a registry provider. It need to be consumed manually.
 */
 const registryHighlightContext = (0, _lit_context.createContext)("registry-highlight");
+var RegistryController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			managerController: INTERNAL_STATE_DECLARATION,
+			registrySlug: {
+				type: String,
+				reflect: false,
+				attribute: "registry-slug"
+			},
+			registryObject: INTERNAL_STATE_DECLARATION,
+			registryController: INTERNAL_STATE_DECLARATION,
+			opacity: {
+				type: Number,
+				reflect: true,
+				attribute: "opacity"
+			},
+			min: {
+				type: Number,
+				reflect: false,
+				state: true
+			},
+			max: {
+				type: Number,
+				reflect: false,
+				state: true
+			},
+			from: {
+				type: Number,
+				reflect: true,
+				attribute: "from"
+			},
+			to: {
+				type: Number,
+				reflect: true,
+				attribute: "to"
+			},
+			loading: {
+				type: Boolean,
+				attribute: "is-loading",
+				reflect: true
+			},
+			highlight: {
+				type: Object,
+				reflect: false,
+				state: true
+			}
+		};
+	}
+	get registryObject() {
+		return this.host.registryObject;
+	}
+	get slug() {
+		return this.host.registrySlug;
+	}
+	get opacity() {
+		return this.host.opacity;
+	}
+	get min() {
+		return this.host.min;
+	}
+	get max() {
+		return this.host.max;
+	}
+	get from() {
+		return this.host.from;
+	}
+	get to() {
+		return this.host.to;
+	}
+	get loading() {
+		return this.host.loading;
+	}
+	constructor(host) {
+		super(host);
+		this._UUID = host.UUID + "_registry-controller";
+		this.registryControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: registryControllerContext,
+			initialValue: this
+		});
+		this.registryObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: registryObjectContext });
+		this.opacityContextProvider = new _lit_context.ContextProvider(this.host, { context: registryOpacityContext });
+		this.minContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMinContext });
+		this.maxContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMaxContext });
+		this.fromContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeFromContext });
+		this.toContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeToContext });
+		this.loadingContextProvider = new _lit_context.ContextProvider(this.host, { context: registryLoadingContext });
+		this.highlightContextProvider = new _lit_context.ContextProvider(this.host, { context: registryHighlightContext });
+	}
+	hostConnected() {
+		const slug = this._getDefaultSlugFromHost("registry-slug");
+		this.host.registrySlug = slug;
+		this.host.registryObject = this.host.managerController.createRegistry(slug);
+		this.registryObjectContextProvider.setValue(this.host.registryObject);
+		this.setOpacity(this.host.opacity ?? 1);
+		this.registryObject.opacity.addListener(this.UUID, this.setOpacity.bind(this));
+		this.registryObject.minmax.addListener(this.UUID, (value) => {
+			if (value === void 0) {
+				this.host.min = void 0;
+				this.host.max = void 0;
+				this.minContextProvider.setValue(void 0);
+				this.maxContextProvider.setValue(void 0);
+			} else {
+				if (value.min !== this.host.min) this.host.min = value.min;
+				if (value.max !== this.host.max) this.host.max = value.max;
+				if (value.min !== this.minContextProvider.value) this.minContextProvider.setValue(value.min);
+				if (value.max !== this.maxContextProvider.value) this.maxContextProvider.setValue(value.max);
+			}
+		});
+		this.registryObject.range.addListener(this.UUID, this._rangeListener.bind(this));
+		this.registryObject.loading.addListener(this.UUID, this._loadingListener.bind(this));
+	}
+	hostDisconnected() {
+		this.registryObject.opacity.removeListener(this.UUID);
+		this.registryObject.minmax.removeListener(this.UUID);
+		this.registryObject.range.removeListener(this.UUID);
+		this.registryObject.loading.removeListener(this.UUID);
+	}
+	hostWillUpdateWatcher(value) {
+		if (value.has("opacity")) this.setOpacity(this.host.opacity ?? 1);
+		if (value.has("from") || value.has("to")) if (this.host.from === void 0 || this.host.to === void 0) this._clearRange();
+		else this.setRange(this.host.from, this.host.to);
+	}
+	hostUpdatedWatcher() {}
+	addOrGetGroup(slug) {
+		return this.registryObject.groups.addOrGetGroup(slug);
+	}
+	removeGroup(group) {
+		this.registryObject.groups.removeGroup(group.id);
+	}
+	/**
+	* This is the recommended way to set the opacity. Calling this method will 
+	* - update the context provider element's attribute `opacity`
+	* - set the internal value to `@labirthermal/core`
+	* - update the context provider
+	*/
+	setOpacity(value) {
+		const safeValue = isNaN(value) ? 1 : Math.max(0, Math.min(1, value));
+		if (this.host.opacity !== safeValue) this.host.opacity = safeValue;
+		if (this.registryObject.opacity.value !== safeValue) this.registryObject.opacity.imposeOpacity(safeValue);
+		if (this.opacityContextProvider.value !== safeValue) this.opacityContextProvider.setValue(safeValue);
+	}
+	setRange(from, to) {
+		if (this.registryObject.range.value === void 0 || this.registryObject.range.value.from !== from || this.registryObject.range.value.to !== to) this.registryObject.range.imposeRange({
+			from,
+			to
+		});
+		const currentInternalRange = this.registryObject.range.value;
+		if (currentInternalRange === void 0) this._clearRange();
+		else {
+			this.host.from = currentInternalRange.from;
+			this.host.to = currentInternalRange.to;
+			this.fromContextProvider.setValue(currentInternalRange.from);
+			this.toContextProvider.setValue(currentInternalRange.to);
+		}
+	}
+	setRangeFull() {
+		if (this.host.min !== void 0 && this.host.max !== void 0) this.setRange(this.host.min, this.host.max);
+	}
+	_rangeListener(value) {
+		if (value !== void 0) this.setRange(value.from, value.to);
+		else this._clearRange();
+	}
+	_clearRange() {
+		this.host.from = void 0;
+		this.host.to = void 0;
+		this.fromContextProvider.setValue(void 0);
+		this.toContextProvider.setValue(void 0);
+	}
+	_loadingListener(value) {
+		if (value !== this.host.loading) this.host.loading = value;
+		if (value !== this.loadingContextProvider.value) this.loadingContextProvider.setValue(value);
+	}
+	setHighlight(value) {
+		if (this.highlightContextProvider.value !== value) this.highlightContextProvider.setValue(value);
+	}
+};
 
 //#endregion
-//#region src/hierarchy/providers/context/ManagerContext.ts
+//#region src/hierarchy/providers/getters.ts
+const defaultManager = new _labirthermal_core.ThermalManager();
+window.Thermal = { managers: /* @__PURE__ */ new Map() };
+window.Thermal.managers.set("default", defaultManager);
+/** Create or get a manager instance from the global window object. */
+const createOrGetManager = (slug, options) => {
+	if (slug === void 0) return window.Thermal.managers.get("default");
+	else if (window.Thermal.managers.has(slug)) return window.Thermal.managers.get(slug);
+	else {
+		const manager = new _labirthermal_core.ThermalManager(void 0, options);
+		window.Thermal.managers.set(slug, manager);
+		return manager;
+	}
+};
+/** Remove the manager along with all its contents. */
+const removeManager = (manager) => {
+	let slug = void 0;
+	window.Thermal.managers.forEach((m, key) => {
+		if (m.id === manager.id) slug = key;
+	});
+	console.log("removing", manager);
+	if (slug !== void 0) {
+		console.log("found and removing", slug);
+		const foundManager = window.Thermal.managers.get(slug);
+		if (foundManager) {
+			foundManager.forEveryRegistry((registry) => foundManager.removeRegistry(registry.id));
+			window.Thermal.managers.delete(slug);
+		}
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/ManagerController.ts
+/** Exposes the main manager controller with all its setters and direct access to the host element values. */
+const managerControllerContext = (0, _lit_context.createContext)("manager-controller-context");
 const managerContext = (0, _lit_context.createContext)("manager-instance");
 const managerPaletteContext = (0, _lit_context.createContext)("manager-palette-context");
 const managerAdvancedPalettesContext = (0, _lit_context.createContext)("manager-advanced-palettes-context");
 const managerSmoothContext = (0, _lit_context.createContext)("manager-smooth-context");
 const managerGraphFunctionContext = (0, _lit_context.createContext)("manager-graph-function-context");
-const languageContext = (0, _lit_context.createContext)("language");
-const toolContext = (0, _lit_context.createContext)("tool-context");
-const interactiveAnalysisContext = (0, _lit_context.createContext)("interactive-analysis-context");
+const managerToolContext = (0, _lit_context.createContext)("manager-tool-context");
+const managerInteractiveAnalysesContext = (0, _lit_context.createContext)("manager-interactive-analysis-context");
+var ManagerController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			managerSlug: {
+				type: String,
+				reflect: false,
+				attribute: "manager-slug"
+			},
+			managerObject: INTERNAL_STATE_DECLARATION,
+			managerController: INTERNAL_STATE_DECLARATION,
+			palette: {
+				type: String,
+				reflect: true,
+				attribute: "palette",
+				converter: paletteConverter
+			},
+			advancedPalettes: {
+				reflect: true,
+				attribute: "advanced-palettes",
+				converter: booleanConverter(false)
+			},
+			smoothThermograms: {
+				reflect: true,
+				attribute: "smooth-thermograms",
+				converter: booleanConverter(false)
+			},
+			smoothGraph: {
+				reflect: true,
+				attribute: "smooth-graph",
+				converter: booleanConverter(false)
+			},
+			tool: {
+				type: String,
+				reflect: true,
+				attribute: "tool"
+			}
+		};
+	}
+	/** Accessor to the manageer slug from the host */
+	get slug() {
+		return this.host.managerSlug;
+	}
+	/** Accessor to the manager object from the host */
+	get managerObject() {
+		return this.host.managerObject;
+	}
+	/** Palette property value accessed from the host element */
+	get palette() {
+		return this.host.palette;
+	}
+	/** Smooth thermograms flag accessed from the host element */
+	get smoothThermograms() {
+		return this.host.smoothThermograms;
+	}
+	/** Tool property accessed from the host element */
+	get tool() {
+		return this.host.tool;
+	}
+	get toolObject() {
+		return this.managerObject.tool.value;
+	}
+	/** Graph smoothing flag accessed from the host element */
+	get smoothGraph() {
+		return this.host.smoothGraph;
+	}
+	constructor(host) {
+		super(host);
+		this._UUID = host.UUID + "_manager-controller";
+		this.managerControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: managerControllerContext,
+			initialValue: this
+		});
+		this.managerObjectContextPtovider = new _lit_context.ContextProvider(this.host, { context: managerContext });
+		this.paletteContextProvider = new _lit_context.ContextProvider(this.host, { context: managerPaletteContext });
+		this.advancedPalettesContextProvider = new _lit_context.ContextProvider(this.host, { context: managerAdvancedPalettesContext });
+		this.smoothThermogramsContextProvider = new _lit_context.ContextProvider(this.host, { context: managerSmoothContext });
+		this.toolContextProvider = new _lit_context.ContextProvider(this.host, { context: managerToolContext });
+		this.smoothGraphContextProvider = new _lit_context.ContextProvider(this.host, { context: managerGraphFunctionContext });
+	}
+	hostConnected() {
+		const slug = this._getDefaultSlugFromHost("manager-slug");
+		this.host.managerSlug = slug;
+		this.host.managerObject = createOrGetManager(slug);
+		this.managerObjectContextPtovider.setValue(this.host.managerObject);
+		const initialPaletteValue = paletteConverter.fromAttribute(this.host.palette);
+		this.setPalette(initialPaletteValue);
+		this.managerObject.palette.addListener(this.UUID, this.setPalette.bind(this));
+		this.setAdvancedPalettes(this.host.advancedPalettes);
+		this.setSmoothThermograms(this.host.smoothThermograms);
+		this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
+		this.setSmoothGraph(this.host.smoothGraph);
+		this.managerObject.graphSmooth.addListener(this.UUID, this.setSmoothGraph.bind(this));
+		this._setToolByKey(this.host.tool);
+		this.managerObject.tool.addListener(this.UUID, this.setTool.bind(this));
+	}
+	hostDisconnected() {
+		this.managerObject.palette.removeListener(this.UUID);
+		this.managerObject.smooth.removeListener(this.UUID);
+		this.managerObject.graphSmooth.removeListener(this.UUID);
+		this.managerObject.tool.removeListener(this.UUID);
+	}
+	hostUpdate() {}
+	hostWillUpdateWatcher(value) {
+		if (!value) return;
+		if (value.has("palette")) this.setPalette(this.host.palette);
+		if (value.has("advancedPalettes")) this.setAdvancedPalettes(this.host.advancedPalettes);
+		if (value.has("smoothThermograms")) this.setSmoothThermograms(this.host.smoothThermograms);
+		if (value.has("smoothGraph")) this.setSmoothGraph(this.host.smoothGraph);
+		if (value.has("tool")) this._setToolByKey(this.host.tool);
+	}
+	hostUpdatedWatcher() {}
+	/** 
+	* Create or get a registry by its slug from the internal manager object. 
+	*/
+	createRegistry(slug) {
+		return this.managerObject.addOrGetRegistry(slug);
+	}
+	_paletteStringToContextValue(palette) {
+		return {
+			key: palette,
+			data: _labirthermal_core.ThermalPalettes[palette]
+		};
+	}
+	/** 
+	* This is the recommended way to set the advanced palettes flag - updates the value in the context provider and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setAdvancedPalettes(value) {
+		if (this.host.advancedPalettes !== value) this.host.advancedPalettes = value;
+		if (this.advancedPalettesContextProvider.value !== value) this.advancedPalettesContextProvider.setValue(value);
+	}
+	/** 
+	* This is the recommended way to set the palette - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setPalette(value) {
+		const sanitizedValue = paletteConverter.fromAttribute(value);
+		if (this.managerObject.palette.value !== sanitizedValue) this.managerObject.palette.setPalette(sanitizedValue);
+		if (!this.paletteContextProvider.value) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
+		else if (this.paletteContextProvider.value.key !== sanitizedValue) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
+		if (this.host.palette !== sanitizedValue) this.host.palette = sanitizedValue;
+	}
+	/** 
+	* This is the recommended way to set the smooth thermograms flag - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setSmoothThermograms(value) {
+		if (this.host.smoothThermograms !== value) this.host.smoothThermograms = value;
+		if (this.smoothThermogramsContextProvider.value !== value) this.smoothThermogramsContextProvider.setValue(value);
+		if (this.managerObject.smooth.value !== value) this.managerObject.smooth.setSmooth(value);
+	}
+	/** 
+	* This is the recommended way to set the tool - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setTool(value) {
+		value = this._toolStringToObject(value.key);
+		if (value && value.key !== this.host.tool) this.host.tool = value.key;
+		if (this.toolContextProvider.value !== value) this.toolContextProvider.setValue(value);
+		if (this.managerObject.tool.value !== value) this.managerObject.tool.selectTool(value);
+	}
+	_setToolByKey(value) {
+		const toolObject = this._toolStringToObject(value);
+		this.setTool(toolObject);
+	}
+	_toolStringToObject(value = "inspect") {
+		const selectedTool = this.managerObject.tool.tools[value];
+		if (!selectedTool) return this.managerObject.tool.tools["inspect"];
+		return selectedTool;
+	}
+	/**
+	* This is the recommended way to set the smooth graph option - updates the value and the context provider. All updates are performed only when the new value differs from the current one.
+	*/
+	setSmoothGraph(value) {
+		if (this.host.smoothGraph !== value) this.host.smoothGraph = value;
+		if (this.smoothGraphContextProvider.value !== value) this.smoothGraphContextProvider.setValue(value);
+		if (this.managerObject.graphSmooth.value !== value) this.managerObject.graphSmooth.setGraphSmooth(value);
+	}
+};
+
+//#endregion
+//#region src/hierarchy/controllers/ConfigController.ts
+/** Exposes the general configuration context for the application. Setters are here. */
+const configContext = (0, _lit_context.createContext)("config-context");
+/** Handles the global configuration related to the PNG exports */
+var ConfigController = class extends AbstractReactiveController {
+	get UUID() {
+		return this._UUID;
+	}
+	constructor(host) {
+		super(host);
+		this._settings = {
+			export: {
+				png: {
+					width: 1200,
+					fontSize: 20,
+					analyses: true,
+					thermalScale: true,
+					license: true,
+					fileName: false,
+					fileDate: true
+				},
+				group: {
+					groupName: true,
+					columns: 2
+				}
+			},
+			visibility: { showAllOptions: false }
+		};
+		this._UUID = this.host.UUID + "__config-controller";
+		this.contextProvider = new _lit_context.ContextProvider(host, {
+			context: configContext,
+			initialValue: this
+		});
+	}
+	hostConnected() {}
+	hostDisconnected() {}
+	get settings() {
+		return this._settings;
+	}
+	setPngWidth(value) {
+		const width = Math.max(100, value);
+		this._setPngSetting("width", width);
+	}
+	setPngFontSize(value) {
+		const fontSize = Math.max(6, value);
+		this._setPngSetting("fontSize", fontSize);
+	}
+	setPngAnalyses(value) {
+		this._setPngSetting("analyses", value);
+	}
+	setPngThermalScale(value) {
+		this._setPngSetting("thermalScale", value);
+	}
+	setPngFileName(value) {
+		this._setPngSetting("fileName", value);
+	}
+	setPngFileDate(value) {
+		this._setPngSetting("fileDate", value);
+	}
+	setPngLicense(value) {
+		this._setPngSetting("license", value);
+	}
+	setGroupColumns(value) {
+		const columns = Math.max(1, value);
+		this._setGroupSetting("columns", columns);
+	}
+	setGroupGroupName(value) {
+		this._setGroupSetting("groupName", value);
+	}
+	setShowAllOptions(value) {
+		this._settings = {
+			...this._settings,
+			visibility: {
+				...this._settings.visibility,
+				showAllOptions: value
+			}
+		};
+		this._publish();
+	}
+	_setPngSetting(key, value) {
+		this._settings = {
+			...this._settings,
+			export: {
+				...this._settings.export,
+				png: {
+					...this._settings.export.png,
+					[key]: value
+				}
+			}
+		};
+		this._publish();
+	}
+	_setGroupSetting(key, value) {
+		this._settings = {
+			...this._settings,
+			export: {
+				...this._settings.export,
+				group: {
+					...this._settings.export.group,
+					[key]: value
+				}
+			}
+		};
+		this._publish();
+	}
+	_publish() {
+		this.contextProvider.setValue(this, true);
+	}
+};
 
 //#endregion
 //#region src/ui/App.ts
-var _ref$18, _ref2$5;
 var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.language = i18next.default.language;
 		this._overflowCount = 0;
 		this._overflowOpen = false;
+		this._hasPre = false;
+		this._hasContent = false;
+		this._hasPreBar = false;
+		this._hasBarHeader = false;
 		this.fullscreen = "off";
 		this.showfullscreen = false;
 		this.dark = false;
@@ -835,20 +3259,44 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 		this.barItemsRef = (0, lit_directives_ref_js.createRef)();
 		this._overflowObserver = null;
 		this._rafId = null;
+		this._barSlotAssignments = /* @__PURE__ */ new Map();
+		this._handleLanguageChange = (language) => {
+			this.language = language;
+		};
 		this._handleFullscreenChange = () => {
-			if (!document.fullscreenElement) this.fullscreen = "off";
+			this.fullscreen = document.fullscreenElement === this ? "on" : "off";
+		};
+		this._onSlotChange = (event) => {
+			const slot = event.target;
+			this._setSlotFlag(slot.name, slot.assignedElements({ flatten: true }).length > 0);
+		};
+		this._onBarSlotChange = () => {
+			for (const name of [
+				"bar-pre",
+				"bar-post",
+				"bar-overflow"
+			]) {
+				const current = this.shadowRoot?.querySelector(`slot[name="${name}"]`)?.assignedElements() ?? [];
+				const previous = this._barSlotAssignments.get(name);
+				if (!previous || previous.length !== current.length || current.some((item, index) => item !== previous[index])) {
+					this._scheduleOverflowUpdate();
+					return;
+				}
+			}
 		};
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		window.addEventListener("fullscreenchange", this._handleFullscreenChange);
-		i18next.default.on("languageChanged", () => {
-			this.language = i18next.default.language;
-		});
+		document.addEventListener("fullscreenchange", this._handleFullscreenChange);
+		if (i18next.default.language !== void 0) this.language = i18next.default.language;
+		i18next.default.on("languageChanged", this._handleLanguageChange);
+		this.requestUpdate();
 	}
 	disconnectedCallback() {
-		super.disconnectedCallback();
-		window.removeEventListener("fullscreenchange", this._handleFullscreenChange);
+		document.removeEventListener("fullscreenchange", this._handleFullscreenChange);
+		i18next.default.off("languageChanged", this._handleLanguageChange);
+		this.observer?.disconnect();
+		this.observer = void 0;
 		if (this._overflowObserver) {
 			this._overflowObserver.disconnect();
 			this._overflowObserver = null;
@@ -857,15 +3305,63 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 			cancelAnimationFrame(this._rafId);
 			this._rafId = null;
 		}
+		this._barSlotAssignments.clear();
+		super.disconnectedCallback();
 	}
 	_toggleOverflow() {
 		this._overflowOpen = !this._overflowOpen;
 	}
+	_setSlotFlag(name, has) {
+		switch (name) {
+			case "pre":
+				this._hasPre = has;
+				break;
+			case "content":
+				this._hasContent = has;
+				break;
+			case "pre-bar":
+				this._hasPreBar = has;
+				break;
+			case "bar-header":
+				this._hasBarHeader = has;
+				break;
+		}
+	}
+	_syncSlotFlags() {
+		const shadow = this.shadowRoot;
+		if (!shadow) return;
+		for (const name of [
+			"pre",
+			"content",
+			"pre-bar",
+			"bar-header"
+		]) {
+			const slot = shadow.querySelector(`slot[name="${name}"]`);
+			const has = slot ? slot.assignedElements({ flatten: true }).length > 0 : Array.from(this.children).some((child) => {
+				if (child.slot !== name) return false;
+				return !(child instanceof HTMLSlotElement) || child.assignedElements({ flatten: true }).length > 0;
+			});
+			this._setSlotFlag(name, has);
+		}
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		this._syncSlotFlags();
+	}
 	_scheduleOverflowUpdate() {
-		if (this._rafId !== null) cancelAnimationFrame(this._rafId);
+		if (!this.isConnected || this._rafId !== null) return;
 		this._rafId = requestAnimationFrame(() => {
 			this._rafId = null;
+			if (!this.isConnected) return;
 			this._doOverflowUpdate();
+			for (const name of [
+				"bar-pre",
+				"bar-post",
+				"bar-overflow"
+			]) {
+				const items = this.shadowRoot?.querySelector(`slot[name="${name}"]`)?.assignedElements() ?? [];
+				this._barSlotAssignments.set(name, items);
+			}
 		});
 	}
 	_doOverflowUpdate() {
@@ -886,6 +3382,7 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 		const allItems = [...preSlot?.assignedElements({ flatten: true }) ?? [], ...postSlot?.assignedElements({ flatten: true }) ?? []];
 		if (allItems.length === 0) {
 			this._overflowCount = 0;
+			this._overflowOpen = false;
 			return;
 		}
 		const GAP = 5;
@@ -921,32 +3418,12 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 		if (this.fullscreen === "on") this.fullscreen = "off";
 		else this.fullscreen = "on";
 	}
-	update(changedProperties) {
-		super.update(changedProperties);
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (!this.isConnected) return;
 		if (this.observer === void 0 && this.contentRef.value !== void 0) {
-			this.observer = new ResizeObserver((entries) => {
-				const entry = entries[0];
-				if (this.fullscreen === "on" && this.contentRef.value) {
-					const offsetHeight = 175;
-					const offsetWidth = 0;
-					const windowHeight = entry.contentRect.height;
-					const windowWidth = entry.contentRect.width;
-					const availableHeight = windowHeight - offsetHeight;
-					const availableWidth = windowWidth - offsetWidth;
-					const contentHeight = this.contentRef.value.offsetHeight;
-					const aspect = 4 / 3;
-					let width = 0;
-					let height = 0;
-					if (contentHeight < availableHeight) {
-						console.log("priorita šířky");
-						width = availableWidth;
-						height = width / aspect;
-					} else {
-						console.log("priorita výšky");
-						height = availableHeight;
-						width = height * aspect;
-					}
-				} else if (this.fullscreen === "off" && this.contentRef.value) this.contentRef.value.removeAttribute("style");
+			this.observer = new ResizeObserver(() => {
+				if (this.isConnected && this.fullscreen === "off" && this.contentRef.value) this.contentRef.value.removeAttribute("style");
 			});
 			this.observer.observe(this);
 		}
@@ -960,10 +3437,23 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	}
 	attributeChangedCallback(name, _old, value) {
 		super.attributeChangedCallback(name, _old, value);
-		if (name === "fullscreen") {
-			if (value === "on") this.requestFullscreen();
-			else if (value === "off" && _old !== null) {
-				if (document.fullscreenElement) document.exitFullscreen();
+		if (name === "fullscreen" && _old !== value) {
+			if (value === "on") {
+				if (document.fullscreenElement === this) return;
+				if (typeof this.requestFullscreen !== "function") {
+					this.log("Fullscreen API is unavailable");
+					this.fullscreen = "off";
+					return;
+				}
+				this.requestFullscreen().catch((error) => {
+					this.log("Unable to enter fullscreen", error);
+					this._handleFullscreenChange();
+				});
+			} else if (value === "off" && _old !== null) {
+				if (document.fullscreenElement === this) document.exitFullscreen().catch((error) => {
+					this.log("Unable to exit fullscreen", error);
+					this._handleFullscreenChange();
+				});
 			}
 		}
 	}
@@ -1003,6 +3493,23 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
             overflow: hidden;
             display: flex;
             align-items: center;
+        }
+
+        .bar-header,
+        .pre-bar {
+            display: flex;
+            gap: 5px;
+            align-items: flex-start;
+        }
+
+        .pre-bar {
+            width: 100%;
+        }
+
+        .bar-header[hidden],
+        .pre-bar[hidden],
+        .pre[hidden] {
+            display: none;
         }
 
         .bar-items {
@@ -1217,11 +3724,15 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
                 ${this.renderLabel()}
             </div>
 
+            <div class="bar-header" ?hidden=${!this._hasBarHeader}>
+                <slot name="bar-header" @slotchange=${this._onSlotChange}></slot>
+            </div>
+
             <div class="bar-items" ${(0, lit_directives_ref_js.ref)(this.barItemsRef)}>
 
-                <slot name="bar-pre" @slotchange=${this._scheduleOverflowUpdate}></slot>
+                <slot name="bar-pre" @slotchange=${this._onBarSlotChange}></slot>
                 <div class="bar-spacer"></div>
-                <slot name="bar-post" @slotchange=${this._scheduleOverflowUpdate}></slot>
+                <slot name="bar-post" @slotchange=${this._onBarSlotChange}></slot>
 
                 ${this.renderOverflowToggle()}
 
@@ -1235,15 +3746,17 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 
         </div>
 
-        ${this._overflowCount > 0 ? lit.html`
-            <div class="bar-overflow-panel" ?hidden=${!this._overflowOpen}>
-                <slot name="bar-overflow"></slot>
-            </div>
-        ` : lit.nothing}
+        <div class="bar-overflow-panel" ?hidden=${this._overflowCount === 0 || !this._overflowOpen}>
+            <slot name="bar-overflow" @slotchange=${this._onBarSlotChange}></slot>
+        </div>
 
-        ${this.preElements.length >= 0 ? lit.html`<div class="pre">
-            <slot name="pre"></slot>
-        </div>` : ""}
+        <div class="pre" ?hidden=${!this._hasPre}>
+            <slot name="pre" @slotchange=${this._onSlotChange}></slot>
+        </div>
+
+        <div class="pre-bar" ?hidden=${!this._hasPreBar}>
+            <slot name="pre-bar" @slotchange=${this._onSlotChange}></slot>
+        </div>
 
     </header>
 
@@ -1257,8 +3770,8 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 
     ${this.renderCredits()}
 
-    <div class="content ${this.contentElements.length > 0 ? "has-content" : ""}">
-        <slot name="content"></slot>
+    <div class="content ${this._hasContent ? "has-content" : ""}">
+        <slot name="content" @slotchange=${this._onSlotChange}></slot>
     </div>
 `;
 	}
@@ -1266,14 +3779,10 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "language", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ThermalAppElement.prototype, "_overflowCount", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "_overflowOpen", void 0);
-__decorate([(0, lit_decorators_js.queryAssignedElements)({
-	slot: "pre",
-	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref$18 = typeof Array !== "undefined" && Array) === "function" ? _ref$18 : Object)], ThermalAppElement.prototype, "preElements", void 0);
-__decorate([(0, lit_decorators_js.queryAssignedElements)({
-	slot: "content",
-	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref2$5 = typeof Array !== "undefined" && Array) === "function" ? _ref2$5 : Object)], ThermalAppElement.prototype, "contentElements", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "_hasPre", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "_hasContent", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "_hasPreBar", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "_hasBarHeader", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -1434,7 +3943,6 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Nu
 
 //#endregion
 //#region src/ui/Btn.ts
-var _ref$17;
 var ThermalBtnElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -1572,7 +4080,7 @@ var ThermalBtnElement = class extends AbstractThermalElement {
             --border-color: var( --thermal-slate );
             --border-color-hover: var( --border-color );
 
-            --radius: var(--thermal-radius);
+            --radius: var( --custom-radius, var( --thermal-radius ) );
             
             --shadow: none;
             --shadow-hover: var( --thermal-shadow );
@@ -1923,7 +4431,7 @@ var ThermalBtnElement = class extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "tooltip-placement"
-}), __decorateMetadata("design:type", typeof (_ref$17 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$17 : Object)], ThermalBtnElement.prototype, "tooltipPlacement", void 0);
+}), __decorateMetadata("design:type", Object)], ThermalBtnElement.prototype, "tooltipPlacement", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtnElement.prototype, "pre", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -2169,7 +4677,7 @@ __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadat
 
 //#endregion
 //#region src/ui/Dropdown.ts
-var _ref$16, _ref2$4, _ref3$1;
+var _ref$4;
 var ThermalDropdownElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -2345,6 +4853,8 @@ var ThermalDropdownElement = class extends AbstractThermalElement {
                     @click=${this.toggle.bind(this)} 
                     variant=${(0, lit_directives_if_defined_js.ifDefined)(this.variant)}
                     size=${(0, lit_directives_if_defined_js.ifDefined)(this.size)}
+                    icon="${(0, lit_directives_if_defined_js.ifDefined)(this.icon)}"
+                    iconStyle="${(0, lit_directives_if_defined_js.ifDefined)(this.iconStyle)}"
                     ?plain=${this.plain}
                     disabled=${disabled}
                     tooltip="${this.tooltip !== void 0 ? this.tooltip : ""}"
@@ -2372,7 +4882,7 @@ var ThermalDropdownElement = class extends AbstractThermalElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$16 = typeof Array !== "undefined" && Array) === "function" ? _ref$16 : Object)], ThermalDropdownElement.prototype, "_options", void 0);
+__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$4 = typeof Array !== "undefined" && Array) === "function" ? _ref$4 : Object)], ThermalDropdownElement.prototype, "_options", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -2385,17 +4895,25 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$4 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref2$4 : Object)], ThermalDropdownElement.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", Object)], ThermalDropdownElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref3$1 = typeof BtnSizes$1 !== "undefined" && BtnSizes$1) === "function" ? _ref3$1 : Object)], ThermalDropdownElement.prototype, "size", void 0);
+}), __decorateMetadata("design:type", Object)], ThermalDropdownElement.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], ThermalDropdownElement.prototype, "plain", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true
 }), __decorateMetadata("design:type", String)], ThermalDropdownElement.prototype, "tooltip", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], ThermalDropdownElement.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], ThermalDropdownElement.prototype, "iconStyle", void 0);
 
 //#endregion
 //#region src/ui/Dropin.ts
@@ -2486,7 +5004,6 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 
 //#endregion
 //#region src/ui/Expandable.ts
-var _ref$15, _ref2$3, _ref3;
 var ThermalExpandableElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -2573,17 +5090,17 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$15 = typeof BtnVariants !== "undefined" && BtnVariants) === "function" ? _ref$15 : Object)], ThermalExpandableElement.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", Object)], ThermalExpandableElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$3 = typeof BtnVariants !== "undefined" && BtnVariants) === "function" ? _ref2$3 : Object)], ThermalExpandableElement.prototype, "variantExpanded", void 0);
+}), __decorateMetadata("design:type", Object)], ThermalExpandableElement.prototype, "variantExpanded", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3 = typeof BtnSizes !== "undefined" && BtnSizes) === "function" ? _ref3 : Object)], ThermalExpandableElement.prototype, "size", void 0);
+}), __decorateMetadata("design:type", Object)], ThermalExpandableElement.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalExpandableElement.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalExpandableElement.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({
@@ -3073,1005 +5590,161 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalTipElement.prototype, "iconStyle", void 0);
 
 //#endregion
-//#region src/controllers/AbstractReactiveController.ts
-var AbstractReactiveController = class {
-	constructor(host) {
-		this.host = host;
-		host.addController(this);
-	}
-	/** Logs anything using the host's logging mechanism. Adds the controller's className as the first argument. */
-	log(...args) {
-		this.host.log(this.constructor.name, ...args);
-	}
-};
-
-//#endregion
-//#region src/hierarchy/controllers/AbstractHierarchyController.ts
-/** Common internal state for host elements that should be only internal states. */
-const INTERNAL_STATE_DECLARATION = {
-	reflect: false,
-	state: true
-};
-/** Abstract base class for controllers related to the hierarchy of `@labirthermal/core`.  */
-var AbstractHierarchyController = class extends AbstractReactiveController {
-	/** Retrieve the default slug from the host element, falling back to the element UUID. Should be called only in host connected. */
-	_getDefaultSlugFromHost(primaryAttributeName) {
-		return this.host.getAttribute(primaryAttributeName) ?? this.host.getAttribute("slug") ?? this.UUID;
-	}
-};
-
-//#endregion
-//#region src/hierarchy/controllers/GroupController.ts
-const groupControllerContext = (0, _lit_context.createContext)("group-controller-context");
-var GroupController = class extends AbstractHierarchyController {
-	get UUID() {
-		return this._UUID;
-	}
-	static {
-		this.HOST_PROPERTIES = {
-			managerController: INTERNAL_STATE_DECLARATION,
-			registryController: INTERNAL_STATE_DECLARATION,
-			groupSlug: {
-				type: String,
-				reflect: true,
-				attribute: "group-slug"
-			},
-			groupObject: INTERNAL_STATE_DECLARATION,
-			autoclearGroup: {
-				type: Boolean,
-				reflect: true,
-				attribute: "autoclear-group",
-				converter: booleanConverter(true)
-			},
-			groupController: INTERNAL_STATE_DECLARATION
-		};
-	}
-	get groupObject() {
-		return this.host.groupObject;
-	}
-	get slug() {
-		return this.host.groupSlug;
-	}
-	get autoclearGroup() {
-		return this.host.autoclearGroup;
-	}
-	constructor(host) {
-		super(host);
-		this._UUID = host.UUID + "_group-controller";
-		this.groupControllerContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: groupControllerContext,
-			initialValue: this
-		});
-		this.groupObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: groupContext });
-	}
-	hostConnected() {
-		const slug = this._getDefaultSlugFromHost("group-slug");
-		this.host.groupSlug = slug;
-		this.host.groupObject = this.host.registryController.addOrGetGroup(slug);
-		this.groupObjectContextProvider.setValue(this.host.groupObject);
-		this.log(this.host.groupObject);
-	}
-	hostDisconnected() {
-		if (this.autoclearGroup && this.host.groupObject) this.host.registryController.removeGroup(this.host.groupObject);
-	}
-	hostUpdatedWatcher(value) {}
-};
-
-//#endregion
-//#region src/hierarchy/providers/getters.ts
-const defaultManager = new _labirthermal_core.ThermalManager();
-window.Thermal = { managers: /* @__PURE__ */ new Map() };
-window.Thermal.managers.set("default", defaultManager);
-/** Create or get a manager instance from the global window object. */
-const createOrGetManager = (slug, options) => {
-	if (slug === void 0) return window.Thermal.managers.get("default");
-	else if (window.Thermal.managers.has(slug)) return window.Thermal.managers.get(slug);
-	else {
-		const manager = new _labirthermal_core.ThermalManager(void 0, options);
-		window.Thermal.managers.set(slug, manager);
-		return manager;
-	}
-};
-/** Remove the manager along with all its contents. */
-const removeManager = (manager) => {
-	let slug = void 0;
-	window.Thermal.managers.forEach((m, key) => {
-		if (m.id === manager.id) slug = key;
-	});
-	console.log("removing", manager);
-	if (slug !== void 0) {
-		console.log("found and removing", slug);
-		const foundManager = window.Thermal.managers.get(slug);
-		if (foundManager) {
-			foundManager.forEveryRegistry((registry) => foundManager.removeRegistry(registry.id));
-			window.Thermal.managers.delete(slug);
-		}
-	}
-};
-
-//#endregion
-//#region src/utils/converters/paletteConverter.ts
-/** A unified converter for thermal palettes. Recommended usage:
-* @example
-* ```ts
-* import { paletteConverter } from "path/to/paletteConverter";
-* class MyComponent extends LitElement {
-*      @property({
-*          type: String,
-*          reflect: true,
-*          converter: paletteConverter,
-*      })
-*      public palette: AvailableThermalPalette = "iron"; // IRON is used as default
-* }
-* ```
-*/
-const paletteConverter = {
-	fromAttribute: (value) => {
-		if (value === void 0 || value === null || typeof value !== "string" || value === "" || !(value in _labirthermal_core.ThermalPalettes)) return "iron";
-		return value;
-	},
-	toAttribute: (value) => value
-};
-
-//#endregion
-//#region src/hierarchy/controllers/ManagerController.ts
-/** Exposes the main manager controller with all its setters and direct access to the host element values. */
-const managerControllerContext = (0, _lit_context.createContext)("manager-controller-context");
-var ManagerController = class extends AbstractHierarchyController {
-	get UUID() {
-		return this._UUID;
-	}
-	static {
-		this.HOST_PROPERTIES = {
-			managerSlug: {
-				type: String,
-				reflect: false,
-				attribute: "manager-slug"
-			},
-			managerObject: INTERNAL_STATE_DECLARATION,
-			managerController: INTERNAL_STATE_DECLARATION,
-			palette: {
-				type: String,
-				reflect: true,
-				attribute: "palette",
-				converter: paletteConverter
-			},
-			advancedPalettes: {
-				reflect: true,
-				attribute: "advanced-palettes",
-				converter: booleanConverter(false)
-			},
-			smoothThermograms: {
-				reflect: true,
-				attribute: "smooth-thermograms",
-				converter: booleanConverter(false)
-			},
-			smoothGraph: {
-				reflect: true,
-				attribute: "smooth-graph",
-				converter: booleanConverter(false)
-			},
-			tool: {
-				type: String,
-				reflect: true,
-				attribute: "tool"
-			}
-		};
-	}
-	/** Accessor to the manageer slug from the host */
-	get slug() {
-		return this.host.managerSlug;
-	}
-	/** Accessor to the manager object from the host */
-	get managerObject() {
-		return this.host.managerObject;
-	}
-	/** Palette property value accessed from the host element */
-	get palette() {
-		return this.host.palette;
-	}
-	/** Smooth thermograms flag accessed from the host element */
-	get smoothThermograms() {
-		return this.host.smoothThermograms;
-	}
-	/** Tool property accessed from the host element */
-	get tool() {
-		return this.host.tool;
-	}
-	get toolObject() {
-		return this.managerObject.tool.value;
-	}
-	/** Graph smoothing flag accessed from the host element */
-	get smoothGraph() {
-		return this.host.smoothGraph;
-	}
-	constructor(host) {
-		super(host);
-		this._UUID = host.UUID + "_manager-controller";
-		this.managerControllerContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: managerControllerContext,
-			initialValue: this
-		});
-		this.managerObjectContextPtovider = new _lit_context.ContextProvider(this.host, { context: managerContext });
-		this.paletteContextProvider = new _lit_context.ContextProvider(this.host, { context: managerPaletteContext });
-		this.advancedPalettesContextProvider = new _lit_context.ContextProvider(this.host, { context: managerAdvancedPalettesContext });
-		this.smoothThermogramsContextProvider = new _lit_context.ContextProvider(this.host, { context: managerSmoothContext });
-		this.toolContextProvider = new _lit_context.ContextProvider(this.host, { context: toolContext });
-		this.smoothGraphContextProvider = new _lit_context.ContextProvider(this.host, { context: managerGraphFunctionContext });
-	}
-	hostConnected() {
-		const slug = this._getDefaultSlugFromHost("manager-slug");
-		this.host.managerSlug = slug;
-		this.host.managerObject = createOrGetManager(slug);
-		this.managerObjectContextPtovider.setValue(this.host.managerObject);
-		const initialPaletteValue = paletteConverter.fromAttribute(this.host.palette);
-		this.setPalette(initialPaletteValue);
-		this.managerObject.palette.addListener(this.UUID, this.setPalette.bind(this));
-		this.setAdvancedPalettes(this.host.advancedPalettes);
-		this.setSmoothThermograms(this.host.smoothThermograms);
-		this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
-		this.managerObject.smooth.setSmooth(this.host.smoothThermograms);
-		this.setSmoothGraph(this.host.smoothGraph);
-		this.managerObject.graphSmooth.addListener(this.UUID, this.setSmoothGraph.bind(this));
-		this._setToolByKey(this.host.tool);
-		this.managerObject.tool.addListener(this.UUID, this.setTool.bind(this));
-	}
-	hostDisconnected() {
-		this.managerObject.palette.removeListener(this.UUID);
-		this.managerObject.smooth.removeListener(this.UUID);
-		this.managerObject.graphSmooth.removeListener(this.UUID);
-		this.managerObject.tool.removeListener(this.UUID);
-	}
-	hostUpdate() {
-		if (this.host.palette && this.host.palette !== this.managerObject.palette.value) this.setPalette(this.host.palette);
-		if (this.host.advancedPalettes && this.host.advancedPalettes !== this.advancedPalettesContextProvider.value) this.setAdvancedPalettes(this.host.advancedPalettes);
-	}
-	hostUpdatedWatcher(value) {
-		if (!value) return;
-		if (value.has("palette")) this.setPalette(this.host.palette);
-		if (value.has("advancedPalettes")) this.setAdvancedPalettes(this.host.advancedPalettes);
-		if (value.has("smoothThermograms")) this.setSmoothThermograms(this.host.smoothThermograms);
-		if (value.has("smoothGraph")) this.setSmoothGraph(this.host.smoothGraph);
-		if (value.has("tool")) this._setToolByKey(this.host.tool);
-	}
-	/** 
-	* Create or get a registry by its slug from the internal manager object. 
-	*/
-	createRegistry(slug) {
-		return this.managerObject.addOrGetRegistry(slug);
-	}
-	_paletteStringToContextValue(palette) {
-		return {
-			key: palette,
-			data: _labirthermal_core.ThermalPalettes[palette]
-		};
-	}
-	/** 
-	* This is the recommended way to set the advanced palettes flag - updates the value in the context provider and the host element. All updates are performed only when the new value differs from the current one. 
-	*/
-	setAdvancedPalettes(value) {
-		if (this.host.advancedPalettes !== value) this.host.advancedPalettes = value;
-		if (this.advancedPalettesContextProvider.value !== value) this.advancedPalettesContextProvider.setValue(value);
-	}
-	/** 
-	* This is the recommended way to set the palette - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
-	*/
-	setPalette(value) {
-		const sanitizedValue = paletteConverter.fromAttribute(value);
-		if (this.managerObject.palette.value !== sanitizedValue) this.managerObject.palette.setPalette(sanitizedValue);
-		if (!this.paletteContextProvider.value) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
-		else if (this.paletteContextProvider.value.key !== sanitizedValue) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
-		if (this.host.palette !== sanitizedValue) this.host.palette = sanitizedValue;
-	}
-	/** 
-	* This is the recommended way to set the smooth thermograms flag - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
-	*/
-	setSmoothThermograms(value) {
-		if (this.host.smoothThermograms !== value) this.host.smoothThermograms = value;
-		if (this.smoothThermogramsContextProvider.value !== value) this.smoothThermogramsContextProvider.setValue(value);
-		if (this.managerObject.smooth.value !== value) this.managerObject.smooth.setSmooth(value);
-	}
-	/** 
-	* This is the recommended way to set the tool - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
-	*/
-	setTool(value) {
-		if (value && value.key !== this.host.tool) this.host.tool = value.key;
-		if (this.toolContextProvider.value !== value) this.toolContextProvider.setValue(value);
-		if (this.managerObject.tool.value !== value) this.managerObject.tool.selectTool(value);
-	}
-	_setToolByKey(value) {
-		const toolObject = this._toolStringToObject(value);
-		this.setTool(toolObject);
-	}
-	_toolStringToObject(value = "inspect") {
-		const selectedTool = this.managerObject.tool.tools[value];
-		if (!selectedTool) this.managerObject.tool.tools["inspect"];
-		return selectedTool;
-	}
-	/**
-	* This is the recommended way to set the smooth graph option - updates the value and the context provider. All updates are performed only when the new value differs from the current one.
-	*/
-	setSmoothGraph(value) {
-		if (this.host.smoothGraph !== value) this.host.smoothGraph = value;
-		if (this.smoothGraphContextProvider.value !== value) this.smoothGraphContextProvider.setValue(value);
-	}
-};
-
-//#endregion
 //#region src/hierarchy/consumers/AbstractManagerConsumer.ts
-var _ref$14;
+/**
+* A webcomponent consuming a `ThermalManager` exposed by a parent `ManagerController`.
+* 
+* Subscribes to the `ManagerController` that is exposed by a parent. Typically, this can be either:
+* - a top-level app extending `AbstractApp` 
+* - or a `ManagerProviderElement` nested lower within the component tree.
+* 
+* For particular value access, this component can consume specialised contexts such as:
+* - `managerPaletteContext` for opacity values
+* - `managerAdvancedPaletteContext` for the actual thermal scale value
+* - `managerToolContext` for the starting value of the thermal scale
+* - etc.
+* 
+* Whenever the value in any consumed context changes, this component will automatically update and rerender.
+* 
+* If this component needs to manipulate the values, the recommanded way to do so is to use the methods of `ManagerController`.
+* 
+* @see {@link ManagerController}
+* @see {@link ThermalManager}
+* 
+* @example
+* ```js
+import { AbstractManagerConsumer, managerPaletteContext } from "@labirthermal/webcomponents";
+import { consume } from "@lit/context";
+class MyComponent extends AbstractManagerConsumer {
+
+// If the value changes in the context, this webcomponent will update
+\@consume({ context: managerToolContext, subscribe: true })
+private toolValue!: ThermalTool;
+
+// Set the tool value using the controller
+private setTool(value: ThermalTool) {
+this.managerController.setTool(value);
+}
+
+// Tool can also be set directly in the `ThermalManager`,
+// but this is not recommended.
+private setToolDirectly(value: ThermalTool) {
+this.managerObject.tool.selectTool(value);
+}
+
+}
+* ```
+* 
+* @module \@labirthermal/webcomponents
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
 var AbstractManagerConsumer = class extends AbstractThermalElement {
-	/** @deprecated Use the manager controller instead */
-	get manager() {
+	/** Alias to the `ThermalManager` from the `ManagerController` */
+	get managerObject() {
 		return this.managerController.managerObject;
 	}
 };
 __decorate([(0, _lit_context.consume)({
 	context: managerControllerContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$14 = typeof ManagerController !== "undefined" && ManagerController) === "function" ? _ref$14 : Object)], AbstractManagerConsumer.prototype, "managerController", void 0);
-
-//#endregion
-//#region src/hierarchy/controllers/RegistryController.ts
-const registryControllerContext = (0, _lit_context.createContext)("registry-controller-context");
-var RegistryController = class extends AbstractHierarchyController {
-	get UUID() {
-		return this._UUID;
-	}
-	static {
-		this.HOST_PROPERTIES = {
-			managerController: INTERNAL_STATE_DECLARATION,
-			registrySlug: {
-				type: String,
-				reflect: false,
-				attribute: "registry-slug"
-			},
-			registryObject: INTERNAL_STATE_DECLARATION,
-			registryController: INTERNAL_STATE_DECLARATION,
-			opacity: {
-				type: Number,
-				reflect: true,
-				attribute: "opacity"
-			},
-			min: {
-				type: Number,
-				reflect: false,
-				state: true
-			},
-			max: {
-				type: Number,
-				reflect: false,
-				state: true
-			},
-			from: {
-				type: Number,
-				reflect: true,
-				attribute: "from"
-			},
-			to: {
-				type: Number,
-				reflect: true,
-				attribute: "to"
-			},
-			loading: {
-				type: Boolean,
-				attribute: "is-loading",
-				reflect: true
-			},
-			highlight: {
-				type: Object,
-				reflect: false,
-				state: true
-			}
-		};
-	}
-	get registryObject() {
-		return this.host.registryObject;
-	}
-	get slug() {
-		return this.host.registrySlug;
-	}
-	get opacity() {
-		return this.host.opacity;
-	}
-	get min() {
-		return this.host.min;
-	}
-	get max() {
-		return this.host.max;
-	}
-	get from() {
-		return this.host.from;
-	}
-	get to() {
-		return this.host.to;
-	}
-	get loading() {
-		return this.host.loading;
-	}
-	constructor(host) {
-		super(host);
-		this._UUID = host.UUID + "_registry-controller";
-		this.registryControllerContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: registryControllerContext,
-			initialValue: this
-		});
-		this.registryObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: registryContext });
-		this.opacityContextProvider = new _lit_context.ContextProvider(this.host, { context: registryOpacityContext });
-		this.minContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMinContext });
-		this.maxContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMaxContext });
-		this.fromContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeFromContext });
-		this.toContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeToContext });
-		this.loadingContextProvider = new _lit_context.ContextProvider(this.host, { context: registryLoadingContext });
-		this.highlightContextProvider = new _lit_context.ContextProvider(this.host, { context: registryHighlightContext });
-	}
-	hostConnected() {
-		const slug = this._getDefaultSlugFromHost("registry-slug");
-		this.host.registrySlug = slug;
-		this.host.registryObject = this.host.managerController.createRegistry(slug);
-		this.registryObjectContextProvider.setValue(this.host.registryObject);
-		this.setOpacity(this.host.opacity ?? 1);
-		this.registryObject.opacity.addListener(this.UUID, this.setOpacity.bind(this));
-		this.registryObject.minmax.addListener(this.UUID, (value) => {
-			if (value === void 0) {
-				this.host.min = void 0;
-				this.host.max = void 0;
-				this.minContextProvider.setValue(void 0);
-				this.maxContextProvider.setValue(void 0);
-			} else {
-				if (value.min !== this.host.min) this.host.min = value.min;
-				if (value.max !== this.host.max) this.host.max = value.max;
-				if (value.min !== this.minContextProvider.value) this.minContextProvider.setValue(value.min);
-				if (value.max !== this.maxContextProvider.value) this.maxContextProvider.setValue(value.max);
-			}
-		});
-		this.registryObject.range.addListener(this.UUID, this._rangeListener.bind(this));
-		this.registryObject.loading.addListener(this.UUID, this._loadingListener.bind(this));
-	}
-	hostDisconnected() {
-		this.registryObject.opacity.removeListener(this.UUID);
-		this.registryObject.minmax.removeListener(this.UUID);
-		this.registryObject.range.removeListener(this.UUID);
-		this.registryObject.loading.removeListener(this.UUID);
-	}
-	hostUpdatedWatcher(value) {
-		if (value.has("opacity")) this.setOpacity(this.host.opacity ?? 1);
-		if (value.has("from") || value.has("to")) if (this.host.from === void 0 || this.host.to === void 0) this._clearRange();
-		else this.setRange(this.host.from, this.host.to);
-	}
-	addOrGetGroup(slug) {
-		return this.registryObject.groups.addOrGetGroup(slug);
-	}
-	removeGroup(group) {
-		this.registryObject.groups.removeGroup(group.id);
-	}
-	/**
-	* This is the recommended way to set the opacity. Calling this method will 
-	* - update the context provider element's attribute `opacity`
-	* - set the internal value to `@labirthermal/core`
-	* - update the context provider
-	*/
-	setOpacity(value) {
-		const safeValue = isNaN(value) ? 1 : Math.max(0, Math.min(1, value));
-		if (this.host.opacity !== safeValue) this.host.opacity = safeValue;
-		if (this.registryObject.opacity.value !== safeValue) this.registryObject.opacity.imposeOpacity(safeValue);
-		if (this.opacityContextProvider.value !== safeValue) this.opacityContextProvider.setValue(safeValue);
-	}
-	setRange(from, to) {
-		if (this.registryObject.range.value === void 0 || this.registryObject.range.value.from !== from || this.registryObject.range.value.to !== to) this.registryObject.range.imposeRange({
-			from,
-			to
-		});
-		const currentInternalRange = this.registryObject.range.value;
-		if (currentInternalRange === void 0) this._clearRange();
-		else {
-			this.host.from = currentInternalRange.from;
-			this.host.to = currentInternalRange.to;
-			this.fromContextProvider.setValue(currentInternalRange.from);
-			this.toContextProvider.setValue(currentInternalRange.to);
-		}
-	}
-	setRangeFull() {
-		if (this.host.min !== void 0 && this.host.max !== void 0) this.setRange(this.host.min, this.host.max);
-	}
-	_rangeListener(value) {
-		if (value !== void 0) this.setRange(value.from, value.to);
-		else this._clearRange();
-	}
-	_clearRange() {
-		this.host.from = void 0;
-		this.host.to = void 0;
-		this.fromContextProvider.setValue(void 0);
-		this.toContextProvider.setValue(void 0);
-	}
-	_loadingListener(value) {
-		if (value !== this.host.loading) this.host.loading = value;
-		if (value !== this.loadingContextProvider.value) this.loadingContextProvider.setValue(value);
-	}
-	setHighlight(value) {
-		this.log(value);
-		if (this.highlightContextProvider.value !== value) this.highlightContextProvider.setValue(value);
-	}
-};
+}), __decorateMetadata("design:type", Object)], AbstractManagerConsumer.prototype, "managerController", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/AbstractRegistryConsumer.ts
-var _ref$13;
+/**
+* A webcomponent consuming a `ThermalRegistry` exposed by a parent `RegistryController`.
+* 
+* Subscribes to the `RegistryController` that is exposed by a parent. Typically, this can be either:
+* - a top-level app extending `AbstractApp` 
+* - or a `RegistryProviderElement` nested lower within the component tree.
+* 
+* For particular value access, this component can consume specialised contexts such as:
+* - `registryOpacityContext` for opacity values
+* - `registryRangeToContext` for the actual thermal scale value
+* - `registryRangeFromContext` for the starting value of the thermal scale
+* - etc.
+* 
+* Whenever the value in any consumed context changes, this component will automatically update and rerender.
+* 
+* If this component needs to manipulate the values, the recommanded way to do so is to use the methods of `RegistryController`.
+* 
+* @see {@link RegistryController}
+* @see {@link ThermalRegistry}
+* 
+* @example
+* ```js
+import { AbstractRegistryConsumer, registryOpacityContext } from "@labirthermal/webcomponents";
+import { consume } from "@lit/context";
+class MyComponent extends AbstractRegistryConsumer {
+
+// If the value changes in the context, this webcomponent will update
+\@consume({ context: registryOpacityContext, subscribe: true })
+private opacityValue!: number;
+
+// Set the opacity calue using the controller
+private setOpacityValue(value: number) {
+this.registryController.setOpacity(value);
+}
+
+// Opacity can also be set directly in the `ThermalRegistry`,
+// but this is not recommended.
+private setOpacityValueDirectly(value: number) {
+this.registryObject.opacity.setOpacity(value);
+}
+
+}
+* ```
+* 
+* @module \@labirthermal/webcomponents
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
 var AbstractRegistryConsumer = class extends AbstractManagerConsumer {
-	/** @deprecated Use registryController instead */
-	get registry() {
+	/** Alias to the `ThermalRegistry` from the `RegistryController` */
+	get registryObject() {
 		return this.registryController.registryObject;
 	}
 };
 __decorate([(0, _lit_context.consume)({
 	context: registryControllerContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$13 = typeof RegistryController !== "undefined" && RegistryController) === "function" ? _ref$13 : Object)], AbstractRegistryConsumer.prototype, "registryController", void 0);
+}), __decorateMetadata("design:type", Object)], AbstractRegistryConsumer.prototype, "registryController", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/AbstractGroupConsumer.ts
-var _ref$12;
+/**
+* A webcomponent consuming a `ThermalGroup` exposed by a parent `GroupController`.
+* 
+* Subscribes to the `GroupController` that is exposed by a parent. Typically, this can be either:
+* - a top-level app extending `AbstractApp` 
+* - or a `RegistryProviderElement` nested lower within the component tree.
+* 
+* @see {@link GroupController}
+* @see {@link ThermalGroup}
+* 
+* @example
+* ```js
+import { AbstractGroupConsumer, registryOpacityContext } from "@labirthermal/webcomponents";
+import { consume } from "@lit/context";
+class MyComponent extends AbstractGroupConsumer {
+
+// The `ThermalGroup` object does not have any value contexts
+
+}
+* ```
+* 
+* @module \@labirthermal/webcomponents
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
 var AbstractGroupConsumer = class extends AbstractRegistryConsumer {
-	/** @deprecated Use groupController instead */
-	get group() {
+	/** Alias to the `ThermalGroup` object from the `groupController` */
+	get groupObject() {
 		return this.groupController.groupObject;
 	}
 };
 __decorate([(0, _lit_context.consume)({
 	context: groupControllerContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$12 = typeof GroupController !== "undefined" && GroupController) === "function" ? _ref$12 : Object)], AbstractGroupConsumer.prototype, "groupController", void 0);
-
-//#endregion
-//#region src/hierarchy/controllers/FileAnalysisSynchronisator.ts
-var FileAnalysisSynchronisator = class FileAnalysisSynchronisator {
-	/** Lit.js is using null for removed attributes - we need normalize the value to either string or undefined. */
-	static normalize(value) {
-		return value?.trim() || void 0;
-	}
-	get UUID_LISTENER() {
-		return this._controller.UUID + "_" + this._attribute;
-	}
-	get _attributeValue() {
-		return this._controller.host[this._attribute];
-	}
-	set _attributeValue(value) {
-		if (value !== this._controller.host[this._attribute]) this._controller.host[this._attribute] = value;
-	}
-	get _mountKey() {
-		return `${this._controller.UUID}_slot_${this._slotNumber}`;
-	}
-	get _internalSerialized() {
-		return this._slotObject?.serialized;
-	}
-	get _slotObject() {
-		return this._fileObject?.slots.getSlot(this._slotNumber);
-	}
-	constructor(_controller, _slotNumber) {
-		this._controller = _controller;
-		this._slotNumber = _slotNumber;
-		this._attribute = `analysis${this._slotNumber}`;
-	}
-	/** Enables the listeners and internal objects necessary for synchronisation of the file analysis slot */
-	fileAssigned(instance, coreWins = false) {
-		this._fileObject = instance;
-		instance.slots.getOnSerializeManager(this._slotNumber)?.set(this._controller.UUID, (value) => {
-			if (value !== this._attributeValue) this._attributeValue = value;
-		});
-		const syncAction = () => {
-			const attribute = FileAnalysisSynchronisator.normalize(this._attributeValue);
-			if (coreWins || attribute === void 0) this._attributeValue = this._slotObject?.serialized;
-			else this._applyToCore(attribute);
-		};
-		if (instance.dom?.built) syncAction();
-		else instance.onMount.set(this._mountKey, () => {
-			syncAction();
-		});
-	}
-	/** Deactivates the listeners and internal objects - stopping the synchronisation of analyses */
-	fileUnassigned() {
-		this._fileObject?.slots.getOnSerializeManager(this._slotNumber)?.delete(this._controller.UUID);
-		this._fileObject?.onMount.delete(this._mountKey);
-		this._fileObject = void 0;
-	}
-	/** Looks for the changed attributes of the host and propagates them to internal state if necessary */
-	handleHostUpdate(changedValues) {
-		if (changedValues.has(this._attribute)) {
-			const value = FileAnalysisSynchronisator.normalize(this._attributeValue);
-			if (this._internalSerialized !== value) {
-				if (this._fileObject?.dom?.built) this._applyToCore(value);
-			}
-		}
-	}
-	/** Very carrefully propagate the host attribute value to the analysis slot - this method manipulates the internal state of @labirthermal/core */
-	_applyToCore(value) {
-		const file = this._fileObject;
-		if (!file) return;
-		const slot = this._slotObject;
-		if (value === void 0) {
-			if (slot) file.slots.removeSlotAndAnalysis(this._slotNumber);
-		} else if (slot) {
-			slot.recieveSerialized(value);
-			const canvasRoot = file.dom?.canvasLayer?.getLayerRoot();
-			if (canvasRoot && !canvasRoot.contains(slot.analysis.layerRoot)) canvasRoot.appendChild(slot.analysis.layerRoot);
-		} else file.slots.createAnalysisFromSerialized(value, this._slotNumber)?.setSelected();
-	}
-};
-
-//#endregion
-//#region src/hierarchy/controllers/FileAnalysisSynchronisators.ts
-var FileAnalysisSynchronisators = class {
-	constructor(_controller) {
-		this._controller = _controller;
-		this._synchronisators = [];
-		for (let i = 1; i <= 7; i++) this._synchronisators.push(new FileAnalysisSynchronisator(this._controller, i));
-	}
-	_forEach(callback) {
-		for (const synchronisator of this._synchronisators) callback(synchronisator);
-	}
-	/** Every synchronisator object will look into the changed properties and update its internal state accordingly */
-	handleHostUpdate(changedValues) {
-		this._forEach((synchronisator) => synchronisator.handleHostUpdate(changedValues));
-	}
-	/** Every synchronisator will be notified that a file has been assigned */
-	handleFileAssigned(instance, coreWins = false) {
-		this._forEach((synchronisator) => synchronisator.fileAssigned(instance, coreWins));
-	}
-	/** Every synchronisator will be notified that a file has been removed */
-	handleFileUnassigned() {
-		this._forEach((synchronisator) => synchronisator.fileUnassigned());
-	}
-};
-
-//#endregion
-//#region src/hierarchy/controllers/FileController.ts
-const fileControllerContext = (0, _lit_context.createContext)("file-controller-context");
-const ANALYSIS_STATE_DECLARATION = {
-	type: String,
-	reflect: true
-};
-var FileController = class extends AbstractHierarchyController {
-	get UUID() {
-		return this._UUID;
-	}
-	static {
-		this.HOST_PROPERTIES = {
-			managerController: INTERNAL_STATE_DECLARATION,
-			registryController: INTERNAL_STATE_DECLARATION,
-			groupController: INTERNAL_STATE_DECLARATION,
-			fileController: INTERNAL_STATE_DECLARATION,
-			file: INTERNAL_STATE_DECLARATION,
-			failure: INTERNAL_STATE_DECLARATION,
-			ms: {
-				type: Number,
-				reflect: true,
-				attribute: "ms"
-			},
-			playbackSpeed: {
-				type: Number,
-				reflect: true,
-				attribute: "speed"
-			},
-			analysis1: ANALYSIS_STATE_DECLARATION,
-			analysis2: ANALYSIS_STATE_DECLARATION,
-			analysis3: ANALYSIS_STATE_DECLARATION,
-			analysis4: ANALYSIS_STATE_DECLARATION,
-			analysis5: ANALYSIS_STATE_DECLARATION,
-			analysis6: ANALYSIS_STATE_DECLARATION,
-			analysis7: ANALYSIS_STATE_DECLARATION,
-			autoHighlight: {
-				type: Boolean,
-				reflect: true,
-				attribute: "autohighlight"
-			}
-		};
-	}
-	get fileObject() {
-		return this.host.file;
-	}
-	get failure() {
-		return this.host.failure;
-	}
-	get ms() {
-		return this.host.ms;
-	}
-	get playbackSpeed() {
-		return this.host.playbackSpeed;
-	}
-	get analysis1() {
-		return this.host.analysis1;
-	}
-	get analysis2() {
-		return this.host.analysis2;
-	}
-	get analysis3() {
-		return this.host.analysis3;
-	}
-	get analysis4() {
-		return this.host.analysis4;
-	}
-	get analysis5() {
-		return this.host.analysis5;
-	}
-	get analysis6() {
-		return this.host.analysis6;
-	}
-	get analysis7() {
-		return this.host.analysis7;
-	}
-	get autoHighlight() {
-		return this.host.autoHighlight;
-	}
-	get ready() {
-		return this.readyContextProvider.value;
-	}
-	get recording() {
-		return this.fileRecordingContextProvider.value;
-	}
-	get playing() {
-		return this.filePlayingContextProvider.value;
-	}
-	get mayStop() {
-		return this.fileMayStopContextProvider.value;
-	}
-	get cursor() {
-		return this.fileCursorContextProvider.value;
-	}
-	get currentFrame() {
-		return this.fileCurrentFrameContextProvider.value;
-	}
-	get analyses() {
-		return this.fileAnalysesContextProvider.value;
-	}
-	get duration() {
-		return this.fileDurationContextProvider.value;
-	}
-	constructor(host) {
-		super(host);
-		this.onLoadingStart = new _labirthermal_core.CallbacksManager();
-		this.onSuccess = new _labirthermal_core.CallbacksManager();
-		this.onFailure = new _labirthermal_core.CallbacksManager();
-		this._analysisSynchronisators = new FileAnalysisSynchronisators(this);
-		this._UUID = host.UUID + "_file-controller";
-		this.fileControllerContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: fileControllerContext,
-			initialValue: this
-		});
-		this.fileContextProvider = new _lit_context.ContextProvider(this.host, { context: fileContext });
-		this.fileFailureContextProvider = new _lit_context.ContextProvider(this.host, { context: fileFailureContext });
-		this.readyContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: readyContext,
-			initialValue: false
-		});
-		this.fileDurationContextProvider = new _lit_context.ContextProvider(this.host, { context: durationContext });
-		this.fileCurrentFrameContextProvider = new _lit_context.ContextProvider(this.host, { context: fileCurrentFrameContext });
-		this.fileCursorContextProvider = new _lit_context.ContextProvider(this.host, { context: fileCursorContext });
-		this.fileMsContextProvider = new _lit_context.ContextProvider(this.host, { context: fileMsContext });
-		this.filePlaybackSpeedContextProvider = new _lit_context.ContextProvider(this.host, { context: filePlaybackSpeedContext });
-		this.filePlayingContextProvider = new _lit_context.ContextProvider(this.host, { context: filePlayingContext });
-		this.fileRecordingContextProvider = new _lit_context.ContextProvider(this.host, { context: fileRecordingContext });
-		this.fileMayStopContextProvider = new _lit_context.ContextProvider(this.host, { context: filaMayStopContext });
-		this.fileAnalysesContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: fileAnalysisListContext,
-			initialValue: []
-		});
-		this._propagateHighlightCache = (event) => this._propagateHighlight();
-		this._unpropagateHighlightCache = (event) => this._unpropagateHighlight();
-	}
-	hostConnected() {
-		this.host.addEventListener("mouseenter", this._propagateHighlightCache);
-		this.host.addEventListener("focus", this._propagateHighlightCache);
-		this.host.addEventListener("mouseleave", this._unpropagateHighlightCache);
-		this.host.addEventListener("blur", this._unpropagateHighlightCache);
-		if (this._attached) {
-			this._propagateContexts(this._attached);
-			this._bindListeners(this._attached, true);
-		}
-	}
-	hostDisconnected() {
-		this.host.removeEventListener("mouseenter", this._propagateHighlightCache);
-		this.host.removeEventListener("focus", this._propagateHighlightCache);
-		this.host.removeEventListener("mouseleave", this._unpropagateHighlightCache);
-		this.host.removeEventListener("blur", this._unpropagateHighlightCache);
-		this._unpropagateHighlight();
-		if (this._attached) this._unbindListeners(this._attached);
-	}
-	hostUpdatedWatcher(value) {
-		if (value.has("file")) this._syncAssignment();
-		this._analysisSynchronisators.handleHostUpdate(value);
-		if (value.has("ms")) this.setMs(this.host.ms);
-		if (value.has("playbackSpeed") && this.host.file && this.host.file.timeline.isSequence) {
-			if (this.host.playbackSpeed !== this.host.file.timeline.playbackSpeed) this.host.file.timeline.playbackSpeed = this.host.playbackSpeed;
-		}
-	}
-	_propagateContexts(instance) {
-		this.fileContextProvider.setValue(instance);
-		this.readyContextProvider.setValue(true);
-		this.fileDurationContextProvider.setValue({
-			ms: instance.timeline.duration,
-			time: instance.timeline.formatDuration(instance.timeline.duration)
-		});
-		this._propagateInstanceCurrentFrame(instance);
-		this._propagateInstanceAnalysesArray(instance);
-		this.fileMsContextProvider.setValue(instance.timeline.currentMs);
-		this.filePlaybackSpeedContextProvider.setValue(instance.timeline.playbackSpeed);
-		this.filePlayingContextProvider.setValue(instance.timeline.isPlaying);
-		this.fileMayStopContextProvider.setValue(instance.recording.mayStop);
-		this.fileRecordingContextProvider.setValue(instance.recording.value);
-	}
-	_resetAllContexts() {
-		this.readyContextProvider.setValue(false);
-		this.fileDurationContextProvider.setValue(void 0);
-		this.fileCurrentFrameContextProvider.setValue(void 0);
-		this.fileAnalysesContextProvider.setValue([]);
-		this.fileContextProvider.setValue(void 0);
-		this.fileRecordingContextProvider.setValue(false);
-		this.filePlayingContextProvider.setValue(false);
-		this.fileMayStopContextProvider.setValue(true);
-		this.fileMsContextProvider.setValue(0);
-		this.fileCursorContextProvider.setValue(void 0);
-	}
-	_syncAssignment() {
-		const next = this.host.file;
-		if (next === this._attached) return;
-		const previous = this._attached;
-		if (previous) this._detach(previous);
-		if (next) this._attach(next, previous !== void 0);
-		else {
-			this._resetAllContexts();
-			this.host.ms = 0;
-		}
-	}
-	_attach(instance, isReplacement) {
-		this._attached = instance;
-		this.fileContextProvider.setValue(instance);
-		this.host.failure = void 0;
-		this.fileFailureContextProvider.setValue(void 0);
-		if (this.host.playbackSpeed !== void 0) instance.timeline.playbackSpeed = this.host.playbackSpeed;
-		this._propagateContexts(instance);
-		this._bindListeners(instance);
-		if (!isReplacement && this.host.ms > 0 && instance.timeline.isSequence) this.setMs(this.host.ms);
-		else this.host.ms = instance.timeline.currentMs;
-		this.onSuccess.call(instance);
-	}
-	_detach(instance) {
-		this._unbindListeners(instance);
-		this._unpropagateHighlight();
-		this._attached = void 0;
-		instance.unmountFromDom();
-	}
-	_bindListeners(instance, coreWins = false) {
-		instance.timeline.callbacksPlay.set(this.UUID, () => {
-			this.filePlayingContextProvider.setValue(true);
-		});
-		instance.timeline.callbacksPause.set(this.UUID, () => {
-			this.filePlayingContextProvider.setValue(false);
-		});
-		instance.timeline.callbacksStop?.set(this.UUID, () => {
-			this.filePlayingContextProvider.setValue(false);
-		});
-		instance.timeline.callbacksEnd?.set(this.UUID, () => {
-			this.filePlayingContextProvider.setValue(false);
-		});
-		instance.timeline.callbacksChangeFrame.set(this.UUID, (frame) => {
-			const value = {
-				ms: frame.relative,
-				time: instance.timeline.currentTime,
-				percentage: instance.timeline.currentPercentage,
-				index: frame.index,
-				absolute: frame.absolute
-			};
-			this.fileCurrentFrameContextProvider.setValue(value);
-			this.host.ms = frame.relative;
-			this.fileMsContextProvider.setValue(frame.relative);
-		});
-		instance.timeline.callbackdPlaybackSpeed.set(this.UUID, (speed) => {
-			this.host.playbackSpeed = speed;
-			this.filePlaybackSpeedContextProvider.setValue(speed);
-		});
-		instance.recording.callbackMayStop.set(this.UUID, (value) => {
-			this.fileMayStopContextProvider.setValue(value);
-		});
-		instance.recording.addListener(this.UUID, (value) => {
-			this.fileRecordingContextProvider.setValue(value);
-		});
-		instance.analysis.addListener(this.UUID, (value) => {
-			this.fileAnalysesContextProvider.setValue(value);
-		});
-		this._analysisSynchronisators.handleFileAssigned(instance, coreWins);
-	}
-	_unbindListeners(instance) {
-		instance.timeline.callbacksPlay.delete(this.UUID);
-		instance.timeline.callbacksPause.delete(this.UUID);
-		instance.timeline.callbacksStop.delete(this.UUID);
-		instance.timeline.callbacksEnd.delete(this.UUID);
-		instance.timeline.callbacksChangeFrame.delete(this.UUID);
-		instance.timeline.callbackdPlaybackSpeed.delete(this.UUID);
-		instance.recording.removeListener(this.UUID);
-		instance.recording.callbackMayStop?.delete(this.UUID);
-		instance.analysis.removeListener(this.UUID);
-		this._analysisSynchronisators.handleFileUnassigned();
-	}
-	/** 
-	* This is crucial - once the instance is loaded or retrieved somewhere, all the magic happens. Existence of this method enables controller to change the instance at any time. 
-	*/
-	receiveInstance(instance) {
-		this.host.file = instance;
-		this._syncAssignment();
-	}
-	removeInstance() {
-		this.host.file = void 0;
-		this._syncAssignment();
-	}
-	receiveFailure(failure) {
-		this.removeInstance();
-		this.host.failure = failure;
-		this.fileFailureContextProvider.setValue(failure);
-		this.onFailure.call(failure);
-	}
-	_propagateInstanceCurrentFrame(instance) {
-		this.fileCurrentFrameContextProvider.setValue({
-			ms: instance.timeline.currentMs,
-			time: instance.timeline.currentTime,
-			percentage: instance.timeline.currentPercentage,
-			index: instance.timeline.currentStep.index,
-			absolute: instance.timeline.currentStep.absolute
-		});
-	}
-	_propagateInstanceAnalysesArray(instance) {
-		this.fileAnalysesContextProvider.setValue(instance.analysis.layers.all);
-	}
-	setTimeCursorPercentage(percentage) {
-		if (percentage !== void 0 && !Number.isFinite(percentage)) return;
-		const value = percentage === void 0 ? void 0 : Math.max(0, Math.min(percentage, 100));
-		if (value !== this.fileCursorContextProvider.value) this.fileCursorContextProvider.setValue(value);
-	}
-	setTimePercentage(percentage) {
-		const file = this._attached;
-		if (!file?.timeline.isSequence) return;
-		const clampedPercentage = Math.max(0, Math.min(percentage, 100));
-		if (clampedPercentage !== file.timeline.currentPercentage) file.timeline.setValueByPercent(clampedPercentage);
-	}
-	play() {
-		this._attached?.timeline.play();
-	}
-	stop() {
-		this._attached?.timeline.stop();
-	}
-	pause() {
-		this._attached?.timeline.pause();
-	}
-	setMs(value) {
-		const file = this._attached;
-		if (!file?.timeline.isSequence) return;
-		const clampedRelativeTime = Math.max(0, Math.min(value, file.timeline.duration));
-		if (clampedRelativeTime !== file.timeline.currentMs) file.timeline.setRelativeTime(clampedRelativeTime);
-	}
-	/** Impose this file's highlight into the registry */
-	_propagateHighlight() {
-		if (this.autoHighlight && this.fileObject) {
-			this.host.setAttribute("is-highlight", "true");
-			this.host.registryController.setHighlight({
-				from: this.fileObject.min,
-				to: this.fileObject.max
-			});
-		}
-	}
-	/** Remove the highlight from the registry */
-	_unpropagateHighlight() {
-		if (this.host.hasAttribute("is-highlight")) {
-			this.host.removeAttribute("is-highlight");
-			this.host.registryController.setHighlight(void 0);
-		}
-	}
-	startLoading() {
-		this.onLoadingStart.call();
-		this.readyContextProvider.setValue(false);
-	}
-	endLoading() {
-		this.readyContextProvider.setValue(true);
-	}
-};
+}), __decorateMetadata("design:type", Object)], AbstractGroupConsumer.prototype, "groupController", void 0);
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractFileProvider.ts
@@ -4091,20 +5764,16 @@ var AbstractFileProvider = class extends AbstractGroupConsumer {
 	static {
 		this.properties = { ...FileController.HOST_PROPERTIES };
 	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		this.fileController.hostUpdatedWatcher(_changedProperties);
-	}
 	/** Register instance callback listeners. @deprecated */
 	recieveInstance(instance) {
 		this.fileController.receiveInstance(instance);
 	}
 	/** @deprecated */
-	removeInstance(instance) {
+	removeInstance() {
 		this.fileController.removeInstance();
 	}
 	deleteFile() {
-		if (this.file) this.removeInstance(this.file);
+		if (this.file) this.removeInstance();
 	}
 	render() {
 		return lit.html`
@@ -4114,11 +5783,6 @@ var AbstractFileProvider = class extends AbstractGroupConsumer {
         `;
 	}
 };
-__decorate([
-	(0, _lit_context.provide)({ context: loadingContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], AbstractFileProvider.prototype, "loading", void 0);
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractGroupProvider.ts
@@ -4131,10 +5795,6 @@ var AbstractGroupProvider = class extends AbstractRegistryConsumer {
 	static {
 		this.properties = { ...GroupController.HOST_PROPERTIES };
 	}
-	updated(values) {
-		super.updated(values);
-		this.groupController.hostUpdatedWatcher(values);
-	}
 	render() {
 		return lit.html`<slot></slot>`;
 	}
@@ -4142,7 +5802,6 @@ var AbstractGroupProvider = class extends AbstractRegistryConsumer {
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractManagerProvider.ts
-var _ref$11;
 var AbstractManagerProvider = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -4163,15 +5822,6 @@ var AbstractManagerProvider = class extends AbstractThermalElement {
 		super.disconnectedCallback();
 		if (this.autoclear === true && this.managerObject !== void 0) removeManager(this.managerObject);
 	}
-	willUpdate(changedProperties) {
-		super.willUpdate(changedProperties);
-		this.log("Will update called with changed properties", changedProperties);
-	}
-	updated(changedProperties) {
-		super.updated(changedProperties);
-		this.log("Updated called with changed properties", changedProperties);
-		this.managerController.hostUpdatedWatcher(changedProperties);
-	}
 	render() {
 		return lit.html`<slot></slot>`;
 	}
@@ -4179,7 +5829,7 @@ var AbstractManagerProvider = class extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$11 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$11 : Object)], AbstractManagerProvider.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", Object)], AbstractManagerProvider.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
@@ -4208,11 +5858,7 @@ var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		if (this.autoclear === true && this.registryObject !== void 0) this.manager.removeRegistry(this.registryObject.id);
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		this.registryController.hostUpdatedWatcher(_changedProperties);
+		if (this.autoclear === true && this.registryObject !== void 0) this.managerObject.removeRegistry(this.registryObject.id);
 	}
 	render() {
 		return lit.html`<slot></slot>`;
@@ -4221,17 +5867,54 @@ var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 
 //#endregion
 //#region src/hierarchy/consumers/AbstractFileConsumer.ts
-var _ref$10, _ref2$2;
+/**
+* Abstract base class for web components that consume a file `Instance` and
+* related state from a parent `FileController`.
+*
+* The controller is typically provided by an ancestor application or file
+* provider. This class consumes the controller, current instance, loading and
+* recording states, and load failures. Subclasses can consume additional
+* contexts such as `fileMsContext` and `fileDurationContext` when needed.
+* Changes to subscribed contexts trigger reactive updates in the consuming
+* element.
+*
+* Use `FileController` methods for file operations such as changing the
+* playback position rather than modifying the instance directly.
+*
+* @see {@link AbstractGroupConsumer}
+* @see {@link FileController}
+* @see {@link Instance}
+*
+* @example
+* ```ts
+* import { consume } from "@lit/context";
+* import { AbstractFileConsumer, fileMsContext } from "@labirthermal/webcomponents";
+*
+* class MyComponent extends AbstractFileConsumer {
+*     @consume({ context: fileMsContext, subscribe: true })
+*     protected msValue!: number;
+*
+*     protected seekTo(percentage: number): void {
+*         this.fileController.setTimePercentage(percentage);
+*     }
+* }
+* ```
+*
+* @module \@labirthermal/webcomponents
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
 var AbstractFileConsumer = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
-		this.loading = true;
-		this.recording = false;
+		this.fileIsLoading = false;
+		this.fileIsRecording = false;
 	}
+	/**
+	* Returns a stable callback key unique to this consumer.
+	*
+	* @returns The consumer's UUID with an internal-callback suffix.
+	*/
 	getUUID() {
-		return `${this.UUID}__internal_callback`;
-	}
-	get internalCallbackUUID() {
 		return `${this.UUID}__internal_callback`;
 	}
 	connectedCallback() {
@@ -4245,15 +5928,14 @@ var AbstractFileConsumer = class extends AbstractGroupConsumer {
 			this.fileController.onFailure.delete(this.UUID);
 		}
 	}
+	/** Internal method binding the default callbacks to the parent `FileController`. */
 	hookCallbacks() {
 		if (this.fileController) {
 			this.fileController.onSuccess.set(this.UUID, (instance) => {
 				this.onInstanceCreated(instance);
-				this.loading = false;
 			});
 			this.fileController.onFailure.set(this.UUID, (error) => {
 				this.onFailure(error);
-				this.loading = false;
 			});
 		} else throw new Error("Tento komponent není v souboru!");
 	}
@@ -4264,19 +5946,19 @@ __decorate([(0, _lit_context.consume)({
 }), __decorateMetadata("design:type", Object)], AbstractFileConsumer.prototype, "fileController", void 0);
 __decorate([
 	(0, _lit_context.consume)({
-		context: loadingContext,
+		context: fileLoadingContext,
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Boolean)
-], AbstractFileConsumer.prototype, "loading", void 0);
+], AbstractFileConsumer.prototype, "fileIsLoading", void 0);
 __decorate([
 	(0, _lit_context.consume)({
 		context: fileContext,
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$10 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$10 : Object)
+	__decorateMetadata("design:type", Object)
 ], AbstractFileConsumer.prototype, "file", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -4284,7 +5966,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$2 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref2$2 : Object)
+	__decorateMetadata("design:type", Object)
 ], AbstractFileConsumer.prototype, "failure", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -4293,380 +5975,16 @@ __decorate([
 	}),
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Boolean)
-], AbstractFileConsumer.prototype, "recording", void 0);
-
-//#endregion
-//#region src/utils/converters/stringOrUndefinedConverter.ts
-const stringOrUndefinedConverter = {
-	fromAttribute(value) {
-		if (typeof value !== "string") return;
-		const trimmed = value.trim();
-		if (trimmed.length === 0) return;
-		return trimmed;
-	},
-	toAttribute(value) {
-		const trimmed = value?.trim();
-		return trimmed?.length ? trimmed : void 0;
-	}
-};
-
-//#endregion
-//#region src/hierarchy/controllers/GroupAnalysisSyncController.ts
-const SLOT_NUMBERS = [
-	1,
-	2,
-	3,
-	4,
-	5,
-	6,
-	7
-];
-const groupAnalysisSyncContext = (0, _lit_context.createContext)("group-analysis-sync-context");
-/**
-* Binds analysis1-analysis7 to group slots while groupAnalysisSyncOn is true.
-* Initial nonempty host values win; otherwise existing file slots are adopted.
-* Later empty values delete slots. Analyses without slots are left untouched.
-*/
-var GroupAnalysisSyncController = class GroupAnalysisSyncController extends AbstractHierarchyController {
-	get UUID() {
-		return this.host.UUID + "_group-analysis-sync-controller";
-	}
-	static {
-		this.ANALYSIS_PROPERTY_DECLARATION = {
-			type: String,
-			reflect: true,
-			converter: stringOrUndefinedConverter
-		};
-	}
-	static {
-		this.HOST_PROPERTIES = {
-			groupAnalysisSyncOn: {
-				type: Boolean,
-				reflect: true,
-				converter: booleanConverter(false),
-				attribute: "group-analysis-sync-on"
-			},
-			analysis1: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
-			analysis2: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
-			analysis3: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
-			analysis4: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
-			analysis5: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
-			analysis6: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION,
-			analysis7: GroupAnalysisSyncController.ANALYSIS_PROPERTY_DECLARATION
-		};
-	}
-	get on() {
-		return this._onContextProvider.value;
-	}
-	constructor(host) {
-		super(host);
-		this._files = /* @__PURE__ */ new Set();
-		this._values = /* @__PURE__ */ new Map();
-		this._fileValues = /* @__PURE__ */ new Map();
-		this._applying = false;
-		this._changingCore = false;
-		this._initialized = false;
-		this._onContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: groupAnalysisSyncContext,
-			initialValue: false
-		});
-	}
-	_property(slot) {
-		return `analysis${slot}`;
-	}
-	_hostValue(slot) {
-		return this.host[this._property(slot)]?.trim() || void 0;
-	}
-	_setOn(value) {
-		this.host.groupAnalysisSyncOn = value;
-		this._onContextProvider.setValue(value);
-	}
-	hostConnected() {
-		this._group = this.host.groupController.groupObject;
-		const group = this._group;
-		group.analysisSync.addListener(this.UUID, (value) => {
-			if (this._changingCore) return;
-			this._setOn(value);
-			if (!value) {
-				this._initialized = false;
-				return;
-			}
-			queueMicrotask(() => {
-				if (this._group === group && this.on && group.analysisSync.value) this._initialize();
-			});
-		});
-		group.files.addListener(this.UUID, () => this._syncFiles());
-		group.registry.onProcessingEnd.set(this.UUID, () => this.onLoaded());
-		this._setOn(this.host.groupAnalysisSyncOn || group.analysisSync.value);
-		this._syncFiles();
-		if (this.on) this._initialize();
-	}
-	hostDisconnected() {
-		this._group?.analysisSync.removeListener(this.UUID);
-		this._group?.files.removeListener(this.UUID);
-		this._group?.registry.onProcessingEnd.delete(this.UUID);
-		for (const file of this._files) this._unbindFile(file);
-		this._files.clear();
-		this._fileValues.clear();
-		this._group = void 0;
-		this._initialized = false;
-	}
-	hostUpdatedWatcher(changed) {
-		if (!this._group) return;
-		if (changed.has("groupAnalysisSyncOn")) {
-			if (!this.host.groupAnalysisSyncOn) {
-				this.turnOff();
-				return;
-			}
-			if (!this.on || !this._initialized) this._initialize();
-		}
-		if (!this.on) return;
-		const slots = SLOT_NUMBERS.filter((slot) => changed.has(this._property(slot)) && this._hostValue(slot) !== this._values.get(slot));
-		if (slots.length) this._applyHostValues(slots);
-	}
-	_syncFiles() {
-		const group = this._group;
-		if (!group) return;
-		for (const file of this._files) if (!group.files.value.includes(file)) {
-			this._unbindFile(file);
-			this._files.delete(file);
-		}
-		for (const file of group.files.value) {
-			if (this._files.has(file)) continue;
-			this._files.add(file);
-			const values = /* @__PURE__ */ new Map();
-			this._fileValues.set(file, values);
-			for (const slot of SLOT_NUMBERS) file.slots.getOnSerializeManager(slot)?.set(this.UUID, (value) => {
-				const unchanged = values.has(slot) && values.get(slot) === value;
-				values.set(slot, value);
-				if (unchanged) return;
-				if (!this.on || this._applying || file !== group.analysisSync.currentPointer) return;
-				this._values.set(slot, value);
-				this.host[this._property(slot)] = value;
-			});
-			file.onMount.set(this.UUID, () => this.onLoaded());
-		}
-		if (this.on) this.onLoaded();
-	}
-	_unbindFile(file) {
-		for (const slot of SLOT_NUMBERS) file.slots.getOnSerializeManager(slot)?.delete(this.UUID);
-		file.onMount.delete(this.UUID);
-		this._fileValues.delete(file);
-	}
-	_getFirstInstanceWithAnalyses() {
-		return this._group?.files.value.find((file) => SLOT_NUMBERS.some((slot) => file.slots.hasSlot(slot)));
-	}
-	_initialize() {
-		const group = this._group;
-		if (!group) return;
-		this._setOn(true);
-		if (!this._initialized) {
-			const hasAttributes = SLOT_NUMBERS.some((slot) => this._hostValue(slot) !== void 0);
-			const pointer = group.analysisSync.currentPointer;
-			const source = pointer && group.files.value.includes(pointer) ? pointer : this._getFirstInstanceWithAnalyses() ?? group.files.value[0];
-			if (!hasAttributes && source) this._analysesFromInstanceToGroup(source);
-			this._initialized = hasAttributes || source !== void 0;
-		}
-		this._enableCore();
-		if (this._initialized) this._applyHostValues(SLOT_NUMBERS);
-	}
-	_enableCore() {
-		const group = this._group;
-		if (!group) return;
-		const pointer = group.analysisSync.currentPointer;
-		const source = pointer && group.files.value.includes(pointer) ? pointer : group.files.value.find((file) => file.dom?.built) ?? group.files.value[0];
-		if (!source) {
-			group.analysisSync.setCurrentPointer(void 0);
-			return;
-		}
-		this._changingCore = true;
-		try {
-			if (!group.analysisSync.value) group.analysisSync.turnOn(source);
-			else if (source !== pointer) group.analysisSync.setCurrentPointer(source);
-		} finally {
-			this._changingCore = false;
-		}
-	}
-	_applyHostValues(slots) {
-		const group = this._group;
-		if (!group) return;
-		for (const slot of slots) this._values.set(slot, this._hostValue(slot));
-		this._applying = true;
-		const pointer = group.analysisSync.currentPointer;
-		group.analysisSync.setCurrentPointer(void 0);
-		try {
-			for (const file of this._files) {
-				if (!file.dom?.built) continue;
-				for (const slot of slots) {
-					this._applySlot(file, slot, this._values.get(slot));
-					this._fileValues.get(file)?.set(slot, file.slots.getSlot(slot)?.analysis.toSerialized());
-				}
-			}
-		} finally {
-			if (pointer && group.files.value.includes(pointer)) group.analysisSync.setCurrentPointer(pointer);
-			this._applying = false;
-		}
-	}
-	_applySlot(file, slotNumber, value) {
-		const slot = file.slots.getSlot(slotNumber);
-		if (value === void 0) {
-			if (slot) file.slots.removeSlotAndAnalysis(slotNumber);
-			return;
-		}
-		const sameType = slot?.analysis.toSerialized().split(";")[1]?.trim() === value.split(";")[1]?.trim();
-		if (slot && sameType) {
-			if (!slot.analysis.serializedIsValid(value)) {
-				this.log("Invalid group analysis slot value", slotNumber, file.id);
-				return;
-			}
-			if (slot.analysis.toSerialized() !== value) slot.recieveSerialized(value);
-			const root = file.dom?.canvasLayer?.getLayerRoot();
-			if (root && !root.contains(slot.analysis.layerRoot)) root.appendChild(slot.analysis.layerRoot);
-		} else if (!file.slots.createAnalysisFromSerialized(value, slotNumber)) this.log("Unable to create group analysis slot", slotNumber, file.id);
-	}
-	onLoaded() {
-		if (!this.on || this._applying) return;
-		if (!this._initialized) this._initialize();
-		else {
-			this._enableCore();
-			this._applyHostValues(SLOT_NUMBERS);
-		}
-	}
-	_analysesFromInstanceToGroup(instance) {
-		for (const slot of SLOT_NUMBERS) {
-			const value = instance.slots.getSlot(slot)?.analysis.toSerialized();
-			this._values.set(slot, value);
-			this.host[this._property(slot)] = value;
-		}
-	}
-	turnOnOnFirstInstanceWithAnalyses() {
-		const instance = this._getFirstInstanceWithAnalyses();
-		if (instance) this.turnOn(instance);
-	}
-	turnOnWithAttributeAnalyses() {
-		this._setOn(true);
-		this._initialized = true;
-		this._enableCore();
-		this._applyHostValues(SLOT_NUMBERS);
-	}
-	turnOn(instance) {
-		if (!this._group?.files.value.includes(instance)) {
-			this.log("Cannot synchronize analyses from a file outside the group", instance.id);
-			return;
-		}
-		this._analysesFromInstanceToGroup(instance);
-		this._setOn(true);
-		this._initialized = true;
-		this._changingCore = true;
-		try {
-			this._group.analysisSync.turnOn(instance);
-		} finally {
-			this._changingCore = false;
-		}
-		this._applyHostValues(SLOT_NUMBERS);
-	}
-	turnOff() {
-		this._setOn(false);
-		this._initialized = false;
-		this._changingCore = true;
-		try {
-			if (this._group?.analysisSync.value) this._group.analysisSync.turnOff();
-		} finally {
-			this._changingCore = false;
-		}
-	}
-};
-
-//#endregion
-//#region src/hierarchy/controllers/ConfigController.ts
-const configContext = (0, _lit_context.createContext)("config-context");
-var ConfigController = class extends AbstractReactiveController {
-	constructor(host) {
-		super(host);
-		this._settings = {
-			export: {
-				png: {
-					width: 1200,
-					fontSize: 20,
-					analyses: true,
-					thermalScale: true,
-					license: true,
-					fileName: false,
-					fileDate: true
-				},
-				group: {
-					groupName: true,
-					columns: 2
-				}
-			},
-			visibility: { showAllOptions: false }
-		};
-		this.setPngSetting = (key, value) => {
-			this._settings = {
-				...this._settings,
-				export: {
-					...this._settings.export,
-					png: {
-						...this._settings.export.png,
-						[key]: value
-					}
-				}
-			};
-			this._publish();
-		};
-		this.setGroupSetting = (key, value) => {
-			this._settings = {
-				...this._settings,
-				export: {
-					...this._settings.export,
-					group: {
-						...this._settings.export.group,
-						[key]: value
-					}
-				}
-			};
-			this._publish();
-		};
-		this.setShowAllOptions = (value) => {
-			this._settings = {
-				...this._settings,
-				visibility: {
-					...this._settings.visibility,
-					showAllOptions: value
-				}
-			};
-			this._publish();
-		};
-		this.contextProvider = new _lit_context.ContextProvider(host, {
-			context: configContext,
-			initialValue: this._createContextValue()
-		});
-	}
-	hostConnected() {}
-	hostDisconnected() {}
-	get settings() {
-		return this._settings;
-	}
-	_createContextValue() {
-		return {
-			settings: this._settings,
-			setPngSetting: this.setPngSetting,
-			setGroupSetting: this.setGroupSetting,
-			setShowAllOptions: this.setShowAllOptions
-		};
-	}
-	_publish() {
-		this.contextProvider.setValue(this._createContextValue());
-	}
-};
+], AbstractFileConsumer.prototype, "fileIsRecording", void 0);
 
 //#endregion
 //#region package.json
+var name = "@labirthermal/webcomponents";
 var version = "1.3.4";
 
 //#endregion
 //#region src/controls/independent/AppInfoButton.ts
-let AppInfoButton = class AppInfoButton extends AbstractThermalElement {
+var AppInfoButton = class extends AbstractThermalElement {
 	static {
 		this.styles = lit.css`
 
@@ -4792,12 +6110,10 @@ let AppInfoButton = class AppInfoButton extends AbstractThermalElement {
         `;
 	}
 };
-AppInfoButton = __decorate([(0, lit_decorators_js.customElement)("app-info-button")], AppInfoButton);
 
 //#endregion
 //#region src/controls/independent/DisplayPanel.ts
-var _ref$9;
-let DisplayPanel = class DisplayPanel extends AbstractThermalElement {
+var DisplayPanel = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.advancedPalettes = false;
@@ -4814,16 +6130,18 @@ let DisplayPanel = class DisplayPanel extends AbstractThermalElement {
 	render() {
 		return lit.html`
         <thermal-field label="${(0, i18next.t)(T.colourpalette)}" hint="Zvolte, jaké chcete používat palety.">
-            <thermal-btn 
-                variant="${!this.advancedPalettes ? "foreground" : "default"}"
-                @click=${() => this.managerController.setAdvancedPalettes(false)}
-                tooltip="IRON, JET, White hot, Black hot"
-            >Základní</thermal-btn>
-            <thermal-btn 
-                variant="${this.advancedPalettes ? "foreground" : "default"}"
-                @click=${() => this.managerController.setAdvancedPalettes(true)}
-                tooltip="Všechny dostupné palety"
-            >Pokročilé</thermal-btn>
+            <thermal-btn-group>
+                <thermal-btn 
+                    variant="${!this.advancedPalettes ? "foreground" : "default"}"
+                    @click=${() => this.managerController.setAdvancedPalettes(false)}
+                    tooltip="IRON, JET, White hot, Black hot"
+                >Základní</thermal-btn>
+                <thermal-btn 
+                    variant="${this.advancedPalettes ? "foreground" : "default"}"
+                    @click=${() => this.managerController.setAdvancedPalettes(true)}
+                    tooltip="Všechny dostupné palety"
+                >Pokročilé</thermal-btn>
+            </thermal-btn-group>
         </thermal-field>
         <thermal-field label="${(0, i18next.t)(T.filerendering)}" hint="${(0, i18next.t)(T.filerenderinghint)}">
             <manager-image-smooth-switch></manager-image-smooth-switch>
@@ -4848,13 +6166,12 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$9 = typeof ManagerController !== "undefined" && ManagerController) === "function" ? _ref$9 : Object)
+	__decorateMetadata("design:type", Object)
 ], DisplayPanel.prototype, "managerController", void 0);
-DisplayPanel = __decorate([(0, lit_decorators_js.customElement)("display-panel")], DisplayPanel);
 
 //#endregion
 //#region src/controls/independent/ConfigDialog.ts
-let ConfigDialog = class ConfigDialog extends AbstractThermalElement {
+var ConfigDialog = class extends AbstractThermalElement {
 	render() {
 		return lit.html`<thermal-dialog
             label="Nastavení aplikace"
@@ -4873,12 +6190,36 @@ let ConfigDialog = class ConfigDialog extends AbstractThermalElement {
         </thermal-dialog>`;
 	}
 };
-ConfigDialog = __decorate([(0, lit_decorators_js.customElement)("config-dialog")], ConfigDialog);
 
 //#endregion
 //#region src/hierarchy/providers/FileCopy.ts
-var _ref$8;
-/** This element creates a completely isolated hierarchy tree for the given original file. The file is copied and all contexts are exposed independently of the original context. */
+/** 
+* This element creates a completely isolated hierarchy tree for the given original file. The file is copied and all contexts are exposed independently of the original context.
+* 
+* This element therefore implements all the hierarchy controllers, because the context is completely isolated from the parent:
+* - `ManagerController` and `ThermalManager`
+* - `RegistryController` and `ThermalRegistry`
+* - `GroupController` and `ThermalGroup`
+* - `FileController` and `Instance`
+* 
+* @tag file-copy
+* 
+* @param originalFile The original file instance to be copied.
+* @param withAnalyses Whether to copy the analyses from the original file.
+* 
+* Initialisation of this element does not require any specification of slugs - they will be automatically generated from the original file.
+* 
+* Whenever this element is disconnected, all the internal context is removed for good.
+* 
+* @example
+* <file-copy .originalFile="path/to/original/file">
+*  <file-canvas></file-canvas>
+* </file-copy>
+* 
+* @module \@labirthermal/webcomponents
+* @author Jan Jáchim <jachim@zcu.cz>
+* 
+*/
 var FileCopyElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -4918,7 +6259,7 @@ var FileCopyElement = class extends AbstractThermalElement {
 	}
 	connectedCallback() {
 		const originalFile = this.originalFile;
-		this._slugBase = originalFile.thermalUrl + "__" + this.UUID.substring(0, 6);
+		this._slugBase = originalFile.thermalUrl + "__" + this.UUID;
 		this.setAttribute("manager-slug", this.getSlugManager());
 		this.setAttribute("group-slug", this.getSlugGroup());
 		this.setAttribute("registry-slug", this.getSlugRegistry());
@@ -4969,10 +6310,6 @@ var FileCopyElement = class extends AbstractThermalElement {
 		super.updated(_changedProperties);
 		if (_changedProperties.has("withAnalyses") && _changedProperties.get("withAnalyses") !== void 0) if (this.withAnalyses) this.copyAnalysesFromParent();
 		else this.clearAnalyses();
-		this.managerController.hostUpdatedWatcher(_changedProperties);
-		this.registryController.hostUpdatedWatcher(_changedProperties);
-		this.groupController.hostUpdatedWatcher(_changedProperties);
-		this.fileController.hostUpdatedWatcher(_changedProperties);
 	}
 	static {
 		this.styles = lit.css`
@@ -4992,7 +6329,7 @@ var FileCopyElement = class extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	attribute: false
-}), __decorateMetadata("design:type", typeof (_ref$8 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$8 : Object)], FileCopyElement.prototype, "originalFile", void 0);
+}), __decorateMetadata("design:type", Object)], FileCopyElement.prototype, "originalFile", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: false
@@ -5000,107 +6337,30 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileCopyElement.prototype, "_canRenderChildren", void 0);
 
 //#endregion
-//#region src/hierarchy/providers/FileMirror.ts
-var _ref$7, _ref2$1;
-/** @deprecated Investigate why is this here. */
-var FileMirrorElement = class extends AbstractFileProvider {
-	constructor(..._args) {
-		super(..._args);
-		this.providedSelf = this;
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("thermal")) {
-			const oldUrl = _changedProperties.get("thermal");
-			if (oldUrl) {
-				this.group.files.removeFile(oldUrl);
-				this.file = void 0;
-			}
-		}
-		if (_changedProperties.has("file")) {
-			if (this.file) {
-				this.loading = false;
-				this.recieveInstance(this.file);
-				setTimeout(() => this.file && this.onSuccess.call(this.file), 0);
-			}
-		}
-	}
-};
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$7 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$7 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: fileContext }),
-	(0, lit_decorators_js.property)(),
-	__decorateMetadata("design:type", typeof (_ref2$1 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$1 : Object)
-], FileMirrorElement.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	converter: {
-		fromAttribute(value) {
-			return value === "true";
-		},
-		toAttribute(value) {
-			if (value === true) return "true";
-			return "false";
-		}
-	}
-}), __decorateMetadata("design:type", Boolean)], FileMirrorElement.prototype, "batch", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "thermal", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "visible", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis1", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis2", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis3", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis4", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis5", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis6", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis7", void 0);
-
-//#endregion
-//#region src/hierarchy/controllers/FileLoadController.ts
-var FileLoadController = class extends AbstractHierarchyController {
-	get UUID() {
-		return this._UUID;
-	}
-	get group() {
-		return this.host.fileController.host.groupController.groupObject;
-	}
-	get registry() {
-		return this.group.registry;
-	}
-	static {
-		this.HOST_PROPERTIES = {
-			thermal: {
-				type: String,
-				reflect: true,
-				attribute: "thermal"
-			},
-			visible: {
-				type: String,
-				reflect: true,
-				attribute: "visible"
-			}
-		};
-	}
-	constructor(host) {
-		super(host);
-		this._UUID = host.UUID;
-	}
-	hostUpdatedWatcher(value) {
-		if (value.has("thermal") && this.host.thermal) this._load(this.host.thermal, this.host.visible);
-	}
-	hostConnected() {}
-	hostDisconnected() {}
-	async _load(lrc, visible) {
-		if (this.host.fileController.fileObject) this.group.files.removeFile(this.host.fileController.fileObject);
-		this.host.fileController.startLoading();
-		return this.registry.batch.request(lrc, visible, this.group, async (result) => {
-			if (result instanceof _labirthermal_core.Instance) this.host.fileController.receiveInstance(result);
-			else if (result instanceof _labirthermal_core.ThermalFileFailure) this.host.fileController.receiveFailure(result);
-		});
-	}
-};
-
-//#endregion
 //#region src/hierarchy/providers/FileProvider.ts
+/** 
+* A webcomponent providing the file that is specified by its URL's.
+* 
+* Exterior attributes are:
+* - `thermal`: the thermal file URL
+* - `visible`: the visible file URL
+* These are specified by the `FileLoadController` that is implemented here.
+* 
+* All the standard contexts of `FileController` are being handled by the `AbstractFileProvider`.
+* 
+* @tag file-provider
+* 
+* @param thermal The URL of the thermal file.
+* @param visible The URL of the visible file.
+* 
+* @example 
+* <file-provider thermal="path/to/thermal/file" visible="path/to/visible/file">
+*  <file-canvas></file-canvas>
+* </file-provider>
+*
+* @module \@labirthermal/webcomponents
+* @author Jan Jáchim <jachim@zcu.cz>
+*/
 var FileProviderElement = class extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -5114,21 +6374,12 @@ var GroupProviderElement = class extends AbstractGroupProvider {};
 
 //#endregion
 //#region src/hierarchy/providers/ManagerProvider.ts
-var ManagerProviderElement = class extends AbstractManagerProvider {
-	constructor(..._args) {
-		super(..._args);
-		this.autoclear = false;
-	}
-};
+var ManagerProviderElement = class extends AbstractManagerProvider {};
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], ManagerProviderElement.prototype, "slug", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true
-}), __decorateMetadata("design:type", Boolean)], ManagerProviderElement.prototype, "autoclear", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/RegistryProvider.ts
@@ -5198,13 +6449,15 @@ var ManagerExportPanel = class extends AbstractThermalElement {
                 }
 
             }
+
+            
         
         `;
 	}
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
-		if (!this.config || !_changedProperties.has("config")) return;
-		const settings = this.config.settings.export.png;
+		if (!this.configController || !_changedProperties.has("config")) return;
+		const settings = this.configController.settings.export.png;
 		const values = [["pngWidth", settings.width], ["pngFs", settings.fontSize]];
 		for (const [key, value] of values) {
 			const element = this.shadowRoot?.querySelector(`input[name="${key}"]`);
@@ -5212,26 +6465,26 @@ var ManagerExportPanel = class extends AbstractThermalElement {
 		}
 	}
 	render() {
-		if (!this.config) return lit.nothing;
-		const { png, group } = this.config.settings.export;
+		if (!this.configController) return lit.nothing;
+		const { png, group } = this.configController.settings.export;
 		return lit.html`
 
         ${this.renderGroup((0, i18next.t)(T.exportcontent), lit.html`
-            ${this.renderCheckbox("pngExportAnalyses", (0, i18next.t)(T.analyses), png.analyses, (value) => this.config.setPngSetting("analyses", value))}
-            ${this.renderCheckbox("pngExportScale", (0, i18next.t)(T.thermalscale), png.thermalScale, (value) => this.config.setPngSetting("thermalScale", value))}
-            ${this.renderCheckbox("pngExportFileName", (0, i18next.t)(T.exportfilenames), png.fileName, (value) => this.config.setPngSetting("fileName", value))}
-            ${this.renderCheckbox("pngExportFileDate", (0, i18next.t)(T.filedate), png.fileDate, (value) => this.config.setPngSetting("fileDate", value))}
+            ${this.renderCheckbox("pngExportAnalyses", (0, i18next.t)(T.analyses), png.analyses, (value) => this.configController.setPngAnalyses(value))}
+            ${this.renderCheckbox("pngExportScale", (0, i18next.t)(T.thermalscale), png.thermalScale, (value) => this.configController.setPngThermalScale(value))}
+            ${this.renderCheckbox("pngExportFileName", (0, i18next.t)(T.exportfilenames), png.fileName, (value) => this.configController.setPngFileName(value))}
+            ${this.renderCheckbox("pngExportFileDate", (0, i18next.t)(T.filedate), png.fileDate, (value) => this.configController.setPngFileDate(value))}
         `)}
 
         ${this.renderGroup((0, i18next.t)(T.exportdimensions), lit.html`
-            ${this.renderSlider("pngWidth", (0, i18next.t)(T.exportimagewidth), png.width, "px", 500, 2e3, 50, (value) => this.config.setPngSetting("width", value))}
+            ${this.renderSlider("pngWidth", (0, i18next.t)(T.exportimagewidth), png.width, "px", 500, 2e3, 50, (value) => this.configController.setPngWidth(value))}
 
-            ${this.renderSlider("pngFs", (0, i18next.t)(T.exportimagefontsize), png.fontSize, "px", 10, 50, 1, (value) => this.config.setPngSetting("fontSize", value))}
+            ${this.renderSlider("pngFs", (0, i18next.t)(T.exportimagefontsize), png.fontSize, "px", 10, 50, 1, (value) => this.configController.setPngFontSize(value))}
         `)}
 
         ${this.renderGroup((0, i18next.t)(T.exportgroup), lit.html`
-            ${this.renderCheckbox("pngExportGroupName", (0, i18next.t)(T.exportgroupname), group.groupName, (value) => this.config.setGroupSetting("groupName", value))}
-            ${this.renderSlider("pngColumns", (0, i18next.t)(T.exportfilenames), group.columns, "sloupců", 1, 5, 1, (value) => this.config.setGroupSetting("columns", value))}
+            ${this.renderCheckbox("pngExportGroupName", (0, i18next.t)(T.exportgroupname), group.groupName, (value) => this.configController.setGroupGroupName(value))}
+            ${this.renderSlider("pngColumns", (0, i18next.t)(T.exportfilenames), group.columns, "sloupců", 1, 5, 1, (value) => this.configController.setGroupColumns(value))}
         `)}
 
         `;
@@ -5244,7 +6497,7 @@ __decorate([
 		subscribe: true
 	}),
 	__decorateMetadata("design:type", Object)
-], ManagerExportPanel.prototype, "config", void 0);
+], ManagerExportPanel.prototype, "configController", void 0);
 
 //#endregion
 //#region src/controls/manager/ManagerGraphSmoothSwitch.ts
@@ -5252,26 +6505,24 @@ var ManagerGraphSmoothSwitch = class extends AbstractManagerConsumer {
 	static {
 		this.styles = lit.css`
     
-        :host {}
+        :host {
+            display: inline-block;
+        }
 
     `;
 	}
 	render() {
 		return lit.html`
-
-            <div>
-
+            <thermal-btn-group>
                 <thermal-btn
                     variant=${this.smooth ? "default" : "foreground"}
-                    @click=${() => this.manager.graphSmooth.setGraphSmooth(false)}
+                    @click=${() => this.managerObject.graphSmooth.setGraphSmooth(false)}
                 >${(0, i18next.t)(T.straightlines)}</thermal-btn>
-
                 <thermal-btn
                     variant=${this.smooth ? "foreground" : "default"}
-                    @click=${() => this.manager.graphSmooth.setGraphSmooth(true)}
+                    @click=${() => this.managerObject.graphSmooth.setGraphSmooth(true)}
                 >${(0, i18next.t)(T.smoothlines)}</thermal-btn>
-
-            </div>
+            </thermal-btn-group>
         `;
 	}
 };
@@ -5293,15 +6544,17 @@ var ManagerImageSmoothSwitch = class extends AbstractManagerConsumer {
     `;
 	}
 	render() {
-		return lit.html`<thermal-btn
+		return lit.html`<thermal-btn-group>
+            <thermal-btn
     variant=${this.smooth ? "default" : "foreground"}
-    @click=${() => this.manager.smooth.setSmooth(false)}
+    @click=${() => this.managerObject.smooth.setSmooth(false)}
 >${(0, i18next.t)(T.pixelated)}</thermal-btn>
 
 <thermal-btn
     variant=${this.smooth ? "foreground" : "default"}
-    @click=${() => this.manager.smooth.setSmooth(true)}
->${(0, i18next.t)(T.smooth)}</thermal-btn>`;
+    @click=${() => this.managerObject.smooth.setSmooth(true)}
+>${(0, i18next.t)(T.smooth)}</thermal-btn>
+        </thermal-btn-group>`;
 	}
 };
 __decorate([(0, _lit_context.consume)({
@@ -5311,31 +6564,32 @@ __decorate([(0, _lit_context.consume)({
 
 //#endregion
 //#region src/controls/manager/AbstractPaletteSwitch.ts
-var _ref$6;
-var AbstractPaletteSwitch = class extends AbstractManagerConsumer {
+var AbstractPaletteSwitch = class AbstractPaletteSwitch extends AbstractManagerConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.advancedPalettesContext = false;
 		this.palettes = [];
 	}
-	updated(_changedProperties) {
-		const showAdvancedPalettes = this.advancedPalettesProperty ?? this.advancedPalettesContext;
-		const basicPalettes = [
+	static {
+		this.BASIC_PALETTES = [
 			"iron",
 			"jet",
 			"white_hot",
 			"black_hot"
 		];
-		if (_changedProperties.has("advancedPalettesContext") || _changedProperties.has("advancedPalettesProperty")) if (showAdvancedPalettes) this.palettes = Object.values(_labirthermal_core.ThermalPalettes);
-		else {
-			this.palettes = Object.entries(_labirthermal_core.ThermalPalettes).filter(([key, palette]) => basicPalettes.includes(key)).map(([key, palette]) => palette);
-			if (!basicPalettes.includes(this.value.key)) this.onSelect("iron");
-		}
-		if (_changedProperties.has("value") && !showAdvancedPalettes && !basicPalettes.includes(this.value.key)) this.onSelect("iron");
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		const showAdvancedPalettes = this.advancedPalettesProperty ?? this.advancedPalettesContext;
+		const basicPalettes = AbstractPaletteSwitch.BASIC_PALETTES;
+		const optionsChanged = changedProperties.has("advancedPalettesContext") || changedProperties.has("advancedPalettesProperty");
+		if (optionsChanged) if (showAdvancedPalettes) this.palettes = Object.values(_labirthermal_core.ThermalPalettes);
+		else this.palettes = Object.entries(_labirthermal_core.ThermalPalettes).filter(([key]) => AbstractPaletteSwitch.BASIC_PALETTES.includes(key)).map(([, palette]) => palette);
+		if ((optionsChanged || changedProperties.has("value")) && this.value !== void 0 && !showAdvancedPalettes && !basicPalettes.includes(this.value.key)) this.onSelect("iron");
 	}
 	/** Handle user input events */
 	onSelect(palette) {
-		this.manager.palette.setPalette(palette);
+		this.managerObject.palette.setPalette(palette);
 	}
 };
 __decorate([
@@ -5357,7 +6611,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$6 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$6 : Object)
+	__decorateMetadata("design:type", Object)
 ], AbstractPaletteSwitch.prototype, "value", void 0);
 
 //#endregion
@@ -5383,7 +6637,7 @@ var ManagerPaletteButtons = class extends AbstractPaletteSwitch {
 	render() {
 		return this.palettes.map(((palette) => lit.html`<thermal-btn 
     @click=${() => this.onSelect(palette.slug)} 
-    variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "default"}"
+    variant="${palette.name === this.managerObject.palette.currentPalette.name ? "background" : "default"}"
     tooltip="${(0, i18next.t)(T.palettename, { name: palette.name })}"
 >
     ${this.paletteTemplate(palette)}
@@ -5411,17 +6665,17 @@ var ManagerPaletteDropdown = class extends AbstractPaletteSwitch {
 
     `;
 	}
-	paletteTemplate(palette, className) {
+	paletteTemplate(palette) {
 		return lit.html`<span class="palette" style="background:${palette.gradient}"></span><span>${palette.name}</span>`;
 	}
 	render() {
 		return lit.html`
 
             <thermal-dropdown .tooltip=${(0, i18next.t)(T.colourpalette)}>
-                    <span slot="invoker" class="palette" style="background:${this.manager.palette.currentPalette.gradient}"></span>
+                    <span slot="invoker" class="palette" style="background:${this.managerObject.palette.currentPalette.gradient}"></span>
 
                 ${this.palettes.map((palette) => lit.html`
-                    <div slot="option"><thermal-btn @click=${() => this.onSelect(palette.slug)} variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "slate"}">
+                    <div slot="option"><thermal-btn @click=${() => this.onSelect(palette.slug)} variant="${palette.name === this.managerObject.palette.currentPalette.name ? "background" : "slate"}">
                         ${this.paletteTemplate(palette)}
                     </thermal-btn></div>
                 `)}
@@ -5436,14 +6690,13 @@ var ManagerPaletteDropdown = class extends AbstractPaletteSwitch {
 
 //#endregion
 //#region src/controls/manager/ManagerToolsBar.ts
-var _ref$5;
 /**
 * A standard toolbar that is either horizontal or vertical.
 */
 var ManagerToolBar = class extends AbstractManagerConsumer {
 	/** Handle user input events */
 	onSelect(tool) {
-		this.manager.tool.selectTool(tool);
+		this.managerObject.tool.selectTool(tool);
 	}
 	static {
 		this.styles = lit.css`
@@ -5481,7 +6734,7 @@ thermal-btn {
     tooltip-placement="right"
     class=${(0, lit_directives_class_map_js.classMap)(classes)} 
     @click=${() => {
-			this.manager.tool.selectTool(tool);
+			this.managerObject.tool.selectTool(tool);
 		}}
     variant=${tool.key === this.value.key ? "background" : "default"}
 >
@@ -5489,23 +6742,31 @@ thermal-btn {
 </thermal-btn>`;
 	}
 	render() {
-		if (this.manager === void 0) return lit.nothing;
-		return Object.entries(this.manager.tool.tools).map(([key, tool]) => {
+		if (this.managerObject === void 0) return lit.nothing;
+		return Object.entries(this.managerObject.tool.tools).map(([key, tool]) => {
 			return this.renderTool(key, tool);
 		});
 	}
 };
 __decorate([
 	(0, _lit_context.consume)({
-		context: toolContext,
+		context: managerToolContext,
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$5 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$5 : Object)
+	__decorateMetadata("design:type", Object)
 ], ManagerToolBar.prototype, "value", void 0);
 
 //#endregion
 //#region src/controls/registry/RegistryRangeForm.ts
+/**
+* Form control for editing a thermal registry's active range. It keeps its
+* inputs synchronized with registry range data and provides range presets,
+* bounded stepping, and rounding.
+*
+* @see AbstractRegistryConsumer
+* @see RegistryController
+*/
 var RegistryRangeForm = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -5572,21 +6833,21 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 			if (this.autoRangeHovered) this.registryController.setHighlight(value);
 		};
 		this.handleFullRangeMouseEnter = () => {
-			const minmax = this.registry.minmax.value;
+			const minmax = this.registryObject.minmax.value;
 			if (minmax !== void 0) this.registryController.setHighlight({
 				from: minmax.min,
 				to: minmax.max
 			});
 		};
 		this.handleFullRangeClick = () => {
-			this.registry.range.applyMinmax();
+			this.registryObject.range.applyMinmax();
 		};
 		this.handleAutoRangeMouseEnter = () => {
 			this.autoRangeHovered = true;
 			this.registryController.setHighlight(this.autoValue);
 		};
 		this.handleAutoRangeClick = () => {
-			this.registry.range.applyAuto();
+			this.registryObject.range.applyAuto();
 		};
 		this.handleHighlightMouseLeave = () => {
 			this.autoRangeHovered = false;
@@ -5606,6 +6867,10 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 		this.dehydrate();
 		if (this.debounceTimer) clearTimeout(this.debounceTimer);
 	}
+	/**
+	* Synchronizes local form state with the current registry and subscribes to
+	* its range updates.
+	*/
 	hydrate() {
 		const registry = this.registryController?.registryObject;
 		if (registry === void 0 || registry === this.subscribedRegistry) return;
@@ -5618,6 +6883,10 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 		registry.range.addListener(this.UUID, this.recieveRange);
 		registry.range.onAutoValueChanged.set(this.UUID, this.recieveAutoValue);
 	}
+	/**
+	* Removes this form's listeners from the subscribed registry and clears the
+	* subscription reference.
+	*/
 	dehydrate() {
 		const registry = this.subscribedRegistry;
 		if (registry === void 0) return;
@@ -5626,24 +6895,43 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 		registry.range.onAutoValueChanged.delete(this.UUID);
 		this.subscribedRegistry = void 0;
 	}
+	/**
+	* Updates the lower endpoint and imposes the resulting range on the registry
+	* when both endpoints are available.
+	*
+	* @param value The new lower endpoint.
+	*/
 	updateFrom(value) {
-		if (this.registry && value !== void 0 && this.to !== void 0) {
+		if (this.registryObject && value !== void 0 && this.to !== void 0) {
 			this.from = value;
-			this.registry.range.imposeRange({
+			this.registryObject.range.imposeRange({
 				from: value,
 				to: this.to
 			});
 		}
 	}
+	/**
+	* Updates the upper endpoint and imposes the resulting range on the registry
+	* when both endpoints are available.
+	*
+	* @param value The new upper endpoint.
+	*/
 	updateTo(value) {
-		if (this.registry && value !== void 0 && this.from !== void 0) {
+		if (this.registryObject && value !== void 0 && this.from !== void 0) {
 			this.to = value;
-			this.registry.range.imposeRange({
+			this.registryObject.range.imposeRange({
 				from: this.from,
 				to: value
 			});
 		}
 	}
+	/**
+	* Debounces input edits, validates the parsed value, and applies it to the
+	* selected endpoint.
+	*
+	* @param type The endpoint being edited.
+	* @param value The current text entered by the user.
+	*/
 	debouncedUpdate(type, value) {
 		if (this.debounceTimer) clearTimeout(this.debounceTimer);
 		this.debounceTimer = window.setTimeout(() => {
@@ -5654,32 +6942,76 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 			else if (type === "to" && this.isValidToValue(numValue)) this.updateTo(numValue);
 		}, 300);
 	}
+	/**
+	* Checks whether a lower-endpoint value is within the known minimum and
+	* upper endpoint.
+	*
+	* @param value The candidate lower endpoint.
+	* @returns `true` if the value is valid; otherwise, `false`.
+	*/
 	isValidFromValue(value) {
 		if (this.min !== void 0 && value < this.min) return false;
 		if (this.to !== void 0 && value > this.to) return false;
 		return true;
 	}
+	/**
+	* Checks whether an upper-endpoint value is within the known lower endpoint
+	* and maximum.
+	*
+	* @param value The candidate upper endpoint.
+	* @returns `true` if the value is valid; otherwise, `false`.
+	*/
 	isValidToValue(value) {
 		if (this.max !== void 0 && value > this.max) return false;
 		if (this.from !== void 0 && value < this.from) return false;
 		return true;
 	}
+	/**
+	* Determines whether the lower endpoint can move one configured step in the
+	* given direction.
+	*
+	* @param direction The direction in which to step.
+	* @returns `true` if the stepped value is valid; otherwise, `false`.
+	*/
 	canStepFrom(direction) {
 		if (this.from === void 0) return false;
 		const newValue = direction === "up" ? this.from + this.step : this.from - this.step;
 		return this.isValidFromValue(newValue);
 	}
+	/**
+	* Determines whether the upper endpoint can move one configured step in the
+	* given direction.
+	*
+	* @param direction The direction in which to step.
+	* @returns `true` if the stepped value is valid; otherwise, `false`.
+	*/
 	canStepTo(direction) {
 		if (this.to === void 0) return false;
 		const newValue = direction === "up" ? this.to + this.step : this.to - this.step;
 		return this.isValidToValue(newValue);
 	}
+	/**
+	* Checks whether the registry minimum can replace the current lower endpoint.
+	*
+	* @returns `true` if the minimum can be applied; otherwise, `false`.
+	*/
 	canSetMin() {
 		return this.min !== void 0 && this.to !== void 0 && this.min <= this.to && this.from !== this.min;
 	}
+	/**
+	* Checks whether the registry maximum can replace the current upper endpoint.
+	*
+	* @returns `true` if the maximum can be applied; otherwise, `false`.
+	*/
 	canSetMax() {
 		return this.max !== void 0 && this.from !== void 0 && this.max >= this.from && this.to !== this.max;
 	}
+	/**
+	* Moves the lower endpoint by one configured step and applies the rounded
+	* value when valid.
+	*
+	* @param direction The direction in which to move the endpoint.
+	*/
 	stepFrom(direction) {
 		if (this.from === void 0 || !this.canStepFrom(direction)) return;
 		const newValue = direction === "up" ? this.from + this.step : this.from - this.step;
@@ -5687,6 +7019,12 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 		this.inputValues.from = roundedValue.toFixed(2);
 		this.updateFrom(roundedValue);
 	}
+	/**
+	* Moves the upper endpoint by one configured step and applies the rounded
+	* value when valid.
+	*
+	* @param direction The direction in which to move the endpoint.
+	*/
 	stepTo(direction) {
 		if (this.to === void 0 || !this.canStepTo(direction)) return;
 		const newValue = direction === "up" ? this.to + this.step : this.to - this.step;
@@ -5694,19 +7032,31 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 		this.inputValues.to = roundedValue.toFixed(2);
 		this.updateTo(roundedValue);
 	}
+	/** Sets the lower endpoint to the registry minimum when the range permits it. */
 	setMinValue() {
 		if (!this.canSetMin() || this.min === void 0) return;
 		this.inputValues.from = this.min.toFixed(2);
 		this.updateFrom(this.min);
 	}
+	/** Sets the upper endpoint to the registry maximum when the range permits it. */
 	setMaxValue() {
 		if (!this.canSetMax() || this.max === void 0) return;
 		this.inputValues.to = this.max.toFixed(2);
 		this.updateTo(this.max);
 	}
+	/**
+	* Sets the increment used when stepping range endpoints.
+	*
+	* @param newStep The step size to use.
+	*/
 	setStep(newStep) {
 		this.step = newStep;
 	}
+	/**
+	* Rounds the selected range endpoint to the nearest valid integer and applies it.
+	*
+	* @param type The endpoint to round.
+	*/
 	roundToNearestInteger(type) {
 		const currentValue = type === "from" ? this.from : this.to;
 		if (currentValue === void 0) return;
@@ -5722,6 +7072,12 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 			this.updateTo(safeValue);
 		}
 	}
+	/**
+	* Returns step sizes that can move at least one current endpoint in either
+	* direction.
+	*
+	* @returns The available step sizes.
+	*/
 	getAvailableSteps() {
 		return this.availableSteps.filter((step) => {
 			const fromCanStep = this.from !== void 0 && (this.isValidFromValue(this.from + step) || this.isValidFromValue(this.from - step));
@@ -5729,9 +7085,23 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 			return fromCanStep || toCanStep;
 		});
 	}
+	/**
+	* Checks whether a defined value is an integer.
+	*
+	* @param value The value to check.
+	* @returns `true` if the value is an integer; otherwise, `false`.
+	*/
 	isWholeNumber(value) {
 		return value !== void 0 && Math.round(value) === value;
 	}
+	/**
+	* Parses endpoint input and clamps it to the currently valid range, falling
+	* back to the current value when input is empty or invalid.
+	*
+	* @param inputValue The text entered in the endpoint input.
+	* @param type The endpoint being validated.
+	* @returns The parsed, clamped value, or the current endpoint value.
+	*/
 	getClosestValidValue(inputValue, type) {
 		if (!inputValue.trim()) return type === "from" ? this.from : this.to;
 		const numValue = parseFloat(inputValue);
@@ -5750,6 +7120,13 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 			return numValue;
 		}
 	}
+	/**
+	* Normalizes an endpoint input on blur and applies the corrected value to
+	* the registry.
+	*
+	* @param type The endpoint whose input lost focus.
+	* @param inputValue The input text to normalize.
+	*/
 	handleInputBlur(type, inputValue) {
 		const correctedValue = this.getClosestValidValue(inputValue, type);
 		if (correctedValue !== void 0) {
@@ -6035,6 +7412,15 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
     
     `;
 	}
+	/**
+	* Renders one range endpoint input with its step controls and interaction
+	* handlers.
+	*
+	* @param type The endpoint represented by the input.
+	* @param before Optional content rendered before the input controls.
+	* @param after Optional content rendered after the input controls.
+	* @returns The Lit template for the endpoint input.
+	*/
 	renderInput(type, before = void 0, after = void 0) {
 		const value = type === "from" ? this.from : this.to;
 		const inputValue = this.inputValues[type];
@@ -6065,8 +7451,8 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
                     .value=${inputValue}
                     type="number"
                     step=${this.step}
-                    min=${type === "from" ? this.min : this.from}
-                    max=${type === "from" ? this.to : this.max}
+                    min=${(0, lit_directives_if_defined_js.ifDefined)(type === "from" ? this.min : this.from)}
+                    max=${(0, lit_directives_if_defined_js.ifDefined)(type === "from" ? this.to : this.max)}
                     @input=${(e) => {
 			const target = e.target;
 			this.inputValues = {
@@ -6151,13 +7537,13 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
                 ?disabled=${!this.canSetMin() && !this.canSetMax()}
             >
                 <svg width="35" height="16" viewBox="0 0 35 16" fill="none" style="display: block;" stroke-linecap="butt" stroke-linejoin="miter">
-                    <!-- Levý symbol (min) -->
+                    <!-- Minimum-bound icon. -->
                     <line x1="3" y1="2" x2="3" y2="14" stroke="currentColor" stroke-width="1"/>
                     <line x1="3" y1="8" x2="8" y2="3" stroke="currentColor" stroke-width="1"/>
                     <line x1="3" y1="8" x2="8" y2="13" stroke="currentColor" stroke-width="1"/>
-                    <!-- Spojitá čára se šipkami na koncích -->
+                    <!-- Line connecting the endpoint arrows. -->
                     <line x1="3" y1="8" x2="32" y2="8" stroke="currentColor" stroke-width="1"/>
-                    <!-- Pravý symbol (max) -->
+                    <!-- Maximum-bound icon. -->
                     <line x1="32" y1="2" x2="32" y2="14" stroke="currentColor" stroke-width="1"/>
                     <line x1="32" y1="8" x2="27" y2="3" stroke="currentColor" stroke-width="1"/>
                     <line x1="32" y1="8" x2="27" y2="13" stroke="currentColor" stroke-width="1"/>
@@ -6234,11 +7620,11 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Ob
 
 //#endregion
 //#region src/controls/registry/RegistryTicksBar.ts
-var _ref$4, _ref2;
 var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.ticksRef = (0, lit_directives_ref_js.createRef)();
+		this.ticksWidth = 0;
 		this.placement = "top";
 		this.minmax = void 0;
 		this.ticks = [];
@@ -6252,19 +7638,62 @@ var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		this.registry.minmax.addListener(this.UUID, (value) => {
-			this.minmax = value;
-			if (this.ticksRef.value) this.calculateTicks(value, this.ticksRef.value.clientWidth);
-		});
-		this.minmax = this.registry.minmax.value;
+		this.bindRegistry();
+		this.minmax = this.boundRegistry?.minmax.value;
+		this.ticksWidth = this.ticksRef.value?.clientWidth ?? 0;
+		this.requestUpdate();
 	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		this.observer = new ResizeObserver((entries) => {
-			const entry = entries[0];
-			this.calculateTicks(this.minmax, entry.contentRect.width);
+	disconnectedCallback() {
+		this.unbindRegistry();
+		this.disconnectObserver();
+		super.disconnectedCallback();
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (this.boundRegistry !== this.registryController?.registryObject && this.isConnected) {
+			this.bindRegistry();
+			this.minmax = this.boundRegistry?.minmax.value;
+		}
+		if (changedProperties.has("minmax") || changedProperties.has("ticksWidth")) this.calculateTicks(this.minmax, this.ticksWidth);
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		this.observeTicks();
+	}
+	/** Subscribes once to the current registry while connected, replacing the previous range listener. */
+	bindRegistry() {
+		const registry = this.registryController?.registryObject;
+		if (!this.isConnected || registry === this.boundRegistry) return;
+		this.unbindRegistry();
+		this.boundRegistry = registry;
+		registry?.minmax.addListener(this.UUID, (value) => {
+			this.minmax = value;
 		});
-		this.observer.observe(this.ticksRef.value);
+	}
+	/** Removes the listener from the actual subscribed registry rather than the current context value. */
+	unbindRegistry() {
+		this.boundRegistry?.minmax.removeListener(this.UUID);
+		this.boundRegistry = void 0;
+	}
+	/** Observes the rendered ticks container and restores observation after reconnecting. */
+	observeTicks() {
+		const ticks = this.isConnected ? this.ticksRef.value : void 0;
+		if (ticks === this.observedTicks) return;
+		this.disconnectObserver();
+		if (!ticks) return;
+		this.observedTicks = ticks;
+		this.observer = new ResizeObserver((entries) => {
+			if (!this.isConnected || this.observedTicks !== ticks) return;
+			const entry = entries.find((entry) => entry.target === ticks);
+			if (entry) this.ticksWidth = entry.contentRect.width;
+		});
+		this.observer.observe(ticks);
+	}
+	/** Releases observation without requiring the old node to remain in the Lit ref. */
+	disconnectObserver() {
+		this.observer?.disconnect();
+		this.observer = void 0;
+		this.observedTicks = void 0;
 	}
 	clamp(input, min, max) {
 		return input < min ? min : input > max ? max : input;
@@ -6364,13 +7793,12 @@ var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
 	render() {
 		let highlightLeft = void 0;
 		let highlightWidth = void 0;
-		if (this.registry.minmax.value && this.highlight) {
-			const min = this.registry.minmax.value.min;
-			const minmax = this.registry.minmax.value.max - min;
+		if (this.minmax && this.highlight) {
+			const min = this.minmax.min;
+			const minmax = this.minmax.max - min;
 			highlightLeft = (this.highlight.from - min) / minmax * 100;
 			highlightWidth = (this.highlight.to - min) / minmax * 100 - highlightLeft;
 		}
-		this.log(highlightLeft, highlightWidth);
 		return lit.html`
 
             <div class="container ${this.minmax !== void 0 ? "ready" : "loading"} placement-${this.placement}" ${(0, lit_directives_ref_js.ref)(this.containerRef)}>
@@ -6399,15 +7827,16 @@ var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
         `;
 	}
 };
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], RegistryTicksBar.prototype, "ticksWidth", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: registryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$4 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$4 : Object)], RegistryTicksBar.prototype, "highlight", void 0);
+}), __decorateMetadata("design:type", Object)], RegistryTicksBar.prototype, "highlight", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], RegistryTicksBar.prototype, "placement", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2 = typeof _labirthermal_core.ThermalMinmaxOrUndefined !== "undefined" && _labirthermal_core.ThermalMinmaxOrUndefined) === "function" ? _ref2 : Object)], RegistryTicksBar.prototype, "minmax", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryTicksBar.prototype, "minmax", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], RegistryTicksBar.prototype, "ticks", void 0);
 
 //#endregion
@@ -6415,6 +7844,8 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Ar
 var RegistryRangeSlider = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
+		this.height = null;
+		this.heightStyle = null;
 		this.loading = false;
 		this.activeHandle = "from";
 	}
@@ -6427,6 +7858,18 @@ var RegistryRangeSlider = class extends AbstractRegistryConsumer {
 	}
 	willUpdate(changed) {
 		super.willUpdate(changed);
+		if (changed.has("height") || changed.has("heightStyle")) {
+			const height = this.height?.trim();
+			const style = document.createElement("div").style;
+			if (height) style.height = height;
+			const current = this.style.getPropertyValue("--_range-slider-attribute-height");
+			if (height && style.height && !/^(auto|inherit|initial|unset|revert|revert-layer|min-content|max-content|fit-content|stretch|contain)$/i.test(height)) {
+				if (current !== height) this.style.setProperty("--_range-slider-attribute-height", height);
+			} else {
+				if (current) this.style.removeProperty("--_range-slider-attribute-height");
+				if (height && changed.has("height")) this.log("Invalid range slider height", { height: this.height });
+			}
+		}
 		if ([
 			"min",
 			"max",
@@ -6606,25 +8049,30 @@ var RegistryRangeSlider = class extends AbstractRegistryConsumer {
 	}
 	static {
 		this.styles = lit.css`
-        :host { display: block; }
-        .container {
-            height: var(--thermal-gap);
-            padding: 0 calc(var(--thermal-gap) * .5);
+        :host {
+            display: block; box-sizing: content-box;
+            --_range-slider-attribute-height: initial;
+            height: var(--_range-slider-attribute-height, var(--thermal-range-slider-height, 15px));
+            padding-bottom: max(0px, calc(var(--thermal-gap) - 15px));
             margin-bottom: -6px;
+        }
+        .container {
+            height: 100%;
+            padding: 0 calc(var(--thermal-gap) * .5);
             color: var(--thermal-slate-dark);
             font-size: 12px;
         }
-        .slider-row { display: flex; align-items: center; }
+        .slider-row { display: flex; align-items: center; height: 100%; }
         .track {
-            position: relative; flex: 1; min-width: 0; height: 15px;
+            position: relative; flex: 1; min-width: 0; height: 100%;
             background: var(--thermal-slate); cursor: pointer; touch-action: none;
         }
         .fill { position: absolute; height: 100%; pointer-events: none; }
-        .handle-position { position: absolute; top: 50%; z-index: 20; }
+        .handle-position { position: absolute; top: 0; height: 100%; z-index: 20; }
         .handle-position.active { z-index: 21; }
         .handle {
-            position: absolute; transform: translate(-50%, -50%);
-            box-sizing: border-box; width: 14px; height: 20px; padding: 0; border-radius: 0;
+            position: absolute; top: 50%; transform: translate(-50%, -50%);
+            box-sizing: border-box; width: 14px; height: calc(100% + 5px); padding: 0; border-radius: 0;
             border: 2px solid var(--thermal-primary); background: var(--thermal-background);
             box-shadow: 0 0 5px var(--thermal-primary); cursor: grab; touch-action: none;
         }
@@ -6634,7 +8082,7 @@ var RegistryRangeSlider = class extends AbstractRegistryConsumer {
         .handle:disabled { cursor: default; }
         .tooltip {
             position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none;
-            top: 24px; min-width: 40px; height: 20px; line-height: 20px; text-align: center;
+            top: calc(100% + 16.5px); min-width: 40px; height: 20px; line-height: 20px; text-align: center;
             padding: 0 3px; background: var(--thermal-slate-dark); color: var(--thermal-background);
             border: 1px solid var(--thermal-slate-dark); border-radius: 3px;
         }
@@ -6643,7 +8091,7 @@ var RegistryRangeSlider = class extends AbstractRegistryConsumer {
             width: 7px; height: 7px; transform: rotate(45deg);
             background: var(--thermal-slate-dark);
         }
-        .skeleton { height: calc(var(--thermal-fs) * .9); background: var(--thermal-slate); }
+        .skeleton { height: 100%; background: var(--thermal-slate); }
     `;
 	}
 	render() {
@@ -6675,6 +8123,14 @@ var RegistryRangeSlider = class extends AbstractRegistryConsumer {
             <slot></slot>`;
 	}
 };
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Object)], RegistryRangeSlider.prototype, "height", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	attribute: "style"
+}), __decorateMetadata("design:type", Object)], RegistryRangeSlider.prototype, "heightStyle", void 0);
 __decorate([
 	(0, _lit_context.consume)({
 		context: registryMinContext,
@@ -6727,6 +8183,212 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Ob
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeSlider.prototype, "activeHandle", void 0);
 
 //#endregion
+//#region src/controls/registry/RegistryHistogram.ts
+var RegistryHistogram = class extends AbstractRegistryConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.histogram = [];
+		this.height = "calc( var( --thermal-gap ) * 1.5 )";
+		this.heightExpanded = "400px";
+		this.expandable = false;
+		this.expanded = false;
+		this.loading = false;
+		this.error = false;
+	}
+	getClassName() {
+		return "HistogramElement";
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.loading = this.registryObject.histogram.loading;
+		this.registryObject.histogram.onCalculationStart.set(this.UUID, () => {
+			this.loading = true;
+			this.error = false;
+		});
+		this.registryObject.histogram.onCalculationEnd.set(this.UUID, (success) => {
+			this.loading = false;
+			this.error = !success;
+		});
+		this.registryObject.loading.addListener(this.UUID, (value) => {
+			if (value === true) this.loading = true;
+		});
+	}
+	firstUpdated(_changedProperties) {
+		super.firstUpdated(_changedProperties);
+		this.registryObject.histogram.addListener(this.UUID, (value) => {
+			this.histogram = value;
+		});
+	}
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.registryObject.loading.removeListener(this.UUID);
+		this.registryObject.histogram.removeListener(this.UUID);
+		this.registryObject.histogram.onCalculationStart.delete(this.UUID);
+		this.registryObject.histogram.onCalculationEnd.delete(this.UUID);
+	}
+	static {
+		this.styles = lit.css`
+
+        @keyframes spinner {
+            0% {left: 0px; width: 0%;}
+            50% {left: 25%; width: 50%;}
+            100% {left: 100%; width: 0%;}
+        }
+
+        .container {
+            padding: 0 calc( var( --thermal-gap ) * .5 );
+            position: relative;
+
+            .spinner {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                
+
+                span {
+                    width: calc( 100% - var(--thermal-gap) );
+                    height: 6px;
+                    display: block;
+                    position: relative;
+                    overflow: hidden;
+                    border-radius: 3px;
+
+                    &::after {
+                        content: "";
+                        display: block;
+                        background: var(--thermal-slate-dark);
+                        position: absolute;
+                        opacity: .2;
+                        height: 100%;
+                        animation-name: spinner;
+                        animation-duration: 1s;
+                        animation-iteration-count: infinite;
+                        animation-timing-function: linear
+                    }
+                }
+
+            }
+
+            &.loading:not(.has-error) {
+
+                .spinner {
+                    display: flex;
+                }
+
+                .histogram {
+                    opacity: .8;
+                }
+            }
+
+        }
+
+        .histogram {
+            display: flex;
+            width: 100%;
+            background:  transparent;
+            transition: opacity .3s ease-in-out;
+
+            &.expandable {
+                transition: all .2s ease-in-out;
+                cursor: pointer;
+                &:hover {
+                    background: var(--thermal-background);
+                }
+            }
+        }
+
+        .histogram-bar {
+            flex-grow: 1;
+            position: relative;
+            height: 100%;
+
+            &:hover {
+                .histogram-bar-inner {
+                    background: var(--thermal-foreground);
+                }
+            }
+        }
+
+        .histogram-bar-inner {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            width: 100%;
+            background: var(--thermal-slate-dark);
+            transition: height .5s ease-in-out;
+        }
+
+        .error {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--thermal-slate-light);
+            color: var(--thermal-slate);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+
+    `;
+	}
+	render() {
+		return lit.html`
+
+            <div class="container ${this.histogram.length > 0 && this.loading === false ? "ready" : "loading"} ${this.error ? "has-error" : "is-ok"}">
+
+                <div class="histogram ${this.expandable === true ? "expandable" : ""}" style="height: ${this.expanded ? this.heightExpanded : this.height}" part="bg" @click=${() => {
+			if (this.expandable === true) this.expanded = !this.expanded;
+		}}>
+
+                    ${this.histogram.map((item) => {
+			return lit.html`
+                            <div class="histogram-bar" data-height="${item.height}" data-percentage="${item.percentage}" data-count="${item.count}" data-from="${item.from}" data-to="${item.to}">
+                                <div style="height: ${item.height}%" class="histogram-bar-inner"></div>
+                            </div
+                        `;
+		})}
+
+                </div>
+
+                ${this.error === true ? lit.html`<div class="error">Unable to calculate the histogram</div>` : lit.nothing}
+
+                <div class="spinner">
+                    <span></span>
+                </div>
+
+            </div>
+        
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryHistogram.prototype, "histogram", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], RegistryHistogram.prototype, "height", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], RegistryHistogram.prototype, "heightExpanded", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	reflect: true,
+	converter: booleanConverter(false)
+}), __decorateMetadata("design:type", Boolean)], RegistryHistogram.prototype, "expandable", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryHistogram.prototype, "expanded", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryHistogram.prototype, "loading", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryHistogram.prototype, "error", void 0);
+
+//#endregion
 //#region src/controls/registry/RegistryRangeFullButton.ts
 var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
@@ -6734,12 +8396,12 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
 		this.buttonRef = (0, lit_directives_ref_js.createRef)();
 	}
 	doAction() {
-		this.registry.range.applyMinmax();
+		this.registryObject.range.applyMinmax();
 	}
 	mouseenter() {
-		if (this.registry.minmax.value !== void 0 && this.registryController) this.registryController.setHighlight({
-			from: this.registry.minmax.value.min,
-			to: this.registry.minmax.value.max
+		if (this.registryObject.minmax.value !== void 0 && this.registryController) this.registryController.setHighlight({
+			from: this.registryObject.minmax.value.min,
+			to: this.registryObject.minmax.value.max
 		});
 	}
 	mouseleave() {
@@ -6761,7 +8423,7 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
 //#region src/controls/registry/RegistryRangeAutoButton.ts
 var RegistryRangeAutoButton = class extends AbstractRegistryConsumer {
 	doAction() {
-		this.registry.range.applyAuto();
+		this.registryObject.range.applyAuto();
 	}
 	render() {
 		return lit.html`<thermal-btn @click=${this.doAction}>${(0, i18next.t)(T.automaticrange)}</thermal-btn>`;
@@ -6824,7 +8486,7 @@ var RegistryOpacitySlider = class extends AbstractRegistryConsumer {
 	/** Handle user input events */
 	handleUserChangeEvent(event) {
 		const value = parseFloat(event.target.value);
-		this.registry.opacity.imposeOpacity(value);
+		this.registryObject.opacity.imposeOpacity(value);
 	}
 	static {
 		this.styles = lit.css`
@@ -6885,22 +8547,6 @@ __decorate([(0, _lit_context.consume)({
 
 //#endregion
 //#region src/controls/group/GroupChartElement.ts
-/**
-* @license
-* Copyright 2014-2020 Google LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     https://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 var _ref$3;
 var GroupChartElement = class extends AbstractGroupConsumer {
 	constructor(..._args) {
@@ -6910,10 +8556,10 @@ var GroupChartElement = class extends AbstractGroupConsumer {
 	}
 	firstUpdated(_changedProperties) {
 		super.firstUpdated(_changedProperties);
-		this.group.files.addListener(this.UUID, () => {
-			this.group.analysisGraph.turnOn();
+		this.groupObject.files.addListener(this.UUID, () => {
+			this.groupObject.analysisGraph.turnOn();
 		});
-		this.group.analysisGraph.addListener(this.UUID, (value) => {
+		this.groupObject.analysisGraph.addListener(this.UUID, (value) => {
 			if (value !== void 0) {
 				this.data = value.data;
 				this.colors = value.colors;
@@ -6986,14 +8632,14 @@ var GroupAnalysisSyncButton = class extends AbstractGroupConsumer {
 		super.connectedCallback();
 		if (this.on) {
 			const id = this.UUID + "__initial";
-			this.group.files.addListener(id, (value) => {
+			this.groupObject.files.addListener(id, (value) => {
 				if (value.length > 0) {
-					this.group.analysisSync.turnOn(value[0]);
-					this.group.files.removeListener(id);
+					this.groupObject.analysisSync.turnOn(value[0]);
+					this.groupObject.files.removeListener(id);
 				}
 			});
-		} else this.on = this.group.analysisSync.value;
-		this.group.analysisSync.addListener(this.UUID, (value) => {
+		} else this.on = this.groupObject.analysisSync.value;
+		this.groupObject.analysisSync.addListener(this.UUID, (value) => {
 			this.on = value;
 		});
 		this.addEventListener("click", () => {
@@ -7001,13 +8647,14 @@ var GroupAnalysisSyncButton = class extends AbstractGroupConsumer {
 		});
 	}
 	turnOn() {
-		if (this.group.files.value.length > 0) this.group.analysisSync.turnOn(this.group.files.value[0]);
+		if (this.groupObject.files.value.length > 0) this.groupObject.analysisSync.turnOn(this.groupObject.files.value[0]);
 	}
 	turnOff() {
-		this.group.analysisSync.turnOff();
+		this.groupObject.analysisSync.turnOff();
 	}
 	toggle() {
-		this.on ? this.turnOff() : this.turnOn();
+		if (this.on) this.turnOff();
+		else this.turnOn();
 	}
 	static {
 		this.styles = lit.css`
@@ -7019,8 +8666,9 @@ var GroupAnalysisSyncButton = class extends AbstractGroupConsumer {
 
         :host(:hover) {
             span {
-                
+
             }
+
         }
 
         :host([on=true]) {
@@ -7093,18 +8741,18 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
     `;
 	}
 	render() {
-		const png = this.config?.settings.export.png;
-		const groupSettings = this.config?.settings.export.group;
+		const png = this.configController?.settings.export.png;
+		const groupSettings = this.configController?.settings.export.group;
 		return lit.html`
         
-            <thermal-dropdown class="download ${this.classList.contains("small") ? "small" : ""}">
+            <thermal-dropdown class="download ${this.classList.contains("small") ? "small" : ""}" .variant=${this.variant} .icon=${this.icon} .iconStyle=${this.iconStyle}>
             
                 <span slot="invoker">${(0, i18next.t)(T.download)}</span>
             
                 <thermal-btn 
                     slot="option" 
                     pre="LRC" 
-                    @click=${() => this.group.files.downloadAllFiles()}
+                    @click=${() => this.groupObject.files.downloadAllFiles()}
                     tooltip=${(0, i18next.t)(T.downloadoriginalfileshint)}
                     tooltip-placement="right"
                 >
@@ -7114,7 +8762,7 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
                 <thermal-btn 
                     slot="option" 
                     pre="PNG" 
-                    @click=${() => this.group.forEveryInstance((instance) => instance.export.downloadPng())}
+                    @click=${() => this.groupObject.forEveryInstance((instance) => instance.export.downloadPng())}
                     tooltip=${(0, i18next.t)(T.pngofindividualimageshint)}
                     tooltip-placement="right"
                 >
@@ -7124,7 +8772,7 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
                 <thermal-btn 
                     slot="option"
                     pre="PNG" 
-                    @click=${() => this.group.analysisSync.png.downloadPng({
+                    @click=${() => this.groupObject.analysisSync.png.downloadPng({
 			columns: groupSettings?.columns ?? 3,
 			showGroupName: groupSettings?.groupName ?? false,
 			fontSize: png?.fontSize ?? 12,
@@ -7144,7 +8792,7 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
                     slot="option" 
                     pre="CSV" 
                     @click=${() => {
-			this.group.analysisSync.csv.downloadAsCsv();
+			this.groupObject.analysisSync.csv.downloadAsCsv();
 		}}
                     tooltip=${(0, i18next.t)(T.csvofanalysisdatahint)}
                     tooltip-placement="right"
@@ -7164,7 +8812,19 @@ __decorate([
 		subscribe: true
 	}),
 	__decorateMetadata("design:type", Object)
-], GroupDownloadDropdown.prototype, "config", void 0);
+], GroupDownloadDropdown.prototype, "configController", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], GroupDownloadDropdown.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], GroupDownloadDropdown.prototype, "iconStyle", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], GroupDownloadDropdown.prototype, "variant", void 0);
 
 //#endregion
 //#region src/controls/group/GroupDownloadButtons.ts
@@ -7198,16 +8858,16 @@ var GroupDownloadButtons = class extends AbstractGroupConsumer {
     `;
 	}
 	render() {
-		const png = this.config?.settings.export.png;
-		const group = this.config?.settings.export.group;
+		const png = this.configController?.settings.export.png;
+		const group = this.configController?.settings.export.group;
 		return lit.html`
         
-                <button class="default" @click=${() => this.group.files.downloadAllFiles()}>${(0, i18next.t)(T.downloadoriginalfiles)}</button>
+                <button class="default" @click=${() => this.groupObject.files.downloadAllFiles()}>${(0, i18next.t)(T.downloadoriginalfiles)}</button>
             
-                <button class="default" @click=${() => this.group.forEveryInstance((instance) => instance.export.downloadPng())}>${(0, i18next.t)(T.pngofindividualimages)}</button>
+                <button class="default" @click=${() => this.groupObject.forEveryInstance((instance) => instance.export.downloadPng())}>${(0, i18next.t)(T.pngofindividualimages)}</button>
             
             
-                <button class="default" @click=${() => this.group.analysisSync.png.downloadPng({
+                <button class="default" @click=${() => this.groupObject.analysisSync.png.downloadPng({
 			columns: group?.columns,
 			showAnalysis: png?.analyses,
 			showFileDate: png?.fileDate,
@@ -7219,7 +8879,7 @@ var GroupDownloadButtons = class extends AbstractGroupConsumer {
 		})}>${(0, i18next.t)(T.pngofentiregroup)}</button>
             
                 <button class="default" @click=${() => {
-			this.group.analysisSync.csv.downloadAsCsv();
+			this.groupObject.analysisSync.csv.downloadAsCsv();
 		}}>${(0, i18next.t)(T.csvofanalysisdata)}</button>
         
         `;
@@ -7233,7 +8893,7 @@ __decorate([
 		subscribe: true
 	}),
 	__decorateMetadata("design:type", Object)
-], GroupDownloadButtons.prototype, "config", void 0);
+], GroupDownloadButtons.prototype, "configController", void 0);
 
 //#endregion
 //#region src/controls/group/AbstractGroupDropin.ts
@@ -7242,20 +8902,32 @@ var AbstractGroupDropin = class extends AbstractGroupConsumer {
 		super.connectedCallback();
 		(0, public_ip.publicIpv4)().then((ip) => this.ip = ip);
 	}
-	emitUpload(fileName, fileSize) {
-		const userAgent = window.navigator.userAgent;
-		const width = window.innerWidth;
-		const height = window.innerHeight;
-		const time = (/* @__PURE__ */ new Date()).getTime();
+	_getUserInfo() {
+		return {
+			ip: this.ip,
+			userAgent: window.navigator.userAgent,
+			windowWidth: window.innerWidth,
+			windowHeight: window.innerHeight,
+			time: (/* @__PURE__ */ new Date()).getTime()
+		};
+	}
+	emitMultipleUpload(fileNames) {
+		const event = new CustomEvent("multiple-upload", {
+			bubbles: true,
+			cancelable: false,
+			detail: {
+				...this._getUserInfo(),
+				fileNames
+			}
+		});
+		this.dispatchEvent(event);
+	}
+	emitSingleUpload(fileName, fileSize) {
 		const event = new CustomEvent("uploaded", {
 			bubbles: true,
 			cancelable: false,
 			detail: {
-				ip: this.ip,
-				userAgent,
-				windowWidth: width,
-				windowHeight: height,
-				time,
+				...this._getUserInfo(),
 				fileName,
 				fileSize
 			}
@@ -7264,10 +8936,10 @@ var AbstractGroupDropin = class extends AbstractGroupConsumer {
 	}
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractGroupDropin.prototype, "ip", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AbstractGroupDropin.prototype, "onDrop", void 0);
 
 //#endregion
 //#region src/controls/group/GroupDropinElement.ts
-var _ref$2;
 var GroupDropinElement = class extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -7278,7 +8950,7 @@ var GroupDropinElement = class extends AbstractGroupDropin {
 	firstUpdated(_changedProperties) {
 		super.firstUpdated(_changedProperties);
 		if (this.container.value !== void 0) {
-			const listener = this.manager.service.handleDropzone(this.container.value, false);
+			const listener = this.managerObject.service.handleDropzone(this.container.value, true);
 			listener.onMouseEnter.add(this.UUID, () => {
 				console.log("mouseenter");
 				this.hover = true;
@@ -7291,12 +8963,7 @@ var GroupDropinElement = class extends AbstractGroupDropin {
 				this.uploading = true;
 			});
 			listener.onProcessingEnd.add(this.UUID, async (results) => {
-				await Promise.all(results.map(async (result) => {
-					if (result instanceof _labirthermal_core.ThermalFileReader) {
-						const instance = await result.createInstance(this.group);
-						this.emitUpload(instance.fileName, instance.bytesize);
-					}
-				}));
+				if (this.onDrop !== void 0) await this.onDrop(results);
 				this.uploading = false;
 			});
 		}
@@ -7417,7 +9084,11 @@ var GroupDropinElement = class extends AbstractGroupDropin {
 
                     <div class="dropin-content">
                         <div>${(0, i18next.t)(T.dragorselectfile)}</div>
-                        <thermal-btn variant="foreground">${(0, i18next.t)(T.selectfile)}</thermal-btn>
+                        <thermal-btn 
+                            variant="foreground"
+                            icon="upload"
+                            iconStyle="micro"
+                        >${(0, i18next.t)(T.selectfile)}</thermal-btn>
                     </div>
 
                     <div class="dropin-uploading">
@@ -7433,13 +9104,12 @@ var GroupDropinElement = class extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$2 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$2 : Object)], GroupDropinElement.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupDropinElement.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinElement.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinElement.prototype, "uploading", void 0);
 
 //#endregion
 //#region src/controls/group/GroupDropinInput.ts
-var _ref$1;
 var GroupDropinInputElement = class extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -7542,7 +9212,7 @@ var GroupDropinInputElement = class extends AbstractGroupDropin {
 	firstUpdated(_changedProperties) {
 		super.firstUpdated(_changedProperties);
 		if (this.container.value !== void 0) {
-			this.listener = this.manager.service.handleDropzone(this.container.value, false);
+			this.listener = this.managerObject.service.handleDropzone(this.container.value, true);
 			this.listener.onMouseEnter.add(this.UUID, () => {
 				this.hover = true;
 			});
@@ -7553,29 +9223,27 @@ var GroupDropinInputElement = class extends AbstractGroupDropin {
 				this.uploading = true;
 			});
 			this.listener.onProcessingEnd.add(this.UUID, async (results) => {
-				this.group.files.removeAllInstances();
-				await Promise.all(results.map(async (result) => {
-					if (result instanceof _labirthermal_core.ThermalFileReader) {
-						const instance = await result.createInstance(this.group);
-						this.emitUpload(instance.fileName, instance.bytesize);
-					}
-				}));
+				if (this.onDrop !== void 0) await this.onDrop(results);
 				this.uploading = false;
 			});
 		}
 	}
 	render() {
+		const title = this.uploading === false ? (0, i18next.t)(T.uploadafile) : lit.html`<div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>`;
 		return lit.html`
-
-
-            <thermal-btn @click="${() => {
-			if (this.listener) this.listener.openFileDialog(false);
-		}}"><slot>${this.uploading === false ? (0, i18next.t)(T.uploadafile) : lit.html`<div class="lds-ellipsis">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>`}</slot></thermal-btn>
+            <thermal-btn 
+              icon="${(0, lit_directives_if_defined_js.ifDefined)(this.icon)}"
+              iconStyle="${(0, lit_directives_if_defined_js.ifDefined)(this.iconStyle)}"
+              tooltip="${(0, lit_directives_if_defined_js.ifDefined)(this.tooltip)}"
+              variant="${(0, lit_directives_if_defined_js.ifDefined)(this.variant)}"
+            @click="${() => {
+			if (this.listener) this.listener.openFileDialog(true);
+		}}"><slot>${title}</slot></thermal-btn>
 
             <div class="container">
             
@@ -7586,7 +9254,23 @@ var GroupDropinInputElement = class extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$1 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$1 : Object)], GroupDropinInputElement.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], GroupDropinInputElement.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], GroupDropinInputElement.prototype, "iconStyle", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], GroupDropinInputElement.prototype, "tooltip", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], GroupDropinInputElement.prototype, "variant", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupDropinInputElement.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInputElement.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInputElement.prototype, "uploading", void 0);
 
@@ -7610,7 +9294,7 @@ var AbstractFileButton = class extends AbstractFileConsumer {
 			if (!this.isWithinButton(event.relatedTarget)) this.leave();
 		};
 	}
-	onInstanceCreated(instance) {}
+	onInstanceCreated() {}
 	onFailure() {}
 	isWithinButton(target) {
 		return target instanceof Node && (this.contains(target) || this.renderRoot.contains(target));
@@ -7663,18 +9347,18 @@ var GroupRangePropagatorElement = class extends AbstractGroupConsumer {
 	connectedCallback() {
 		super.connectedCallback();
 		this.onmouseenter = () => {
-			if (this.group && this.group.minmax.value && this.registryController) this.registryController.setHighlight({
-				from: this.group.minmax.value.min,
-				to: this.group.minmax.value.max
+			if (this.groupObject && this.groupObject.minmax.value && this.registryController) this.registryController.setHighlight({
+				from: this.groupObject.minmax.value.min,
+				to: this.groupObject.minmax.value.max
 			});
 		};
 		this.onmouseleave = () => {
 			if (this.registryController) this.registryController.setHighlight(void 0);
 		};
 		this.onclick = () => {
-			if (this.group && this.group.minmax.value) this.group.registry.range.imposeRange({
-				from: this.group.minmax.value.min,
-				to: this.group.minmax.value.max
+			if (this.groupObject && this.groupObject.minmax.value) this.groupObject.registry.range.imposeRange({
+				from: this.groupObject.minmax.value.min,
+				to: this.groupObject.minmax.value.max
 			});
 		};
 	}
@@ -7912,7 +9596,7 @@ const ticksCss = lit.css`
 
 //#endregion
 //#region src/controls/group/GroupTimeline.ts
-var _ref;
+var _ref$2;
 var GroupTimelineElement = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -7932,22 +9616,22 @@ var GroupTimelineElement = class extends AbstractGroupConsumer {
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		this.group.registry.batch.onBatchComplete.set(this.UUID, this.onRegistryBatchEnded.bind(this));
-		this.group.files.addListener(this.UUID, (value) => {
+		this.groupObject.registry.batch.onBatchComplete.set(this.UUID, this.onRegistryBatchEnded.bind(this));
+		this.groupObject.files.addListener(this.UUID, (value) => {
 			if (this.listener !== void 0) clearTimeout(this.listener);
 			this.listener = setTimeout(async () => {
 				this.onRegistryBatchEnded(value);
 			}, 0);
 		});
-		this.group.playback.addListener(this.UUID, (value) => this.ms = value);
-		this.group.playback.onPlayingStatusChange.set(this.UUID, (value) => this.playing = value);
-		this.group.playback.onHasAnyCallback.set(this.UUID, (value) => this.has = value);
+		this.groupObject.playback.addListener(this.UUID, (value) => this.ms = value);
+		this.groupObject.playback.onPlayingStatusChange.set(this.UUID, (value) => this.playing = value);
+		this.groupObject.playback.onHasAnyCallback.set(this.UUID, (value) => this.has = value);
 	}
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
 		if (_changedProperties.has("ms")) {
 			if (this.ms !== void 0) {
-				if (this.ms !== this.group.playback.value) this.group.playback.setValueByRelativeMs(this.ms);
+				if (this.ms !== this.groupObject.playback.value) this.groupObject.playback.setValueByRelativeMs(this.ms);
 				if (this.indicatorRef.value) this.indicatorRef.value.style.width = this.msToPercent(this.ms) + "%";
 			}
 		}
@@ -7957,7 +9641,7 @@ var GroupTimelineElement = class extends AbstractGroupConsumer {
 		this.forEveryAffectedInstance((instance) => instance.unmountFromDom());
 		this.instances = results.filter((result) => {
 			if (result instanceof _labirthermal_core.ThermalFileFailure) return false;
-			return result.group.id === this.group.id;
+			return result.group.id === this.groupObject.id;
 		});
 		this.instances.forEach((result) => {
 			if (result.timeline.duration > length) length = result.timeline.duration;
@@ -7996,7 +9680,8 @@ var GroupTimelineElement = class extends AbstractGroupConsumer {
 		};
 	}
 	handlePlayButtonClick() {
-		this.group.playback.playing ? this.group.playback.stop() : this.group.playback.play();
+		if (this.groupObject.playback.playing) this.groupObject.playback.stop();
+		else this.groupObject.playback.play();
 	}
 	handleTimelineClick(event) {
 		const percent = event.layerX / event.target.clientWidth * 100;
@@ -8097,50 +9782,6845 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimelineElement.prototype, "instances", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimelineElement.prototype, "has", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimelineElement.prototype, "ticks", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref : Object)], GroupTimelineElement.prototype, "listener", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$2 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref$2 : Object)], GroupTimelineElement.prototype, "listener", void 0);
+
+//#endregion
+//#region src/controls/file/FileCanvas.ts
+/**
+* The component rendering the file canvas through `@labirthermal/core` functionality.
+* 
+* Extends `AbstractFileConsumer`, therefore needs to be in a webcomponent providing the necessary contexts.
+* 
+* @package @labirthermal/webcomponents
+* @author Jan Jáchim <jachim@ntc.zcu.cz>
+*/
+var FileCanvasElement = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.container = (0, lit_directives_ref_js.createRef)();
+		this.prefersGpu = true;
+	}
+	onInstanceCreated() {
+		this.requestUpdate();
+	}
+	onFailure() {}
+	connectedCallback() {
+		super.connectedCallback();
+		this.requestUpdate();
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+		if (!this.isConnected || !this.container.value) return;
+		if (this.mountedInstance !== this.file) {
+			this.unmountInstance();
+			if (this.file) {
+				this.file.setPreferWebGl(this.prefersGpu);
+				this.file.mountToDom(this.container.value);
+				this.mountedInstance = this.file;
+				this.file.draw();
+			}
+		} else if (_changedProperties.has("prefersGpu") && this.mountedInstance) {
+			this.mountedInstance.setPreferWebGl(this.prefersGpu);
+			this.mountedInstance.draw();
+		}
+	}
+	/** Releases the actual mount rather than a possibly newer file context value. */
+	unmountInstance() {
+		this.mountedInstance?.unmountFromDom();
+		this.mountedInstance = void 0;
+	}
+	disconnectedCallback() {
+		this.unmountInstance();
+		super.disconnectedCallback();
+	}
+	static {
+		this.styles = lit.css`
+
+        :host {
+            display: block;
+            width: 100%;
+            font-size: var( --thermal-fs );
+        }
+
+        :host,
+        .canvas-container {
+            box-sizing: border-box;
+        }
+
+        .canvas-container {
+
+            width: 100%;
+
+            background-color: var( --thermal-slate );
+            color: var( --thermal-background );
+
+            transition: color .3s ease-in-out, background-color .3s ease-in-out;
+
+            &.is-loading {
+
+                aspect-ratio: 4 / 3;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+            }
+
+            &.is-loaded {
+        
+            }
+
+            &.is-success {
+
+            }
+
+            &.is-error {
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: var( --thermal-gap );
+                box-sizing: border-box;
+            }
+
+        }
+
+        
+
+        .error-wrapper {
+
+            display: flex;
+            gap: calc( var( --thermal-gap ) * 0.5 );
+            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+
+            border: 2px dashed currentcolor;
+            border-radius: var( --thermal-radius );
+
+            padding: var( --thermal-gap );
+
+            thermal-icon {
+                width: 2em;
+                height: 2em;
+            }
+
+            .error-message {
+                font-size: small;
+                opacity: .5;
+            }
+
+        }
+    `;
+	}
+	renderPlaceholder() {
+		if (this.fileIsLoading === false) return lit.nothing;
+		return lit.html`<div class="file-canvas-loading">
+    <thermal-spinner color="var(--thermal-background)"></thermal-spinner>
+</div>`;
+	}
+	renderError() {
+		if (this.failure === void 0) return lit.nothing;
+		return lit.html`<div class="error-wrapper">
+    <thermal-icon 
+        icon="warning"
+        variant="outline"
+    ></thermal-icon>
+
+    <div class="error-title">
+        ${(0, i18next.t)(T.fileloadingerror)}
+    </div>
+    <div class="error-url">
+        ${this.failure?.thermalUrl}
+    </div>
+    <div class="error-message">
+        ${this.failure?.message}
+    </div>
+</div>`;
+	}
+	render() {
+		const isError = this.fileIsLoading === false && this.failure !== void 0;
+		const isSuccess = this.fileIsLoading === false && this.file !== void 0;
+		return lit.html`<div class=${(0, lit_directives_class_map_js.classMap)({
+			"canvas-container": true,
+			"is-loading": this.fileIsLoading,
+			"is-loaded": this.fileIsLoading === false,
+			"is-success": isSuccess,
+			"is-error": isError
+		})} part="file-canvas-container">
+    <div ${(0, lit_directives_ref_js.ref)(this.container)}></div>
+    ${this.renderPlaceholder()}
+    ${this.renderError()}
+</div>`;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	attribute: "prefers-gpu"
+}), __decorateMetadata("design:type", Boolean)], FileCanvasElement.prototype, "prefersGpu", void 0);
+
+//#endregion
+//#region src/controls/file/FileVideoExportButton.ts
+var FileVideoExportButton = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.size = "md";
+		this.label = "Exportovat video";
+		this.dialogRef = (0, lit_directives_ref_js.createRef)();
+		this.panelRef = (0, lit_directives_ref_js.createRef)();
+		this.slug = this.UUID + "__file-export";
+		this.isOpen = false;
+	}
+	onInstanceCreated() {}
+	onFailure() {}
+	renderDialog() {
+		const cnt = (0, lit_directives_when_js.when)(this.isOpen, () => lit.html`<file-video-export-panel ${(0, lit_directives_ref_js.ref)(this.panelRef)}></file-video-export-panel>`, () => lit.nothing);
+		return lit.html`<thermal-dialog
+            ${(0, lit_directives_ref_js.ref)(this.dialogRef)}
+            label="${this.t("export")}"
+            is-fullscreen="true"
+            .onCloseEveryTime=${() => {
+			this.isOpen = false;
+			return true;
+		}}
+        >
+
+            <div slot="content" style="height: 100%;">
+                ${cnt}
+            </div>
+
+            ${this.renderCurrentFrameExportButton()}
+
+            ${this.renderVideoExportButton()}
+        
+        </thermal-dialog>`;
+	}
+	renderVideoExportButton() {
+		if (!this.file || this.file && this.file.timeline.isSequence === false) return lit.nothing;
+		return lit.html`<thermal-btn
+                variant="primary"
+                slot="button"
+                icon="download"
+                iconStyle="micro"
+                @click=${() => {
+			if (this.panelRef?.value) (this.panelRef?.value).record();
+		}}
+            >${this.t(T.exportvideo)} (MP4)</thermal-btn>`;
+	}
+	renderCurrentFrameExportButton() {
+		if (!this.file) return lit.nothing;
+		return lit.html`<thermal-btn
+                variant="primary"
+                slot="button"
+                icon="download"
+                iconStyle="micro"
+                @click=${() => {
+			if (this.panelRef?.value) (this.panelRef?.value).currentFrame();
+		}}
+            >${this.file.timeline.isSequence ? "Současný snímek" : this.t(T.exportpng)} (PNG)</thermal-btn>`;
+	}
+	renderTriggerButton() {
+		return lit.html`<thermal-btn
+            @click=${() => {
+			this.dialogRef.value?.setOpen();
+			this.isOpen = true;
+		}}
+            variant=${this.variant || "default"}
+            size=${this.size || "md"}
+            plain="${this.plain || false}"
+            icon=${(0, lit_directives_if_defined_js.ifDefined)(this.icon)}
+            iconStyle=${(0, lit_directives_if_defined_js.ifDefined)(this.iconStyle)}
+            tooltip=${(0, lit_directives_if_defined_js.ifDefined)(this.tooltip)}
+            pre=${(0, lit_directives_if_defined_js.ifDefined)(this.pre)}
+            style="width: 100%; justify-content: flex-start;"
+        >
+            ${this.label}
+        </thermal-btn>`;
+	}
+	render() {
+		return lit.html`
+            ${this.renderDialog()}
+            ${this.renderTriggerButton()}
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Object)], FileVideoExportButton.prototype, "variant", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Object)], FileVideoExportButton.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileVideoExportButton.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileVideoExportButton.prototype, "iconStyle", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], FileVideoExportButton.prototype, "plain", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], FileVideoExportButton.prototype, "tooltip", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], FileVideoExportButton.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], FileVideoExportButton.prototype, "pre", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileVideoExportButton.prototype, "isOpen", void 0);
+
+//#endregion
+//#region src/controls/file/FilePlaybackSpeedDropdown.ts
+var FilePlaybackSpeedDropdown = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.enabled = "on";
+		this.playbackSpeed = 1;
+	}
+	onInstanceCreated() {}
+	onFailure() {}
+	handleEntryClick(event, key) {
+		if (this.file) this.file.timeline.playbackSpeed = parseFloat(key);
+		const target = event.target;
+		if (target && target.parentElement && target.parentElement instanceof ThermalDropdownElement) target.parentElement.setClose();
+	}
+	renderEntry(key) {
+		return lit.html`<thermal-btn
+            style="width: 100%;"
+            slot="option"
+            variant="${this.playbackSpeed.toString() === key ? "background" : "default"}"
+            @click="${(event) => this.handleEntryClick(event, key)}"
+        >
+            ${key}x
+        </thermal-btn>`;
+	}
+	render() {
+		if (this.file === void 0) return lit.nothing;
+		return lit.html`<thermal-dropdown 
+            interactive="${this.enabled}" 
+            .tooltip=${(0, i18next.t)(T.playbackspeed)}
+        >
+
+            <div slot="invoker" class="button">
+                ${this.playbackSpeed}x
+            </div>
+
+            ${Object.entries(_labirthermal_core.playbackSpeed).map(([key]) => {
+			return this.renderEntry(key);
+		})}
+            
+        </thermal-dropdown>`;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], FilePlaybackSpeedDropdown.prototype, "enabled", void 0);
+__decorate([
+	(0, lit_decorators_js.state)(),
+	(0, _lit_context.consume)({
+		context: filePlaybackSpeedContext,
+		subscribe: true
+	}),
+	__decorateMetadata("design:type", Object)
+], FilePlaybackSpeedDropdown.prototype, "playbackSpeed", void 0);
+
+//#endregion
+//#region src/controls/file/FileDownloadDropdown.ts
+var FileDownloadButton = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.hasGraphs = false;
+		this.recordingGraphRef = (0, lit_directives_ref_js.createRef)();
+		this.dropdownRef = (0, lit_directives_ref_js.createRef)();
+	}
+	onInstanceCreated(instance) {
+		instance.analysisData.onGraphsPresence.set(this.UUID, (value) => {
+			this.hasGraphs = value;
+		});
+		this.hasGraphs = instance.analysisData.hasActiveGraphs;
+	}
+	onFailure() {}
+	render() {
+		if (this.file === void 0) return lit.nothing;
+		return lit.html`
+
+            <thermal-dropdown ${(0, lit_directives_ref_js.ref)(this.dropdownRef)} class="download"
+                icon=${(0, lit_directives_if_defined_js.ifDefined)(this.icon)}
+                iconStyle=${(0, lit_directives_if_defined_js.ifDefined)(this.iconStyle)}
+                variant=${(0, lit_directives_if_defined_js.ifDefined)(this.variant)}
+            >
+
+                <slot name="invoker" slot="invoker">
+                    <div class="button">
+                        ${this.file ? (0, i18next.t)(T.download) : "..."}
+                    </div>
+                </slot>
+
+                <thermal-btn 
+                    slot="option"
+                    @click="${() => window.open(this.file.thermalUrl)}"
+                    pre="LRC"
+                    align="left"
+                >
+                    ${(0, i18next.t)(T.downloadoriginalfile, { type: this.file.reader.parser.extensions[0].extension.toUpperCase() })}
+                </thermal-btn>
+
+                <thermal-btn 
+                    slot="option"
+                    @click=${() => this.file.export.downloadPng({
+			width: this.configController?.settings.export.png.width ?? 1350,
+			fontSize: this.configController?.settings.export.png.fontSize,
+			showAnalysis: this.configController?.settings.export.png.analyses,
+			showThermalScale: this.configController?.settings.export.png.thermalScale,
+			showFileDate: this.configController?.settings.export.png.fileDate,
+			showFileName: this.configController?.settings.export.png.fileName
+		})}
+                    pre="PNG"
+                    align="left"
+                >
+                    ${(0, i18next.t)(T.exportcurrentframeaspng)}
+                </thermal-btn>
+
+                <file-video-export-button 
+                    pre="${this.file.timeline.isSequence ? "MP4 / PNG" : "PNG"}" 
+                    label="Pokročilý export" 
+                    slot="option"
+                    style="width: 100%"
+                ></file-video-export-button>
+
+
+
+                    ${this.hasGraphs === true ? lit.html`<thermal-btn 
+                            slot="option"
+                            @click=${() => this.file?.analysisData.downloadData()}
+                            pre="CSV"
+                            align="left"
+                    >
+                        ${(0, i18next.t)(T.csvofanalysisdata)}
+                    </thermal-btn>` : lit.nothing}
+            
+            </thermal-dropdown>
+
+            <thermal-dialog 
+                ${(0, lit_directives_ref_js.ref)(this.recordingGraphRef)}
+                label="Export souboru do videa"
+                button="Začít nahrávat"
+                .beforeClose=${async () => {
+			this.file?.recording.recordEntireFile();
+			return true;
+		}}
+            >
+
+                <div slot="content">
+
+                    <p>Export probíhá tak, že sekvenci ve Vašem prohlížeči přehrajeme a zaznamenáme do video souboru.</p>
+
+                    <p>Součástí exportu <i>nejsou analýzy ani teplotní škála</i>.</p>
+
+                    <p><strong>Při nahrávání bude použito aktuální nastavení:</strong></p>
+
+                    <table>
+
+                        <tr>
+                            <td>Barevná paleta</td>
+                            <td>
+                                <manager-palette-dropdown></manager-palette-dropdown>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Teplotní rozsah</td>
+                            <td>
+                                <registry-range-form></registry-range-form>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Rychlost přehrávání</td>
+                            <td>
+                                <file-playback-speed-dropdown></file-playback-speed-dropdown>
+                            </td>
+                        </tr>
+
+                    </table>
+
+                    <p>Chcete zahájit nahrávání?</p>
+
+
+                </div>
+
+                <thermal-btn slot="button" @click=${() => this.dropdownRef.value?.setClose()}>
+                    Zrušit
+                </thermal-btn>
+
+            </thermal-dialog>
+
+        
+        `;
+	}
+};
+__decorate([
+	(0, lit_decorators_js.state)(),
+	(0, _lit_context.consume)({
+		context: configContext,
+		subscribe: true
+	}),
+	__decorateMetadata("design:type", Object)
+], FileDownloadButton.prototype, "configController", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDownloadButton.prototype, "hasGraphs", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], FileDownloadButton.prototype, "variant", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], FileDownloadButton.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], FileDownloadButton.prototype, "iconStyle", void 0);
+
+//#endregion
+//#region src/controls/file/buttons/FileButton.ts
+/** @deprecated Who knows what that is? */
+var FileButtonElement = class extends AbstractFileButton {
+	constructor(..._args) {
+		super(..._args);
+		this.tooltip = void 0;
+	}
+	enter() {
+		if (this.onEnter && this.file) this.onEnter(this.file);
+	}
+	leave() {
+		if (this.onLeave && this.file) this.onLeave(this.file);
+	}
+	action() {
+		if (this.onAction && this.file) this.onAction(this.file);
+	}
+	getDefaultLabel() {
+		return this.label;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileButtonElement.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButtonElement.prototype, "onEnter", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButtonElement.prototype, "onLeave", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButtonElement.prototype, "onAction", void 0);
+
+//#endregion
+//#region src/controls/file/buttons/FileDropdown.ts
+var FileDropdown = class extends AbstractThermalElement {
+	constructor(..._args) {
+		super(..._args);
+		this.expanded = false;
+	}
+	toggle() {
+		this.expanded = !this.expanded;
+	}
+	expand() {
+		this.expanded = true;
+	}
+	collapse() {
+		this.expanded = false;
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+		if (_changedProperties.has("expanded")) if (this.expanded === true) this.classList.add("expanded");
+		else this.classList.remove("expanded");
+	}
+	static {
+		this.styles = lit.css`
+        :host {
+            
+        }
+
+        .container {
+            display: block;
+            position: relative;
+        }
+
+        .dropdown {
+
+            z-index: 999;
+
+            position: absolute;
+            right: 0px;
+            
+            box-sizing: border-box;
+            
+            overflow: hidden;
+            max-height: 0px;
+
+            > div {
+                padding: 5px; 
+                background-color: var(--thermal-background);
+                border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+                border-radius: var(--thermal-radius);
+
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                align-items: flex-end;
+                justify-content: flex-end;
+
+            }
+
+        }
+
+
+        .backdrop {
+            display: none;
+            cursor: pointer;
+        }
+
+
+        button.default {
+            font-size: calc( var(--thermal-fs) * .8 );
+            color: var(--thermal-foreground);
+            border-color: var(--thermal-slate);
+            border-style: solid;
+            border-width: 1px;
+            border-radius: var( --thermal-radius );
+            background-color: var(--thermal-slate-light);
+            &:hover {
+                cursor: pointer;
+                background: var(--thermal-background);
+            }
+        }
+
+
+        :host(.expanded) .dropdown {
+
+            max-height: 500px;
+
+        }
+
+        :host(.expanded) .backdrop {
+
+            display: block;
+            position: fixed;
+            top: -100vh;
+            left: -100vw;
+            height: 200vh;
+            width: 200vw;
+            z-index: 998;
+
+        }
+
+
+
+    `;
+	}
+	render() {
+		return lit.html`
+            <div class="backdrop" @click=${() => this.collapse()}></div>
+            <div class="container">
+                <thermal-btn variant="default" size="sm" icon="ellipsis" iconStyle="micro" @click=${() => {
+			this.toggle();
+		}}>${this.label ?? lit.nothing}</thermal-btn>
+                <nav class="dropdown">
+                    <div>
+                        <slot></slot>
+                    </div>
+                </nav>
+            </div>
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], FileDropdown.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDropdown.prototype, "expanded", void 0);
+
+//#endregion
+//#region src/controls/file/buttons/FileLrcButton.ts
+var FileLrcButton = class extends AbstractFileButton {
+	constructor(..._args) {
+		super(..._args);
+		this.tooltip = void 0;
+	}
+	enter() {}
+	leave() {}
+	action() {
+		if (this.file) {
+			const link = document.createElement("a");
+			link.href = this.file.thermalUrl;
+			link.download = this.file.fileName;
+			link.click();
+		}
+	}
+	getDefaultLabel() {
+		return "lrc";
+	}
+};
+
+//#endregion
+//#region src/controls/file/buttons/FilePngButton.ts
+var FilePngButton = class extends AbstractFileButton {
+	constructor(..._args) {
+		super(..._args);
+		this.tooltip = void 0;
+	}
+	enter() {}
+	leave() {}
+	action() {
+		if (this.file) {
+			const png = this.configController?.settings.export.png;
+			this.file.export.downloadPng({
+				width: png?.width,
+				fontSize: png?.fontSize,
+				showAnalysis: png?.analyses,
+				showThermalScale: png?.thermalScale,
+				showFileName: png?.fileName,
+				showFileDate: png?.fileDate
+			});
+		}
+	}
+	getDefaultLabel() {
+		return "png";
+	}
+};
+__decorate([
+	(0, lit_decorators_js.state)(),
+	(0, _lit_context.consume)({
+		context: configContext,
+		subscribe: true
+	}),
+	__decorateMetadata("design:type", Object)
+], FilePngButton.prototype, "configController", void 0);
+
+//#endregion
+//#region src/controls/file/buttons/FileRangePropagator.ts
+var FileRangePropagator = class extends AbstractFileButton {
+	constructor(..._args) {
+		super(..._args);
+		this.tooltip = (0, i18next.t)(T.range);
+		this.hideLabel = false;
+	}
+	onInstanceCreated(file) {
+		this.tooltip = [
+			file.min.toFixed(2),
+			"—",
+			file.max.toFixed(2),
+			"°C"
+		].join(" ");
+	}
+	enter() {
+		if (this.registryController && this.file) this.registryController.setHighlight({
+			from: this.file.min,
+			to: this.file.max
+		});
+	}
+	leave() {
+		if (this.registryController) this.registryController.setHighlight(void 0);
+	}
+	action() {
+		if (this.file) this.file.group.registry.range.imposeRange({
+			from: this.file.min,
+			to: this.file.max
+		});
+	}
+	getDefaultLabel() {
+		if (this.hideLabel) return "";
+		return (0, i18next.t)(T.range).toLowerCase();
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	converter: booleanConverter(false)
+}), __decorateMetadata("design:type", Boolean)], FileRangePropagator.prototype, "hideLabel", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/FileAnalysisComplex.ts
+var FileAnalysisComplexElement = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.tableMode = "full";
+		this.forceinteractiveanalysis = false;
+		this.graphActivationEnabled = true;
+		this.mayHaveGraph = false;
+		this.hasAnalysis = false;
+		this.isDrawingAnalysis = false;
+		this.hasGraph = false;
+		this.graphRef = (0, lit_directives_ref_js.createRef)();
+		this.graphWidth = 0;
+		this.graphHeight = 0;
+		this.watchedAnalyses = /* @__PURE__ */ new Set();
+		this.showhint = true;
+		this.pointerUpListener = () => {
+			this.isDrawingAnalysis = false;
+		};
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.refreshFileState();
+		this.hydrate();
+		this.requestUpdate();
+	}
+	disconnectedCallback() {
+		this.dehydrate();
+		this.disconnectObserver();
+		super.disconnectedCallback();
+	}
+	onInstanceCreated() {
+		this.requestUpdate();
+	}
+	onFailure() {}
+	/** Derives render state from the current file without registering listeners. */
+	refreshFileState() {
+		this.mayHaveGraph = this.file?.timeline.isSequence ?? false;
+		this.hasAnalysis = (this.file?.analysis.value.length ?? 0) > 0;
+		this.hasGraph = this.file?.analysis.value.some((analysis) => {
+			const { MIN, MAX, AVG } = analysis.graph.state;
+			return MIN || MAX || AVG;
+		}) ?? false;
+		if (!this.hasAnalysis) this.isDrawingAnalysis = false;
+	}
+	/** Binds the current file and its existing analyses, replacing subscriptions to the previous file. */
+	hydrate() {
+		const instance = this.file;
+		if (!this.isConnected || this.boundFile === instance) return;
+		this.dehydrate();
+		this.boundFile = instance;
+		if (!instance) return;
+		instance.analysis.addListener(this.UUID, (analyses) => {
+			this.syncAnalyses(analyses);
+			this.refreshFileState();
+		});
+		this.syncAnalyses(instance.analysis.value);
+	}
+	/** Keeps graph subscriptions and the pointer listener aligned with the current analysis list. */
+	syncAnalyses(analyses) {
+		for (const analysis of this.watchedAnalyses) if (!analyses.includes(analysis)) {
+			analysis.graph.onGraphActivation.delete(this.UUID);
+			this.watchedAnalyses.delete(analysis);
+		}
+		analyses.forEach((analysis) => this.watchAnalysis(analysis));
+		const layer = analyses.length > 0 ? this.boundFile?.dom?.listenerLayer?.getLayerRoot() : void 0;
+		if (layer !== this.listenerLayer) {
+			this.listenerLayer?.removeEventListener("pointerup", this.pointerUpListener);
+			this.listenerLayer = layer;
+			this.listenerLayer?.addEventListener("pointerup", this.pointerUpListener);
+		}
+	}
+	/** Observes graph activation once per analysis; rendering state is refreshed by external events. */
+	watchAnalysis(analysis) {
+		if (this.watchedAnalyses.has(analysis)) return;
+		this.watchedAnalyses.add(analysis);
+		analysis.graph.onGraphActivation.set(this.UUID, () => {
+			this.refreshFileState();
+		});
+	}
+	/** Removes file, analysis and pointer listeners from the actual subscribed objects. */
+	dehydrate() {
+		this.boundFile?.analysis.removeListener(this.UUID);
+		for (const analysis of this.watchedAnalyses) analysis.graph.onGraphActivation.delete(this.UUID);
+		this.watchedAnalyses.clear();
+		this.listenerLayer?.removeEventListener("pointerup", this.pointerUpListener);
+		this.listenerLayer = void 0;
+		this.boundFile = void 0;
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (changedProperties.has("file")) {
+			this.isDrawingAnalysis = false;
+			this.refreshFileState();
+		}
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (changedProperties.has("file")) this.hydrate();
+		this.observeGraph();
+	}
+	/** Observes the rendered graph container, including after reconnecting or replacing the DOM node. */
+	observeGraph() {
+		const graph = this.isConnected ? this.graphRef.value : void 0;
+		if (graph === this.observedGraph) return;
+		this.disconnectObserver();
+		if (!graph) return;
+		this.observedGraph = graph;
+		this.observer = new ResizeObserver((entries) => {
+			if (this.observedGraph !== graph || !this.isConnected) return;
+			const entry = entries.find((entry) => entry.target === graph);
+			if (entry) {
+				this.graphWidth = entry.contentRect.width;
+				this.graphHeight = entry.contentRect.height;
+			}
+		});
+		this.observer.observe(graph);
+	}
+	/** Releases the observer even when Lit has already cleared the graph reference. */
+	disconnectObserver() {
+		this.observer?.disconnect();
+		this.observer = void 0;
+		this.observedGraph = void 0;
+	}
+	renderButtons() {
+		return lit.html`
+            <div class="buttons">
+                ${(this.file !== void 0 ? Object.values(this.file.group.tool.tools).filter((tool) => tool instanceof _labirthermal_core.AbstractAddTool) : []).map((tool) => {
+			return lit.html`<thermal-btn @click=${() => {
+				this.isDrawingAnalysis = true;
+				this.file?.group.tool.selectTool(tool);
+			}}>
+                    <div style="display: flex; align-items: center; gap: 10px">
+                        <div style="width: 1.5em; display: inline-block;">
+                            ${(0, lit_directives_unsafe_html_js.unsafeHTML)(tool.icon)}
+                        </div>
+                        <div>
+                            ${(0, i18next.t)(T[tool.name])}
+                        </div>
+                    </div>
+                </thermal-btn>`;
+		})}
+            </div>
+
+            <slot></slot>
+        
+        `;
+	}
+	renderCurrentTooltip() {
+		return lit.html`${(0, i18next.t)(T[this.managerObject.tool.value.description])}`;
+	}
+	renderAddAnalysis() {
+		return lit.html`<div class="addanalysis">
+
+            ${this.showhint ? lit.html`<div>
+                    <strong>${(0, i18next.t)(T.analysis)}</strong>
+                </div>
+
+                <div>${(0, i18next.t)(T.analysishint)}</div>` : lit.nothing}
+
+
+            ${this.isDrawingAnalysis === true ? this.renderCurrentTooltip() : this.renderButtons()}
+        </div>`;
+	}
+	renderGraph() {
+		if (!this.mayHaveGraph) return lit.nothing;
+		if (this.hasGraph === true) return lit.html`
+            
+            <div class="graph" ${(0, lit_directives_ref_js.ref)(this.graphRef)}>
+                <file-analysis-graph graphWidth=${this.graphWidth} graphHeight=${this.graphHeight}></file-analysis-graph>
+            </div>`;
+		else if (this.hasAnalysis === true) return lit.html`<div class="graph graph-prompt">
+                    <div>
+                        <strong>${(0, i18next.t)(T.graph)}</strong>
+                    </div>
+                    <div class="hint">${(0, lit_directives_unsafe_html_js.unsafeHTML)((0, i18next.t)(T.graphhint2))}</div>
+                </div>`;
+		else return lit.html`<div class="graph graph-prompt">
+                    <div>
+                        <strong>${(0, i18next.t)(T.graph)}</strong>
+                    </div>
+                    <div class="hint">${(0, i18next.t)(T.graphhint1)}</div>
+                </div>`;
+	}
+	static {
+		this.styles = lit.css`
+
+        :host {
+            display: block;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .container {
+            height: 100%;
+            width: 100%;
+            color: var(--thermal-foreground);
+        }
+
+        .container.may {
+            display: flex;
+            flex-direction: column;
+            gap: var(--thermal-gap);
+
+            > * {
+                width: 100%;
+            }
+
+            .analysis {
+                height: calc( 50% - var(--thermal-gap));
+            }
+
+        }
+
+        .container.may-not {
+            .analysis {
+                height: 100%;
+            }
+        }
+
+        .analysis {
+            min-width: 0;
+        }
+    
+        .addanalysis {
+            padding: var(--thermal-gap);
+            border: var(--thermal-border-width) dashed var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--thermal-gap);
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        .graph {
+            height: 50%;
+        }
+
+        .graph-prompt {
+            padding: var(--thermal-gap);
+            border: var(--thermal-border-width) dashed var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--thermal-gap);
+        }
+
+        .hint {
+            thermal-btn {
+                display: inline-block;
+                cursor: help;
+            }
+        }
+
+        .buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        file-analysis-table {
+        }
+    
+    `;
+	}
+	render() {
+		return lit.html`
+            <div class="container ${this.mayHaveGraph === true ? "may" : "may-not"}">
+
+            <div class="analysis">
+                ${this.hasAnalysis === false || this.isDrawingAnalysis === true ? this.renderAddAnalysis() : lit.html`<file-analysis-table
+                    .tableMode=${this.tableMode}
+                    .forceinteractiveanalysis=${this.forceinteractiveanalysis}
+                    .graphActivationEnabled=${this.graphActivationEnabled}
+                ></file-analysis-table>`}
+            </div>
+            ${this.renderGraph()}
+
+            </div>
+
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({ attribute: "table-mode" }), __decorateMetadata("design:type", Object)], FileAnalysisComplexElement.prototype, "tableMode", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "forceinteractiveanalysis", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	attribute: "graph-activation-enabled",
+	converter: booleanConverter(true)
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "graphActivationEnabled", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "mayHaveGraph", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "hasAnalysis", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "isDrawingAnalysis", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "hasGraph", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisComplexElement.prototype, "graphWidth", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisComplexElement.prototype, "graphHeight", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	reflect: true,
+	converter: booleanConverter(true)
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "showhint", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/FileAnalysisDisplay.ts
+/** Display the analysis state for the purpose of exporting. */
+var FileAnalysisDisplayElement = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.container = (0, lit_directives_ref_js.createRef)();
+		this.analysis = [];
+	}
+	onFailure() {}
+	onInstanceCreated() {
+		this.requestUpdate();
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		if (this.file) this.analysis = this.file.analysis.value;
+		this.bindFile();
+	}
+	disconnectedCallback() {
+		this.unbindFile();
+		super.disconnectedCallback();
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (changedProperties.has("file")) this.analysis = this.file?.analysis.value ?? [];
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (changedProperties.has("file")) this.bindFile();
+	}
+	/**
+	* Observes analysis-list and frame changes on the current file while connected.
+	* Removes previous subscriptions and avoids registering twice for the same file.
+	*/
+	bindFile() {
+		if (!this.isConnected || this.boundFile === this.file) return;
+		this.unbindFile();
+		this.boundFile = this.file;
+		const file = this.boundFile;
+		if (!file) return;
+		file.analysis.addListener(this.UUID, (analysis) => {
+			this.analysis = analysis;
+		});
+		file.timeline.onFrame.add(this.UUID, () => {
+			this.requestUpdate();
+		});
+	}
+	/** Removes both listeners from the actual subscribed file when replacing it or disconnecting. */
+	unbindFile() {
+		this.boundFile?.analysis.removeListener(this.UUID);
+		this.boundFile?.timeline.onFrame.delete(this.UUID);
+		this.boundFile = void 0;
+	}
+	static {
+		this.styles = lit.css`
+    
+        .overflow {
+            overflow-x:auto;
+            width: 100%;
+        }
+
+        table {
+            display: table;
+            min-width: 100%;
+            border-collapse: collapse;
+            color: var( --thermal-foreground );
+            td, th {
+                padding: calc( var( --thermal-fs ) * .5 )
+            }
+
+            td {
+                border-top: var(--thermal-slate-light ) 1px solid;
+            }
+        }
+
+        th {
+            text-align: left;
+        }
+
+        th, td, button, thermal-btn {
+            font-size: var( --thermal-fs-sm );
+            font-size: 14px;
+        }
+
+        caption {
+            display: none !important;
+        }
+
+        file-analysis-table-row {
+            color: var( --thermal-foreground );
+            transition: background-color .2s ease-in-out;
+        }
+
+        file-analysis-table-row:not(:last-child) {
+            border-bottom: var(--thermal-border-width) dotted var( --thermal-foreground );
+        }
+
+        file-analysis-table-row[selected] {
+            background-color: var( --thermal-background );
+        }
+
+        .all {
+
+            &.interactive {
+                cursor: pointer;
+            }
+
+            &.interactive:hover {
+                color: var( --thermal-primary );
+            }
+
+            u, b, span {
+                display: inline-block;
+            }
+
+            u {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
+            }
+
+            &.yes u {
+                background-color: var( --thermal-slate-dark );
+            }
+
+            button {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                background: transparent;
+                color: var( --thermal-primary );
+                text-transform: lowercase;
+                cursor: pointer;
+
+                &:hover,
+                &:focus {
+                    color: var( --thermal-primary-dark );
+                }
+            }
+
+        }
+
+        .analysis-name {
+            display: flex;
+            align-items: center;
+            gap: .5em;
+            strong,
+            span {
+                display: inline-block;
+            }
+
+            strong {
+                width: 1.5em;
+                height: 2px;
+            }
+        }
+
+
+
+    `;
+	}
+	render() {
+		if (this.analysis.length === 0 || this.file === void 0) return lit.nothing;
+		return lit.html`
+
+        <div class="overflow" ${(0, lit_directives_ref_js.ref)(this.container)}>
+
+            <table>
+
+                <caption data-video-ignore>Table of analysis currently set on the file ${this.file.fileName}.</caption>
+
+                <thead>
+
+                    <tr>
+                        <th></th>
+                        <th>${(0, i18next.t)(T.avg)}</th>
+                        <th>${(0, i18next.t)(T.min)}</th>
+                        <th>${(0, i18next.t)(T.max)}</th>
+                        <th>${(0, i18next.t)(T.size)}</th>
+                    </tr>
+                
+                </thead>
+
+                <tbody>
+
+                    ${this.analysis.map((analysis) => this.renderAnalysisRow(analysis))}
+                
+                </tbody>
+
+                </table>
+
+            </div>
+            
+        `;
+	}
+	renderAnalysisRow(analysis) {
+		const { MIN, MAX, AVG } = analysis.graph.state;
+		return lit.html`<tr>
+            <td class="analysis-name">
+                <strong style="background: ${analysis.color};"></strong>
+                <span>${analysis.name}</span>
+            </td>
+            ${this.renderAnalysisRowTemperatureCell(analysis.color, AVG, analysis.avg)}
+            ${this.renderAnalysisRowTemperatureCell(analysis.color, MIN, analysis.min)}
+            ${this.renderAnalysisRowTemperatureCell(analysis.color, MAX, analysis.max)}
+            <td>${analysis.width} x ${analysis.height} px</td>
+        </tr>`;
+	}
+	renderAnalysisRowTemperatureCell(color, inGraph, value) {
+		const style = { padding: "4px 0px" };
+		if (inGraph) {
+			style.borderColor = color;
+			style.borderStyle = "solid";
+			style.borderWidth = "2px";
+			style.padding = "2px 6px";
+		}
+		let valueDisplay = "-";
+		if (value !== void 0) valueDisplay = value.toFixed(2) + " °C";
+		return lit.html`
+            <td>
+                <span style=${(0, lit_directives_style_map_js.styleMap)(style)} data-video-dynamic>
+                    ${valueDisplay}
+                </span>
+            </td>
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FileAnalysisDisplayElement.prototype, "analysis", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/FileAnalysisEdit.ts
+/** Trigger the edit dialog for an analysis */
+var FileAnalisisEditDialog = class extends AbstractThermalElement {
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (changedProperties.has("analysis")) {
+			this.name = this.analysis.name;
+			this.type = this.analysis.getType();
+		}
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (changedProperties.has("analysis")) {
+			const oldAnalysis = changedProperties.get("analysis");
+			if (oldAnalysis) oldAnalysis.onSetName.delete(this.UUID);
+			this.analysis.onSetName.set(this.UUID, (value) => {
+				this.name = value;
+			});
+		}
+	}
+	static {
+		this.styles = lit.css`
+    
+        :host {
+        
+            display: inline-block;
+
+        }
+
+    `;
+	}
+	render() {
+		return lit.html`
+
+            <thermal-dialog label="${(0, i18next.t)(T.editsth, { what: (0, i18next.t)(T[this.type]) })}">
+                <slot name="invoker" slot="invoker">
+                    <thermal-btn 
+                        icon="settings" 
+                        iconStyle="solid" 
+                        size="md" 
+                        tooltip="${(0, i18next.t)(T.editsth, { what: this.analysis.name })}"
+                    >
+                    </thermal-btn>
+                </slot>
+
+                <div slot="content">
+                    ${this.analysis instanceof _labirthermal_core.PointAnalysis ? lit.html`<edit-point .analysis=${this.analysis}></edit-point>` : lit.html`<edit-area .analysis=${this.analysis}></edit-area>`}
+                </div>
+
+            </thermal-dialog>
+        
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], FileAnalisisEditDialog.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEditDialog.prototype, "name", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEditDialog.prototype, "type", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/FileAnalysisGraph.ts
+/** High level component around `thermal-chart` that provides the functionality of a file analysis graph */
+var FileAnalysisGraphElement = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.hydrated = false;
+		this.graphWidth = 0;
+		this.graphHeight = 0;
+		this.hasDownloads = true;
+		this.standalone = false;
+		this.container = (0, lit_directives_ref_js.createRef)();
+		this.graphRef = (0, lit_directives_ref_js.createRef)();
+		this.graphs = {
+			values: [[]],
+			colors: []
+		};
+		this.receiveGraphData = (value) => {
+			this.graphs = value;
+		};
+		this.shadowLeft = 0;
+		this.shadowTop = 0;
+		this.shadowWidth = 0;
+		this.shadowHeight = 0;
+		this.graphSmooth = false;
+		this.syncChartArea = () => {
+			const chart = this.graphRef.value;
+			if (chart) {
+				this.shadowLeft = chart.left;
+				this.shadowTop = chart.top;
+				this.shadowWidth = chart.w;
+				this.shadowHeight = chart.h;
+			}
+		};
+		this.downloadSVG = (svgEl, fileName) => {
+			if (!svgEl.getAttribute("xmlns")) svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+			const svgData = svgEl.outerHTML;
+			const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = fileName;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		};
+		this.downloadPNG = (svgEl, fileName) => {
+			if (!svgEl.getAttribute("xmlns")) svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+			const svgData = svgEl.outerHTML;
+			const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+			const url = URL.createObjectURL(blob);
+			const img = new Image();
+			img.onload = () => {
+				const canvas = document.createElement("canvas");
+				canvas.width = img.width;
+				canvas.height = img.height;
+				canvas.getContext("2d")?.drawImage(img, 0, 0);
+				const pngUrl = canvas.toDataURL("image/png");
+				const a = document.createElement("a");
+				a.href = pngUrl;
+				a.download = fileName;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			};
+			img.src = url;
+		};
+		this.handleGraphClick = (relativeTimeMs) => {
+			const file = this.file;
+			if (file?.timeline.isSequence) file.timeline.setRelativeTime(relativeTimeMs);
+		};
+		this.handleGraphHover = (percentage) => {
+			this.fileController.setTimeCursorPercentage(percentage);
+		};
+	}
+	onInstanceCreated(instance) {
+		this.graphs = instance.analysisData.value;
+		this.hydrated = true;
+		this.requestUpdate();
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		if (this.file) {
+			this.graphs = this.file.analysisData.value;
+			this.hydrated = true;
+		}
+		this.requestUpdate();
+	}
+	disconnectedCallback() {
+		this.unbindFile();
+		this.disconnectObserver();
+		super.disconnectedCallback();
+	}
+	onFailure() {
+		this.unbindFile();
+		this.disconnectObserver();
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (changedProperties.has("file")) {
+			this.graphs = this.file?.analysisData.value ?? {
+				values: [[]],
+				colors: []
+			};
+			this.hydrated = this.file !== void 0;
+		}
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		this.bindFile();
+		this.toggleAttribute("data-has-graphs", !!this.file?.timeline.isSequence && this.graphs.colors.length > 0);
+		this.observeContainer();
+	}
+	bindFile() {
+		if (!this.isConnected || this.boundFile === this.file) return;
+		this.unbindFile();
+		this.boundFile = this.file;
+		this.boundFile?.analysisData.addListener(this.UUID, this.receiveGraphData);
+	}
+	unbindFile() {
+		this.boundFile?.analysisData.removeListener(this.UUID);
+		this.boundFile = void 0;
+	}
+	observeContainer() {
+		const container = this.isConnected && this.standalone ? this.container.value : void 0;
+		if (container === this.observedContainer) return;
+		this.disconnectObserver();
+		if (!container) return;
+		this.observedContainer = container;
+		this.observer = new ResizeObserver((entries) => {
+			if (!this.isConnected || this.observedContainer !== container) return;
+			const entry = entries.find((entry) => entry.target === container);
+			if (entry) {
+				this.graphWidth = entry.contentRect.width;
+				this.graphHeight = entry.contentRect.height;
+			}
+		});
+		this.observer.observe(container);
+	}
+	disconnectObserver() {
+		this.observer?.disconnect();
+		this.observer = void 0;
+		this.observedContainer = void 0;
+	}
+	getChartData() {
+		if (this.chartDataSource === this.graphs && this.chartDataCache) return this.chartDataCache;
+		const [headers, ...rows] = this.graphs.values;
+		this.chartDataSource = this.graphs;
+		this.chartDataCache = [[{
+			label: headers[0],
+			type: "number"
+		}, ...headers.slice(1).flatMap((label) => [{
+			label,
+			type: "number"
+		}, {
+			type: "string",
+			role: "tooltip",
+			p: { html: true }
+		}])], ...rows.map((row) => {
+			const relativeTime = row[0].getTime();
+			return [relativeTime, ...row.slice(1).flatMap((value, index) => [value, `<div style="padding: 6px 8px"><div>${this.escapeHtml((0, i18next.t)(T.time))}: <strong>${_labirthermal_core.TimeFormat.duration(relativeTime)}</strong></div><div>${this.escapeHtml(headers[index + 1])}: <strong>${this.escapeHtml(String(value))} °C</strong></div></div>`])];
+		})];
+		return this.chartDataCache;
+	}
+	getChartOptions() {
+		const duration = this.file?.duration ?? 0;
+		const timeLabel = (0, i18next.t)(T.time);
+		const temperatureLabel = `${(0, i18next.t)(T.temperature)} °C`;
+		const key = JSON.stringify([
+			this.graphs.colors,
+			this.graphSmooth,
+			this.graphWidth,
+			this.graphHeight,
+			duration,
+			timeLabel,
+			temperatureLabel
+		]);
+		if (this.chartOptionsCache && this.chartOptionsCacheKey === key) return this.chartOptionsCache;
+		this.chartOptionsCacheKey = key;
+		this.chartOptionsCache = {
+			colors: this.graphs.colors,
+			curveType: this.graphSmooth ? "function" : "default",
+			legend: { position: "bottom" },
+			hAxis: {
+				title: timeLabel,
+				ticks: this.getDurationAxisTicks(),
+				viewWindow: {
+					min: 0,
+					max: duration
+				}
+			},
+			vAxis: { title: temperatureLabel },
+			tooltip: { isHtml: true },
+			width: this.graphWidth,
+			height: this.graphHeight,
+			chartArea: { width: "80%" },
+			backgroundColor: { fill: "transparent" }
+		};
+		return this.chartOptionsCache;
+	}
+	getDurationAxisTicks() {
+		const duration = this.file?.duration ?? 0;
+		if (duration <= 0) return [];
+		const rawStep = duration / 5;
+		const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+		const normalizedStep = rawStep / magnitude;
+		const step = (normalizedStep <= 1 ? 1 : normalizedStep <= 2 ? 2 : normalizedStep <= 5 ? 5 : 10) * magnitude;
+		const ticks = [];
+		for (let value = 0; value <= duration; value += step) ticks.push({
+			v: value,
+			f: _labirthermal_core.TimeFormat.duration(value)
+		});
+		if (ticks[ticks.length - 1]?.v !== duration) ticks.push({
+			v: duration,
+			f: _labirthermal_core.TimeFormat.duration(duration)
+		});
+		return ticks;
+	}
+	escapeHtml(value) {
+		return value.replace(/[&<>"']/g, (character) => ({
+			"&": "&amp;",
+			"<": "&lt;",
+			">": "&gt;",
+			"\"": "&quot;",
+			"'": "&#39;"
+		})[character] ?? character);
+	}
+	static {
+		this.styles = lit.css`
+
+        :host {
+            position: relative;
+        }
+
+        :host([standalone="true"]) {
+            display: block;
+            height: var(--thermal-analysis-graph-height, 12rem);
+            min-width: 0;
+            margin-top: .5em;
+        }
+
+        :host([standalone="true"]:not([data-has-graphs])) {
+            display: none;
+        }
+
+        :host([standalone="true"]) .chart-container {
+            height: 100%;
+            width: 100%;
+        }
+    
+        google-chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .download {
+            position: absolute;
+            right: 0;
+            top: 0;
+            display: flex;
+            gap: 0.25em;
+        }
+
+        thermal-icon {
+            width: .8em;
+            height: .8em;
+            vertical-align: middle;
+            margin-top: 1px;
+        }
+    `;
+	}
+	render() {
+		if (this.file?.timeline.isSequence === false || this.standalone && (!this.file || this.graphs.colors.length === 0)) return lit.nothing;
+		return lit.html`
+
+            <div style="position: relative; background-color: white; border-radius: var(--thermal-radius); height: 100%;">
+
+            
+
+            <div data-video-style style="position: absolute; top:${this.shadowTop}px; left: ${this.shadowLeft}px; width: ${this.shadowWidth}px; height: ${this.shadowHeight}px; pointer-events: none;">
+            ${this.currentFrame && lit.html`
+                <div data-video-style style="position: absolute; height: 100%; background-color: #eee; left: 0px; width: ${this.currentFrame.percentage}%"></div>
+            `}
+
+                ${this.cursor !== void 0 ? lit.html`
+                    <div data-video-style style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor}%"></div>
+                ` : lit.nothing}
+            </div>
+        
+            <div class="chart-container" ${(0, lit_directives_ref_js.ref)(this.container)}>
+                ${this.graphs.colors.length > 0 ? lit.html`<thermal-chart 
+                        ${(0, lit_directives_ref_js.ref)(this.graphRef)}
+                        data-video-svg
+                        type="line" 
+                        .data=${(0, lit_directives_guard_js.guard)([this.graphs], () => this.getChartData())}
+                        .onGraphClick=${this.handleGraphClick}
+                        .onGraphHover=${this.handleGraphHover}
+                        @google-chart-ready=${this.syncChartArea}
+                        .options=${(0, lit_directives_guard_js.guard)([
+			this.graphs.colors,
+			this.graphSmooth,
+			this.graphWidth,
+			this.graphHeight,
+			this.file?.duration,
+			(0, i18next.t)(T.time),
+			(0, i18next.t)(T.temperature)
+		], () => this.getChartOptions())}
+                        ></thermal-chart>` : lit.nothing}
+            </div>
+
+            ${this.renderDownloads()}
+            
+
+            
+
+            </div>
+        
+        `;
+	}
+	renderDownloads() {
+		if (!this.hasDownloads) return lit.nothing;
+		return lit.html`<div class="download">
+                <thermal-icon icon="download" variant="micro"></thermal-icon>
+                <thermal-btn
+                    size="sm"
+                    @click=${() => {
+			if (this.graphRef.value) {
+				const svgData = this.graphRef.value.getRef()?.querySelector("svg");
+				if (svgData) this.downloadSVG(svgData, "graph.svg");
+			}
+		}}
+                    variant="background"
+                    plain="true"
+                    tooltip="Stáhnout graf jako obrázek SVG"
+                >SVG</thermal-btn>
+                <thermal-btn
+                    size="sm"
+                    @click=${() => {
+			if (this.graphRef.value) {
+				const svgData = this.graphRef.value.getRef()?.querySelector("svg");
+				if (svgData) this.downloadPNG(svgData, "graph.png");
+			}
+		}}
+                    variant="background"
+                    plain="true"
+                    tooltip="Stáhnout graf jako obrázek PNG"
+                >PNG</thermal-btn>
+                <thermal-btn
+                    size="sm"
+                    @click=${() => this.file?.analysisData.downloadData()}
+                    variant="background"
+                    plain="true"
+                    tooltip="${(0, i18next.t)(T.downloadgraphdataascsv)}"
+                >CSV</thermal-btn>
+            </div>`;
+	}
+};
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisGraphElement.prototype, "hydrated", void 0);
+__decorate([(0, lit_decorators_js.property)({ reflect: true }), __decorateMetadata("design:type", Number)], FileAnalysisGraphElement.prototype, "graphWidth", void 0);
+__decorate([(0, lit_decorators_js.property)({ reflect: true }), __decorateMetadata("design:type", Number)], FileAnalysisGraphElement.prototype, "graphHeight", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	reflect: true
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisGraphElement.prototype, "hasDownloads", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	reflect: true,
+	converter: booleanConverter(false)
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisGraphElement.prototype, "standalone", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisGraphElement.prototype, "graphs", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileCurrentFrameContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Object)], FileAnalysisGraphElement.prototype, "currentFrame", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileTimeCursorContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Object)], FileAnalysisGraphElement.prototype, "cursor", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisGraphElement.prototype, "shadowLeft", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisGraphElement.prototype, "shadowTop", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisGraphElement.prototype, "shadowWidth", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisGraphElement.prototype, "shadowHeight", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: managerGraphFunctionContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisGraphElement.prototype, "graphSmooth", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/AnalysisTableOptions.ts
+const optionalBooleanConverter = { fromAttribute: (value) => value === null ? void 0 : booleanConverter(true).fromAttribute(value) };
+
+//#endregion
+//#region src/controls/file/analysis/FileAnalysisRow.ts
+var FileAnalysisRowElement = class extends AbstractThermalElement {
+	constructor(..._args) {
+		super(..._args);
+		this.tableMode = "full";
+		this.interactiveanalysis = true;
+		this.graphActivationEnabled = true;
+		this.showRangePropagator = true;
+		this.selected = false;
+		this.hovered = false;
+		this.focused = false;
+		this.refresh = () => {
+			this.selected = this.analysis?.selected ?? false;
+			this.requestUpdate();
+			if (this.hovered || this.focused) this.highlightAnalysis();
+		};
+		this.handleMouseOver = (event) => {
+			if (event instanceof MouseEvent && !this.isWithinRow(event.relatedTarget)) {
+				this.hovered = true;
+				this.highlightAnalysis();
+			}
+		};
+		this.handleMouseOut = (event) => {
+			if (event instanceof MouseEvent && !this.isWithinRow(event.relatedTarget)) {
+				this.hovered = false;
+				if (!this.focused) this.registryController.setHighlight(void 0);
+			}
+		};
+		this.handleFocusIn = (event) => {
+			if (event instanceof FocusEvent && !this.isWithinRow(event.relatedTarget)) {
+				this.focused = true;
+				this.highlightAnalysis();
+			}
+		};
+		this.handleFocusOut = (event) => {
+			if (event instanceof FocusEvent && !this.isWithinRow(event.relatedTarget)) {
+				this.focused = false;
+				if (!this.hovered) this.registryController.setHighlight(void 0);
+			}
+		};
+	}
+	get allowsEdit() {
+		return this.editEnabled ?? this.interactiveanalysis;
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (changedProperties.has("analysis")) {
+			this.selected = this.analysis?.selected ?? false;
+			this.bindAnalysis();
+		}
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.selected = this.analysis?.selected ?? false;
+		this.bindAnalysis();
+		this.renderRoot.addEventListener("mouseover", this.handleMouseOver);
+		this.renderRoot.addEventListener("mouseout", this.handleMouseOut);
+		this.renderRoot.addEventListener("focusin", this.handleFocusIn);
+		this.renderRoot.addEventListener("focusout", this.handleFocusOut);
+	}
+	disconnectedCallback() {
+		this.unbindAnalysis();
+		if (this.hovered || this.focused) this.registryController.setHighlight(void 0);
+		this.hovered = false;
+		this.focused = false;
+		this.renderRoot.removeEventListener("mouseover", this.handleMouseOver);
+		this.renderRoot.removeEventListener("mouseout", this.handleMouseOut);
+		this.renderRoot.removeEventListener("focusin", this.handleFocusIn);
+		this.renderRoot.removeEventListener("focusout", this.handleFocusOut);
+		super.disconnectedCallback();
+	}
+	/** Replaces subscriptions to the previous analysis and refreshes the row when a new binding is established. */
+	bindAnalysis() {
+		if (this.boundAnalysis === this.analysis || !this.isConnected) return;
+		this.unbindAnalysis();
+		this.boundAnalysis = this.analysis;
+		const analysis = this.boundAnalysis;
+		if (analysis) {
+			analysis.onSelected.set(this.UUID, this.refresh);
+			analysis.onDeselected.set(this.UUID, this.refresh);
+			analysis.onValues.set(this.UUID, this.refresh);
+			analysis.onSerializableChange.set(this.UUID, this.refresh);
+			analysis.onMoveOrResize.set(this.UUID, this.refresh);
+			analysis.onSetInitialColor.set(this.UUID, this.refresh);
+			analysis.onSetName.set(this.UUID, this.refresh);
+			analysis.graph.onGraphActivation.set(this.UUID, this.refresh);
+		}
+		this.refresh();
+	}
+	/** Removes all subscriptions from the actual bound analysis, not necessarily the current property value. */
+	unbindAnalysis() {
+		const analysis = this.boundAnalysis;
+		if (analysis) {
+			analysis.onSelected.delete(this.UUID);
+			analysis.onDeselected.delete(this.UUID);
+			analysis.onValues.delete(this.UUID);
+			analysis.onSerializableChange.delete(this.UUID);
+			analysis.onMoveOrResize.delete(this.UUID);
+			analysis.onSetInitialColor.delete(this.UUID);
+			analysis.onSetName.delete(this.UUID);
+			analysis.graph.onGraphActivation.delete(this.UUID);
+		}
+		this.boundAnalysis = void 0;
+	}
+	isWithinRow(target) {
+		return target instanceof Node && this.renderRoot.contains(target);
+	}
+	get range() {
+		const min = this.analysis?.min;
+		const max = this.analysis?.max;
+		if (min !== void 0 && max !== void 0 && Number.isFinite(min) && Number.isFinite(max) && min <= max) return {
+			from: min,
+			to: max
+		};
+	}
+	highlightAnalysis() {
+		this.registryController.setHighlight(this.range);
+	}
+	static {
+		this.styles = lit.css`
+        :host {
+            display: table-row;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: .25em .5em;
+            color: var(--thermal-foreground);
+            font-size: var(--thermal-fs-sm);
+        }
+
+        td.compact {
+            padding: .25em;
+        }
+
+        .identity, .name, .actions {
+            display: inline-flex;
+            align-items: center;
+            gap: .5em;
+        }
+
+        .identity {
+            width: max-content;
+            min-width: 100%;
+            justify-content: space-between;
+        }
+
+        .name, .actions {
+            flex-shrink: 0;
+        }
+
+        .name {
+            min-width: 0;
+            color: inherit;
+            font: inherit;
+        }
+
+        button.name {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        button.name:hover {
+            color: var(--thermal-primary);
+        }
+
+        .color {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            flex-shrink: 0;
+        }
+
+        .selection-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+        }
+
+        :host([selected]) .selection-indicator {
+            background: var(--thermal-slate-dark);
+        }
+    `;
+	}
+	renderActions() {
+		const analysis = this.analysis;
+		if (!analysis) return lit.nothing;
+		const size = this.tableMode === "compact" ? "sm" : "md";
+		return lit.html`<span class="actions">
+            ${this.allowsEdit ? lit.html`
+                <file-analysis-edit .analysis=${analysis}>
+                    <thermal-btn
+                        slot="invoker"
+                        size=${size}
+                        icon="settings"
+                        iconStyle="solid"
+                        tooltip=${(0, i18next.t)(T.editsth, { what: analysis.name })}
+                    ></thermal-btn>
+                </file-analysis-edit>
+                <thermal-btn
+                    size=${size}
+                    icon="trash"
+                    iconStyle="micro"
+                    tooltip="${(0, i18next.t)(T.delete)} ${analysis.name}"
+                    @click=${() => analysis.file.analysis.layers.removeAnalysis(analysis.key)}
+                ></thermal-btn>
+            ` : lit.nothing}
+            ${this.showRangePropagator && !(analysis instanceof _labirthermal_core.PointAnalysis) ? lit.html`
+                <thermal-btn
+                    size=${size}
+                    icon="range"
+                    iconStyle="outline"
+                    tooltip="${(0, i18next.t)(T.range)}: ${analysis.name}"
+                    disabled=${this.range === void 0}
+                    @click=${() => {
+			const range = this.range;
+			if (range) analysis.file.group.registry.range.imposeRange(range);
+		}}
+                ></thermal-btn>
+            ` : lit.nothing}
+        </span>`;
+	}
+	renderName() {
+		const analysis = this.analysis;
+		if (!analysis) return lit.nothing;
+		const label = lit.html`
+            <span class="color" aria-hidden="true" style="background-color: ${analysis.initialColor}"></span>
+            <span>${analysis.name}</span>
+        `;
+		return this.interactiveanalysis ? lit.html`
+            <button
+                type="button"
+                class="name"
+                aria-pressed=${analysis.selected}
+                @click=${() => {
+			if (analysis.selected) analysis.setDeselected(true);
+			else analysis.setSelected(false, true);
+		}}
+            >
+                <span class="selection-indicator" aria-hidden="true"></span>
+                ${label}
+            </button>
+        ` : lit.html`<span class="name">${label}</span>`;
+	}
+	renderValue(statistic) {
+		const analysis = this.analysis;
+		if (!analysis) return lit.nothing;
+		const value = analysis[statistic];
+		const text = value === void 0 ? "-" : `${value.toFixed(2)} \u00b0C`;
+		const active = analysis.graph.state[statistic === "avg" ? "AVG" : statistic === "min" ? "MIN" : "MAX"];
+		const canActivate = this.graphActivationEnabled && analysis.file.timeline.isSequence && (statistic === "avg" || analysis instanceof _labirthermal_core.AbstractAreaAnalysis);
+		const background = active ? analysis.initialColor : "transparent";
+		const foreground = active ? getContrastColor(analysis.initialColor) : "var(--thermal-foreground)";
+		return lit.html`<td class=${this.tableMode === "compact" ? "compact" : ""}>
+            ${canActivate ? lit.html`
+                <thermal-btn
+                    size=${this.tableMode === "compact" ? "sm" : "md"}
+                    aria-pressed=${active}
+                    tooltip="${(0, i18next.t)(T.graph)}: ${(0, i18next.t)(T[statistic])}"
+                    style="background-color: ${background}; color: ${foreground}; --bg: ${background}; --bg-hover: ${background}; --color: ${foreground}; --color-hover: ${foreground};"
+                    @click=${() => {
+			if (statistic === "avg") analysis.graph.setAvgActivation(!active);
+			else if (statistic === "min") analysis.graph.setMinActivation(!active);
+			else analysis.graph.setMaxActivation(!active);
+		}}
+                >${text}</thermal-btn>
+            ` : text}
+        </td>`;
+	}
+	render() {
+		const analysis = this.analysis;
+		if (!analysis) return lit.nothing;
+		const compact = this.tableMode === "compact";
+		const hasActions = this.allowsEdit || this.showRangePropagator;
+		const dimension = analysis instanceof _labirthermal_core.AbstractAreaAnalysis ? `${analysis.width}x${analysis.height}` : "1x1";
+		return lit.html`
+            <td class=${compact ? "compact" : ""}>
+                <span class="identity">
+                    ${this.renderName()}
+                    ${compact && hasActions ? this.renderActions() : lit.nothing}
+                </span>
+            </td>
+            ${this.renderValue("avg")}
+            ${this.renderValue("min")}
+            ${this.renderValue("max")}
+            ${compact ? lit.nothing : lit.html`<td>${dimension}</td>`}
+            ${!compact && hasActions ? lit.html`<td>${this.renderActions()}</td>` : lit.nothing}
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({ attribute: false }), __decorateMetadata("design:type", Object)], FileAnalysisRowElement.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)({ attribute: "table-mode" }), __decorateMetadata("design:type", Object)], FileAnalysisRowElement.prototype, "tableMode", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(true) }), __decorateMetadata("design:type", Boolean)], FileAnalysisRowElement.prototype, "interactiveanalysis", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	attribute: "edit-enabled",
+	converter: optionalBooleanConverter
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisRowElement.prototype, "editEnabled", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	attribute: "graph-activation-enabled",
+	converter: booleanConverter(true)
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisRowElement.prototype, "graphActivationEnabled", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	attribute: "show-range-propagator",
+	converter: booleanConverter(true)
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisRowElement.prototype, "showRangePropagator", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	reflect: true
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisRowElement.prototype, "selected", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: registryControllerContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Object)], FileAnalysisRowElement.prototype, "registryController", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/FileAnalysisTable.ts
+var FileAnalysisTableElement = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.tableMode = "full";
+		this.graphActivationEnabled = true;
+		this.interactiveanalysis = false;
+		this.forceinteractiveanalysis = false;
+		this.analysis = [];
+		this.selectionChanged = () => this.requestUpdate();
+	}
+	get interactive() {
+		return this.interactiveanalysis || this.forceinteractiveanalysis;
+	}
+	get allowsSelection() {
+		return this.selectionEnabled ?? this.interactive;
+	}
+	get allowsEdit() {
+		return this.editEnabled ?? this.interactive;
+	}
+	get showsRangePropagator() {
+		return this.showRangePropagator ?? this.interactive;
+	}
+	get allSelected() {
+		return this.analysis.length > 0 && this.analysis.every((analysis) => analysis.selected);
+	}
+	onInstanceCreated() {
+		this.requestUpdate();
+	}
+	onFailure() {}
+	connectedCallback() {
+		super.connectedCallback();
+		this.bindFile();
+	}
+	disconnectedCallback() {
+		this.unbindFile();
+		super.disconnectedCallback();
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		/** Rebinds the selection listener when the provided file instance changes. */
+		if (changedProperties.has("file")) this.bindFile();
+	}
+	/**
+	* Subscribes to selection changes on the current file.
+	* Avoids duplicate subscriptions and replaces any listener attached to a previous file.
+	*/
+	bindFile() {
+		if (this.boundFile === this.file || !this.isConnected) return;
+		this.unbindFile();
+		this.boundFile = this.file;
+		this.boundFile?.analysis.layers.onSelectionChange.set(this.UUID, this.selectionChanged);
+	}
+	/** Removes this component's selection listener from the file it is currently bound to. */
+	unbindFile() {
+		this.boundFile?.analysis.layers.onSelectionChange.delete(this.UUID);
+		this.boundFile = void 0;
+	}
+	static {
+		this.styles = lit.css`
+        :host {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            contain: inline-size;
+            box-sizing: border-box;
+            color: var(--thermal-foreground);
+        }
+
+        .overflow {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        table {
+            width: max-content;
+            min-width: 100%;
+            margin: 0;
+            table-layout: auto;
+            box-sizing: border-box;
+            border-collapse: collapse;
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+            font-size: var(--thermal-fs-sm);
+        }
+
+        th {
+            text-align: left;
+            white-space: nowrap;
+            padding: .5em;
+        }
+
+        table.compact th {
+            padding: .25em;
+        }
+
+        file-analysis-table-row:not(:last-child) {
+            border-bottom: var(--thermal-border-width) dotted var(--thermal-slate);
+        }
+
+        file-analysis-table-row[selected] {
+            background-color: var(--thermal-background);
+        }
+
+        .selection {
+            display: inline-flex;
+            align-items: center;
+            gap: .5em;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .selection:hover {
+            color: var(--thermal-primary);
+        }
+
+        .selection-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+        }
+
+        .selection[aria-pressed="true"] .selection-indicator {
+            background: var(--thermal-slate-dark);
+        }
+    `;
+	}
+	render() {
+		if (this.file === void 0 || this.analysis.length === 0) return lit.nothing;
+		const compact = this.tableMode === "compact";
+		return lit.html`
+            <div class="overflow" tabindex="0" role="region" aria-label=${(0, i18next.t)(T.analysis)}>
+                <table class=${compact ? "compact" : "full"} aria-label=${(0, i18next.t)(T.analysis)}>
+                    <thead>
+                        <tr>
+                            <th scope="col">
+                                ${this.allowsSelection ? lit.html`
+                                    <button
+                                        type="button"
+                                        class="selection"
+                                        aria-pressed=${this.allSelected}
+                                        @click=${() => {
+			if (this.allSelected) this.file?.analysis.layers.deselectAll();
+			else this.file?.analysis.layers.selectAll();
+		}}
+                                    >
+                                        <span class="selection-indicator" aria-hidden="true"></span>
+                                        ${(0, i18next.t)(T.analysis)}
+                                    </button>
+                                ` : (0, i18next.t)(T.analysis)}
+                            </th>
+                            <th scope="col">${(0, i18next.t)(T.avg)}</th>
+                            <th scope="col">${(0, i18next.t)(T.min)}</th>
+                            <th scope="col">${(0, i18next.t)(T.max)}</th>
+                            ${compact ? lit.nothing : lit.html`<th scope="col">${(0, i18next.t)(T.size)}</th>`}
+                            ${!compact && (this.allowsEdit || this.showsRangePropagator) ? lit.html`<th scope="col"></th>` : lit.nothing}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${(0, lit_directives_repeat_js.repeat)(this.analysis, (analysis) => analysis.key, (analysis) => lit.html`
+                            <file-analysis-table-row
+                                .analysis=${analysis}
+                                .tableMode=${this.tableMode}
+                                .interactiveanalysis=${this.allowsSelection}
+                                .editEnabled=${this.allowsEdit}
+                                .graphActivationEnabled=${this.graphActivationEnabled}
+                                .showRangePropagator=${this.showsRangePropagator}
+                            ></file-analysis-table-row>
+                        `)}
+                    </tbody>
+                </table>
+            </div>
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({ attribute: "table-mode" }), __decorateMetadata("design:type", Object)], FileAnalysisTableElement.prototype, "tableMode", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	attribute: "show-range-propagator",
+	converter: optionalBooleanConverter
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisTableElement.prototype, "showRangePropagator", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	attribute: "selection-enabled",
+	converter: optionalBooleanConverter
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisTableElement.prototype, "selectionEnabled", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	attribute: "edit-enabled",
+	converter: optionalBooleanConverter
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisTableElement.prototype, "editEnabled", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	attribute: "graph-activation-enabled",
+	converter: booleanConverter(true)
+}), __decorateMetadata("design:type", Boolean)], FileAnalysisTableElement.prototype, "graphActivationEnabled", void 0);
+__decorate([
+	(0, _lit_context.consume)({
+		context: managerInteractiveAnalysesContext,
+		subscribe: true
+	}),
+	(0, lit_decorators_js.property)({ converter: booleanConverter(false) }),
+	__decorateMetadata("design:type", Boolean)
+], FileAnalysisTableElement.prototype, "interactiveanalysis", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileAnalysisTableElement.prototype, "forceinteractiveanalysis", void 0);
+__decorate([
+	(0, _lit_context.consume)({
+		context: fileAnalysisListContext,
+		subscribe: true
+	}),
+	(0, lit_decorators_js.state)(),
+	__decorateMetadata("design:type", Array)
+], FileAnalysisTableElement.prototype, "analysis", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/edit/analysisColorDropdown.ts
+/** 
+* Render the dropdown for color selection of an analysis. Property `analysis` needs to be passed down from the parent component 
+* @package \@labirthermal/embed
+* @author Jan Jáchim
+*/
+var AnalysisColorDropdown = class extends AbstractThermalElement {
+	willUpdate(_changedProperties) {
+		super.willUpdate(_changedProperties);
+		if (_changedProperties.has("analysis")) this.color = this.analysis.initialColor;
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+		if (_changedProperties.has("analysis")) {
+			const oldAnalysis = _changedProperties.get("analysis");
+			if (oldAnalysis) oldAnalysis.onSetInitialColor.delete(this.UUID);
+			this.analysis.onSetInitialColor.set(this.UUID, (value) => {
+				this.color = value;
+			});
+		}
+	}
+	static {
+		this.styles = lit.css`
+
+        thermal-dropdown div {
+            display: flex;
+            gap: 0.5em;
+            border-radius: var( --thermal-radius );
+            cursor: pointer;
+            align-items: center;
+        }
+
+        thermal-dropdown .option {
+            margin-bottom: 0px;
+            padding: 5px;
+        }
+
+        thermal-dropdown div i {
+            width: 1em;
+            height: 1em;
+            border-radius: 50%;
+        }
+
+        thermal-dropdown .option:hover {
+            background-color: var( --thermal-slate );
+        }
+    
+    `;
+	}
+	renderColor(value) {
+		return lit.html`<i style="background-color: ${value};" aria-hidden></i><span>${value}</span>`;
+	}
+	render() {
+		if (this.color === void 0) return lit.nothing;
+		return lit.html`
+
+            <thermal-dropdown>
+                <div slot="invoker">
+                    ${this.renderColor(this.color)}
+                </div>
+
+                ${(0, lit_directives_map_js.map)(_labirthermal_core.availableAnalysisColors, (color) => lit.html`
+                    <div class="option" slot="option" @click=${() => {
+			this.analysis.setInitialColor(color);
+		}}>
+                        ${this.renderColor(color)}
+                    </div>
+                `)}
+                    
+            </thermal-dropdown>
+
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], AnalysisColorDropdown.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisColorDropdown.prototype, "color", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/edit/analysisNameInput.ts
+/** 
+* Render the input for editing the analysis name. Property `analysis` needs to be passed down from the parent component 
+* @package \@labirthermal/embed
+* @author Jan Jáchim
+*/
+var AnalysisNameInput = class extends AbstractThermalElement {
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (changedProperties.has("analysis")) this.name = this.analysis.name;
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (changedProperties.has("analysis")) {
+			changedProperties.get("analysis")?.onSetName.delete(this.UUID);
+			this.analysis.onSetName.set(this.UUID, (value) => {
+				this.name = value;
+			});
+		}
+	}
+	static {
+		this.styles = lit.css`
+
+    
+    `;
+	}
+	render() {
+		return lit.html`
+
+            <input 
+                type="text"
+                value="${this.name}" 
+                @change=${(event) => {
+			const target = event.target;
+			const value = target.value !== "" ? target.value : this.analysis.nameInitial;
+			this.analysis.setName(value);
+		}}
+            />
+
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], AnalysisNameInput.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisNameInput.prototype, "name", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/edit/editAreaTable.ts
+/** 
+* The full table and form for editing an area analysis properties. Enables editing of name, color and dimensions (top, left, width, height, right, bottom). Property `analysis` needs to be passed down from the parent component 
+* @package \@labirthermal/embed
+* @author Jan Jáchim
+*/
+var AreaEditTable = class extends AbstractThermalElement {
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (changedProperties.has("analysis")) {
+			const analysis = this.analysis;
+			this.top = analysis.top;
+			this.left = analysis.left;
+			this.width = analysis.width;
+			this.height = analysis.height;
+			this.right = analysis.left + analysis.width;
+			this.bottom = analysis.top + analysis.height;
+			this.maxX = analysis.file.width;
+			this.maxY = analysis.file.height;
+		}
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (changedProperties.has("analysis")) {
+			const oldAnalysis = changedProperties.get("analysis");
+			if (oldAnalysis) oldAnalysis.onSerializableChange.delete(this.UUID);
+			this.analysis.onSerializableChange.set(this.UUID, (analysis) => {
+				this.top = analysis.top;
+				this.left = analysis.left;
+				this.width = analysis.width;
+				this.height = analysis.height;
+				this.right = analysis.left + analysis.width;
+				this.bottom = analysis.top + analysis.height;
+			});
+		}
+	}
+	handleInput(event, callback) {
+		const target = event.target;
+		const value = parseInt(target.value);
+		if (!isNaN(value)) {
+			callback(value);
+			this.analysis.onMoveOrResize.call(this.analysis);
+		}
+	}
+	static {
+		this.styles = lit.css`
+    
+        .table {
+
+            display: table;
+            width: 100%;
+        
+        }
+    
+    `;
+	}
+	render() {
+		return lit.html`
+
+            <div class="table">
+
+                <thermal-field label=${(0, i18next.t)(T.name)}>
+                    <analysis-name .analysis=${this.analysis}></analysis-name>
+                </thermal-field>
+
+                <thermal-field label=${(0, i18next.t)(T.color)}>
+                    <analysis-color .analysis=${this.analysis}></analysis-color>
+                </thermal-field>
+
+                <thermal-field label=${(0, i18next.t)(T.left)}>
+                    <input 
+                        name="left" 
+                        value=${this.left} 
+                        type="number" 
+                        step="1" 
+                        min="0" 
+                        max=${this.right !== void 0 ? this.right - 1 : this.maxX}
+                        @change=${(event) => this.handleInput(event, (value) => {
+			this.analysis.setLeft(value);
+		})}
+                    />
+                </thermal-field>
+
+                <thermal-field label=${(0, i18next.t)(T.right)}>
+                    <input 
+                        name="right" 
+                        value=${this.right} 
+                        type="number" 
+                        step="1" 
+                        min=${this.left !== void 0 ? this.left + 1 : 0} 
+                        max=${this.maxX}
+                        @change=${(event) => this.handleInput(event, (value) => {
+			this.analysis.setRight(value);
+		})}
+                    />
+                </thermal-field>
+
+                <thermal-field label=${(0, i18next.t)(T.top)}>
+                    <input 
+                        name="top" 
+                        value=${this.top} 
+                        type="number" 
+                        step="1" 
+                        min="0"
+                        max=${this.bottom !== void 0 ? this.bottom - 1 : this.maxY}
+                        @change=${(event) => this.handleInput(event, (value) => {
+			this.analysis.setTop(value);
+		})}
+                    />
+                </thermal-field>
+
+                <thermal-field label=${(0, i18next.t)(T.bottom)}>
+                    <input 
+                        name="bottom" 
+                        value=${this.bottom} 
+                        type="number" 
+                        step="1" 
+                        min=${this.top !== void 0 ? this.top + 1 : 0}
+                        max=${this.maxY}
+                        @change=${(event) => this.handleInput(event, (value) => {
+			this.analysis.setBottom(value);
+		})}
+                    />
+                </thermal-field>
+                
+
+            </div>
+    
+        
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], AreaEditTable.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AreaEditTable.prototype, "color", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "top", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "left", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "width", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "height", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AreaEditTable.prototype, "type", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "right", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "bottom", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "maxX", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "maxY", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/edit/editPointTable.ts
+/** 
+* The full table and form for editing a point analysis properties. Enables editing of name, color and coordinates (top, left). Property `analysis` needs to be passed down from the parent component 
+* @package \@labirthermal/embed
+* @author Jan Jáchim
+*/
+var EditpointTable = class extends AbstractThermalElement {
+	constructor(..._args) {
+		super(..._args);
+		this.topInputRef = (0, lit_directives_ref_js.createRef)();
+		this.leftInputRef = (0, lit_directives_ref_js.createRef)();
+	}
+	willUpdate(changedProperties) {
+		super.willUpdate(changedProperties);
+		if (changedProperties.has("analysis")) {
+			const analysis = this.analysis;
+			this.top = analysis.top;
+			this.left = analysis.left;
+			this.maxX = analysis.file.width;
+			this.maxY = analysis.file.height;
+		}
+	}
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (changedProperties.has("analysis")) {
+			const oldAnalysis = changedProperties.get("analysis");
+			if (oldAnalysis) oldAnalysis.onSerializableChange.delete(this.UUID);
+			this.analysis.onSerializableChange.set(this.UUID, (analysis) => {
+				this.top = analysis.top;
+				this.left = analysis.left;
+			});
+		}
+	}
+	handleInput(event, callback) {
+		const target = event.target;
+		const value = parseInt(target.value);
+		if (!isNaN(value)) {
+			callback(value);
+			this.analysis.onMoveOrResize.call(this.analysis);
+		}
+	}
+	static {
+		this.styles = lit.css`
+    
+        .table {
+
+            display: table;
+            width: 100%;
+        
+        }
+    
+    `;
+	}
+	render() {
+		return lit.html`
+
+            <div class="table">
+
+                <thermal-field label=${(0, i18next.t)(T.name)}>
+                    <analysis-name .analysis=${this.analysis}></analysis-name>
+                </thermal-field>
+
+                <thermal-field label=${(0, i18next.t)(T.color)}>
+                    <analysis-color .analysis=${this.analysis}></analysis-color>
+                </thermal-field>
+
+                <thermal-field label=${(0, i18next.t)(T.top)} hint=${(0, i18next.t)(T.fromto, {
+			from: 0,
+			to: this.maxX
+		})}>
+                    <input 
+                        name="top" 
+                        value=${this.top} 
+                        type="number" 
+                        step="1" 
+                        min="0" 
+                        max=${this.maxY}
+                        @change=${(event) => this.handleInput(event, (value) => {
+			this.analysis.setTop(value);
+		})}
+                    />
+                </thermal-field>
+
+                <thermal-field label=${(0, i18next.t)(T.left)} hint=${(0, i18next.t)(T.fromto, {
+			from: 0,
+			to: this.maxX
+		})}>
+                    <input
+                        name="left" 
+                        value=${this.left} 
+                        type="number" 
+                        step="1" 
+                        min="0" 
+                        max=${this.maxX}
+                        @change=${(event) => this.handleInput(event, (value) => {
+			this.analysis.setLeft(value);
+		})}
+                    />
+                </thermal-field>
+
+            </div>
+        
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], EditpointTable.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditpointTable.prototype, "top", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditpointTable.prototype, "left", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditpointTable.prototype, "maxX", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditpointTable.prototype, "maxY", void 0);
+
+//#endregion
+//#region src/controls/file/analysis/chart/loader.ts
+/**
+* @license
+* Copyright 2014-2020 Google LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+/**
+* Promise that resolves when the gviz loader script is loaded, which
+* provides access to the Google Charts loading API.
+*/
+const loaderPromise = new Promise((resolve, reject) => {
+	if (typeof google !== "undefined" && google.charts && typeof google.charts.load === "function") resolve();
+	else {
+		let loaderScript = document.querySelector("script[src=\"https://www.gstatic.com/charts/loader.js\"]");
+		if (!loaderScript) {
+			loaderScript = document.createElement("script");
+			loaderScript.src = "https://www.gstatic.com/charts/loader.js";
+			document.head.appendChild(loaderScript);
+		}
+		loaderScript.addEventListener("load", resolve);
+		loaderScript.addEventListener("error", reject);
+	}
+});
+/**
+* Loads Google Charts API with the selected settings or using defaults.
+*
+* The following settings are available:
+* - version: which version of library to load, default: 'current',
+* - packages: which chart packages to load, default: ['corechart'],
+* - language: what language to load library in, default: `lang` attribute on
+*   `<html>` or 'en' if not specified,
+* - mapsApiKey: key to use for maps API.
+*/
+async function load(settings = {}) {
+	await loaderPromise;
+	const { version = "current", packages = ["corechart"], language = document.documentElement.lang || "en", mapsApiKey } = settings;
+	return google.charts.load(version, {
+		"packages": packages,
+		"language": language,
+		"mapsApiKey": mapsApiKey
+	});
+}
+/**
+* Creates a DataTable object for use with a chart.
+*
+* Multiple different argument types are supported. This is because the
+* result of loading the JSON data URL is fed into this function for
+* DataTable construction and its format is unknown.
+*
+* The data argument can be one of a few options:
+*
+* - null/undefined: An empty DataTable is created. Columns must be added
+* - !DataTable: The object is simply returned
+* - {{cols: !Array, rows: !Array}}: A DataTable in object format
+* - {{cols: !Array}}: A DataTable in object format without rows
+* - !Array<!Array>: A DataTable in 2D array format
+*
+* Un-supported types:
+*
+* - Empty !Array<!Array>: (e.g. `[]`) While technically a valid data
+*   format, this is rejected as charts will not render empty DataTables.
+*   DataTables must at least have columns specified. An empty array is most
+*   likely due to a bug or bad data. If one wants an empty DataTable, pass
+*   no arguments.
+* - Anything else
+*
+* See <a
+* href="https://developers.google.com/chart/interactive/docs/reference#datatable-class">the
+* docs</a> for more details.
+*
+* @param data The data which we should use to construct new DataTable object
+*/
+async function dataTable(data) {
+	await load();
+	if (data == null) return new google.visualization.DataTable();
+	else if (data.getNumberOfRows) return data;
+	else if (data.cols) return new google.visualization.DataTable(data);
+	else if (data.length > 0) return google.visualization.arrayToDataTable(data);
+	else if (data.length === 0) throw new Error("Data was empty.");
+	throw new Error("Data format was not recognized.");
+}
+/**
+* Creates new `ChartWrapper`.
+* @param container Element in which the chart will be drawn
+*/
+async function createChartWrapper(container) {
+	await load();
+	return new google.visualization.ChartWrapper({ "container": container });
+}
+
+//#endregion
+//#region src/controls/file/analysis/chart/chart.ts
+/**
+* @license
+* Copyright 2014-2020 Google LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+const DEFAULT_EVENTS = ["ready", "select"];
+/**
+* Constructor names for supported chart types.
+*
+* `ChartWrapper` expects a constructor name and assumes `google.visualization`
+*  as the default namespace.
+*/
+const CHART_TYPES = {
+	"area": "AreaChart",
+	"bar": "BarChart",
+	"md-bar": "google.charts.Bar",
+	"bubble": "BubbleChart",
+	"calendar": "Calendar",
+	"candlestick": "CandlestickChart",
+	"column": "ColumnChart",
+	"combo": "ComboChart",
+	"gantt": "Gantt",
+	"gauge": "Gauge",
+	"geo": "GeoChart",
+	"histogram": "Histogram",
+	"line": "LineChart",
+	"md-line": "google.charts.Line",
+	"org": "OrgChart",
+	"pie": "PieChart",
+	"sankey": "Sankey",
+	"scatter": "ScatterChart",
+	"md-scatter": "google.charts.Scatter",
+	"stepped-area": "SteppedAreaChart",
+	"table": "Table",
+	"timeline": "Timeline",
+	"treemap": "TreeMap",
+	"wordtree": "WordTree"
+};
+/**
+* `google-chart` encapsulates Google Charts as a web component, allowing you to
+* easily visualize data. From simple line charts to complex hierarchical tree
+* maps, the chart element provides a number of ready-to-use chart types.
+*
+* ```html
+* <google-chart
+*     type='pie'
+*     options='{"title": "Distribution of days in 2001Q1"}'
+*     cols='[{"label":"Month", "type":"string"}, {"label":"Days",
+*         "type":"number"}]' rows='[["Jan", 31],["Feb", 28],["Mar", 31]]'>
+*   </google-chart>
+* ```
+*
+* Note: if you're passing JSON as attributes, single quotes are necessary to be
+* valid JSON. See
+* https://www.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties.
+*
+* Height and width are specified as style attributes:
+* ```css
+* google-chart {
+*   height: 300px;
+*   width: 50em;
+* }
+* ```
+*
+* Data can be provided in one of three ways:
+*
+* - Via the `cols` and `rows` attributes:
+*   ```
+*   cols='[{"label":"Mth", "type":"string"},{"label":"Days", "type":"number"}]'
+*   rows='[["Jan", 31],["Feb", 28],["Mar", 31]]'
+*   ```
+*
+* - Via the `data` attribute, passing in the data directly:
+*   ```
+*   data='[["Month", "Days"], ["Jan", 31], ["Feb", 28], ["Mar", 31]]'
+*   ```
+*
+* - Via the `data` attribute, passing in the URL to a resource containing the
+*   data, in JSON format:
+*   ```
+*   data='http://example.com/chart-data.json'
+*   ```
+*
+* - Via the `data` attribute, passing in a Google DataTable object:
+*   ```
+*   data='{{dataTable}}'
+*   ```
+*
+* - Via the `view` attribute, passing in a Google DataView object:
+*   ```
+*   view='{{dataView}}'
+*   ```
+*
+* You can display the charts in locales other than "en" by setting the `lang`
+* attribute on the `html` tag of your document:
+* ```
+* <html lang="ja">
+* ```
+*
+* @demo demo/index.html
+*/
+var ThermalChartElement = class extends lit.LitElement {
+	constructor(..._args) {
+		super(..._args);
+		this.type = "column";
+		this.events = [];
+		this.options = void 0;
+		this.cols = void 0;
+		this.rows = void 0;
+		this.data = void 0;
+		this.view = void 0;
+		this.selection = void 0;
+		this.drawn = false;
+		this._data = void 0;
+		this.chartWrapper = null;
+		this.redrawTimeoutId = void 0;
+		this.chartRef = (0, lit_directives_ref_js.createRef)();
+		this.handleGraphPointerMove = (event) => {
+			const container = this.chartRef.value;
+			const layout = this.onGraphClick || this.onGraphHover ? this.getGraphLayout() : void 0;
+			const chartArea = layout?.getChartAreaBoundingBox();
+			if (!container || !layout || !chartArea) {
+				if (container) container.style.cursor = "";
+				this.onGraphHover?.(void 0);
+				return;
+			}
+			const bounds = container.getBoundingClientRect();
+			const x = event.clientX - bounds.left;
+			const y = event.clientY - bounds.top;
+			const inVisualization = this.isGraphVisualizationPoint(x, y, layout);
+			container.style.cursor = inVisualization && this.onGraphClick ? "pointer" : "";
+			this.onGraphHover?.(inVisualization ? Math.max(0, Math.min(100, (x - chartArea.left) / chartArea.width * 100)) : void 0);
+		};
+		this.handleGraphClickEvent = (event) => {
+			const container = this.chartRef.value;
+			const layout = this.getGraphLayout();
+			if (!container || !layout || !this.onGraphClick) return;
+			const bounds = container.getBoundingClientRect();
+			const x = event.clientX - bounds.left;
+			const y = event.clientY - bounds.top;
+			const chartArea = layout.getChartAreaBoundingBox();
+			if (chartArea.width <= 0 || !this.isGraphVisualizationPoint(x, y, layout) || x < chartArea.left || x > chartArea.left + chartArea.width) return;
+			const relativeTimeMs = layout.getHAxisValue?.(x);
+			if (typeof relativeTimeMs === "number" && Number.isFinite(relativeTimeMs)) this.onGraphClick(relativeTimeMs);
+		};
+		this.handleGraphPointerLeave = () => {
+			if (this.chartRef.value) this.chartRef.value.style.cursor = "";
+			this.onGraphHover?.(void 0);
+		};
+		this.onWrapper = new _labirthermal_core.CallbacksManager();
+		this.left = 0;
+		this.top = 0;
+		this.w = 0;
+		this.h = 0;
+	}
+	static {
+		this.styles = lit.css`
+    :host {
+      display: -webkit-flex;
+      display: -ms-flex;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      width: 400px;
+      height: 300px;
+    }
+
+    :host([hidden]) {
+      display: none;
+    }
+
+    :host([type="gauge"]) {
+      width: 300px;
+      height: 300px;
+    }
+
+    #chartdiv {
+      width: 100%;
+    }
+
+    /* Workaround for slow initial ready event for tables. */
+    .google-visualization-table-loadtest {
+      padding-left: 6px;
+    }
+  `;
+	}
+	render() {
+		return lit.html`
+      <div id="styles"></div>
+      <div
+        ${(0, lit_directives_ref_js.ref)(this.chartRef)}
+        id="chartdiv"
+        @pointermove=${this.handleGraphPointerMove}
+        @pointerleave=${this.handleGraphPointerLeave}
+        @click=${this.handleGraphClickEvent}
+      ></div>
+    `;
+	}
+	getGraphLayout() {
+		return (this.chartWrapper?.getChart())?.getChartLayoutInterface?.();
+	}
+	isGraphVisualizationPoint(x, y, layout) {
+		const chartArea = layout.getChartAreaBoundingBox();
+		const inChartArea = chartArea.width > 0 && chartArea.height > 0 && x >= chartArea.left && x <= chartArea.left + chartArea.width && y >= chartArea.top && y <= chartArea.top + chartArea.height;
+		const axisLabels = layout.getBoundingBox?.("hAxis#0#labels");
+		const axisBottom = Math.max(chartArea.top + chartArea.height, axisLabels ? axisLabels.top + axisLabels.height : 0);
+		const inHorizontalAxis = x >= chartArea.left && x <= chartArea.left + chartArea.width && y >= chartArea.top && y <= axisBottom;
+		return inChartArea || inHorizontalAxis;
+	}
+	getRef() {
+		return this.chartRef.value;
+	}
+	firstUpdated() {
+		createChartWrapper(this.shadowRoot.getElementById("chartdiv")).then((chartWrapper) => {
+			this.chartWrapper = chartWrapper;
+			this.onWrapper.call(chartWrapper);
+			this.typeChanged();
+			google.visualization.events.addListener(chartWrapper, "ready", () => {
+				this.drawn = true;
+				if (this.selection) this.selectionChanged();
+			});
+			google.visualization.events.addListener(chartWrapper, "select", () => {
+				this.selection = chartWrapper.getChart()?.getSelection() ?? [];
+			});
+			this.propagateEvents(DEFAULT_EVENTS, chartWrapper);
+		});
+	}
+	updated(changedProperties) {
+		if (changedProperties.has("type")) this.typeChanged();
+		if (changedProperties.has("rows") || changedProperties.has("cols")) this.rowsOrColumnsChanged();
+		if (changedProperties.has("data")) this.dataChanged();
+		if (changedProperties.has("view")) this.viewChanged();
+		if (changedProperties.has("_data") || changedProperties.has("options")) this.redraw();
+		if (changedProperties.has("selection")) this.selectionChanged();
+	}
+	/** Reacts to chart type change. */
+	typeChanged() {
+		if (this.chartWrapper == null) return;
+		this.chartWrapper.setChartType(CHART_TYPES[this.type] || this.type);
+		const lastChart = this.chartWrapper.getChart();
+		google.visualization.events.addOneTimeListener(this.chartWrapper, "ready", () => {
+			const chart = this.chartWrapper.getChart();
+			if (chart !== lastChart) this.propagateEvents(this.events.filter((eventName) => !DEFAULT_EVENTS.includes(eventName)), chart);
+			const stylesDiv = this.shadowRoot.getElementById("styles");
+			if (!stylesDiv.children.length) this.localizeGlobalStylesheets(stylesDiv);
+		});
+		this.redraw();
+	}
+	/**
+	* Adds listeners to propagate events from the chart.
+	*/
+	propagateEvents(events, eventTarget) {
+		for (const eventName of events) google.visualization.events.addListener(eventTarget, eventName, (event) => {
+			this.dispatchEvent(new CustomEvent(`google-chart-${eventName}`, {
+				bubbles: true,
+				composed: true,
+				detail: {
+					chart: this.chartWrapper.getChart(),
+					data: event
+				}
+			}));
+		});
+	}
+	/** Sets the selectiton on the chart. */
+	selectionChanged() {
+		if (this.chartWrapper == null) return;
+		const chart = this.chartWrapper.getChart();
+		if (chart == null) return;
+		if (chart.setSelection) {
+			if (this.type === "timeline") {
+				const oldSelection = JSON.stringify(chart.getSelection());
+				if (JSON.stringify(this.selection) === oldSelection) return;
+			}
+			chart.setSelection(this.selection);
+		}
+	}
+	/**
+	* Redraws the chart.
+	*
+	* Called automatically when data/type/selection attributes change.
+	* Call manually to handle view updates, page resizes, etc.
+	*/
+	redraw() {
+		if (this.chartWrapper == null || this._data == null) return;
+		this.chartWrapper.setDataTable(this._data);
+		this.chartWrapper.setOptions(this.options || {});
+		this.drawn = false;
+		if (this.redrawTimeoutId !== void 0) clearTimeout(this.redrawTimeoutId);
+		this.redrawTimeoutId = window.setTimeout(() => {
+			this.chartWrapper.draw();
+			const dimensions = this.chartWrapper.visualization.ha.O;
+			this.left = dimensions.left;
+			this.top = dimensions.top;
+			this.w = dimensions.width;
+			this.h = dimensions.height;
+		}, 5);
+	}
+	/**
+	* Returns the chart serialized as an image URI.
+	*
+	* Call this after the chart is drawn (`google-chart-ready` event).
+	*/
+	get imageURI() {
+		if (this.chartWrapper == null) return null;
+		const chart = this.chartWrapper.getChart();
+		return chart && chart.getImageURI();
+	}
+	/** Handles changes to the `view` attribute. */
+	viewChanged() {
+		if (!this.view) return;
+		this._data = this.view;
+	}
+	/** Handles changes to the rows & columns attributes. */
+	async rowsOrColumnsChanged() {
+		const { rows, cols } = this;
+		if (!rows || !cols) return;
+		try {
+			const dt = await dataTable({ cols });
+			dt.addRows(rows);
+			this._data = dt;
+		} catch (reason) {
+			this.shadowRoot.getElementById("chartdiv").textContent = String(reason);
+		}
+	}
+	/**
+	* Handles changes to the `data` attribute.
+	*/
+	dataChanged() {
+		let data = this.data;
+		let dataPromise;
+		if (!data) return;
+		let isString = false;
+		try {
+			data = JSON.parse(data);
+		} catch (e) {
+			isString = typeof data === "string" || data instanceof String;
+		}
+		if (isString) dataPromise = fetch(data).then((response) => response.json());
+		else dataPromise = Promise.resolve(data);
+		dataPromise.then(dataTable).then((data) => {
+			this._data = data;
+		});
+	}
+	/**
+	* Queries global document head for Google Charts `link#load-css-*` and clones
+	* them into the local root's `div#styles` element for shadow dom support.
+	*/
+	localizeGlobalStylesheets(stylesDiv) {
+		const stylesheets = Array.from(document.head.querySelectorAll("link[rel=\"stylesheet\"][type=\"text/css\"][id^=\"load-css-\"]"));
+		for (const stylesheet of stylesheets) {
+			const clonedStylesheet = document.createElement("link");
+			clonedStylesheet.setAttribute("rel", "stylesheet");
+			clonedStylesheet.setAttribute("type", "text/css");
+			clonedStylesheet.setAttribute("href", stylesheet.getAttribute("href"));
+			stylesDiv.appendChild(clonedStylesheet);
+		}
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Object)], ThermalChartElement.prototype, "type", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Array)], ThermalChartElement.prototype, "events", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Object,
+	hasChanged: () => true
+}), __decorateMetadata("design:type", Object)], ThermalChartElement.prototype, "options", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Object)], ThermalChartElement.prototype, "cols", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Object)], ThermalChartElement.prototype, "rows", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Object)], ThermalChartElement.prototype, "data", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Object)], ThermalChartElement.prototype, "view", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Object)], ThermalChartElement.prototype, "selection", void 0);
+__decorate([(0, lit_decorators_js.property)({ attribute: false }), __decorateMetadata("design:type", Function)], ThermalChartElement.prototype, "onGraphClick", void 0);
+__decorate([(0, lit_decorators_js.property)({ attribute: false }), __decorateMetadata("design:type", Function)], ThermalChartElement.prototype, "onGraphHover", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Object)], ThermalChartElement.prototype, "_data", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true
+}), __decorateMetadata("design:type", Number)], ThermalChartElement.prototype, "left", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true
+}), __decorateMetadata("design:type", Number)], ThermalChartElement.prototype, "top", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true
+}), __decorateMetadata("design:type", Number)], ThermalChartElement.prototype, "w", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true
+}), __decorateMetadata("design:type", Number)], ThermalChartElement.prototype, "h", void 0);
+
+//#endregion
+//#region src/utils/iife.ts
+/**
+* Registers and defines all custom elements from a provided list
+* 
+* @module @labirthermal/webcomponents
+* 
+*/
+const defineAllWebcomponents = (catalog) => {
+	for (const [tag, cls] of Object.entries(catalog)) defineWebcomponent(tag, cls);
+};
+/**
+* Registers a custom element and defines it right away.
+* 
+* @module @labirthermal/webcomponents
+*/
+const defineWebcomponent = (tag, cls) => {
+	if (customElements.get(tag)) {
+		console.warn(name, version, "🟥", ...debugclsName(tag, cls));
+		return;
+	}
+	customElements.define(tag, cls);
+	console.info(name, version, "✅", ...debugclsName(tag, cls));
+};
+const tagNameMaxLength = 30;
+const tagline = ".....................................";
+const debugclsName = (tag, cls) => {
+	const tagLength = tag.length;
+	if (tagLength > tagNameMaxLength) tag = tag.substring(0, tagNameMaxLength - 3) + "...";
+	return [
+		tag,
+		tagline.substring(0, tagNameMaxLength - tagLength),
+		cls.name
+	];
+};
+
+//#endregion
+//#region src/apps/AustralianApparentTemperature.ts
+var VUNIT = /* @__PURE__ */ function(VUNIT) {
+	VUNIT["mps"] = "mps";
+	VUNIT["kph"] = "kph";
+	return VUNIT;
+}(VUNIT || {});
+const converters = {
+	fromAttribute(value) {
+		if (typeof value === "string") {
+			const trimmedValue = value.trim();
+			if (trimmedValue.length > 0) return parseFloat(trimmedValue);
+			else return;
+		} else return;
+	},
+	toAttribute(value) {
+		if (value !== void 0) return value.toString();
+		else return;
+	}
+};
+var AatAppElement = class extends AbstractThermalElement {
+	constructor(..._args) {
+		super(..._args);
+		this.tRef = (0, lit_directives_ref_js.createRef)();
+		this.vRef = (0, lit_directives_ref_js.createRef)();
+		this.vunitsRef = (0, lit_directives_ref_js.createRef)();
+		this.haRef = (0, lit_directives_ref_js.createRef)();
+		this.vunits = VUNIT.mps;
+	}
+	kphToMps(kph) {
+		return kph * .2778;
+	}
+	calculateE(h, t) {
+		return h * (6.105 / 100) * Math.exp(17.27 * t / (237.7 + t));
+	}
+	calculateTa(t, e, v) {
+		return t + .33 * e - .7 * v - 4;
+	}
+	firstUpdated(_changedProperties) {
+		super.firstUpdated(_changedProperties);
+		initLocalesInTopLevelElement(this);
+		if (this.tRef.value) this.tRef.value.addEventListener("change", (event) => {
+			const target = event.target;
+			const value = parseFloat(target.value);
+			if (!isNaN(value)) this.temperature = Math.min(100, Math.max(-275.4, value));
+		});
+		if (this.haRef.value) this.haRef.value.addEventListener("change", (event) => {
+			const target = event.target;
+			const value = parseFloat(target.value);
+			if (!isNaN(value)) this.ha = Math.min(100, Math.max(0, value));
+		});
+		if (this.vRef.value) this.vRef.value.addEventListener("change", (event) => {
+			const target = event.target;
+			const value = parseFloat(target.value);
+			if (!isNaN(value)) this.v = Math.max(0, value);
+		});
+	}
+	processValueChange(_changedProperties, key) {
+		if (_changedProperties.has(key)) {
+			const newValue = this[key];
+			const inputRef = this[`${key}Ref`];
+			if (inputRef.value) if (newValue !== void 0 && newValue !== null) inputRef.value.value = newValue.toString();
+			else inputRef.value.value = "";
+			this.recalculateVa();
+		}
+	}
+	recalculateVa() {
+		if (this.temperature !== void 0 && this.ha !== void 0 && this.v !== void 0) {
+			const v = this.vunits === VUNIT.mps ? this.v : this.kphToMps(this.v);
+			const e = this.calculateE(this.ha, this.temperature);
+			this.ta = this.calculateTa(this.temperature, e, v);
+		} else this.ta = void 0;
+	}
+	shouldUpdate(_changedProperties) {
+		super.shouldUpdate(_changedProperties);
+		if (this.ha) {
+			if (this.ha < 0) {
+				this.ha = 0;
+				if (this.haRef.value) this.haRef.value.value = "0";
+			}
+			if (this.ha > 100) {
+				this.ha = 100;
+				if (this.haRef.value) this.haRef.value.value = "100";
+			}
+		}
+		return true;
+	}
+	willUpdate(_changedProperties) {
+		super.willUpdate(_changedProperties);
+		this.processValueChange(_changedProperties, "t");
+		this.processValueChange(_changedProperties, "v");
+		this.processValueChange(_changedProperties, "ha");
+		if (_changedProperties.has("vunits")) {
+			if (this.vunitsRef.value) {
+				this.vunitsRef.value.value = this.vunits;
+				this.recalculateVa();
+			}
+		}
+	}
+	static {
+		this.styles = lit.css`
+
+        .table {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+        }
+    
+        .field {
+
+            width: 100%;
+            display: table-row;
+
+        }
+
+        .column {
+            display: table-cell;
+            padding: calc( var(--thermal-gap) * .5 );
+        }
+
+        .column__label {
+            text-align: right;
+        }
+
+        .column__value {
+        
+        }
+
+        .input_wrapper {
+
+            background: var( --thermal-background );
+
+            width: 200px;
+            padding: calc( var( --thermal-gap ) / 2 );
+
+            border-radius: var( --thermal-radius );
+        
+        }
+
+        input {
+
+            font-size: var(--thermal-fs);
+            width: 120px;
+            text-align: right;
+            border: 0;
+            border-bottom: 1px var(--thermal-border-style)var( --thermal-slate-light );
+            background: transparent;
+            color: var( --thermal-foreground );
+
+            -moz-appearance: textfield;
+
+            &:focus {
+                outline: 0;
+                border-bottom: 1px var(--thermal-border-style)var( --thermal-primary );
+            }
+        
+        }
+
+        select, option, input {
+            font-size: var(--thermal-fs);
+            color: var( --thermal-foreground );
+            background: var( --thermal-background );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate-light );
+            border-radius: var( --thermal-radius );
+        }
+
+
+
+        .result {
+
+            padding: calc(var(--thermal-gap) * .7);
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
+            border-radius: var( --thermal-radius );
+            text-align: center;
+
+            & > p {
+                margin: 0;
+                padding: calc( var( --thermal-gap ) * .25 );
+            }
+
+        }
+
+        .result_value {
+            font-weight: bold;
+            font-size: calc( var(--thermal-fs) * 1.2 )
+        }
+
+        .result_label {
+        }
+
+        .result_comment {
+            font-size: calc( var(--thermal-fs) * .8 )
+        }
+
+        .tabindex {
+            border-radius: var( --thermal-radius );
+            &:focus {
+                outline: 3px var(--thermal-border-style)var(--thermal-primary);
+            }
+        }
+
+
+    `;
+	}
+	renderNumberField(inputRef, id, label, unit, value, min, max, step, hint) {
+		const u = typeof unit === "string" ? (0, lit_directives_unsafe_html_js.unsafeHTML)(unit) : unit;
+		return lit.html`
+            <div class="field">
+
+                <div class="column column__label">
+                    <label for=${id}>
+                        ${label}
+                    </label>
+                </div>
+                <div class="column column__value">
+
+                    <div class="input_wrapper">
+                        <input 
+                            ${(0, lit_directives_ref_js.ref)(inputRef)} 
+                            id=${id}
+                            name=${id}
+                            value=${(0, lit_directives_if_defined_js.ifDefined)(value)}
+                            min=${(0, lit_directives_if_defined_js.ifDefined)(min)}
+                            max=${(0, lit_directives_if_defined_js.ifDefined)(max)}
+                            step=${(0, lit_directives_if_defined_js.ifDefined)(step)}
+                            type="number"
+                            @blur=${(event) => {
+			const target = event.target;
+			const value = target.value.trim();
+			if (value === "" || value === void 0 || value === null) this[id] = void 0;
+			else this[id] = parseFloat(target.value);
+		}}
+                        ></input>
+                        <span>${u}</span>
+                    </div>
+
+                    ${hint ? lit.html`<label for=${id}>${hint}</label>` : lit.nothing}
+
+                </div>
+
+            </div>
+
+            
+        `;
+	}
+	renderResult(apparentTemperature, temperature) {
+		const diff = apparentTemperature - temperature;
+		const prop = {
+			diff: Math.abs(diff).toFixed(2),
+			app: apparentTemperature.toFixed(2),
+			t: temperature
+		};
+		const summary = (0, i18next.t)(T.apparenttemperatureverbose, prop);
+		const comment = diff < 0 ? (0, i18next.t)(T.youfeelcolder, prop) : (0, i18next.t)(T.youfeelwarmer, prop);
+		const result = apparentTemperature.toFixed(2);
+		return lit.html`<div class="result">
+
+            <p class="result_label">${(0, i18next.t)(T.apparenttemperature)}</p>
+
+            <p class="result_value">
+                ${result} °C
+            </p>
+
+            <p class="result_comment">${summary}</p>
+
+            <p class="result_comment">${comment}</p>
+        
+        </div>`;
+	}
+	render() {
+		return lit.html`
+            <thermal-app 
+                label=${(0, i18next.t)(T.apparenttemperature)} 
+                author="LabIR Edu" 
+                license="CC BY-SA 4.0"
+            >
+
+                <thermal-dialog label=${(0, i18next.t)(T.info)} slot="bar-pre">
+                    <thermal-btn slot="invoker">${(0, i18next.t)(T.info)}</thermal-btn>
+                    <div slot="content">
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)((0, i18next.t)(T.apparenttemperaturehint, { href: "https://en.wikipedia.org/wiki/Wind_chill#Australian_apparent_temperature" }))}
+                    </div>
+                </thermal-dialog>
+
+                ${this.t !== void 0 || this.v !== void 0 || this.ha !== void 0 ? lit.html`<thermal-btn 
+                slot="bar-pre"
+                @click=${() => {
+			this.temperature = void 0;
+			this.ha = void 0;
+			this.ta = void 0;
+			this.v = void 0;
+		}}>Reset</thermal-btn>` : lit.nothing}
+
+
+                <section class="table">
+
+                ${this.renderNumberField(this.tRef, "temperature", (0, i18next.t)(T.airtemperature), "°C", this.temperature, -273.15, 100, .1)}
+
+                ${this.renderNumberField(this.vRef, "v", (0, i18next.t)(T.windspeed), lit.html`<select 
+                    @change=${(event) => {
+			this.vunits = event.target.value;
+		}} 
+                    value=${this.vunits}
+                    ${(0, lit_directives_ref_js.ref)(this.vunitsRef)}
+                >
+                    <option value="mps">m/s</option>
+                    <option value="kph">km/h</option>
+                </select>`, this.v, 0, void 0, .1)}
+
+                ${this.renderNumberField(this.haRef, "ha", (0, i18next.t)(T.relativeairhumidity), "%", this.ha, 0, 100, .1)}
+
+                </section>
+                <div  class="tabindex" tabindex="0">
+                ${this.ta !== void 0 && this.temperature !== void 0 ? this.renderResult(this.ta, this.temperature) : lit.nothing}
+                </div>
+                
+
+            </thermal-app>
+        `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: "t",
+	converter: converters
+}), __decorateMetadata("design:type", Number)], AatAppElement.prototype, "temperature", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true,
+	converter: converters
+}), __decorateMetadata("design:type", Number)], AatAppElement.prototype, "v", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true,
+	converter: converters
+}), __decorateMetadata("design:type", Number)], AatAppElement.prototype, "ha", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AatAppElement.prototype, "ta", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true
+}), __decorateMetadata("design:type", String)], AatAppElement.prototype, "vunits", void 0);
+__decorate([
+	(0, _lit_context.provide)({ context: localeContext }),
+	(0, lit_decorators_js.property)({
+		reflect: true,
+		converter: localeConverter
+	}),
+	__decorateMetadata("design:type", Object)
+], AatAppElement.prototype, "locale", void 0);
+
+//#endregion
+//#region src/apps/AbstractApp.ts
+var AbstractApp = class extends AbstractThermalElement {
+	constructor(..._args) {
+		super(..._args);
+		this.configController = new ConfigController(this);
+		this.showFullscreen = false;
+	}
+	firstUpdated(_changedProperties) {
+		super.firstUpdated(_changedProperties);
+		initLocalesInTopLevelElement(this);
+	}
+};
+__decorate([
+	(0, _lit_context.provide)({ context: localeContext }),
+	(0, lit_decorators_js.property)({
+		reflect: true,
+		converter: localeConverter
+	}),
+	__decorateMetadata("design:type", Object)
+], AbstractApp.prototype, "locale", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: "label"
+}), __decorateMetadata("design:type", String)], AbstractApp.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: "author"
+}), __decorateMetadata("design:type", String)], AbstractApp.prototype, "author", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: "license"
+}), __decorateMetadata("design:type", String)], AbstractApp.prototype, "license", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	converter: booleanConverter(false),
+	attribute: "show-fullscreen"
+}), __decorateMetadata("design:type", Boolean)], AbstractApp.prototype, "showFullscreen", void 0);
+
+//#endregion
+//#region src/apps/ThermalDropinApp.ts
+var Mode = /* @__PURE__ */ function(Mode) {
+	Mode["INPUT"] = "input";
+	Mode["LIST"] = "list";
+	Mode["DETAIL"] = "detail";
+	return Mode;
+}(Mode || {});
+var DropinAppElement = class extends AbstractApp {
+	constructor(..._args) {
+		super(..._args);
+		this.palette = "jet";
+		this.advancedPalettes = false;
+		this.smoothThermograms = false;
+		this.smoothGraph = false;
+		this.tool = "inspect";
+		this.managerController = new ManagerController(this);
+		this.opacity = 1;
+		this.loading = false;
+		this.registryController = new RegistryController(this);
+		this.autoclearGroup = false;
+		this.groupController = new GroupController(this);
+		this.ms = 0;
+		this.playbackSpeed = 1;
+		this.autoHighlight = false;
+		this.fileController = new FileController(this);
+		this.orderby = GroupOrderby.DATE;
+		this.ordering = GroupOrdering.ASC;
+		this.groupListingController = new GroupListingController(this);
+		this.displayMode = Mode.INPUT;
+		this.toDisplay = [];
+	}
+	static {
+		this.properties = {
+			...ManagerController.HOST_PROPERTIES,
+			...RegistryController.HOST_PROPERTIES,
+			...GroupController.HOST_PROPERTIES,
+			...FileController.HOST_PROPERTIES
+		};
+	}
+	get manager() {
+		return this.managerObject;
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		(0, public_ip.publicIpv4)().then((ip) => this.ip = ip);
+	}
+	willUpdate(_changedProperties) {
+		super.willUpdate(_changedProperties);
+		if (_changedProperties.has("toDisplay")) {
+			if (this.toDisplay.length === 0) this.displayMode = Mode.INPUT;
+			else if (this.toDisplay.length === 1) {
+				this.displayMode = Mode.DETAIL;
+				this.fileController.receiveInstance(this.toDisplay[0]);
+				this.postLoadedProcessingAndApplyMinmax();
+			} else if (this.toDisplay.length > 1) {
+				this.displayMode = Mode.LIST;
+				this.postLoadedProcessingAndApplyMinmax();
+			}
+		}
+	}
+	/**
+	* Postprocess the registry and reset its range to apply min and max values.
+	*/
+	async postLoadedProcessingAndApplyMinmax() {
+		await this.registryObject.postLoadedProcessing();
+		this.registryObject.range.applyMinmax();
+	}
+	firstUpdated(_changedProperties) {
+		super.firstUpdated(_changedProperties);
+		initLocalesInTopLevelElement(this);
+		if (this.groupObject !== void 0) this.groupObject.files.addListener(this.UUID, async (value) => {
+			if (this.onValueChangeTimeout !== void 0) clearTimeout(this.onValueChangeTimeout);
+			this.onValueChangeTimeout = setTimeout(async () => {
+				this.toDisplay = value;
+			}, 0);
+		});
+	}
+	handleClear() {
+		if (this.groupObject !== void 0) {
+			this.fileController.removeInstance();
+			this.groupObject.files.removeAllInstances();
+			this.file = void 0;
+			this.requestUpdate();
+			this.analysis1 = void 0;
+			this.analysis2 = void 0;
+			this.analysis3 = void 0;
+			this.analysis4 = void 0;
+			this.analysis5 = void 0;
+			this.analysis6 = void 0;
+			this.analysis7 = void 0;
+		}
+	}
+	static {
+		this.styles = lit.css`
+        ${GroupListingController.styles}
+    
+        .layout {
+        
+            width: 100%;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1em;
+        
+        }
+
+        .layout-content {
+            min-width: 0;
+        }
+
+        manager-tool-bar {
+            height: 2em;
+        }
+
+    `;
+	}
+	async handleDropAndClear(results) {
+		const readers = results.filter((result) => result instanceof _labirthermal_core.ThermalFileReader);
+		this.groupListingController.backupReaders(readers);
+		this.groupListingController.restoreTheEntireBackup();
+	}
+	renderIntroScene() {
+		return lit.html`
+            <group-dropin-element .onDrop=${this.handleDropAndClear.bind(this)}></group-dropin-element>
+        `;
+	}
+	renderLayout(children) {
+		return lit.html`
+        <div class="layout">
+            <div style="width: 2em;"></div>
+            <div class="layout-content">${children}</div>
+        </div>
+        `;
+	}
+	renderHeader() {
+		const elements = [];
+		if (this.displayMode === Mode.INPUT) elements.push(lit.html`<group-dropin-input 
+                slot="bar-pre"
+                variant="background"
+                icon="upload"
+                iconStyle="micro"
+                tooltip="Vyberte soubory z disku"
+                .onDrop=${this.handleDropAndClear.bind(this)}
+            ></group-dropin-input>`);
+		if (this.displayMode !== Mode.INPUT) elements.push(lit.html`
+            <manager-tool-bar slot="pre-bar"></manager-tool-bar>
+            <manager-palette-dropdown slot="pre-bar"></manager-palette-dropdown>
+            <registry-range-form slot="pre-bar"></registry-range-form>
+            
+            `);
+		if (this.displayMode === Mode.LIST) elements.push(lit.html`${this.groupListingController.renderListHeader("bar-header")}`);
+		if (this.displayMode === Mode.DETAIL) elements.push(lit.html`${this.groupListingController.renderDetailHeader(this.groupObject.files.value[0], "bar-pre")}`);
+		if (this.displayMode !== Mode.INPUT) {
+			elements.push(lit.html`<thermal-dialog label="${(0, i18next.t)(T.config)}" slot="bar-pre">
+                <thermal-btn slot="invoker" tooltip="${(0, i18next.t)(T.config)}" icon="settings" iconStyle="solid"></thermal-btn>
+                <div slot="content">
+                    <table>
+                        <manager-export-panel></manager-export-panel>
+                        <display-panel></display-panel>
+                    </table>
+                </div>
+            </thermal-dialog>`);
+			elements.push(lit.html`
+                <div slot="pre-bar" style="flex-grow: 1; padding-left: 1em;">
+            <registry-histogram height="15px" expandable="true"></registry-histogram>
+            <registry-range-slider height="10px"></registry-range-slider>
+            <registry-ticks-bar></registry-ticks-bar>
+                </div>
+            `);
+		}
+		return elements;
+	}
+	renderContent() {}
+	renderDetail() {
+		return this.renderLayout(this.groupListingController.renderDetailBody());
+	}
+	renderList() {
+		const map = (0, lit_directives_repeat_js.repeat)(this.toDisplay, (instance) => instance.id, (instance) => this.groupListingController.renderThumbnail(instance));
+		return this.renderLayout(this.groupListingController.renderListContainer(map));
+	}
+	renderAuto() {
+		switch (this.displayMode) {
+			case Mode.INPUT: return this.renderIntroScene();
+			case Mode.LIST: return this.renderList();
+			case Mode.DETAIL: return this.renderDetail();
+		}
+	}
+	render() {
+		try {
+			return lit.html`<thermal-app 
+                label="${this.label ?? "LabIR Web Analyser"}"
+                show-fullscreen="true"
+            >
+
+                ${this.renderHeader()}
+
+                <slot name="bar-pre" slot="bar-pre"></slot>
+
+                ${this.renderAuto()}
+
+            </thermal-app>
+
+        `;
+		} catch (err) {
+			return lit.html`Stala se chyba`;
+		}
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", String)], DropinAppElement.prototype, "displayMode", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], DropinAppElement.prototype, "ip", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], DropinAppElement.prototype, "toDisplay", void 0);
+__decorate([
+	(0, _lit_context.provide)({ context: localeContext }),
+	(0, lit_decorators_js.property)({
+		reflect: true,
+		converter: localeConverter
+	}),
+	__decorateMetadata("design:type", Object)
+], DropinAppElement.prototype, "locale", void 0);
+
+//#endregion
+//#region src/apps/ThermalFileApp.ts
+var ThermalFileAppElement = class extends AbstractApp {
+	constructor(..._args) {
+		super(..._args);
+		this.interactiveanalysis = true;
+		this.managerController = new ManagerController(this);
+		this.palette = "jet";
+		this.advancedPalettes = false;
+		this.smoothThermograms = false;
+		this.smoothGraph = false;
+		this.tool = "inspect";
+		this.registryController = new RegistryController(this);
+		this.opacity = 1;
+		this.loading = false;
+		this.groupController = new GroupController(this);
+		this.autoclearGroup = true;
+		this.fileController = new FileController(this);
+		this.ms = 0;
+		this.playbackSpeed = 1;
+		this.autoHighlight = false;
+		this.fileLoadController = new FileLoadController(this);
+	}
+	static {
+		this.properties = {
+			...AbstractApp.properties,
+			...ManagerController.HOST_PROPERTIES,
+			...RegistryController.HOST_PROPERTIES,
+			...GroupController.HOST_PROPERTIES,
+			...FileController.HOST_PROPERTIES,
+			...FileLoadController.HOST_PROPERTIES
+		};
+	}
+	static {
+		this.styles = lit.css`
+    
+        .layout {
+            display: grid;
+            grid-template-columns: min-content 1fr 1fr;
+            gap: 1em;
+            margin-top: 1em;
+        }
+    
+    `;
+	}
+	render() {
+		return lit.html`<thermal-app 
+            label="${this.label}" 
+            author="${this.author}" 
+            license="${this.license}"
+            .showfullscreen=${this.showFullscreen}
+        >
+
+            <file-download-dropdown slot="bar-pre"></file-download-dropdown>
+            <file-info-button slot="bar-pre"></file-info-button>
+
+            <manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
+            <registry-range-form slot="bar-pre"></registry-range-form>
+            <registry-opacity-slider slot="bar-pre"></registry-opacity-slider>
+
+            <registry-histogram slot="pre" expandable="true"></registry-histogram>
+            <registry-range-slider slot="pre"></registry-range-slider>
+            <registry-ticks-bar slot="pre"></registry-ticks-bar>
+
+            
+            <div class="layout">
+                <manager-tool-bar></manager-tool-bar>
+                <div>
+                    <file-canvas></file-canvas>
+                    <file-timeline></file-timeline>
+                </div>
+                <file-analysis-complex></file-analysis-complex>
+            </div>
+            
+        </thermal-app>`;
+	}
+};
+__decorate([
+	(0, _lit_context.provide)({ context: managerInteractiveAnalysesContext }),
+	(0, lit_decorators_js.property)({
+		type: String,
+		reflect: true,
+		converter: booleanConverter(true)
+	}),
+	__decorateMetadata("design:type", Boolean)
+], ThermalFileAppElement.prototype, "interactiveanalysis", void 0);
+
+//#endregion
+//#region src/apps/ThermalGroupApp.ts
+var ThermalGroupAppElement = class extends AbstractApp {
+	constructor(..._args) {
+		super(..._args);
+		this.managerController = new ManagerController(this);
+		this.palette = "jet";
+		this.advancedPalettes = false;
+		this.smoothThermograms = false;
+		this.smoothGraph = false;
+		this.tool = "inspect";
+		this.registryController = new RegistryController(this);
+		this.opacity = 1;
+		this.loading = false;
+		this.groupController = new GroupController(this);
+		this.autoclearGroup = true;
+		this.fileController = new FileController(this);
+		this.ms = 0;
+		this.playbackSpeed = 1;
+		this.autoHighlight = false;
+		this.groupListingController = new GroupListingController(this);
+		this.orderby = GroupOrderby.DATE;
+		this.ordering = GroupOrdering.ASC;
+		this.groupLoadController = new GroupLoadController(this);
+	}
+	static {
+		this.properties = {
+			...AbstractApp.properties,
+			...ManagerController.HOST_PROPERTIES,
+			...RegistryController.HOST_PROPERTIES,
+			...GroupController.HOST_PROPERTIES,
+			...FileController.HOST_PROPERTIES,
+			...GroupLoadController.HOST_PROPERTIES
+		};
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.subscribedGroup = this.groupObject;
+		this.subscribedGroup.files.addListener(this.UUID, () => {
+			if (this.file && !this.groupObject.files.value.includes(this.file)) this.fileController.removeInstance();
+			this.requestUpdate();
+		});
+	}
+	disconnectedCallback() {
+		this.subscribedGroup?.files.removeListener(this.UUID);
+		this.subscribedGroup = void 0;
+		super.disconnectedCallback();
+	}
+	openDetail(instance) {
+		this.registryController.setHighlight(void 0);
+		this.ms = instance.timeline.currentMs;
+		this.playbackSpeed = instance.timeline.playbackSpeed;
+		[
+			"analysis1",
+			"analysis2",
+			"analysis3",
+			"analysis4",
+			"analysis5",
+			"analysis6",
+			"analysis7"
+		].forEach((attribute, index) => {
+			this[attribute] = instance.slots.getSlot(index + 1)?.serialized;
+		});
+		this.fileController.receiveInstance(instance);
+	}
+	closeDetail() {
+		this.registryController.setHighlight(void 0);
+		this.fileController.removeInstance();
+	}
+	static {
+		this.styles = lit.css`
+        ${GroupListingController.styles}
+
+        .layout {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 2em minmax(0, 1fr);
+            gap: 1em;
+        }
+
+        .layout-content {
+            min-width: 0;
+        }
+
+        manager-tool-bar {
+            height: 2em;
+        }
+    `;
+	}
+	render() {
+		const listingOptions = {
+			allowFileChanges: false,
+			onOpenDetail: (instance) => this.openDetail(instance),
+			onCloseDetail: () => this.closeDetail()
+		};
+		const hasFiles = this.groupObject?.files.value.length > 0;
+		return lit.html`<thermal-app
+            label=${this.label ?? "LabIR Web Analyser"}
+            show-fullscreen=${String(this.showFullscreen)}
+        >
+            ${hasFiles ? lit.html`
+                <manager-tool-bar slot="pre-bar"></manager-tool-bar>
+                <manager-palette-dropdown slot="pre-bar"></manager-palette-dropdown>
+                <registry-range-form slot="pre-bar"></registry-range-form>
+                ${this.file ? this.groupListingController.renderDetailHeader(this.file, "bar-header", listingOptions) : this.groupListingController.renderListHeader("bar-header", listingOptions)}
+                <thermal-dialog label=${this.t("config")} slot="bar-pre">
+                    <thermal-btn slot="invoker" tooltip=${this.t("config")} icon="settings" iconStyle="solid"></thermal-btn>
+                    <div slot="content">
+                        <table>
+                            <manager-export-panel></manager-export-panel>
+                            <display-panel></display-panel>
+                        </table>
+                    </div>
+                </thermal-dialog>
+                <div slot="pre-bar" style="flex-grow: 1; padding-left: 1em;">
+                    <registry-histogram height="15px" expandable="true"></registry-histogram>
+                    <registry-range-slider height="10px"></registry-range-slider>
+                    <registry-ticks-bar></registry-ticks-bar>
+                </div>
+            ` : void 0}
+            <slot name="bar-pre" slot="bar-pre"></slot>
+            ${this.groupLoadController.errors.map((message) => lit.html`<p role="alert">${message}</p>`)}
+            <div class="layout">
+                <div></div>
+                <div class="layout-content">
+                    ${this.loading ? lit.html`<p role="status">${this.t("loading")}</p>` : void 0}
+                    ${hasFiles ? this.file ? this.groupListingController.renderDetailBody() : this.groupListingController.renderListContainer(this.groupListingController.renderList((instance) => this.groupListingController.renderThumbnail(instance, listingOptions))) : this.loading ? void 0 : lit.html`<p>Ve skupině nejsou žádné soubory.</p>`}
+                </div>
+            </div>
+        </thermal-app>`;
+	}
+};
+
+//#endregion
+//#region src/controls/file/FileInfoButton.ts
+var FileInfoButton = class extends AbstractFileConsumer {
+	onFileLoaded() {}
+	onInstanceCreated() {}
+	onFailure() {}
+	static {
+		this.styles = lit.css`
+
+        table {
+            width: 100%;
+        }
+
+
+
+        td {
+            padding: calc( var( --thermal-gap ) * .5 ) 0;
+        }
+
+
+        tr:not(:last-child) {
+            td {
+                border-bottom: var(--thermal-border-width) solid var( --thermal-slate );
+            }
+        }
+
+        .small,
+        small {
+            font-size: calc( var( --thermal-fs-sm ) * .8 );
+        }
+
+        .opaque {
+            opacity: .5;
+        }
+
+        h2 {
+            font-size: calc( var( --thermal-fs ) * 1.4 );
+        }
+
+        h3 {
+            font-size: var( --thermal-fs-small );
+            margin: .2rem 0 .1rem 0;
+            padding: 0;
+            font-weight: normal;    
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            padding-left: var( --thermal-fs-small );
+        }
+
+        a {
+            color: var( --thermal-primary );
+        }
+
+        .download {
+            width: var( --thermal-fs );
+            display: inline-block;
+            margin-left: var( --thermal-gap );
+            transition: color .2s ease-in-out;
+
+            &:hover {
+                color: var( --thermal-foreground );
+            }
+        }
+    
+    `;
+	}
+	renderRow(label, value) {
+		return `<tr>
+            <td style="width: 110px">${label}</td>
+            <td>${value}</td>
+        </tr>`;
+	}
+	renderNumericalRow(label, value, fixed = 4, unit) {
+		const val = value.toFixed(fixed);
+		const output = unit !== void 0 ? val + " " + unit : val;
+		return this.renderRow(label, output);
+	}
+	renderDownloadRow(label, text, href, title) {
+		return this.renderRow(label, `<span>${text}</span>
+            <a href=${href} target="_blank" title="${title}" class="download">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                </svg>
+            </a>`);
+	}
+	render() {
+		if (!this.file) return lit.nothing;
+		return lit.html`
+            <thermal-dialog label=${(0, i18next.t)(T.fileinfo)}>
+                <slot name="invoker" slot="invoker">
+                    <thermal-btn
+                        tooltip=${(0, i18next.t)(T.fileinfo)}
+                        icon="info"
+                        iconStyle="mini"
+                    >
+                    </thermal-btn>
+                </slot>
+                <div slot="content">
+
+                    <table>
+
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.thermalfilename), this.file.fileName))}
+
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderDownloadRow((0, i18next.t)(T.thermalfileurl), this.file.thermalUrl, this.file.thermalUrl, (0, i18next.t)(T.thermalfiledownload)))}
+
+                        ${this.file.visibleUrl ? (0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderDownloadRow((0, i18next.t)(T.visiblefileurl), this.file.visibleUrl, this.file.visibleUrl, (0, i18next.t)(T.visiblefiledownload))) : lit.nothing}
+
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.time), _labirthermal_core.TimeFormat.human(this.file.timestamp)))}
+
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow((0, i18next.t)(T.duration), this.file.duration, 0, "ms"))}
+
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.resolution), `${this.file.width} x ${this.file.height}<small class="opaque">${this.file.pixels.length} pixels</small>`))}
+
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow((0, i18next.t)(T.bytesize), this.file.bytesize, 0))}
+                        
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow((0, i18next.t)(T.minimaltemperature), this.file.min, 10, "°C"))}
+
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow((0, i18next.t)(T.maximaltemperature), this.file.max, 10, "°C"))}
+
+                        
+
+                    </table>
+
+                    <h2>${(0, i18next.t)(T.filetype)}</h2>
+                    <table>
+                    ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.type), this.file.reader.parser.name))}
+                    ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.description), this.file.reader.parser.description))}
+
+                    <tr>
+                        <td>${(0, i18next.t)(T.supporteddevices)}</td>
+                        <td><ul>${this.file.reader.parser.devices.map((device) => lit.html`<li>
+                            <h3><a href="${device.deviceUrl}" target="_blank">${device.deviceName}</a></h3>
+                            <div class="small">${device.deviceDescription}</div>
+                            <div class="small">Manufactured by <a href="${device.manufacturerUrl}" target="_blank">${device.manufacturer}</a></div>
+                        </li>`)}</ul></td>
+                    </tr>
+                    </table>
+                </div>
+            </thermal-dialog>
+        `;
+	}
+};
+
+//#endregion
+//#region src/controls/file/fileLabel.ts
+var _ref$1;
+var FileLabelElement = class extends AbstractFileConsumer {
+	onInstanceCreated() {}
+	onFailure() {}
+	static {
+		this.styles = lit.css`
+        :host {
+            display: contents;
+        }
+
+    `;
+	}
+	render() {
+		if (this.file === void 0) return lit.nothing;
+		else if (this.label !== void 0) return this.label;
+		else if (this.grouping !== void 0) switch (this.grouping) {
+			case _labirthermal_client.GridGrouping.HOUR:
+			case _labirthermal_client.GridGrouping.DAY: return (0, date_fns.format)(this.file.timestamp, "HH:mm");
+			case _labirthermal_client.GridGrouping.WEEK:
+			case _labirthermal_client.GridGrouping.MONTH:
+			case _labirthermal_client.GridGrouping.YEAR: return _labirthermal_core.TimeFormat.human(this.file.timestamp);
+			default: return _labirthermal_core.TimeFormat.human(this.file.timestamp);
+		}
+		return this.file.fileName;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$1 = typeof _labirthermal_client.GridGrouping !== "undefined" && _labirthermal_client.GridGrouping) === "function" ? _ref$1 : Object)], FileLabelElement.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileLabelElement.prototype, "label", void 0);
+
+//#endregion
+//#region src/controls/file/FileTimelineElement.ts
+var FileTimelineElement = class FileTimelineElement extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.playing = false;
+		this.mayStop = true;
+		this.timelineRef = (0, lit_directives_ref_js.createRef)();
+		this.barRef = (0, lit_directives_ref_js.createRef)();
+		this.containerRef = (0, lit_directives_ref_js.createRef)();
+		this.hasPlayButton = true;
+		this.hasInfo = true;
+		this.interactive = true;
+		this.collapsed = false;
+		this.ticks = [];
+	}
+	static {
+		this.collapseWidth = 500;
+	}
+	onInstanceCreated(instance) {
+		if (this.containerRef.value) this.ticks = calculateTicks(this.containerRef.value.clientWidth, instance.duration);
+	}
+	onFailure() {
+		this.file?.timeline.removeListener(this.UUID);
+	}
+	update(changedProperties) {
+		super.update(changedProperties);
+		if (this.observer === void 0 && this.containerRef.value instanceof Element) {
+			this.observer = new ResizeObserver((entries) => {
+				const entry = entries[0];
+				if (this.file) this.ticks = calculateTicks(entry.contentRect.width, this.file.duration);
+				if (entry.contentRect.width < FileTimelineElement.collapseWidth) {
+					if (this.collapsed === false) this.collapsed = true;
+				} else if (this.collapsed === true) this.collapsed = false;
+			});
+			this.observer.observe(this.containerRef.value);
+		}
+	}
+	/** Handlers */
+	/** Handle playback buttons */
+	handlePlayButtonClick() {
+		if (this.playing === true && this.mayStop === false) return;
+		if (this.playing) this.file?.timeline.stop();
+		else this.file?.timeline.play();
+	}
+	handleBarClick(event) {
+		event.preventDefault();
+		if (this.mayStop === false) return;
+		const eventValues = this.getValueFromEvent(event);
+		if (eventValues && this.file) this.file.timeline.setValueByPercent(eventValues.percent);
+	}
+	/** Take a MouseEvent on `this.timelineRef` and calculate the percentage out of it. */
+	getValueFromEvent(event) {
+		if (this.timelineRef.value && this.file) {
+			const rect = this.timelineRef.value.getBoundingClientRect();
+			if (rect.width === 0) return;
+			const x = event.clientX - rect.left;
+			const percent = Math.max(0, Math.min(100, x / rect.width * 100));
+			return {
+				percent,
+				ms: this.file.duration * (percent / 100)
+			};
+		}
+	}
+	handleBarEnter(event) {
+		const eventValues = this.getValueFromEvent(event);
+		if (eventValues) this.pointerMs = eventValues.ms;
+		if (eventValues) this.fileController.setTimeCursorPercentage(eventValues.percent);
+	}
+	handleBarHover(event) {
+		event.preventDefault();
+		const eventValues = this.getValueFromEvent(event);
+		if (eventValues) this.pointerMs = eventValues.ms;
+		if (eventValues) this.fileController.setTimeCursorPercentage(eventValues.percent);
+	}
+	handleBarMouseLeave() {
+		this.fileController.setTimeCursorPercentage(void 0);
+		this.pointerMs = void 0;
+	}
+	static {
+		this.styles = lit.css`
+    
+        .container {
+
+            padding-top: calc( var( --thermal-gap ) * .2 );
+
+            width: 100%;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: calc( var( --thermal-gap ) * .5 );
+
+            color: var( --thermal-foreground );
+
+        }
+
+        .cursor {
+            width: 70px;
+        }
+
+        .duration {
+        
+        }
+
+        .small {
+            font-size: calc( var( --thermal-fs ) * .7 );
+            color: var( --thermal-foreground );
+        }
+
+        .real {
+            display: flex;
+            gap: var( --thermal-fs-small );
+            align-items: center;
+            padding-top: 5px;
+            justify-content: space-between;
+            width: 100%;
+
+            .label { opacity: .5; }
+        }
+
+        .inline {
+            white-space: nowrap;
+        }
+
+        .timeline {
+            flex-grow: 1;
+            cursor: pointer;
+        }
+
+        .timeline-bar {
+            width: 100%;
+            height: var( --thermal-fs );
+            background: var( --thermal-slate );
+            transition: background-color .2s ease-in-out;
+            position: relative;
+        }
+
+        .timeline-marks {
+            width: 100%;
+        }
+
+        .mark {
+            background: red;
+            height: 5px;
+            position: relative;
+        }
+
+        .bar {
+            height: 100%;
+            background: var( --thermal-primary-dark );
+            content: "";
+            border-right: 1px solid var( --thermal-foreground );
+            transition: background-color .3s ease-in-out;
+            &:hover {
+                background: var(--thermal-primary);
+            }
+        }
+
+        .mayNot {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .pointer {
+            position: absolute;
+            width: 1px;
+            background: var( --thermal-background );
+            height: 100%;
+            top: 0;
+        }
+
+        ${ticksCss}
+
+
+        .controls {
+
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            gap: 5px;
+
+            padding-top: 5px;
+
+        }
+
+        .chrome {
+            width: 1em;
+            color: var(--thermal-primary-dark);
+            transition: all .3s ease-in-out;
+            cursor: pointer;
+            &:hover {
+                color: var(--thermal-primary);
+            }
+        }
+    
+    `;
+	}
+	renderControls(file, disabled, playButtonClasses) {
+		return lit.html`<nav class="controls">
+
+    <thermal-btn 
+        disabled="${disabled}"
+        @click=${() => {
+			file.timeline.prev();
+		}}
+    >${(0, i18next.t)(T.prev)}</thermal-btn>
+
+
+    <thermal-btn 
+        class="${(0, lit_directives_class_map_js.classMap)(playButtonClasses)}" 
+        @click=${this.handlePlayButtonClick.bind(this)}
+        icon="${this.playing ? "pause" : "play"}"
+        iconStyle="solid"
+        disabled="${disabled}"
+    ></thermal-btn>
+
+    <thermal-btn 
+        @click=${() => file.timeline.next()}
+        disabled="${disabled}"
+    >${(0, i18next.t)(T.next)}</thermal-btn>
+
+    <thermal-btn 
+        @click=${() => file.timeline.setRelativeTime(0)}
+        disabled="${disabled}"
+    >${(0, i18next.t)(T.back)}</thermal-btn>
+
+    <file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>
+
+</nav>`;
+	}
+	render() {
+		const file = this.file;
+		if (file === void 0) return lit.nothing;
+		else if (file.duration === 0) return lit.nothing;
+		const containerClasses = {
+			container: true,
+			collapsed: this.collapsed
+		};
+		const mayClasses = {
+			may: this.mayStop === true,
+			mayNot: this.mayStop === false
+		};
+		const playButtonClasses = {
+			item: true,
+			button: true,
+			playback: true,
+			...mayClasses
+		};
+		const barClasses = {
+			item: true,
+			timeline: true,
+			...mayClasses
+		};
+		const disabled = this.mayStop ? "false" : "true";
+		return lit.html`
+<section class="${(0, lit_directives_class_map_js.classMap)(containerClasses)}" ${(0, lit_directives_ref_js.ref)(this.containerRef)}>
+
+    <aside class="ticks-horizontal-indent">
+
+        <notation-timeline></notation-timeline>
+
+        <div class="${(0, lit_directives_class_map_js.classMap)(barClasses)}"  ${(0, lit_directives_ref_js.ref)(this.timelineRef)}>
+
+            <div 
+                class="timeline-bar" 
+                @click=${this.handleBarClick}
+                @mouseenter=${this.handleBarEnter.bind(this)}
+                @mousemove=${this.handleBarHover} 
+                @mouseleave=${this.handleBarMouseLeave.bind(this)}
+            >
+                <div class="bar" data-video-rerender style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${(0, lit_directives_ref_js.ref)(this.barRef)}></div>
+                    ${this.cursor !== void 0 ? lit.html`<div class="pointer" style="left: ${this.cursor}%"></div>` : ""}
+                </div>
+
+            </div>
+
+
+${this.currentFrame ? renderTicks(file.duration, this.ticks, this.currentFrame.ms, this.pointerMs) : lit.nothing}
+
+
+${this.hasPlayButton === true ? this.renderControls(file, disabled, playButtonClasses) : lit.nothing}
+
+        </div>
+
+    </aside>
+
+</section>
+
+
+
+${this.currentFrame !== void 0 && this.hasInfo === true ? lit.html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
+        <div>
+            <span class="label">${(0, i18next.t)(T.date)}:</span> 
+            <span class="inline" data-video-dynamic>${(0, date_fns.format)(this.currentFrame.absolute, "d. L. y")}</span>
+        </div>
+        <div>
+            <span class="label">${(0, i18next.t)(T.time)}:</span> 
+            <span class="inline" data-video-dynamic>${(0, date_fns.format)(this.currentFrame.absolute, "H'h' mm'm' ss:SSS")}</span>
+        </div>
+        <div>
+            <span class="label">${(0, i18next.t)(T.frame)}:</span> 
+            <span class="inline" data-video-dynamic>${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
+        </div>
+    </div>` : lit.nothing}
+    `;
+	}
+};
+__decorate([
+	(0, _lit_context.consume)({
+		context: filePlayingContext,
+		subscribe: true
+	}),
+	(0, lit_decorators_js.state)(),
+	__decorateMetadata("design:type", Boolean)
+], FileTimelineElement.prototype, "playing", void 0);
+__decorate([
+	(0, _lit_context.consume)({
+		context: fileCurrentFrameContext,
+		subscribe: true
+	}),
+	(0, lit_decorators_js.state)(),
+	__decorateMetadata("design:type", Object)
+], FileTimelineElement.prototype, "currentFrame", void 0);
+__decorate([
+	(0, _lit_context.consume)({
+		context: fileDurationContext,
+		subscribe: true
+	}),
+	(0, lit_decorators_js.state)(),
+	__decorateMetadata("design:type", Object)
+], FileTimelineElement.prototype, "duration", void 0);
+__decorate([
+	(0, _lit_context.consume)({
+		context: fileMayStopContext,
+		subscribe: true
+	}),
+	(0, lit_decorators_js.state)(),
+	__decorateMetadata("design:type", Boolean)
+], FileTimelineElement.prototype, "mayStop", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileTimeCursorContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Object)], FileTimelineElement.prototype, "cursor", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Boolean)], FileTimelineElement.prototype, "hasPlayButton", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Boolean)], FileTimelineElement.prototype, "hasInfo", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), __decorateMetadata("design:type", Boolean)], FileTimelineElement.prototype, "interactive", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileTimelineElement.prototype, "collapsed", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FileTimelineElement.prototype, "ticks", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileTimelineElement.prototype, "pointerMs", void 0);
+
+//#endregion
+//#region src/controls/file/video/ISingleVideoExportElement.ts
+let VideoExportSkin = /* @__PURE__ */ function(VideoExportSkin) {
+	VideoExportSkin["LIGHT"] = "light";
+	VideoExportSkin["DARK"] = "dark";
+	VideoExportSkin["SOLARIZED"] = "solarized";
+	return VideoExportSkin;
+}({});
+let RecordingPhase = /* @__PURE__ */ function(RecordingPhase) {
+	RecordingPhase[RecordingPhase["IDLE"] = 0] = "IDLE";
+	RecordingPhase[RecordingPhase["RECORDING"] = 1] = "RECORDING";
+	RecordingPhase[RecordingPhase["ENCODING"] = 2] = "ENCODING";
+	RecordingPhase[RecordingPhase["CLEANUP"] = 3] = "CLEANUP";
+	return RecordingPhase;
+}({});
+
+//#endregion
+//#region src/controls/file/video/internals/VideoRecorder.ts
+/**
+* Atribut pro označení dynamických elementů, které se mění mezi framy.
+* Tyto elementy budou mít svůj textContent aktualizován z originálu.
+*/
+const DYNAMIC_CONTENT_ATTRIBUTE = "data-video-dynamic";
+/**
+* Atribut pro označení SVG elementů, které se mění mezi framy.
+* Celý innerHTML SVG bude aktualizován z originálu.
+*/
+const DYNAMIC_SVG_ATTRIBUTE = "data-video-svg";
+/**
+* Atribut pro označení elementů, jejichž styly se mění mezi framy.
+* Inline styly budou aktualizovány z originálu.
+*/
+const DYNAMIC_STYLE_ATTRIBUTE = "data-video-style";
+/**
+* Atribut pro označení elementů, které se mají kompletně překreslit při každém framu.
+* Element včetně jeho stylů a potomků bude znovu naklonován z originálu.
+* Použij pro elementy, které jsou vytvářeny asynchronně nebo se dynamicky mění.
+*/
+const DYNAMIC_RERENDER_ATTRIBUTE = "data-video-rerender";
+/**
+* Atribut pro označení elementů, které nemají být zahrnuty do exportu.
+* Tyto elementy budou odstraněny z klonu před exportem.
+*/
+const IGNORE_ATTRIBUTE = "data-video-ignore";
+var VideoRecorder = class {
+	constructor(app) {
+		this.app = app;
+		this.exportWidth = 0;
+		this.exportHeight = 0;
+		this.canvasToImageMap = /* @__PURE__ */ new Map();
+		this.dynamicElementMap = /* @__PURE__ */ new Map();
+		this.dynamicSvgMap = /* @__PURE__ */ new Map();
+		this.rerenderMap = /* @__PURE__ */ new Map();
+		this.dynamicStyleMap = /* @__PURE__ */ new Map();
+		this.file = app.innerFile;
+		this.exportedElement = app.exportedElement;
+	}
+	getMuxingCanvas() {
+		if (this.muxingCanvas) return this.muxingCanvas;
+		const bounds = this.exportedElement.getBoundingClientRect();
+		this.muxingCanvas = new OffscreenCanvas(bounds.width, bounds.height);
+		return this.muxingCanvas;
+	}
+	getMuxingContext() {
+		if (this.muxingContext) return this.muxingContext;
+		if (this.muxingCanvas === void 0) this.getMuxingCanvas();
+		this.muxingContext = this.muxingCanvas.getContext("2d", { alpha: false });
+		this.muxingContext.imageSmoothingEnabled = false;
+		return this.muxingContext;
+	}
+	/**
+	* Jednorázová příprava exportu:
+	* 1. Klonuje DOM (pouze jednou)
+	* 2. Inlinuje computed styles do klonu
+	* 3. Embeduje obrázky jako data URI
+	* 4. Vytváří SVG wrapper s foreignObject
+	* 5. Mapuje dynamické elementy a canvasy pro rychlou aktualizaci
+	*/
+	async prepareExport() {
+		const element = this.exportedElement;
+		this.exportWidth = element.clientWidth;
+		this.exportHeight = element.clientHeight;
+		console.log("[VideoRecorder] Preparing export...", this.exportWidth, "x", this.exportHeight);
+		const clone = element.cloneNode(true);
+		console.log("[VideoRecorder] Inlining styles...");
+		this.inlineStylesRecursive(element, clone);
+		console.log("[VideoRecorder] Flattening custom elements...");
+		this.flattenCustomElements(element, clone);
+		console.log("[VideoRecorder] Removing ignored elements...");
+		this.removeIgnoredElements(clone);
+		console.log("[VideoRecorder] Embedding images...");
+		await this.embedImages(clone);
+		console.log("[VideoRecorder] Cleaning up clone...");
+		this.removeLitComments(clone);
+		this.ensureXmlnsAttributes(clone);
+		console.log("[VideoRecorder] Mapping canvases...");
+		this.createCanvasMap(element, clone);
+		console.log("[VideoRecorder] Mapping dynamic elements...");
+		this.createDynamicElementMap(element, clone);
+		console.log("[VideoRecorder] Mapping dynamic SVGs...");
+		this.createDynamicSvgMap(element, clone);
+		console.log("[VideoRecorder] Mapping dynamic style elements...");
+		this.createDynamicStyleMap(element, clone);
+		console.log("[VideoRecorder] Mapping rerender elements...");
+		this.createRerenderMap(element, clone);
+		console.log("[VideoRecorder] Creating SVG wrapper...");
+		const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+		svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+		svg.setAttribute("width", String(this.exportWidth));
+		svg.setAttribute("height", String(this.exportHeight));
+		const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+		foreignObject.setAttribute("width", "100%");
+		foreignObject.setAttribute("height", "100%");
+		foreignObject.setAttribute("x", "0");
+		foreignObject.setAttribute("y", "0");
+		clone.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+		foreignObject.appendChild(clone);
+		svg.appendChild(foreignObject);
+		this.preparedSvgWrapper = svg;
+		this.preparedClone = clone;
+		console.log("[VideoRecorder] Export prepared. Canvas count:", this.canvasToImageMap.size, "Dynamic elements:", this.dynamicElementMap.size, "Rerender elements:", this.rerenderMap.size);
+	}
+	/**
+	* Odstraní elementy s atributem data-video-ignore z klonu.
+	* Tyto elementy nebudou zahrnuty do exportu.
+	*/
+	removeIgnoredElements(clone) {
+		const ignored = clone.querySelectorAll(`[${IGNORE_ATTRIBUTE}]`);
+		console.log("[VideoRecorder] Removing ignored elements:", ignored.length);
+		for (const el of ignored) el.parentNode?.removeChild(el);
+	}
+	/**
+	* Rekurzivně inlinuje computed styles z originálu do klonu.
+	* Kopíruje pouze důležité CSS vlastnosti pro zrychlení.
+	*/
+	inlineStylesRecursive(original, clone) {
+		if (!(original instanceof HTMLElement) || !(clone instanceof HTMLElement)) return;
+		const computed = getComputedStyle(original);
+		for (const prop of [
+			"display",
+			"position",
+			"top",
+			"left",
+			"right",
+			"bottom",
+			"width",
+			"height",
+			"min-width",
+			"min-height",
+			"max-width",
+			"max-height",
+			"margin",
+			"margin-top",
+			"margin-right",
+			"margin-bottom",
+			"margin-left",
+			"padding",
+			"padding-top",
+			"padding-right",
+			"padding-bottom",
+			"padding-left",
+			"box-sizing",
+			"overflow",
+			"overflow-x",
+			"overflow-y",
+			"flex",
+			"flex-direction",
+			"flex-wrap",
+			"justify-content",
+			"align-items",
+			"align-content",
+			"flex-grow",
+			"flex-shrink",
+			"flex-basis",
+			"order",
+			"gap",
+			"grid",
+			"grid-template-columns",
+			"grid-template-rows",
+			"grid-gap",
+			"grid-column",
+			"grid-row",
+			"background",
+			"background-color",
+			"background-image",
+			"background-size",
+			"background-position",
+			"border",
+			"border-width",
+			"border-style",
+			"border-color",
+			"border-radius",
+			"border-top",
+			"border-right",
+			"border-bottom",
+			"border-left",
+			"color",
+			"font",
+			"font-family",
+			"font-size",
+			"font-weight",
+			"font-style",
+			"line-height",
+			"text-align",
+			"text-decoration",
+			"text-transform",
+			"white-space",
+			"letter-spacing",
+			"word-spacing",
+			"opacity",
+			"visibility",
+			"z-index",
+			"transform",
+			"box-shadow",
+			"text-shadow",
+			"table-layout",
+			"border-collapse",
+			"border-spacing"
+		]) {
+			const value = computed.getPropertyValue(prop);
+			if (value && value !== "none" && value !== "normal" && value !== "auto") clone.style.setProperty(prop, value);
+		}
+		const origChildren = Array.from(original.children);
+		const cloneChildren = Array.from(clone.children);
+		for (let i = 0; i < origChildren.length && i < cloneChildren.length; i++) this.inlineStylesRecursive(origChildren[i], cloneChildren[i]);
+	}
+	/**
+	* Zploštění custom elementů — nahradí custom elementy za statický HTML.
+	* Tím se zabrání spouštění jejich lifecycle (connectedCallback atd.)
+	* při vložení klonu do dokumentu.
+	* 
+	* DŮLEŽITÉ: Canvasy jsou označeny data-canvas-index atributem pro pozdější mapování.
+	*/
+	flattenCustomElements(original, clone) {
+		const originalCanvases = this.querySelectorAllDeep(original, "canvas");
+		originalCanvases.forEach((canvas, index) => {
+			canvas.setAttribute("data-canvas-index", String(index));
+		});
+		console.log("[VideoRecorder] Marked canvases with index (including shadow DOM):", originalCanvases.length);
+		const originalElements = Array.from(original.querySelectorAll("*"));
+		const cloneElements = Array.from(clone.querySelectorAll("*"));
+		for (let i = originalElements.length - 1; i >= 0; i--) {
+			const origEl = originalElements[i];
+			const cloneEl = cloneElements[i];
+			if (!cloneEl) continue;
+			if (origEl.tagName.includes("-") && origEl instanceof HTMLElement) {
+				const replacement = document.createElement("div");
+				replacement.setAttribute("data-flattened-from", origEl.tagName.toLowerCase());
+				const computed = getComputedStyle(origEl);
+				replacement.style.display = computed.display;
+				replacement.style.width = computed.width;
+				replacement.style.height = computed.height;
+				replacement.style.position = computed.position;
+				replacement.style.margin = computed.margin;
+				replacement.style.padding = computed.padding;
+				replacement.style.boxSizing = computed.boxSizing;
+				replacement.style.background = computed.background;
+				replacement.style.backgroundColor = computed.backgroundColor;
+				if (origEl.shadowRoot) {
+					for (const child of origEl.shadowRoot.children) if (child.tagName !== "STYLE") {
+						const childClone = child.cloneNode(true);
+						this.inlineStylesRecursive(child, childClone);
+						replacement.appendChild(childClone);
+					}
+				} else for (const child of origEl.children) {
+					const childClone = child.cloneNode(true);
+					this.inlineStylesRecursive(child, childClone);
+					replacement.appendChild(childClone);
+				}
+				const nestedCustom = replacement.querySelectorAll("*");
+				for (const nested of nestedCustom) if (nested.tagName.includes("-")) {
+					const nestedOrig = origEl.shadowRoot?.querySelector(nested.tagName.toLowerCase()) || origEl.querySelector(nested.tagName.toLowerCase());
+					if (nestedOrig) this.flattenSingleElement(nestedOrig, nested);
+				}
+				cloneEl.parentNode?.replaceChild(replacement, cloneEl);
+				console.log(`[VideoRecorder] Flattened: <${origEl.tagName.toLowerCase()}>`);
+			}
+		}
+	}
+	/**
+	* Zploští jeden custom element
+	*/
+	flattenSingleElement(original, clone) {
+		const replacement = document.createElement("div");
+		replacement.setAttribute("data-flattened-from", original.tagName.toLowerCase());
+		const computed = getComputedStyle(original);
+		replacement.style.display = computed.display;
+		replacement.style.width = computed.width;
+		replacement.style.height = computed.height;
+		if (original.shadowRoot) {
+			for (const child of original.shadowRoot.children) if (child.tagName !== "STYLE") {
+				const childClone = child.cloneNode(true);
+				this.inlineStylesRecursive(child, childClone);
+				replacement.appendChild(childClone);
+			}
+		}
+		clone.parentNode?.replaceChild(replacement, clone);
+	}
+	/**
+	* Převede všechny <img> a background-image na data URI
+	*/
+	async embedImages(element) {
+		const images = element.querySelectorAll("img");
+		const imagePromises = [];
+		for (const img of images) if (img.src && !img.src.startsWith("data:")) imagePromises.push(this.fetchAsDataUri(img.src).then((dataUri) => {
+			img.src = dataUri;
+		}).catch((e) => console.warn("[VideoRecorder] Failed to embed image:", img.src, e)));
+		const bgElements = element.querySelectorAll("*");
+		for (const el of bgElements) {
+			const bg = el.style.background || "";
+			const bgImg = el.style.backgroundImage || "";
+			const combined = [bg, bgImg].filter(Boolean).join(" ");
+			if (!combined.includes("url(")) continue;
+			const urls = Array.from(combined.matchAll(/url\((['"]?)(.*?)\1\)/g)).map((m) => m[2]).filter((u) => u && !u.startsWith("data:"));
+			if (urls.length === 0) continue;
+			imagePromises.push((async () => {
+				let newBg = bg;
+				let newBgImg = bgImg;
+				for (const url of urls) {
+					const dataUri = await this.fetchAsDataUri(url);
+					newBg = newBg.replaceAll(url, dataUri);
+					newBgImg = newBgImg.replaceAll(url, dataUri);
+				}
+				if (bg) el.style.background = newBg;
+				if (bgImg) el.style.backgroundImage = newBgImg;
+			})().catch((e) => console.warn("[VideoRecorder] Failed to embed background:", e)));
+		}
+		await Promise.all(imagePromises);
+	}
+	/**
+	* Načte URL jako data URI
+	*/
+	async fetchAsDataUri(url) {
+		const blob = await (await fetch(url)).blob();
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onloadend = () => resolve(reader.result);
+			reader.onerror = reject;
+			reader.readAsDataURL(blob);
+		});
+	}
+	/**
+	* Vytvoří mapování mezi originálními canvasy a <img> elementy v klonu.
+	* Nahrazuje <canvas> elementy za <img> elementy v klonu.
+	* Používá data-canvas-index atribut pro správné mapování po zploštění.
+	*/
+	createCanvasMap(original, clone) {
+		this.canvasToImageMap.clear();
+		const originalCanvases = this.querySelectorAllDeep(original, "canvas");
+		const cloneCanvases = clone.querySelectorAll("canvas");
+		console.log("[VideoRecorder] Found canvases in original:", originalCanvases.length);
+		console.log("[VideoRecorder] Found canvases in clone:", cloneCanvases.length);
+		for (const origCanvas of originalCanvases) {
+			const index = origCanvas.getAttribute("data-canvas-index");
+			if (index === null) continue;
+			const cloneCanvas = clone.querySelector(`canvas[data-canvas-index="${index}"]`);
+			if (!cloneCanvas) {
+				console.warn(`[VideoRecorder] Canvas with index ${index} not found in clone`);
+				continue;
+			}
+			const origCanvasEl = origCanvas;
+			const img = document.createElement("img");
+			img.width = origCanvasEl.width;
+			img.height = origCanvasEl.height;
+			img.style.width = cloneCanvas.style.width || `${origCanvasEl.width}px`;
+			img.style.height = cloneCanvas.style.height || `${origCanvasEl.height}px`;
+			img.style.display = "block";
+			img.style.imageRendering = "pixelated";
+			img.setAttribute("data-canvas-index", index);
+			try {
+				const dataUrl = this.getCanvasDataUrl(origCanvasEl);
+				if (dataUrl) {
+					img.src = dataUrl;
+					console.log(`[VideoRecorder] Canvas ${index} converted to data URL (${dataUrl.length} chars)`);
+				} else console.warn(`[VideoRecorder][taint] Canvas ${index} returned null dataURL - possibly tainted!`, origCanvasEl);
+			} catch (e) {
+				console.warn(`[VideoRecorder][taint] Canvas ${index} TAINTED - cannot get dataURL:`, e, origCanvasEl);
+			}
+			cloneCanvas.parentNode?.replaceChild(img, cloneCanvas);
+			this.canvasToImageMap.set(origCanvasEl, img);
+			console.log(`[VideoRecorder] Mapped canvas ${index}: ${origCanvasEl.width}x${origCanvasEl.height}`);
+		}
+		console.log("[VideoRecorder] Total canvas mappings:", this.canvasToImageMap.size);
+	}
+	/**
+	* Vytvoří mapování mezi originálními a klonovanými dynamickými elementy.
+	* Hledá elementy s atributem DYNAMIC_CONTENT_ATTRIBUTE včetně shadow DOM.
+	*/
+	createDynamicElementMap(original, clone) {
+		this.dynamicElementMap.clear();
+		const originalDynamic = this.querySelectorAllDeep(original, `[${DYNAMIC_CONTENT_ATTRIBUTE}]`);
+		const cloneDynamic = clone.querySelectorAll(`[${DYNAMIC_CONTENT_ATTRIBUTE}]`);
+		console.log("[VideoRecorder] Found dynamic elements (including shadow DOM):", originalDynamic.length);
+		console.log("[VideoRecorder] Found dynamic elements in clone:", cloneDynamic.length);
+		originalDynamic.forEach((origEl, index) => {
+			origEl.setAttribute("data-dynamic-index", String(index));
+		});
+		for (let i = 0; i < originalDynamic.length && i < cloneDynamic.length; i++) this.dynamicElementMap.set(originalDynamic[i], cloneDynamic[i]);
+	}
+	/**
+	* Vytvoří mapování pro dynamické SVG elementy.
+	* Hledá SVG s atributem DYNAMIC_SVG_ATTRIBUTE včetně shadow DOM.
+	*/
+	createDynamicSvgMap(original, clone) {
+		this.dynamicSvgMap.clear();
+		const originalSvgs = this.querySelectorAllDeep(original, `svg[${DYNAMIC_SVG_ATTRIBUTE}]`);
+		const cloneSvgs = clone.querySelectorAll(`svg[${DYNAMIC_SVG_ATTRIBUTE}]`);
+		console.log("[VideoRecorder] Found dynamic SVGs (including shadow DOM):", originalSvgs.length);
+		for (let i = 0; i < originalSvgs.length && i < cloneSvgs.length; i++) this.dynamicSvgMap.set(originalSvgs[i], cloneSvgs[i]);
+	}
+	/**
+	* Vytvoří mapování pro elementy s dynamickými styly.
+	* Hledá elementy s atributem DYNAMIC_STYLE_ATTRIBUTE včetně shadow DOM.
+	*/
+	createDynamicStyleMap(original, clone) {
+		this.dynamicStyleMap.clear();
+		const originalStyled = this.querySelectorAllDeep(original, `[${DYNAMIC_STYLE_ATTRIBUTE}]`);
+		const cloneStyled = clone.querySelectorAll(`[${DYNAMIC_STYLE_ATTRIBUTE}]`);
+		console.log("[VideoRecorder] Found dynamic style elements (including shadow DOM):", originalStyled.length);
+		for (let i = 0; i < originalStyled.length && i < cloneStyled.length; i++) this.dynamicStyleMap.set(originalStyled[i], cloneStyled[i]);
+	}
+	/**
+	* Vytvoří mapování pro elementy, které se mají kompletně překreslit při každém framu.
+	* Hledá elementy s atributem DYNAMIC_RERENDER_ATTRIBUTE včetně shadow DOM.
+	*/
+	createRerenderMap(original, clone) {
+		this.rerenderMap.clear();
+		const originalRerender = this.querySelectorAllDeep(original, `[${DYNAMIC_RERENDER_ATTRIBUTE}]`);
+		const cloneRerender = clone.querySelectorAll(`[${DYNAMIC_RERENDER_ATTRIBUTE}]`);
+		console.log("[VideoRecorder] Found rerender elements (including shadow DOM):", originalRerender.length);
+		for (let i = 0; i < originalRerender.length && i < cloneRerender.length; i++) this.rerenderMap.set(originalRerender[i], cloneRerender[i]);
+	}
+	/**
+	* querySelector pro celý DOM strom včetně shadow DOM
+	*/
+	querySelectorAllDeep(root, selector) {
+		const results = [];
+		const matches = root.querySelectorAll(selector);
+		results.push(...Array.from(matches));
+		const allElements = root.querySelectorAll("*");
+		for (const el of allElements) if (el.shadowRoot) {
+			const shadowMatches = el.shadowRoot.querySelectorAll(selector);
+			results.push(...Array.from(shadowMatches));
+			const nestedResults = this.querySelectorAllDeepInShadow(el.shadowRoot, selector);
+			results.push(...nestedResults);
+		}
+		return results;
+	}
+	/**
+	* Rekurzivní helper pro hledání v shadow DOM
+	*/
+	querySelectorAllDeepInShadow(shadowRoot, selector) {
+		const results = [];
+		const allElements = shadowRoot.querySelectorAll("*");
+		for (const el of allElements) if (el.shadowRoot) {
+			const shadowMatches = el.shadowRoot.querySelectorAll(selector);
+			results.push(...Array.from(shadowMatches));
+			const nestedResults = this.querySelectorAllDeepInShadow(el.shadowRoot, selector);
+			results.push(...nestedResults);
+		}
+		return results;
+	}
+	/**
+	* Aktualizuje pouze dynamický obsah v klonu:
+	* 1. Aktualizuje src <img> elementů z originálních canvasů
+	* 2. Aktualizuje textContent dynamických elementů
+	* 3. Aktualizuje innerHTML dynamických SVG
+	* 4. Aktualizuje inline styly dynamických elementů
+	* 5. Kompletně překreslí rerender elementy
+	* 
+	* Toto je MNOHEM rychlejší než klonování celého DOM!
+	*/
+	updateDynamicContent() {
+		for (const [origCanvas, img] of this.canvasToImageMap) try {
+			const dataUrl = this.getCanvasDataUrl(origCanvas);
+			if (dataUrl) img.src = dataUrl;
+		} catch (e) {
+			console.warn("[VideoRecorder] Failed to update canvas image:", e);
+		}
+		for (const [origEl, cloneEl] of this.dynamicElementMap) if (cloneEl.textContent !== origEl.textContent) cloneEl.textContent = origEl.textContent;
+		for (const [origSvg, cloneSvg] of this.dynamicSvgMap) if (cloneSvg.innerHTML !== origSvg.innerHTML) cloneSvg.innerHTML = origSvg.innerHTML;
+		for (const [origEl, cloneEl] of this.dynamicStyleMap) {
+			const origStyle = origEl.getAttribute("style") || "";
+			if ((cloneEl.getAttribute("style") || "") !== origStyle) cloneEl.setAttribute("style", origStyle);
+		}
+		for (const [origEl, cloneEl] of this.rerenderMap) this.rerenderElement(origEl, cloneEl);
+	}
+	/**
+	* Kompletně překreslí element - znovu naklonuje obsah z originálu
+	* včetně všech stylů a potomků.
+	*/
+	rerenderElement(original, clone) {
+		if (original instanceof HTMLElement && original.tagName.includes("-")) {
+			if (original.shadowRoot) {
+				while (clone.firstChild) clone.removeChild(clone.firstChild);
+				for (const child of original.shadowRoot.children) if (child.tagName !== "STYLE") {
+					const childClone = child.cloneNode(true);
+					this.inlineStylesRecursive(child, childClone);
+					clone.appendChild(childClone);
+				}
+			}
+		} else {
+			if (clone.innerHTML !== original.innerHTML) clone.innerHTML = original.innerHTML;
+			if (original instanceof HTMLElement && clone instanceof HTMLElement) {
+				const origStyle = original.getAttribute("style") || "";
+				clone.setAttribute("style", origStyle);
+				this.inlineStylesRecursive(original, clone);
+			}
+		}
+	}
+	/**
+	* Odstraní Lit framework komentáře z klonu.
+	* Tyto komentáře mohou způsobovat problémy v SVG foreignObject.
+	*/
+	removeLitComments(element) {
+		const walker = document.createTreeWalker(element, NodeFilter.SHOW_COMMENT, null);
+		const commentsToRemove = [];
+		let node;
+		while (node = walker.nextNode()) commentsToRemove.push(node);
+		for (const comment of commentsToRemove) comment.parentNode?.removeChild(comment);
+	}
+	/**
+	* Zkontroluje a opraví xmlns atributy v klonu pro foreignObject.
+	* Všechny HTML elementy musí mít xmlns="http://www.w3.org/1999/xhtml"
+	*/
+	ensureXmlnsAttributes(element) {
+		const XHTML_NS = "http://www.w3.org/1999/xhtml";
+		const checkAndFix = (el) => {
+			if (el instanceof HTMLElement) {
+				const currentXmlns = el.getAttribute("xmlns");
+				if (!currentXmlns || currentXmlns !== XHTML_NS) el.setAttribute("xmlns", XHTML_NS);
+			}
+			for (const child of el.children) checkAndFix(child);
+		};
+		checkAndFix(element);
+	}
+	/**
+	* Získá data URL z canvasu - podporuje i WebGL kontexty
+	*/
+	getCanvasDataUrl(canvas) {
+		const webgl2 = canvas.getContext("webgl2");
+		const webgl = canvas.getContext("webgl");
+		const ctx2d = canvas.getContext("2d");
+		if (webgl2 || webgl) try {
+			return this.webglCanvasToDataUrl(canvas, webgl2 || webgl);
+		} catch (e) {
+			console.warn("[VideoRecorder] WebGL canvas unreadable:", e);
+			return null;
+		}
+		else if (ctx2d) try {
+			return canvas.toDataURL("image/png");
+		} catch (e) {
+			console.warn("[VideoRecorder] 2D canvas unreadable:", e);
+			return null;
+		}
+		else try {
+			return canvas.toDataURL("image/png");
+		} catch (e) {
+			console.warn("[VideoRecorder] Canvas unreadable:", e);
+			return null;
+		}
+	}
+	/**
+	* Konvertuje WebGL canvas na data URL pomocí readPixels
+	*/
+	webglCanvasToDataUrl(canvas, gl) {
+		const width = canvas.width;
+		const height = canvas.height;
+		const pixels = new Uint8Array(width * height * 4);
+		gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+		const tempCanvas = document.createElement("canvas");
+		tempCanvas.width = width;
+		tempCanvas.height = height;
+		const tempCtx = tempCanvas.getContext("2d");
+		const imageData = tempCtx.createImageData(width, height);
+		for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+			const srcIdx = ((height - y - 1) * width + x) * 4;
+			const dstIdx = (y * width + x) * 4;
+			imageData.data[dstIdx] = pixels[srcIdx];
+			imageData.data[dstIdx + 1] = pixels[srcIdx + 1];
+			imageData.data[dstIdx + 2] = pixels[srcIdx + 2];
+			imageData.data[dstIdx + 3] = pixels[srcIdx + 3];
+		}
+		tempCtx.putImageData(imageData, 0, 0);
+		return tempCanvas.toDataURL("image/png");
+	}
+	/**
+	* Hlavní metoda pro export videa.
+	* Kombinuje rasterizaci a enkódování do jednoho průchodu.
+	* Framy se posílají přímo do encoderu bez mezitřídy do IndexedDB.
+	*/
+	async recordAndEncode() {
+		this.app.setRecordingPhase(RecordingPhase.RECORDING);
+		await this.prepareExport();
+		const output = new mediabunny.Output({
+			target: new mediabunny.BufferTarget(),
+			format: new mediabunny.Mp4OutputFormat()
+		});
+		console.log("[VideoRecorder] Supported video codecs:", output.format.getSupportedVideoCodecs());
+		const source = new mediabunny.VideoSampleSource({
+			codec: "vp9",
+			bitrate: this.app.renderProps.mp4Quality
+		});
+		output.addVideoTrack(source);
+		output.start();
+		const totalFrames = this.file.timeline.frames.length;
+		console.log("[VideoRecorder] Starting recording & encoding. Total frames:", totalFrames);
+		let frameCount = 0;
+		for (const frame of this.file.timeline.frames) {
+			await this.file.timeline.setRelativeTime(frame.relative);
+			await this.file.draw();
+			this.updateDynamicContent();
+			if (!await this.rasterizeToCanvas()) {
+				console.warn("[VideoRecorder] Failed to rasterize frame:", frame.index);
+				continue;
+			}
+			const videoFrame = new VideoFrame(this.getMuxingCanvas(), { timestamp: frame.relative * 1e3 });
+			const sample = new mediabunny.VideoSample(videoFrame);
+			await source.add(sample, { keyFrame: frameCount % 30 === 0 });
+			videoFrame.close();
+			sample.close();
+			frameCount++;
+			if (frameCount % 10 === 0) console.log(`[VideoRecorder] Progress: ${frameCount}/${totalFrames} frames`);
+			const percent = frameCount / totalFrames * 100;
+			this.app.setRecordingPhaseProgress(percent);
+		}
+		this.app.setRecordingPhase(RecordingPhase.ENCODING);
+		console.log("[VideoRecorder] Recording & encoding complete.");
+		source.close();
+		await output.finalize();
+		this.app.setRecordingPhase(RecordingPhase.IDLE);
+		return new Blob([output.target.buffer], { type: "video/mp4" });
+	}
+	/**
+	* Rasterizuje připravené SVG přímo do muxing canvasu.
+	* Vrací true při úspěchu, false při chybě.
+	*/
+	async rasterizeToCanvas() {
+		if (!this.preparedSvgWrapper) {
+			console.error("[VideoRecorder] SVG wrapper not prepared!");
+			return false;
+		}
+		const serialized = new XMLSerializer().serializeToString(this.preparedSvgWrapper);
+		const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(serialized)}`;
+		try {
+			const imageToDraw = await new Promise((resolve, reject) => {
+				const img = new Image();
+				img.width = this.exportWidth;
+				img.height = this.exportHeight;
+				img.onload = () => resolve(img);
+				img.onerror = (e) => {
+					console.error("[VideoRecorder] Image load error:", e);
+					reject(/* @__PURE__ */ new Error(`Failed to load SVG image`));
+				};
+				img.src = dataUrl;
+			});
+			const canvas = this.getMuxingCanvas();
+			canvas.width = this.exportWidth;
+			canvas.height = this.exportHeight;
+			const ctx = this.getMuxingContext();
+			ctx.clearRect(0, 0, this.exportWidth, this.exportHeight);
+			ctx.drawImage(imageToDraw, 0, 0);
+			return true;
+		} catch (e) {
+			console.error("[VideoRecorder] Rasterization error:", e);
+			return false;
+		}
+	}
+	/**
+	* Vyčistí připravené struktury po dokončení exportu.
+	* Důležité pro uvolnění paměti a možnost opakovaného exportu.
+	*/
+	cleanup() {
+		for (const origCanvas of this.canvasToImageMap.keys()) origCanvas.removeAttribute("data-canvas-index");
+		for (const origEl of this.dynamicElementMap.keys()) origEl.removeAttribute("data-dynamic-index");
+		this.canvasToImageMap.clear();
+		this.dynamicElementMap.clear();
+		this.dynamicSvgMap.clear();
+		this.dynamicStyleMap.clear();
+		this.rerenderMap.clear();
+		this.preparedSvgWrapper = void 0;
+		this.preparedClone = void 0;
+		this.muxingCanvas = void 0;
+		this.muxingContext = void 0;
+		this.exportWidth = 0;
+		this.exportHeight = 0;
+		console.log("[VideoRecorder] Cleanup complete.");
+	}
+	/**
+	* Hlavní veřejná metoda pro spuštění exportu videa.
+	*/
+	async captureVideo() {
+		const initialScale = this.app.renderProps.previewScale;
+		this.app.setPreviewScale(1);
+		await Promise.resolve();
+		const start = performance.now();
+		try {
+			const videoBlob = await this.recordAndEncode();
+			const end = performance.now();
+			console.log("[VideoRecorder] Total export time:", end - start, "ms");
+			const blobUrl = URL.createObjectURL(videoBlob);
+			const a = document.createElement("a");
+			a.href = blobUrl;
+			const baseName = this.app.renderProps.fileName || "exported-video";
+			a.download = baseName.endsWith(".mp4") ? baseName : `${baseName}.mp4`;
+			a.click();
+			a.remove();
+			setTimeout(() => {
+				URL.revokeObjectURL(blobUrl);
+				console.log("[VideoRecorder] Video blob URL revoked.");
+			}, 1e3);
+		} finally {
+			this.cleanup();
+			this.app.setPreviewScale(initialScale);
+		}
+	}
+	/**
+	* Hlavní metoda pro export současného snímku jako PNG
+	*/
+	async captureCurrentFrameAsPng() {
+		const initialScale = this.app.renderProps.previewScale;
+		await Promise.resolve();
+		try {
+			await this.prepareExport();
+			await this.file.draw();
+			this.updateDynamicContent();
+			await this.rasterizeToCanvas();
+			const blob = await this.getMuxingCanvas().convertToBlob({ type: "image/png" });
+			if (blob) {
+				const blobUrl = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = blobUrl;
+				const baseName = this.app.renderProps.fileName || "exported-frame";
+				const finalName = [
+					baseName,
+					"frame",
+					this.file.timeline.currentFrameIndex + 1
+				].join("_");
+				a.download = finalName.endsWith(".png") ? baseName : `${finalName}.png`;
+				a.click();
+				a.remove();
+				setTimeout(() => {
+					URL.revokeObjectURL(blobUrl);
+					console.log("[VideoRecorder] PNG blob URL revoked.");
+				}, 1e3);
+			}
+		} finally {
+			this.cleanup();
+			this.app.setPreviewScale(initialScale);
+		}
+	}
+};
+
+//#endregion
+//#region src/controls/file/video/AbstractSingleVideoExport.ts
+var _ref;
+var AbstractSingleVideoExport = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.fileCopyElementRef = (0, lit_directives_ref_js.createRef)();
+		this.exportedDivRef = (0, lit_directives_ref_js.createRef)();
+		this.parentHasAnalyses = false;
+		this.recordingPhase = RecordingPhase.IDLE;
+		this.recordingPhaseProgress = 0;
+		this.renderProps = {
+			hasHistogram: true,
+			hasThermalScale: true,
+			hasAnalysis: false,
+			hasTimeline: false,
+			isVertical: false,
+			exportFrameWidth: 1200,
+			exportFramePadding: 15,
+			exportFrameGap: 30,
+			exportGraphHeight: 300,
+			fileName: "exported-video",
+			mp4Quality: mediabunny.QUALITY_VERY_HIGH,
+			skin: VideoExportSkin.LIGHT,
+			previewScale: .45,
+			autoScale: true
+		};
+	}
+	get slug() {
+		return [
+			"single-video-export",
+			this.file?.fileName ?? "no-file",
+			this.UUID
+		].join("__");
+	}
+	get outerFile() {
+		return this.file;
+	}
+	get innerFile() {
+		return this.fileCopyElementRef.value?.file;
+	}
+	get exportedElement() {
+		return this.exportedDivRef.value;
+	}
+	setRecordingPhase(phase) {
+		this.recordingPhase = phase;
+	}
+	setRecordingPhaseProgress(progress) {
+		this.recordingPhaseProgress = progress;
+	}
+	/** Voláno při změně vlastností ovlivňujících layout exportu.
+	*  Lze přepsat v potomcích pro reakci na změny (např. přepočet autoScale).
+	*/
+	onLayoutAffectingPropertyChanged() {}
+	setHasHistogram(value) {
+		this.renderProps.hasHistogram = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setHasThermalScale(value) {
+		this.renderProps.hasThermalScale = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setPreviewScale(value) {
+		this.renderProps.previewScale = value;
+		this.requestUpdate();
+	}
+	setAutoScale(value) {
+		this.renderProps.autoScale = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	/** The analyses are mirrored to the copy by the `withAnalyses` property of the `file-copy` element (see the providers directive). */
+	setHasAnalysis(value) {
+		this.renderProps.hasAnalysis = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setHasTimeline(value) {
+		this.renderProps.hasTimeline = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setIsVertical(value) {
+		this.renderProps.isVertical = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setExportFramePadding(value) {
+		this.renderProps.exportFramePadding = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setExportFrameGap(value) {
+		this.renderProps.exportFrameGap = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setExportFrameWidth(value) {
+		this.renderProps.exportFrameWidth = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setExportGraphHeight(value) {
+		this.renderProps.exportGraphHeight = value;
+		this.requestUpdate();
+		this.onLayoutAffectingPropertyChanged();
+	}
+	setFileName(value) {
+		this.renderProps.fileName = value;
+		this.requestUpdate();
+	}
+	setMp4Quality(value) {
+		this.renderProps.mp4Quality = value;
+		this.requestUpdate();
+	}
+	setSkin(value) {
+		this.renderProps.skin = value;
+		this.requestUpdate();
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+		if (_changedProperties.has("file") && this.file) {
+			this.parentHasAnalyses = this.file.analysis.value.length > 0;
+			const baseName = this.file.fileName.replace(/\.lrc$/i, "");
+			this.renderProps.fileName = baseName;
+			this.requestUpdate();
+		}
+	}
+	async record() {
+		await new VideoRecorder(this).captureVideo();
+	}
+	async currentFrame() {
+		await new VideoRecorder(this).captureCurrentFrameAsPng();
+	}
+};
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	reflect: true
+}), __decorateMetadata("design:type", Boolean)], AbstractSingleVideoExport.prototype, "parentHasAnalyses", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref = typeof RecordingPhase !== "undefined" && RecordingPhase) === "function" ? _ref : Object)], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AbstractSingleVideoExport.prototype, "recordingPhaseProgress", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], AbstractSingleVideoExport.prototype, "renderProps", void 0);
+
+//#endregion
+//#region src/connection/controllers/apps/directives/DirectiveHelpers.ts
+/** Utilities for rendering */
+var DirectiveHelpers = class {
+	static unknownContainsSomething(content) {
+		if (content === lit.nothing || content === null || content === void 0) return false;
+		if (typeof content === "string" && content.trim().length === 0) return false;
+		if (Array.isArray(content)) {
+			if (content.length === 0) return false;
+			else if (!content.some((item) => this.unknownContainsSomething(item))) return false;
+		}
+		return true;
+	}
+	static userMayEditFolder(client, folder) {
+		if (client.isRoot) return true;
+		return folder.may_manage_folders_in || folder.may_manage_files_in;
+	}
+	static userMayEditFile(client, folder) {
+		if (client.isRoot) return true;
+		return folder.may_manage_files_in;
+	}
+	static userMaySwithFolderContentMode(folder, subfolders) {
+		if (!folder.may_manage_files_in || !folder.may_manage_folders_in) return false;
+		if (folder.may_have_files) return folder.lrc_count <= 0;
+		if (!folder.may_have_files) return Array.isArray(subfolders) && subfolders.length > 0;
+		return false;
+	}
+	static userMayDeleteFolder(client, folder, subfolders, files) {
+		if (client.isLoggedIn === false || !folder.may_manage_folders_in && !folder.may_manage_files_in) return false;
+		if (!folder.may_have_files) return Array.isArray(subfolders) && subfolders.length === 0;
+		else if (folder.may_have_files) return Array.isArray(files) && files.length === 0 && folder.lrc_count === 0;
+		return false;
+	}
+	static folderContainsFiles(folder, files) {
+		return Array.isArray(files) && files.length > 0 && folder.lrc_count > 0;
+	}
+	static userIsRoot(client) {
+		return client.isRoot;
+	}
+	static userIsLoggedIn(client) {
+		return client.isLoggedIn;
+	}
+};
+
+//#endregion
+//#region src/connection/controllers/apps/directives/AbstractConnectedDirective.ts
+var AbstractConnectedDirective = class extends lit_directive_js.Directive {
+	t(key) {
+		return (0, i18next.t)(T[key]);
+	}
+	update(_part, props) {
+		return this.render(...props);
+	}
+	unknownContainsSomething(content) {
+		return DirectiveHelpers.unknownContainsSomething(content);
+	}
+	renderThermalScale() {
+		return lit.html`<div>
+        <registry-histogram expandable="true"></registry-histogram>
+        <registry-range-slider></registry-range-slider>
+        <registry-ticks-bar></registry-ticks-bar>
+    </div>`;
+	}
+	renderDef(...args) {
+		const content = [];
+		const first = args.shift();
+		if (first) content.push(lit.html`<dt>${first}</dt>`);
+		args.forEach((item) => {
+			content.push(lit.html`<dd>${item}</dd>`);
+		});
+		return content;
+	}
+};
+
+//#endregion
+//#region src/connection/controllers/apps/directives/SlotOrNothing.ts
+var SlotOrNothing = class extends AbstractConnectedDirective {
+	render(label, content) {
+		if (!this.unknownContainsSomething(content)) return lit.nothing;
+		return lit.html`<thermal-slot
+            label=${(0, i18next.t)(T[label])}
+        >${content}</thermal-slot>`;
+	}
+};
+const slotOrNothing = (0, lit_directive_js.directive)(SlotOrNothing);
+
+//#endregion
+//#region src/controls/file/video/directives/SingleVideoExportConfigDirective.ts
+var SingleVideoExportConfigDirective = class extends lit_directive_js.Directive {
+	renderRadio(label, checked, onChange) {
+		return lit.html`<thermal-radio
+            .checked=${checked}
+            .onChange=${onChange}
+        >${label}</thermal-radio>`;
+	}
+	renderText(label, suffix, value, onChange) {
+		return lit.html`<div class="export-config-field export-config-field--text">
+
+            <div class="export-config-field--label">
+                <label>${label}</label>
+            </div>
+
+            <div class="export-config-field--value">
+
+                <div class="">
+                    <input
+                        type="text"
+                        .value=${value}
+                        @input=${(event) => {
+			const target = event.target;
+			onChange(target.value);
+		}}
+                    />
+                    <span class="unit">${suffix}</span>
+                </div>
+
+            </div>
+
+        </div>`;
+	}
+	renderDropdown(value, options, onChange) {
+		return lit.html`<thermal-dropdown>
+            <span slot="invoker">${value}</span>
+            ${options.map((option) => lit.html`<thermal-btn
+            slot="option"
+            @click=${() => onChange(option)}
+        >${option}</thermal-btn>`)}
+        </thermal-dropdown>`;
+	}
+	renderNumber(label, unit, value, onChange, min, max, step) {
+		return lit.html`<div class="export-config-field">
+
+            <div class="export-config-field--label">
+                <label>${label}</label>
+            </div>
+
+            <div class="export-config-field--value">
+
+                <div class="">
+                    <input
+                        type="number"
+                        .value=${value === void 0 || value === null ? "" : String(value)}
+                        min=${(0, lit_directives_if_defined_js.ifDefined)(min)}
+                        max=${(0, lit_directives_if_defined_js.ifDefined)(max)}
+                        step=${(0, lit_directives_if_defined_js.ifDefined)(step)}
+                        @input=${(event) => {
+			const raw = event.target.value.trim();
+			if (raw === "") {
+				onChange(NaN);
+				return;
+			}
+			let num = parseFloat(raw);
+			if (min !== void 0 && !isNaN(num) && num < min) num = min;
+			if (max !== void 0 && !isNaN(num) && num > max) num = max;
+			onChange(num);
+		}}
+                    />
+                    <span class="unit">${unit}</span>
+                </div>
+
+            </div>
+
+        </div>`;
+	}
+	renderConfigHeader(element) {
+		const isSequence = element.innerFile?.timeline.isSequence;
+		const hasAnalyses = element.parentHasAnalyses;
+		const slots = [];
+		const thermalScale = [lit.html`<manager-palette-dropdown ></manager-palette-dropdown>`, lit.html`<registry-range-form></registry-range-form>`];
+		slots.push(slotOrNothing("thermalscale", thermalScale));
+		const components = [this.renderRadio(element.t(T.histogram), element.renderProps.hasHistogram, element.setHasHistogram.bind(element)), this.renderRadio(element.t(T.thermalscale), element.renderProps.hasThermalScale, element.setHasThermalScale.bind(element))];
+		if (hasAnalyses) components.push(this.renderRadio(element.t(T.analysis), element.renderProps.hasAnalysis, element.setHasAnalysis.bind(element)));
+		if (isSequence) components.push(this.renderRadio(element.t(T.timeline), element.renderProps.hasTimeline, element.setHasTimeline.bind(element)));
+		slots.push(slotOrNothing("exportcontent", components));
+		const appearance = [];
+		if (hasAnalyses && element.renderProps.hasAnalysis) appearance.push(this.renderRadio("Is Vertical", element.renderProps.isVertical, element.setIsVertical.bind(element)));
+		appearance.push(this.renderDropdown(element.renderProps.skin, [
+			"light",
+			"dark",
+			"solarized"
+		], (value) => element.setSkin(value)));
+		slots.push(slotOrNothing("display", appearance));
+		slots.push(this.renderNumber(element.t(T.exportwidth), "px", element.renderProps.exportFrameWidth, element.setExportFrameWidth.bind(element), 500, 1920, 10));
+		slots.push(this.renderNumber(element.t(T.exportmargin), "px", element.renderProps.exportFramePadding, element.setExportFramePadding.bind(element), 0, 100, 1));
+		if (hasAnalyses && element.renderProps.hasAnalysis) {
+			slots.push(this.renderNumber(element.t(T.exportgap), "px", element.renderProps.exportFrameGap, element.setExportFrameGap.bind(element), 0, 100, 1));
+			slots.push(this.renderNumber(element.t(T.exportgrahpheight), "px", element.renderProps.exportGraphHeight, element.setExportGraphHeight.bind(element), 200, 700, 1));
+		}
+		const ext = isSequence ? ".mp4 / .png" : ".png";
+		slots.push(this.renderText(element.t(T.name), ext, element.renderProps.fileName, element.setFileName.bind(element)));
+		if (isSequence) {
+			const options = [
+				{
+					label: "VERY_HIGH",
+					value: mediabunny.QUALITY_VERY_HIGH
+				},
+				{
+					label: "HIGH",
+					value: mediabunny.QUALITY_HIGH
+				},
+				{
+					label: "MEDIUM",
+					value: mediabunny.QUALITY_MEDIUM
+				},
+				{
+					label: "LOW",
+					value: mediabunny.QUALITY_LOW
+				},
+				{
+					label: "VERY_LOW",
+					value: mediabunny.QUALITY_VERY_LOW
+				}
+			];
+			const choices = options.map((option) => option.label);
+			const setter = (label) => {
+				const found = options.find((o) => o.label === label);
+				if (found) {
+					element.setMp4Quality(found.value);
+					console.log(found.value);
+				}
+			};
+			const value = options.find((o) => o.value === element.renderProps.mp4Quality)?.label ?? "UNKNOWN";
+			const output = [this.renderDropdown(value, choices, setter.bind(this))];
+			slots.push(slotOrNothing(T.videoquality, output));
+		}
+		return slots;
+	}
+	static {
+		this.styles = lit.css`
+    
+        .export-bar {
+
+            width: 100%;
+
+            .export-bar-part {
+            }
+
+            .export-bar-part--config {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1em 2em;
+
+                background: var( --thermal-background );
+                padding: 1em;
+
+                border-radius: var( --thermal-radius );
+
+                thermal-slot {
+                    box-sizing: border-box;
+                }
+            }
+
+            .export-bar-part--actions {
+            }
+        
+
+            .export-config-field {
+
+                &:hover,
+                &:focus-within {
+                    .export-config-field--label {
+                        color: var( --thermal-foreground );
+                        &::after {
+                            background: var( --thermal-foreground );
+                        }
+                    }
+                }
+                
+                .export-config-field--label {
+
+                    margin: 0px 0px 0.5em;
+                    padding: 0px;
+                    font-weight: normal;
+                    font-size: 0.7em;
+                    text-transform: uppercase;
+                    color: var(--thermal-slate);
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5em;
+
+                    &::after {
+                        content: "";
+                        flex-grow: 1;
+                        height: 1px;
+                        background: var( --thermal-slate-light );
+                    }
+
+                }
+
+                .export-config-field--value {
+
+                    input {
+                        border: var( --thermal-slate-light ) solid 1px;
+                        text-align: right;
+                        font-family: var( --thermal-ff );
+                        padding: .3em .1em .3em .3em;
+                        width: 5em;
+                        display: inline-block;
+                    }
+
+                    .unit {
+                        font-size: 0.7em;
+                    }
+
+                }
+
+                &.export-config-field--text {
+                    .export-config-field--value input {
+                        width: 200px;
+                        text-align: left;
+                    }
+                }
+            
+            }
+
+        
+        }
+    
+    `;
+	}
+	render(element) {
+		return lit.html`<div class="export-bar">
+
+            <div class="export-bar-part export-bar-part--config">
+                ${this.renderConfigHeader(element)}
+            </div>
+        
+        </div>`;
+	}
+};
+const exportConfigDirective = (0, lit_directive_js.directive)(SingleVideoExportConfigDirective);
+
+//#endregion
+//#region src/controls/file/video/directives/SingleVideoExportLayoutDirective.ts
+var SingleVideoExportLayoutDirective = class extends lit_directive_js.Directive {
+	constructor(..._args) {
+		super(..._args);
+		this.innerHeight = 0;
+	}
+	renderHistogram(props) {
+		return lit.html`<registry-histogram style="display: ${props.hasHistogram ? "block" : "none"};"></registry-histogram>`;
+	}
+	renderThermalScale(props) {
+		return lit.html`<div style="display: ${props.hasThermalScale ? "block" : "none"};">
+            <registry-range-slider></registry-range-slider>
+            <registry-ticks-bar></registry-ticks-bar>
+        </div>`;
+	}
+	renderAnalyses(props) {
+		if (!props.hasAnalysis) return lit.nothing;
+		const width = props.exportFrameWidth / 2 - props.exportFramePadding * 2 - props.exportFrameGap;
+		const height = props.exportGraphHeight;
+		return lit.html`<div class="export-element-content--analyses">
+            <!-- Analysis content here -->
+            <file-analysis-display></file-analysis-display>
+            <file-analysis-graph 
+                graphWidth=${width} 
+                graphHeight=${height}
+                .hasDownloads=${false}
+                style="height: ${height}px; width: ${width}px; display: block;"
+            ></file-analysis-graph>
+        </div>`;
+	}
+	renderMainContent(props) {
+		const content = [lit.html`<file-canvas
+                .prefers-gpu=${false}
+            ></file-canvas>`];
+		if (props.hasTimeline) content.push(lit.html`<file-timeline hasplaybutton="false"></file-timeline>`);
+		return lit.html`<div>
+            ${content}
+        </div>`;
+	}
+	static {
+		this.styles = lit.css`
+    
+        .export-element {
+
+            position: relative;
+
+
+            --thermal-export-bg: white;
+            --thermal-export-fg: black;
+
+            --thermal-crop: 2em;
+
+            padding: var( --thermal-crop );
+
+            box-sizing: border-box;
+
+            .crop {
+                position: absolute;
+                width: var( --thermal-crop );
+                height: var( --thermal-crop );
+                box-sizing: border-box;
+
+                &.crop-t {
+                    top: 0;
+                }
+
+                &.crop-b {
+                    bottom: 0;
+                }
+
+                &.crop-l {
+                    left: 0;
+                }
+
+                &.crop-r {
+                    right: 0;
+                }
+
+                --thermal-export-crop-border-width: 3px;
+                --thermal-export-border-color: var( --thermal-background );
+
+                &.crop-t.crop-l {
+                    border-bottom: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                    border-right: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                }
+
+                &.crop-t.crop-r {
+                    border-bottom: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                    border-left: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                }
+
+                &.crop-b.crop-l {
+                    border-top: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                    border-right: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                }
+
+                &.crop-b.crop-r {
+                    border-top: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                    border-left: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                }
+            }
+
+
+            .export-overlay {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 99;
+                cursor: help;
+
+                box-sizing: border-box;
+                padding: var( --thermal-crop );
+
+                transition: all .3s ease;
+
+                display: flex;
+                align-items: stretch;
+                justify-content: stretch;
+
+                
+
+                span {
+
+                    font-size: 3em;
+                    font-weight: normal !important;
+
+                    width: 100%;
+                    padding: 1em;
+                
+                    opacity: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    
+                    box-sizing: outline-box;
+
+                    transition: opacity .3s ease;
+                    
+                    color: var( --thermal-export-bg );
+                    
+                }
+
+                &:hover {
+                    span {
+                        background: color-mix(in srgb, var( --thermal-export-fg ) 50%, transparent);
+                        opacity: 1;
+                    }
+                }
+            }
+
+            .export-element-content {
+                display: grid;
+                box-sizing: border-box;
+                background-color: var( --thermal-export-bg );
+
+                .export-element-content--analyses {
+
+                    display: grid;
+                    gap: 1em;
+                    grid-template-columns: 100%;
+                    grid-template-rows: 1fr auto;
+                
+                }
+
+            }
+
+
+
+            &.vertical {
+                &.hasAnalysis {
+
+                    .export-element-content {
+                        grid-template-columns: auto;
+                        grid-template-rows: auto auto;
+                    }
+        
+                }
+            }
+
+            &.horizontal {
+                &.hasAnalysis {
+
+                    .export-element-content {
+                        grid-template-columns: 1fr 1fr;
+                        grid-template-rows: auto;
+                    }
+                }
+            }
+
+            &.hasAnalysis {
+
+            }
+
+            &.hasTimeline {
+            
+            }
+
+            &.hasHistogram {
+            
+            }
+
+            &.hasThermalScale {
+            
+            }
+
+            
+
+            &.skin-light {
+                --thermal-export-bg: white;
+                --thermal-export-fg: black;
+                --thermal-slate: var( --thermal-slate-base );
+                --thermal-slate-dark: var( --thermal-slate-base-dark );
+                --thermal-slate-light: var( --thermal-slate-base-light );
+                --thermal-foreground: black;
+                --thermal-background: white;
+                --thermal-primary: var( --thermal-primary-base );
+            }
+
+            &.skin-dark {
+                --thermal-export-bg: black;
+                --thermal-export-fg: white;
+                --thermal-background: black;
+                --thermal-foreground: white;
+                --thermal-slate: gray;
+                --thermal-slate-dark: darkgray;
+                --thermal-slate-light: lightgray;
+            }
+
+            &.skin-solarized {
+                --thermal-export-bg: #1d5766ff;
+                --thermal-export-fg: white;
+                --thermal-background: #1d5766ff;
+                --thermal-foreground: white;
+                --thermal-slate: #27888bff;
+                --thermal-slate-dark: #39aaa1ff;
+                --thermal-slate-light: #073642;
+            }
+
+        
+        }
+    
+    `;
+	}
+	initObserver(svgElement) {
+		if (this.observer) return;
+		const contentElement = svgElement?.querySelector(".export-element-content");
+		if (!contentElement) return;
+		this.observer = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				this.innerHeight = entry.borderBoxSize[0].blockSize;
+				svgElement.setAttribute("height", String(this.innerHeight));
+			}
+		});
+		this.observer.observe(contentElement);
+	}
+	render(app) {
+		const reference = app.exportedDivRef;
+		const props = app.renderProps;
+		if (reference.value) this.initObserver(reference.value);
+		const mainClasses = {
+			"export-element": true,
+			vertical: props.isVertical,
+			horizontal: !props.isVertical,
+			hasAnalysis: props.hasAnalysis,
+			hasHistogram: props.hasHistogram,
+			hasTimeline: props.hasTimeline,
+			hasThermalScale: props.hasThermalScale,
+			["skin-" + props.skin]: true
+		};
+		const effectiveScale = app.recordingPhase !== RecordingPhase.IDLE ? 1 : props.previewScale;
+		const containerStyle = {
+			width: `calc( ${props.exportFrameWidth}px + var( --thermal-crop ) * 2 )`,
+			scale: String(effectiveScale)
+		};
+		const contentStyle = {
+			width: props.exportFrameWidth + "px",
+			gap: props.exportFrameGap + "px",
+			padding: props.exportFramePadding + "px"
+		};
+		const mainContent = [
+			this.renderHistogram(props),
+			this.renderThermalScale(props),
+			this.renderMainContent(props)
+		];
+		const analyses = this.renderAnalyses(props);
+		return lit.html`<!-- The main content rendered through the SingleVideoExportLayoutDirective -->
+        <main
+            class=${(0, lit_directives_class_map_js.classMap)(mainClasses)}
+            style=${(0, lit_directives_style_map_js.styleMap)(containerStyle)}
+        >
+            <b class="crop crop-t crop-l"></b>
+            <b class="crop crop-t crop-r"></b>
+            <b class="crop crop-b crop-l"></b>
+            <b class="crop crop-b crop-r"></b>
+
+            <section 
+                ${(0, lit_directives_ref_js.ref)(reference)}
+                class="export-element-content" 
+                style=${(0, lit_directives_style_map_js.styleMap)(contentStyle)}
+            >
+
+                <div class="export-element-content--main">
+                    ${mainContent}
+                </div>
+
+                ${analyses}
+
+            </section>
+
+            <aside class="export-overlay">
+                <span>
+                    <strong>Náhled</strong>
+                </span>
+            </aside>
+
+        </main>
+        
+        `;
+	}
+};
+const exportLayoutDirective = (0, lit_directive_js.directive)(SingleVideoExportLayoutDirective);
+
+//#endregion
+//#region src/controls/file/video/directives/SingleVideoExportProvidersDirective.ts
+var SingleVideoExportDirective = class extends lit_directive_js.Directive {
+	renderWrappedWithNestedProviders(app, content) {
+		const registry = app.registryObject;
+		const group = app.groupObject;
+		if (!registry || !group) return lit.nothing;
+		return lit.html`<registry-provider 
+            slug="${app.slug}"
+            style="display: contents;"
+        >
+            <group-provider 
+                slug=${app.slug}
+                style="display: contents;"
+            >
+                <file-copy 
+                    .originalFile=${app.outerFile} 
+                    .withAnalyses=${app.renderProps.hasAnalysis}
+                    ${(0, lit_directives_ref_js.ref)(app.fileCopyElementRef)}
+                >
+                    ${content}
+                </file-copy>
+            </group-provider>
+        </registry-provider>`;
+	}
+	render(element, content) {
+		return this.renderWrappedWithNestedProviders(element, content);
+	}
+};
+const singleVideoProviders = (0, lit_directive_js.directive)(SingleVideoExportDirective);
+
+//#endregion
+//#region src/controls/file/video/FileVideoExportPanel.ts
+var FileVideoExportPanel = class extends AbstractSingleVideoExport {
+	constructor(..._args) {
+		super(..._args);
+		this.previewSectionRef = (0, lit_directives_ref_js.createRef)();
+		this.exportRealWidth = 0;
+		this.exportRealHeight = 0;
+	}
+	onInstanceCreated(instance) {
+		this.parentHasAnalyses = instance.analysis.value.length > 0;
+	}
+	onFailure() {}
+	connectedCallback() {
+		super.connectedCallback();
+		this.setupResizeObserver();
+	}
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.previewResizeObserver?.disconnect();
+		this.exportSizeObserver?.disconnect();
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+		this.setupResizeObserver();
+		this.setupExportSizeObserver();
+	}
+	/** Nastaví ResizeObserver pro automatické škálování */
+	setupResizeObserver() {
+		if (this.previewResizeObserver || !this.previewSectionRef.value) return;
+		this.previewResizeObserver = new ResizeObserver((entries) => {
+			if (!this.renderProps.autoScale) return;
+			for (const entry of entries) this.calculateAutoScale(entry.contentRect.height);
+		});
+		this.previewResizeObserver.observe(this.previewSectionRef.value);
+	}
+	/** Nastaví ResizeObserver pro sledování rozměrů exportovaného elementu */
+	setupExportSizeObserver() {
+		if (this.exportSizeObserver || !this.exportedDivRef.value) return;
+		const exportMainElement = this.exportedDivRef.value.parentElement;
+		if (!exportMainElement) return;
+		this.exportSizeObserver = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				this.exportRealWidth = Math.round(entry.contentRect.width);
+				this.exportRealHeight = Math.round(entry.contentRect.height);
+			}
+		});
+		this.exportSizeObserver.observe(exportMainElement);
+	}
+	/** Přepsaná metoda z AbstractSingleVideoExport - reaguje na změny layout vlastností */
+	onLayoutAffectingPropertyChanged() {
+		if (!this.renderProps.autoScale) return;
+		this.updateComplete.then(() => {
+			requestAnimationFrame(() => {
+				this.triggerAutoScaleRecalculation();
+			});
+		});
+	}
+	/** Spustí přepočet autoScale na základě aktuální velikosti preview sekce */
+	triggerAutoScaleRecalculation() {
+		if (!this.previewSectionRef.value) return;
+		const availableHeight = this.previewSectionRef.value.clientHeight;
+		this.calculateAutoScale(availableHeight);
+	}
+	/** Vypočítá scale na základě dostupné výšky */
+	calculateAutoScale(availableHeight) {
+		const exportedElement = this.exportedDivRef.value;
+		if (!exportedElement) return;
+		const currentScale = this.renderProps.previewScale;
+		const realHeight = exportedElement.getBoundingClientRect().height / currentScale;
+		if (realHeight <= 0 || availableHeight <= 0) return;
+		const newScale = Math.min(1, (availableHeight - 20) / realHeight);
+		const clampedScale = Math.max(.1, Math.min(1, newScale));
+		if (Math.abs(clampedScale - this.renderProps.previewScale) > .01) {
+			this.renderProps.previewScale = clampedScale;
+			this.requestUpdate();
+		}
+	}
+	static {
+		this.styles = [
+			SingleVideoExportLayoutDirective.styles,
+			SingleVideoExportConfigDirective.styles,
+			lit.css`
+            :host {
+                font-size: var( --thermal-fs );
+                color: var( --thermal-foreground );
+                display: grid;
+                grid-template-rows: auto 1fr auto;
+                gap: 1em;
+                height: 100%;
+                min-height: 0;
+                max-height: 100%;
+            }
+
+            .controls {
+            }
+
+            .preview {
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 0; /* klíčové - povolí zmenšení pod velikost obsahu */
+                position: relative;
+
+                background: var( --thermal-slate );
+
+                border-radius: var( --thermal-radius );
+
+                & > * {
+                
+                }
+
+
+                .preview-size {
+                
+                    position: absolute;
+                    bottom: 1em;
+                    right: 1em;
+
+                    z-index: 10000;
+
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    gap: 0.5em;
+
+                    
+
+                    & > * {
+                        background: var( --thermal-slate-light );
+                        border-radius: var( --thermal-radius );
+                        box-sizing: border-box;
+                        padding: 0.5em 0.75em;
+                        text-align: right;
+                        font-size: .8em;
+
+                        .preview-label {
+                            text-transform: uppercase;
+                            
+                            font-weight: normal;
+                            margin-bottom: .25em;
+                            text-align: right;
+                            opacity: .8;
+                        }
+
+                        .preview-value {
+                            font-weight: bold;
+                        }
+                    }
+
+                    .preview-size--preview {
+                    }
+
+                    .preview-size--export {
+                        thermal-radio {
+                            display: inline-block;
+                        }
+                    }
+
+                }
+
+
+
+
+
+            }
+
+            .footer {
+            }
+
+            .progress-overlay {
+            
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+
+                z-index: 100000;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                text-align: center;
+
+                background: color-mix(in srgb, var( --thermal-slate-light ) 90%, transparent);
+
+                .progress-overlay-content {
+                
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1em;
+
+                    div {
+                        color: var( --thermal-slate-dark );
+                    }
+                }
+            
+            }
+        `
+		];
+	}
+	renderHeader() {
+		return lit.html`<header class="controls">
+            ${exportConfigDirective(this)}
+        </header>`;
+	}
+	renderPreview() {
+		const isExporting = this.recordingPhase !== RecordingPhase.IDLE;
+		return lit.html`<section class="preview" ${(0, lit_directives_ref_js.ref)(this.previewSectionRef)}>
+            ${exportLayoutDirective(this)}
+
+            ${!isExporting ? lit.html`
+                <div class="preview-size">
+                    <div class="preview-size--export">
+                        <div class="preview-label">Export</div>
+                        <div class="preview-value">${this.exportRealWidth} × ${this.exportRealHeight} px</div>
+                    </div>
+                    <div class="preview-size--preview">
+                        <div class="preview-label">Náhled</div>
+
+                        <div class="preview-value">Zoom: ${(this.renderProps.previewScale * 100).toFixed(0)}%</div>
+
+
+                        ${!this.renderProps.autoScale ? lit.html`
+                            <input 
+                                type="range" 
+                                min="0.1" 
+                                max="1" 
+                                step="0.01" 
+                                .value=${String(this.renderProps.previewScale)} 
+                                @input=${(e) => {
+			const input = e.target;
+			const value = parseFloat(input.value);
+			this.setPreviewScale(value);
+		}}
+                            />
+                        ` : lit.nothing}
+
+                        <thermal-radio
+                            .checked=${this.renderProps.autoScale} 
+                            .onChange=${(checked) => {
+			this.setAutoScale(checked);
+		}}
+                        >Automatické přiblížení</thermal-radio>
+                        
+                    </div>
+                </div>
+            ` : lit.html``}
+
+        </section>`;
+	}
+	renderOverview() {
+		if (this.recordingPhase === RecordingPhase.IDLE) return lit.nothing;
+		let message = this.t(T.exportencodingfile);
+		if (this.recordingPhase === RecordingPhase.RECORDING) message = `${this.t(T.exportrecordingframes)} ${this.recordingPhaseProgress.toFixed(2)}%`;
+		return lit.html`<div
+            class="progress-overlay"
+        >
+
+            <div class="progress-overlay-content">
+
+                <thermal-spinner
+                    .message=${message}
+                ></thermal-spinner>
+
+                <div>${this.t(T.exportdonotclosewindowhint)}</div>
+
+            </div>
+            
+        </div>`;
+	}
+	renderFooter() {
+		return lit.html`<footer class="footer">
+            <file-timeline></file-timeline>
+        </footer>`;
+	}
+	render() {
+		return singleVideoProviders(this, [
+			this.renderHeader(),
+			this.renderPreview(),
+			this.renderFooter(),
+			this.renderOverview()
+		]);
+	}
+};
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealWidth", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealHeight", void 0);
+
+//#endregion
+//#region src/renderers/FileDetail.ts
+var FileDetailElement = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.norender = false;
+	}
+	onInstanceCreated() {}
+	onFailure() {}
+	static {
+		this.styles = lit.css`
+    
+        :host {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        main {
+            display: grid;
+            gap: var(--thermal-gap);
+            grid-template-columns: 1fr;
+            @media ( min-width: 900px ) {
+                grid-template-columns: 2fr 1fr;
+            }
+            @media ( min-width: 1300px ) {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            gap: 5px;
+            margin-bottom: var(--thermal-gap);
+            align-items: stretch;
+        }
+    
+    `;
+	}
+	render() {
+		return lit.html`<header>
+    <thermal-btn 
+        variant="foreground" 
+        @click=${() => {
+			if (this.onback) this.onback();
+		}}
+        tooltip=${(0, i18next.t)(T.back)}
+        icon="close"
+        iconStyle="micro"
+    ></thermal-btn>
+
+    ${this.label !== void 0 ? lit.html`
+    <thermal-btn variant="background" interactive="false">${this.label}</thermal-btn>` : lit.nothing}
+
+    <thermal-btn variant="background" interactive="false">
+        <file-label></file-label>
+    </thermal-btn>
+
+    <file-info-button></file-info-button>
+    <file-download-dropdown></file-download-dropdown>
+</header>
+
+<main>
+    <section>
+        <file-canvas norender="${this.norender}"></file-canvas>
+        <file-timeline></file-timeline>
+    </section>
+    <section>
+        <file-analysis-complex></file-analysis-complex>
+    </section>
+</main>`;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileDetailElement.prototype, "onback", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileDetailElement.prototype, "norender", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileDetailElement.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Object)], FileDetailElement.prototype, "grouping", void 0);
+
+//#endregion
+//#region src/renderers/FileThumbnail.ts
+var FileThumbnailElement = class extends AbstractFileConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.norender = false;
+	}
+	onInstanceCreated() {}
+	onFailure() {}
+	static {
+		this.styles = lit.css`
+    
+        :host {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            padding-bottom: 5px;
+            color: var(--thermal-foreground);
+            
+            h2 {
+                margin: 0;
+                padding: 0;
+                flex-grow: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: var( --thermal-fs-sm );
+
+                file-label {
+                    white-space: preserve nowrap;
+                }
+
+                &:hover {
+                    cursor: pointer;
+                    color: var( --thermal-primary );
+                }
+            }
+
+            & > div {
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 5px;
+            }
+
+        }
+
+        main {
+
+        }
+    
+    `;
+	}
+	render() {
+		return lit.html`
+
+            <header>
+                <h2
+                    @click=${() => this.ondetail?.(this.file)}
+                >
+                    <file-label label="${(0, lit_directives_if_defined_js.ifDefined)(this.label)}" grouping="${(0, lit_directives_if_defined_js.ifDefined)(this.grouping)}"></file-label>
+                </h2>
+                <div>
+                    <thermal-btn size="sm" variant="background" @click=${() => this.ondetail?.(this.file)}>${(0, i18next.t)(T.detail).toLocaleLowerCase()}</thermal-btn>
+                    <file-range-propagator></file-range-propagator>
+                    <file-dropdown>
+                        <file-info-button>
+                            <file-button slot="invoker" label=${(0, i18next.t)(T.info).toLowerCase()}></file-button>
+                        </file-info-button>
+                        <file-download-lrc></file-download-lrc>
+                        <file-download-png></file-download-png>
+                    </file-dropdown>
+                </div>
+            </header>
+
+            <main>
+                <file-canvas norender="${this.norender}"></file-canvas>
+                <file-timeline></file-timeline>
+                <file-analysis-table mode="compact" show-range-propagator="false"></file-analysis-table>
+            </main>
+        
+    `;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileThumbnailElement.prototype, "ondetail", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileThumbnailElement.prototype, "norender", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileThumbnailElement.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Object)], FileThumbnailElement.prototype, "grouping", void 0);
+
+//#endregion
+//#region src/ui/BtnGroup.ts
+var BtnGroupElement = class extends AbstractThermalElement {
+	static {
+		this.styles = lit.css`
+    
+        :host {
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: no-wrap;
+        }
+
+        ::slotted(thermal-btn:first-child) {
+
+            --custom-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
+            border-right: none !important;
+        
+        }
+
+        ::slotted(thermal-btn:last-child) {
+            --custom-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
+        }
+
+        ::slotted(thermal-btn:not(:first-child):not(:last-child)) {
+            --custom-radius: 0;
+            border-right: none !important;
+        }
+    
+    `;
+	}
+	render() {
+		return lit.html`<div class="btn-group"><slot></slot></div>`;
+	}
+};
+
+//#endregion
+//#region src/iifeCatalog.ts
+/**
+* List of the UI components
+*/
+const elementsUi = {
+	"thermal-app": ThermalAppElement,
+	"thermal-bar": ThermalBarElement,
+	"thermal-btn": ThermalBtnElement,
+	"thermal-btn-group": BtnGroupElement,
+	"thermal-dialog": ThermalDialogElement,
+	"thermal-dropdown": ThermalDropdownElement,
+	"thermal-dropin": ThermalDropinElement,
+	"thermal-expandable": ThermalExpandableElement,
+	"thermal-field": ThermalFieldElement,
+	"thermal-icon": ThermalIconElement,
+	"thermal-loading": ThermalPosterElement,
+	"thermal-radio": ThermalRadioElement,
+	"thermal-slot": ThermalSlotElement,
+	"thermal-spinner": ThermalSpinnerElement,
+	"thermal-tip": ThermalTipElement
+};
+const independentElements = {};
+/**
+* List of provider components
+*/
+const elementsProviders = {
+	"file-provider": FileProviderElement,
+	"group-provider": GroupProviderElement,
+	"registry-provider": RegistryProviderElement,
+	"manager-provider": ManagerProviderElement,
+	"file-copy": FileCopyElement
+};
+const elementsManagerControls = {
+	"manager-image-smooth-switch": ManagerImageSmoothSwitch,
+	"manager-graph-smooth-switch": ManagerGraphSmoothSwitch,
+	"manager-palette-dropdown": ManagerPaletteDropdown,
+	"manager-palette-buttons": ManagerPaletteButtons,
+	"manager-tool-bar": ManagerToolBar,
+	"manager-export-panel": ManagerExportPanel
+};
+const elementsRegistryControls = {
+	"registry-histogram": RegistryHistogram,
+	"registry-opacity-slider": RegistryOpacitySlider,
+	"registry-range-auto-button": RegistryRangeAutoButton,
+	"registry-range-full-button": RegistryRangeFullButton,
+	"registry-range-display": RegistryRangeDisplay,
+	"registry-range-form": RegistryRangeForm,
+	"registry-range-slider": RegistryRangeSlider,
+	"registry-ticks-bar": RegistryTicksBar
+};
+const elementsGroupControls = {
+	"group-analysis-sync-button": GroupAnalysisSyncButton,
+	"group-chart": GroupChartElement,
+	"group-download-buttons": GroupDownloadButtons,
+	"group-download-dropdown": GroupDownloadDropdown,
+	"group-dropin-element": GroupDropinElement,
+	"group-dropin-input": GroupDropinInputElement,
+	"group-range-propagator": GroupRangePropagatorElement,
+	"group-timeline": GroupTimelineElement
+};
+const elementsFileControls = {
+	"file-canvas": FileCanvasElement,
+	"file-download-dropdown": FileDownloadButton,
+	"file-info-button": FileInfoButton,
+	"file-playback-speed-dropdown": FilePlaybackSpeedDropdown,
+	"file-timeline": FileTimelineElement,
+	"file-video-export-button": FileVideoExportButton,
+	"file-video-export-panel": FileVideoExportPanel,
+	"file-label": FileLabelElement,
+	"file-button": FileButtonElement,
+	"file-dropdown-elt": FileDropdown,
+	"file-download-lrc": FileLrcButton,
+	"file-download-png": FilePngButton,
+	"file-range-propagator": FileRangePropagator,
+	"file-analysis-complex": FileAnalysisComplexElement,
+	"file-analysis-display": FileAnalysisDisplayElement,
+	"file-analysis-edit": FileAnalisisEditDialog,
+	"file-analysis-graph": FileAnalysisGraphElement,
+	"file-analysis-table-row": FileAnalysisRowElement,
+	"file-analysis-table": FileAnalysisTableElement,
+	"analysis-color": AnalysisColorDropdown,
+	"analysis-name": AnalysisNameInput,
+	"edit-area": AreaEditTable,
+	"edit-point": EditpointTable,
+	"thermal-chart": ThermalChartElement,
+	"file-detail": FileDetailElement,
+	"file-thumbnail": FileThumbnailElement
+};
+const elementsApplications = {
+	"apparent-temperature-aat": AatAppElement,
+	"thermal-dropin-app": DropinAppElement,
+	"thermal-file-app": ThermalFileAppElement,
+	"thermal-group-app": ThermalGroupAppElement
+};
+/** 
+* All the webcomponents from the @labirthermal/webcomponents package in a list for the purpose of its registration in `defineAllWebcomponents`.
+* @see {@link defineAllWebcomponents}
+*/
+const elementsAll = {
+	...elementsUi,
+	...elementsProviders,
+	...elementsManagerControls,
+	...elementsRegistryControls,
+	...elementsGroupControls,
+	...elementsFileControls,
+	...elementsApplications
+};
 
 //#endregion
 exports.AbstractFileConsumer = AbstractFileConsumer;
 exports.AbstractFileProvider = AbstractFileProvider;
 exports.AbstractGroupConsumer = AbstractGroupConsumer;
 exports.AbstractGroupProvider = AbstractGroupProvider;
+exports.AbstractHierarchyController = AbstractHierarchyController;
 exports.AbstractManagerConsumer = AbstractManagerConsumer;
 exports.AbstractManagerProvider = AbstractManagerProvider;
+exports.AbstractReactiveController = AbstractReactiveController;
 exports.AbstractRegistryConsumer = AbstractRegistryConsumer;
 exports.AbstractRegistryProvider = AbstractRegistryProvider;
 exports.AbstractThermalElement = AbstractThermalElement;
-Object.defineProperty(exports, 'AppInfoButton', {
-  enumerable: true,
-  get: function () {
-    return AppInfoButton;
-  }
-});
+exports.AnalysisColorDropdown = AnalysisColorDropdown;
+exports.AnalysisNameInput = AnalysisNameInput;
+exports.AppInfoButton = AppInfoButton;
+exports.AreaEditTable = AreaEditTable;
 exports.ConfigController = ConfigController;
-Object.defineProperty(exports, 'ConfigDialog', {
-  enumerable: true,
-  get: function () {
-    return ConfigDialog;
-  }
-});
-Object.defineProperty(exports, 'DisplayPanel', {
-  enumerable: true,
-  get: function () {
-    return DisplayPanel;
-  }
-});
+exports.ConfigDialog = ConfigDialog;
+exports.DisplayPanel = DisplayPanel;
+exports.EditpointTable = EditpointTable;
+exports.FileAnalisisEditDialog = FileAnalisisEditDialog;
+exports.FileAnalysisComplexElement = FileAnalysisComplexElement;
+exports.FileAnalysisDisplayElement = FileAnalysisDisplayElement;
+exports.FileAnalysisGraphElement = FileAnalysisGraphElement;
+exports.FileAnalysisRowElement = FileAnalysisRowElement;
+exports.FileAnalysisTableElement = FileAnalysisTableElement;
+exports.FileButtonElement = FileButtonElement;
+exports.FileCanvasElement = FileCanvasElement;
+exports.FileController = FileController;
 exports.FileCopyElement = FileCopyElement;
-exports.FileMirrorElement = FileMirrorElement;
+exports.FileDownloadButton = FileDownloadButton;
+exports.FileDropdown = FileDropdown;
+exports.FileLoadController = FileLoadController;
+exports.FileLrcButton = FileLrcButton;
+exports.FilePlaybackSpeedDropdown = FilePlaybackSpeedDropdown;
+exports.FilePngButton = FilePngButton;
 exports.FileProviderElement = FileProviderElement;
+exports.FileRangePropagator = FileRangePropagator;
+exports.FileVideoExportButton = FileVideoExportButton;
 exports.GroupAnalysisSyncButton = GroupAnalysisSyncButton;
 exports.GroupAnalysisSyncController = GroupAnalysisSyncController;
-exports.GroupChart = GroupChartElement;
+exports.GroupChartElement = GroupChartElement;
+exports.GroupController = GroupController;
 exports.GroupDownloadButtons = GroupDownloadButtons;
 exports.GroupDownloadDropdown = GroupDownloadDropdown;
-exports.GroupDropin = GroupDropinElement;
-exports.GroupDropinInput = GroupDropinInputElement;
+exports.GroupDropinElement = GroupDropinElement;
+exports.GroupDropinInputElement = GroupDropinInputElement;
+exports.GroupListingController = GroupListingController;
+exports.GroupLoadController = GroupLoadController;
+exports.GroupOrderby = GroupOrderby;
+exports.GroupOrdering = GroupOrdering;
 exports.GroupProviderElement = GroupProviderElement;
-exports.GroupRangePropagator = GroupRangePropagatorElement;
-exports.GroupTimeline = GroupTimelineElement;
+exports.GroupRangePropagatorElement = GroupRangePropagatorElement;
+exports.GroupTimelineElement = GroupTimelineElement;
+exports.HierarchyUpdatesHub = HierarchyUpdatesHub;
+exports.INTERNAL_STATE_DECLARATION = INTERNAL_STATE_DECLARATION;
+exports.ManagerController = ManagerController;
 exports.ManagerExportPanel = ManagerExportPanel;
 exports.ManagerGraphSmoothSwitch = ManagerGraphSmoothSwitch;
 exports.ManagerImageSmoothSwitch = ManagerImageSmoothSwitch;
@@ -8148,48 +16628,75 @@ exports.ManagerPaletteButtons = ManagerPaletteButtons;
 exports.ManagerPaletteDropdown = ManagerPaletteDropdown;
 exports.ManagerProviderElement = ManagerProviderElement;
 exports.ManagerToolBar = ManagerToolBar;
+exports.RegistryController = RegistryController;
+exports.RegistryHistogram = RegistryHistogram;
 exports.RegistryOpacitySlider = RegistryOpacitySlider;
 exports.RegistryProviderElement = RegistryProviderElement;
+exports.RegistryRangeAutoButton = RegistryRangeAutoButton;
 exports.RegistryRangeDisplay = RegistryRangeDisplay;
 exports.RegistryRangeForm = RegistryRangeForm;
+exports.RegistryRangeFullButton = RegistryRangeFullButton;
 exports.RegistryRangeSlider = RegistryRangeSlider;
-exports.RegistrySetAutoRangeElement = RegistryRangeAutoButton;
-exports.RegistrySetFullRangeElement = RegistryRangeFullButton;
 exports.RegistryTicksBar = RegistryTicksBar;
 exports.ThermalAppElement = ThermalAppElement;
 exports.ThermalBarElement = ThermalBarElement;
 exports.ThermalBtnElement = ThermalBtnElement;
+exports.ThermalChartElement = ThermalChartElement;
 exports.ThermalDialogElement = ThermalDialogElement;
 exports.ThermalDropdownElement = ThermalDropdownElement;
 exports.ThermalDropinElement = ThermalDropinElement;
 exports.ThermalExpandableElement = ThermalExpandableElement;
 exports.ThermalFieldElement = ThermalFieldElement;
 exports.ThermalIconElement = ThermalIconElement;
-exports.ThermalLoadingElement = ThermalPosterElement;
+exports.ThermalPosterElement = ThermalPosterElement;
 exports.ThermalRadioElement = ThermalRadioElement;
 exports.ThermalSlotElement = ThermalSlotElement;
 exports.ThermalSpinnerElement = ThermalSpinnerElement;
 exports.ThermalTipElement = ThermalTipElement;
 exports.booleanConverter = booleanConverter;
 exports.configContext = configContext;
+exports.defineAllWebcomponents = defineAllWebcomponents;
+exports.defineWebcomponent = defineWebcomponent;
 exports.durationConverter = durationConverter;
+exports.elementsAll = elementsAll;
+exports.elementsProviders = elementsProviders;
+exports.fileAnalysisListContext = fileAnalysisListContext;
 exports.fileContext = fileContext;
+exports.fileControllerContext = fileControllerContext;
 exports.fileCurrentFrameContext = fileCurrentFrameContext;
+exports.fileDurationContext = fileDurationContext;
+exports.fileFailureContext = fileFailureContext;
+exports.fileLoadingContext = fileLoadingContext;
+exports.fileMayStopContext = fileMayStopContext;
 exports.fileMsContext = fileMsContext;
+exports.filePlaybackSpeedContext = filePlaybackSpeedContext;
 exports.filePlayingContext = filePlayingContext;
+exports.fileRecordingContext = fileRecordingContext;
+exports.fileTimeCursorContext = fileTimeCursorContext;
+exports.getContrastColor = getContrastColor;
 exports.groupAnalysisSyncContext = groupAnalysisSyncContext;
-exports.groupContext = groupContext;
+exports.groupControllerContext = groupControllerContext;
+exports.groupObjectContext = groupObjectContext;
 exports.icons = icons;
-exports.languageContext = languageContext;
+exports.independentElements = independentElements;
+exports.managerAdvancedPalettesContext = managerAdvancedPalettesContext;
 exports.managerContext = managerContext;
+exports.managerControllerContext = managerControllerContext;
+exports.managerGraphFunctionContext = managerGraphFunctionContext;
+exports.managerInteractiveAnalysesContext = managerInteractiveAnalysesContext;
+exports.managerPaletteContext = managerPaletteContext;
 exports.managerSmoothContext = managerSmoothContext;
-exports.registryContext = registryContext;
+exports.managerToolContext = managerToolContext;
+exports.numberRangeConverter = numberRangeConverter;
+exports.paletteConverter = paletteConverter;
+exports.registryControllerContext = registryControllerContext;
 exports.registryHighlightContext = registryHighlightContext;
 exports.registryLoadingContext = registryLoadingContext;
 exports.registryMaxContext = registryMaxContext;
 exports.registryMinContext = registryMinContext;
+exports.registryObjectContext = registryObjectContext;
 exports.registryOpacityContext = registryOpacityContext;
 exports.registryRangeFromContext = registryRangeFromContext;
 exports.registryRangeToContext = registryRangeToContext;
-exports.toolContext = toolContext;
+exports.stringOrUndefinedConverter = stringOrUndefinedConverter;
 //# sourceMappingURL=index.export.cjs.map

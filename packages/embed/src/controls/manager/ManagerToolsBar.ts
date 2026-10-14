@@ -6,7 +6,7 @@ import { state } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
-import { toolContext } from "../../hierarchy/controllers/ManagerController";
+import { managerToolContext } from "../../hierarchy/controllers/ManagerController";
 import { T } from "../../translations/Languages";
 
 
@@ -15,13 +15,13 @@ import { T } from "../../translations/Languages";
  */
 export class ManagerToolBar extends AbstractManagerConsumer {
 
-    @consume({ context: toolContext, subscribe: true })
+    @consume({ context: managerToolContext, subscribe: true })
     @state()
     protected value!: ThermalTool;
 
     /** Handle user input events */
     protected onSelect(tool: ThermalTool) {
-        this.manager.tool.selectTool(tool);
+        this.managerObject.tool.selectTool(tool);
     }
 
     static styles = css`
@@ -62,7 +62,7 @@ thermal-btn {
     tooltip=${t(T[tool.name as keyof typeof T])}
     tooltip-placement="right"
     class=${classMap(classes)} 
-    @click=${() => { this.manager.tool.selectTool(tool) }}
+    @click=${() => { this.managerObject.tool.selectTool(tool) }}
     variant=${tool.key === this.value.key ? "background" : "default"}
 >
     ${unsafeSVG(tool.icon)}
@@ -72,15 +72,21 @@ thermal-btn {
 
     protected render(): unknown {
 
-        if (this.manager === undefined) {
+        if (this.managerObject === undefined) {
             return nothing;
         }
 
-        return Object.entries(this.manager.tool.tools).map(([key, tool]) => {
+        return Object.entries(this.managerObject.tool.tools).map(([key, tool]) => {
 
             return this.renderTool(key, tool);
 
         });
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "manager-tool-bar": ManagerToolBar;
+    }
 }

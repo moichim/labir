@@ -14,7 +14,7 @@ import { T } from "../../translations/Languages";
  * 
  * Extends `AbstractFileConsumer`, therefore needs to be in a webcomponent providing the necessary contexts.
  * 
- * @package @labirthermal/embed
+ * @package @labirthermal/webcomponents
  * @author Jan Jáchim <jachim@ntc.zcu.cz>
  */
 export class FileCanvasElement extends AbstractFileConsumer {
@@ -40,6 +40,7 @@ export class FileCanvasElement extends AbstractFileConsumer {
         super.connectedCallback();
         this.requestUpdate();
     }
+
 
 
     updated(_changedProperties: PropertyValues<FileCanvasElement>): void {
@@ -163,7 +164,7 @@ export class FileCanvasElement extends AbstractFileConsumer {
 
     private renderPlaceholder() {
 
-        if (this.loading === false) {
+        if (this.fileIsLoading === false) {
             return nothing;
         }
 
@@ -200,14 +201,14 @@ export class FileCanvasElement extends AbstractFileConsumer {
 
     protected render(): unknown {
 
-        const isError = this.loading === false && this.failure !== undefined;
+        const isError = this.fileIsLoading === false && this.failure !== undefined;
 
-        const isSuccess = this.loading === false && this.file !== undefined;
+        const isSuccess = this.fileIsLoading === false && this.file !== undefined;
 
         const classes = {
             "canvas-container": true,
-            "is-loading": this.loading,
-            "is-loaded": this.loading === false,
+            "is-loading": this.fileIsLoading,
+            "is-loaded": this.fileIsLoading === false,
             "is-success": isSuccess,
             "is-error": isError
         } as const;
@@ -219,4 +220,10 @@ export class FileCanvasElement extends AbstractFileConsumer {
 </div>`;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-canvas": FileCanvasElement;
+    }
 }

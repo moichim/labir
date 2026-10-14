@@ -161,7 +161,7 @@ import "./controls/file/notation/NotationContent";
 import "./controls/file/notation/NotationEntry";
 import "./controls/file/notation/NotationProvider";
 import "./controls/file/notation/NotationTimeline";
-import "./controls/file/FileVideoExport";
+import "./controls/file/FileVideoExportButton";
 
 
 import "./controls/file/video/FileVideoExportPanel";

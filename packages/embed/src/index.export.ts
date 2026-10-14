@@ -1,48 +1,176 @@
-// Shared utils
-import { booleanConverter } from "./utils/converters/booleanConverter";
-import { durationConverter } from "./utils/converters/durationConverter";
+// Converters
+export { numberRangeConverter } from "./utils/converters/numberRangeConverter";
+export { booleanConverter } from "./utils/converters/booleanConverter";
+export { paletteConverter } from "./utils/converters/paletteConverter";
+export { stringOrUndefinedConverter } from "./utils/converters/stringOrUndefinedConverter";
+export { durationConverter } from "./utils/converters/durationConverter";
+
+// Utlility class and service for retrieving contrast colors
+export { getContrastColor } from "./utils/getContrastColor";
+
+// Export icons
 import icons from "./utils/icons";
-export {
-    booleanConverter,
-    durationConverter,
-    icons
-};
+export { icons }
 
 
-// The necessary abstractions
+// The necessary abstractions utils required by the hierarchy elements
 
 export { AbstractThermalElement } from "./hierarchy/AbstractThermalElement";
+export type { IBaseElement } from "./hierarchy/AbstractThermalElement";
+export { HierarchyUpdatesHub } from "./hierarchy/controllers/HierarchyUpdatesHub";
 
+export { AbstractReactiveController } from "./controllers/AbstractReactiveController";
 
-// Contexts
+export { 
+    AbstractHierarchyController,
+    INTERNAL_STATE_DECLARATION
+} from "./hierarchy/controllers/AbstractHierarchyController";
+
+export type { 
+    HostReactiveProperties 
+} from "./hierarchy/controllers/AbstractHierarchyController";
+
+// File internal contexts & other stuff
+
+// File contexts and the controller
 export {
     fileContext,
+    fileControllerContext,
     fileCurrentFrameContext,
     fileMsContext,
-    filePlayingContext
-} from "./hierarchy/providers/context/FileContexts";
+    filePlayingContext,
+    fileFailureContext,
+    fileLoadingContext,
+    fileTimeCursorContext,
+    fileDurationContext,
+    filePlaybackSpeedContext,
+    fileRecordingContext,
+    fileMayStopContext,
+    fileAnalysisListContext,
+    FileController
+} from "./hierarchy/controllers/FileController";
 
-export {
-    groupContext
-} from "./hierarchy/providers/context/GroupContext";
+// File context types
+export type { 
+    FileControllerCurrentFrameType, 
+    FileControllerDurationContextType 
+} from "./hierarchy/controllers/FileController";
 
+// Flle load controller
+export { 
+    FileLoadController 
+} from "./hierarchy/controllers/FileLoadController";
+
+// Types from the FileLoadController
+export type {
+    IElementWithFileLoadController
+} from "./hierarchy/controllers/FileLoadController";
+
+
+// Group internal contexts & other stuff
+
+// Basic group controller
 export {
-    registryContext,
-    registryHighlightContext,
+    GroupController,
+    groupControllerContext,
+    groupObjectContext
+} from "./hierarchy/controllers/GroupController";
+
+export type {
+    IElementWithGroupController
+} from "./hierarchy/controllers/GroupController";
+
+// Automatic group load controller
+export {
+    GroupLoadController
+} from "./hierarchy/controllers/GroupLoadController";
+
+// Export the interfaces for the automatic group load controller
+export type {
+    IElementWithGroupLoadController
+} from "./hierarchy/controllers/GroupLoadController";
+
+
+// Export the group listing controller
+export {
+    GroupListingController,
+    GroupOrderby,
+    GroupOrdering
+} from "./hierarchy/controllers/GroupListingController";
+
+export type {
+    IElementWithGroupListingController
+} from "./hierarchy/controllers/GroupListingController"
+
+
+// Group analysis sync is a @todo
+export { 
+    GroupAnalysisSyncController, 
+    groupAnalysisSyncContext 
+} from "./hierarchy/controllers/GroupAnalysisSyncController";
+export type { 
+    IElementWithGroupAnalysisSyncController 
+} from "./hierarchy/controllers/GroupAnalysisSyncController";
+
+
+
+// Registry contexts and its providers
+export {
+    RegistryController,
+    registryControllerContext,
+    registryObjectContext,
+    registryOpacityContext,
+    registryRangeFromContext,
+    registryRangeToContext,
     registryLoadingContext,
     registryMaxContext,
     registryMinContext,
-    registryOpacityContext,
-    registryRangeFromContext,
-    registryRangeToContext
-} from "./hierarchy/providers/context/RegistryContext";
+    registryHighlightContext,
+
+} from "./hierarchy/controllers/RegistryController";
+
+export type {
+    IElementWithRegistryController
+} from "./hierarchy/controllers/RegistryController";
+
+
+
+// Manager contexts and other related tools
 
 export {
-    languageContext,
+    managerControllerContext,
     managerContext,
+    managerPaletteContext,
+    managerAdvancedPalettesContext,
     managerSmoothContext,
-    toolContext
-} from "./hierarchy/providers/context/ManagerContext";
+    managerGraphFunctionContext,
+    managerToolContext,
+    managerInteractiveAnalysesContext,
+    ManagerController
+} from "./hierarchy/controllers/ManagerController";
+
+export type {
+    IElementWithManagerController,
+    ManagerPaletteContextType,
+} from "./hierarchy/controllers/ManagerController";
+
+
+// Config contexts and other tools
+
+export {
+    configContext,
+    ConfigController
+} from "./hierarchy/controllers/ConfigController";
+
+export type { 
+    ConfigSettings, 
+    GroupExportSettings, 
+    PngExportSettings
+} from "./hierarchy/controllers/ConfigController";
+
+
+
+
 
 
 // The UI
@@ -57,7 +185,7 @@ export { ThermalDropinElement } from "./ui/Dropin";
 export { ThermalExpandableElement } from "./ui/Expandable";
 export { ThermalFieldElement } from "./ui/Field";
 export { ThermalIconElement } from "./ui/Icon";
-export { ThermalPosterElement as ThermalLoadingElement } from "./ui/Loading";
+export { ThermalPosterElement } from "./ui/Loading";
 export { ThermalRadioElement } from "./ui/Radio";
 export { ThermalSlotElement } from "./ui/Slot";
 export { ThermalSpinnerElement } from "./ui/Spinner";
@@ -77,13 +205,11 @@ export { AbstractGroupConsumer } from "./hierarchy/consumers/AbstractGroupConsum
 export { AbstractManagerConsumer } from "./hierarchy/consumers/AbstractManagerConsumer";
 export { AbstractRegistryConsumer } from "./hierarchy/consumers/AbstractRegistryConsumer";
 
-// Hierarchy controllers
-export { GroupAnalysisSyncController, groupAnalysisSyncContext } from "./hierarchy/controllers/GroupAnalysisSyncController";
-export type { IElementWithGroupAnalysisSyncController } from "./hierarchy/controllers/GroupAnalysisSyncController";
-export { ConfigController, configContext } from "./hierarchy/controllers/ConfigController";
-export type { ConfigSettings, GroupExportSettings, PngExportSettings } from "./hierarchy/controllers/ConfigController";
+
+
 
 // Independent controls
+
 export { AppInfoButton } from "./controls/independent/AppInfoButton";
 export { DisplayPanel } from "./controls/independent/DisplayPanel";
 export { ConfigDialog } from "./controls/independent/ConfigDialog";
@@ -91,7 +217,6 @@ export { ConfigDialog } from "./controls/independent/ConfigDialog";
 // The providers elements
 
 export { FileCopyElement } from "./hierarchy/providers/FileCopy";
-export { FileMirrorElement } from "./hierarchy/providers/FileMirror";
 export { FileProviderElement } from "./hierarchy/providers/FileProvider";
 export { GroupProviderElement } from "./hierarchy/providers/GroupProvider";
 export { ManagerProviderElement } from "./hierarchy/providers/ManagerProvider";
@@ -111,18 +236,58 @@ export { ManagerToolBar } from "./controls/manager/ManagerToolsBar";
 export { RegistryRangeForm } from "./controls/registry/RegistryRangeForm";
 export { RegistryTicksBar } from "./controls/registry/RegistryTicksBar";
 export { RegistryRangeSlider } from "./controls/registry/RegistryRangeSlider";
-export { RegistryRangeFullButton as RegistrySetFullRangeElement } from "./controls/registry/RegistryRangeFullButton";
-export { RegistryRangeAutoButton as RegistrySetAutoRangeElement } from "./controls/registry/RegistryRangeAutoButton";
+export { RegistryHistogram } from "./controls/registry/RegistryHistogram";
+export { RegistryRangeFullButton } from "./controls/registry/RegistryRangeFullButton";
+export { RegistryRangeAutoButton } from "./controls/registry/RegistryRangeAutoButton";
 export { RegistryRangeDisplay } from "./controls/registry/RegistryRangeDisplay";
 export { RegistryOpacitySlider } from "./controls/registry/RegistryOpacitySlider";
 
 // Group controls
 
-export { GroupChartElement as GroupChart } from "./controls/group/GroupChartElement";
+export { GroupChartElement } from "./controls/group/GroupChartElement";
 export { GroupAnalysisSyncButton } from "./controls/group/GroupAnalysisSyncButton";
 export { GroupDownloadDropdown } from "./controls/group/GroupDownloadDropdown";
 export { GroupDownloadButtons } from "./controls/group/GroupDownloadButtons";
-export { GroupDropinElement as GroupDropin } from "./controls/group/GroupDropinElement";
-export { GroupDropinInputElement as GroupDropinInput } from "./controls/group/GroupDropinInput";
-export { GroupRangePropagatorElement as GroupRangePropagator } from "./controls/group/GroupRangePropagator";
-export { GroupTimelineElement as GroupTimeline } from "./controls/group/GroupTimeline";
+export { GroupDropinElement } from "./controls/group/GroupDropinElement";
+export { GroupDropinInputElement } from "./controls/group/GroupDropinInput";
+export { GroupRangePropagatorElement } from "./controls/group/GroupRangePropagator";
+export { GroupTimelineElement } from "./controls/group/GroupTimeline";
+
+// File controls
+
+export { FileCanvasElement } from "./controls/file/FileCanvas";
+export { FileVideoExportButton } from "./controls/file/FileVideoExportButton";
+export { FilePlaybackSpeedDropdown } from "./controls/file/FilePlaybackSpeedDropdown";
+export { FileDownloadButton } from "./controls/file/FileDownloadDropdown";
+export { FileButtonElement } from "./controls/file/buttons/FileButton";
+export { FileDropdown } from "./controls/file/buttons/FileDropdown";
+export { FileLrcButton } from "./controls/file/buttons/FileLrcButton";
+export { FilePngButton } from "./controls/file/buttons/FilePngButton";
+export { FileRangePropagator } from "./controls/file/buttons/FileRangePropagator";
+
+export { FileAnalysisComplexElement } from "./controls/file/analysis/FileAnalysisComplex";
+export { FileAnalysisDisplayElement } from "./controls/file/analysis/FileAnalysisDisplay";
+export { FileAnalisisEditDialog } from "./controls/file/analysis/FileAnalysisEdit";
+export { FileAnalysisGraphElement } from "./controls/file/analysis/FileAnalysisGraph";
+export { FileAnalysisRowElement } from "./controls/file/analysis/FileAnalysisRow";
+export { FileAnalysisTableElement } from "./controls/file/analysis/FileAnalysisTable";
+export { AnalysisColorDropdown } from "./controls/file/analysis/edit/analysisColorDropdown";
+export { AnalysisNameInput } from "./controls/file/analysis/edit/analysisNameInput";
+export { AreaEditTable } from "./controls/file/analysis/edit/editAreaTable";
+export { EditpointTable } from "./controls/file/analysis/edit/editPointTable";
+
+// Export the internal chart element for the purpose of reuse
+export { ThermalChartElement } from "./controls/file/analysis/chart/chart";
+
+// Finally, expor the IIFE-related functionality
+
+export {
+    defineAllWebcomponents,
+    defineWebcomponent
+} from "./utils/iife";
+
+export {
+    independentElements,
+    elementsProviders,
+    elementsAll
+} from "./iifeCatalog";

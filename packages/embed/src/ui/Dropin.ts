@@ -93,3 +93,9 @@ export class ThermalDropinElement extends AbstractThermalElement {
 
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-dropin": ThermalDropinElement;
+    }
+}

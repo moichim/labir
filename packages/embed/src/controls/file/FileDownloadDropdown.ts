@@ -11,6 +11,7 @@ import type { ConfigController } from "../../hierarchy/controllers/ConfigControl
 import { T } from "../../translations/Languages";
 import type { ThermalDialogElement } from "../../ui/Dialog";
 import type { ThermalDropdownElement } from "../../ui/Dropdown";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export class FileDownloadButton extends AbstractFileConsumer {
 
@@ -39,9 +40,11 @@ export class FileDownloadButton extends AbstractFileConsumer {
         });
         this.hasGraphs = instance.analysisData.hasActiveGraphs;
     }
+
     public onFailure(): void {
         // throw new Error("Method not implemented.");
     }
+
 
     protected render(): unknown {
 
@@ -52,9 +55,9 @@ export class FileDownloadButton extends AbstractFileConsumer {
         return html`
 
             <thermal-dropdown ${ref(this.dropdownRef)} class="download"
-                icon=${this.icon}
-                iconStyle=${this.iconStyle}
-                variant=${this.variant}
+                icon=${ifDefined( this.icon )}
+                iconStyle=${ifDefined( this.iconStyle )}
+                variant=${ifDefined( this.variant )}
             >
 
                 <slot name="invoker" slot="invoker">
@@ -172,4 +175,10 @@ export class FileDownloadButton extends AbstractFileConsumer {
         `
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-download-dropdown": FileDownloadButton;
+    }
 }

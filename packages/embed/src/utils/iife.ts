@@ -4,6 +4,9 @@ type ComponentsCatalog = Record<string, CustomElementConstructor>;
 
 /**
  * Registers and defines all custom elements from a provided list
+ * 
+ * @module @labirthermal/webcomponents
+ * 
  */
 export const defineAllWebcomponents = (
     catalog: ComponentsCatalog
@@ -17,6 +20,8 @@ export const defineAllWebcomponents = (
 
 /**
  * Registers a custom element and defines it right away.
+ * 
+ * @module @labirthermal/webcomponents
  */
 export const defineWebcomponent = (
     tag: string,

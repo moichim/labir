@@ -27,6 +27,7 @@ export class FilePngButton extends AbstractFileButton {
                 showFileDate: png?.fileDate
             });
         }
+
     }
 
     getDefaultLabel(): string {
@@ -35,4 +36,10 @@ export class FilePngButton extends AbstractFileButton {
 
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-download-png": FilePngButton;
+    }
 }

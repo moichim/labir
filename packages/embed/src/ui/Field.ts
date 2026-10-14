@@ -65,3 +65,9 @@ export class ThermalFieldElement extends LitElement {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-field": ThermalFieldElement;
+    }
+}

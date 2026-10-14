@@ -10,8 +10,8 @@ class SingleVideoExportDirective extends Directive {
         content: unknown
     ): unknown {
 
-        const registry = app.registry;
-        const group = app.group;
+        const registry = app.registryObject;
+        const group = app.groupObject;
 
         if (!registry || !group) {
             return nothing;

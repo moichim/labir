@@ -19,7 +19,7 @@ export class RegistryOpacitySlider extends AbstractRegistryConsumer {
     /** Handle user input events */
     handleUserChangeEvent( event: {target: {value: string}} ) {
         const value = parseFloat( event.target.value );
-        this.registry.opacity.imposeOpacity( value );
+        this.registryObject.opacity.imposeOpacity( value );
     }
 
 
@@ -74,4 +74,10 @@ export class RegistryOpacitySlider extends AbstractRegistryConsumer {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "registry-opacity-slider": RegistryOpacitySlider;
+    }
 }

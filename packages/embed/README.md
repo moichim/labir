@@ -1,8 +1,78 @@
-# @labir/embed
+# @labirthermal/webcomponents
 
-A library of webcomponents for thermal imaging in the browser.
+A Lit-based web component library for thermal images and thermal-analysis UIs in the browser.
 
 [![A showcase of the simple application](docs/images/thermal-file-analyser.png)](https://edu.labir.cz/experiment/sul-jedla-soda-a-voda/)
+
+## Build stack and package intent
+
+This package is designed as a web-component library, not as a framework-specific React package.
+
+- Runtime: Lit + custom elements (`@customElement`, `LitElement`)
+- Library build: `tsdown` from `src/index.export.ts` -> `dist/lib/index.export.{mjs,cjs}` + `.d.ts`
+- Browser bundle: Vite IIFE build from `src/index.iife.ts` -> `dist/iife/embed.iife.js`
+- Direct browser registration: `defineAllWebcomponents(...)` runs on load, so the bundle registers all included tags immediately
+- Integration style in the monorepo: `packages/thermal-display` does not import this package via npm; it loads the generated browser bundle directly and then renders custom elements such as `<thermal-dropin-app />` in the DOM
+
+This means the package is intended for two consumption modes:
+
+1. as a library for extension/custom implementation in other packages or Node-based tooling
+2. as a browser script for direct embedding into plain HTML or WordPress-style pages
+
+It is not a React/Next.js runtime package by itself. The underlying API is web components + exported TS classes/interfaces, not a React component tree.
+
+## Library consumption (extension / other packages)
+
+```ts
+import {
+  FileProviderElement,
+  RegistryProviderElement,
+  ThermalAppElement,
+  type IElementWithManagerController,
+} from "@labirthermal/webcomponents";
+```
+
+The library exports the component classes and controller abstractions from `src/index.export.ts`. This is the correct integration path when another package wants to extend or compose the library without rendering it as a global script.
+
+## Direct browser consumption (IIFE)
+
+```html
+<script src="./dist/iife/embed.iife.js"></script>
+<thermal-dropin-app locale="en"></thermal-dropin-app>
+```
+
+The IIFE bundle registers all included custom elements immediately after load, and adds the default styles. This is the mode used by the WordPress integration package in `packages/thermal-display`.
+
+## React / Next.js usage
+
+This package does not ship React wrappers or JSX bindings as a first-class API. In React/Next.js, the practical pattern is to mount the custom elements directly:
+
+```tsx
+export function ThermalDropin() {
+  return <thermal-dropin-app locale="en" />;
+}
+```
+
+For runtime values, set attributes or properties on the element via a `ref`:
+
+```tsx
+import { useEffect, useRef } from "react";
+
+export function ThermalDropin({ locale, skin }: { locale: string; skin?: string }) {
+  const ref = useRef<HTMLElement & { locale?: string; skin?: string } | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.locale = locale;
+    if (skin) el.skin = skin;
+  }, [locale, skin]);
+
+  return <thermal-dropin-app ref={ref} />;
+}
+```
+
+In TypeScript, you normally need a declaration for the custom element tag names or a small wrapper component. The exported TypeScript interfaces/classes are useful for extension, but they do not generate a React component API automatically.
 
 ## Demos
 

@@ -19,9 +19,12 @@ export class FileInfoButton extends AbstractFileConsumer {
             width: 100%;
         }
 
+
+
         td {
             padding: calc( var( --thermal-gap ) * .5 ) 0;
         }
+
 
         tr:not(:last-child) {
             td {
@@ -215,8 +218,14 @@ export class FileInfoButton extends AbstractFileConsumer {
                     </tr>
                     </table>
                 </div>
-            </thermal-dialog-component>
+            </thermal-dialog>
         `
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-info-button": FileInfoButton;
+    }
 }

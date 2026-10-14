@@ -11,7 +11,7 @@ import type { IElementWithRegistryController} from "../hierarchy/controllers/Reg
 import { RegistryController } from "../hierarchy/controllers/RegistryController";
 import type { IElementWithGroupController} from "../hierarchy/controllers/GroupController";
 import { GroupController } from "../hierarchy/controllers/GroupController";
-import { interactiveAnalysisContext } from "../hierarchy/controllers/ManagerController";
+import { managerInteractiveAnalysesContext } from "../hierarchy/controllers/ManagerController";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 import { AbstractApp } from "./AbstractApp";
 import type { IElementWithFileController } from "../hierarchy/controllers/FileController";
@@ -38,7 +38,7 @@ implements
     };
 
     /** Enables selecting, editing and removing the analyses in the tables. Provided to all descendants. */
-    @provide({ context: interactiveAnalysisContext })
+    @provide({ context: managerInteractiveAnalysesContext })
     @property({ type: String, reflect: true, converter: booleanConverter(true) })
     interactiveanalysis: boolean = true;
 

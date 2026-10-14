@@ -12,7 +12,33 @@ import { ManagerController } from "../controllers/ManagerController";
 import type { IElementWithRegistryController} from "../controllers/RegistryController";
 import { RegistryController } from "../controllers/RegistryController";
 
-/** This element creates a completely isolated hierarchy tree for the given original file. The file is copied and all contexts are exposed independently of the original context. */
+/** 
+ * This element creates a completely isolated hierarchy tree for the given original file. The file is copied and all contexts are exposed independently of the original context.
+ * 
+ * This element therefore implements all the hierarchy controllers, because the context is completely isolated from the parent:
+ * - `ManagerController` and `ThermalManager`
+ * - `RegistryController` and `ThermalRegistry`
+ * - `GroupController` and `ThermalGroup`
+ * - `FileController` and `Instance`
+ * 
+ * @tag file-copy
+ * 
+ * @param originalFile The original file instance to be copied.
+ * @param withAnalyses Whether to copy the analyses from the original file.
+ * 
+ * Initialisation of this element does not require any specification of slugs - they will be automatically generated from the original file.
+ * 
+ * Whenever this element is disconnected, all the internal context is removed for good.
+ * 
+ * @example
+ * <file-copy .originalFile="path/to/original/file">
+ *  <file-canvas></file-canvas>
+ * </file-copy>
+ * 
+ * @module \@labirthermal/webcomponents
+ * @author Jan Jáchim <jachim@zcu.cz>
+ * 
+ */
 export class FileCopyElement 
 extends AbstractThermalElement 
 implements 
@@ -97,7 +123,7 @@ implements
 
         const originalFile = this.originalFile;
 
-        const slugBase = originalFile.thermalUrl + "__" + this.UUID.substring(0, 6);
+        const slugBase = originalFile.thermalUrl + "__" + this.UUID;
         this._slugBase = slugBase;
 
         // Force override all slugs
@@ -197,4 +223,10 @@ implements
 
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-copy": FileCopyElement;
+    }
 }

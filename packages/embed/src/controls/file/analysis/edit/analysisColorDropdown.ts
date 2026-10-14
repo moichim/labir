@@ -29,7 +29,10 @@ export class AnalysisColorDropdown extends AbstractThermalElement {
 
         }
 
+
+
     }
+
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
@@ -105,4 +108,10 @@ export class AnalysisColorDropdown extends AbstractThermalElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "analysis-color": AnalysisColorDropdown;
+    }
 }

@@ -99,3 +99,9 @@ export class ThermalRadioElement extends AbstractThermalElement {
         `;
     }
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-radio": ThermalRadioElement;
+    }
+}

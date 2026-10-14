@@ -60,7 +60,7 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
         super.disconnectedCallback();
     }
 
-    protected willUpdate(changedProperties: PropertyValues): void {
+    willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
 
         // Side effect of the provided registry changing - synchronize its range and subscriptions before rendering.
@@ -75,7 +75,7 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
         }
     }
 
-    protected updated(changedProperties: PropertyValues): void {
+    updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
         this.observeTicks();
     }
@@ -299,4 +299,10 @@ export class RegistryTicksBar extends AbstractRegistryConsumer {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "registry-ticks-bar": RegistryTicksBar;
+    }
 }

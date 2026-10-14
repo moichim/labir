@@ -22,11 +22,30 @@ type IHostProperties = {
     autoclearGroup: boolean;
 
 }
-
+/**
+ * Host properties required by the `GroupController`.
+ * 
+ * @see {@link GroupController}
+ * @see {@link GroupController.HOST_PROPERTIES}
+ */
 export interface IElementWithGroupController extends IHostProperties, IBaseElement {}
 
+/**
+ * Exposes the `GroupController` instance to the `AbstractGroupConsumer` elements.
+ * @see {@link GroupController}
+ * @module @labirthermal/embed
+ * @author Jan Jáchim <jachim@zcu.cz>
+ */
 export const groupControllerContext = createContext<GroupController>("group-controller-context");
 
+/**
+ * Exposes the internal `ThermalGroup` object from the `GroupController`.
+ * 
+ * @see {@link GroupController}
+ * @see {@link ThermalGroup}
+ * @module @labirthermal/embed
+ * @author Jan Jáchim <jachim@zcu.cz>
+ */
 export const groupObjectContext = createContext<ThermalGroup>("group-object-context");
 
 export class GroupController extends AbstractHierarchyController<IElementWithGroupController> {

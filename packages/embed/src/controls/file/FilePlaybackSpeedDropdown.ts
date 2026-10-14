@@ -45,6 +45,7 @@ export class FilePlaybackSpeedDropdown extends AbstractFileConsumer {
 
     }
 
+
     protected renderEntry(
         key: string
     ): unknown {
@@ -80,4 +81,10 @@ export class FilePlaybackSpeedDropdown extends AbstractFileConsumer {
         </thermal-dropdown>`
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-playback-speed-dropdown": FilePlaybackSpeedDropdown;
+    }
 }

@@ -5,7 +5,7 @@ import { property, state } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import type { RegistryController } from "../../hierarchy/controllers/RegistryController";
-import type { ManagerPaletteContext } from "../../hierarchy/controllers/ManagerController";
+import type { ManagerPaletteContextType } from "../../hierarchy/controllers/ManagerController";
 import { managerPaletteContext } from "../../hierarchy/controllers/ManagerController";
 import { registryMaxContext } from "../../hierarchy/controllers/RegistryController";
 import { registryMinContext } from "../../hierarchy/controllers/RegistryController";
@@ -45,7 +45,7 @@ export class RegistryRangeSlider extends AbstractRegistryConsumer {
 
     @consume({ context: managerPaletteContext, subscribe: true })
     @state()
-    protected palette?: ManagerPaletteContext;
+    protected palette?: ManagerPaletteContextType;
 
     @consume({ context: registryLoadingContext, subscribe: true })
     @state()
@@ -68,7 +68,7 @@ export class RegistryRangeSlider extends AbstractRegistryConsumer {
         super.disconnectedCallback();
     }
 
-    protected willUpdate(changed: PropertyValues): void {
+    willUpdate(changed: PropertyValues): void {
         super.willUpdate(changed);
         if (changed.has("height") || changed.has("heightStyle")) {
             const height = this.height?.trim();
@@ -320,5 +320,11 @@ export class RegistryRangeSlider extends AbstractRegistryConsumer {
                 </div>
             </div>
             <slot></slot>`;
+    }
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "registry-range-slider": RegistryRangeSlider;
     }
 }

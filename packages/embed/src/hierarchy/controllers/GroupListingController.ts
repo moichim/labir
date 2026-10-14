@@ -10,18 +10,29 @@ import { AbstractHierarchyController } from "./AbstractHierarchyController";
 import type { FileController } from "./FileController";
 import type { GroupController } from "./GroupController";
 
+/**
+ * Indicates how to order the files in a group. Used by {@link GroupListingController}
+ * @module @labirthermal/webcomponents
+ * @author Jan Jáchim <jachim@zcu.cz>
+ */
 export enum GroupOrderby {
     DATE = "date",
     LABEL = "label",
     MANUAL = "manual"
 }
 
+/**
+ * Indicates how to order the files in a group. Used by {@link GroupListingController}
+ * @module @labirthermal/webcomponents
+ * @author Jan Jáchim <jachim@zcu.cz>
+ */
 export enum GroupOrdering {
     ASC = "asc",
     DESC = "desc"
 }
 
-export interface GroupListingRenderOptions {
+/** @internal */
+interface GroupListingRenderOptions {
     allowFileChanges?: boolean;
     onOpenDetail?: (instance: Instance) => void;
     onCloseDetail?: () => void;

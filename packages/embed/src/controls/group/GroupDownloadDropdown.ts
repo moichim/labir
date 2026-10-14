@@ -44,7 +44,7 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
                 <thermal-btn 
                     slot="option" 
                     pre="LRC" 
-                    @click=${() => this.group.files.downloadAllFiles()}
+                    @click=${() => this.groupObject.files.downloadAllFiles()}
                     tooltip=${t(T.downloadoriginalfileshint)}
                     tooltip-placement="right"
                 >
@@ -54,7 +54,7 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
                 <thermal-btn 
                     slot="option" 
                     pre="PNG" 
-                    @click=${() => this.group.forEveryInstance(instance => instance.export.downloadPng())}
+                    @click=${() => this.groupObject.forEveryInstance(instance => instance.export.downloadPng())}
                     tooltip=${t(T.pngofindividualimageshint)}
                     tooltip-placement="right"
                 >
@@ -64,7 +64,7 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
                 <thermal-btn 
                     slot="option"
                     pre="PNG" 
-                    @click=${() => this.group.analysisSync.png.downloadPng({
+                    @click=${() => this.groupObject.analysisSync.png.downloadPng({
                         columns: groupSettings?.columns ?? 3,
                         showGroupName: groupSettings?.groupName ?? false,
                         fontSize: png?.fontSize ?? 12,
@@ -84,7 +84,7 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
                 <thermal-btn 
                     slot="option" 
                     pre="CSV" 
-                    @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}
+                    @click=${() => { this.groupObject.analysisSync.csv.downloadAsCsv() }}
                     tooltip=${t(T.csvofanalysisdatahint)}
                     tooltip-placement="right"
                 >
@@ -99,4 +99,10 @@ export class GroupDownloadDropdown extends AbstractGroupConsumer {
 
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-download-dropdown": GroupDownloadDropdown;
+    }
 }

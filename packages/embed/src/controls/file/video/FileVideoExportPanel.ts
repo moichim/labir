@@ -31,6 +31,7 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
     public onInstanceCreated(instance: Instance): void {
         this.parentHasAnalyses = instance.analysis.value.length > 0;
     }
+
     public onFailure(): void {}
 
     connectedCallback(): void {
@@ -229,8 +230,9 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
                             display: inline-block;
                         }
                     }
-                
+
                 }
+
 
 
 
@@ -373,4 +375,10 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
         ] );
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-video-export-panel": FileVideoExportPanel;
+    }
 }

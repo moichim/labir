@@ -88,3 +88,9 @@ export class ThermalSlotElement extends AbstractThermalElement {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-slot": ThermalSlotElement;
+    }
+}

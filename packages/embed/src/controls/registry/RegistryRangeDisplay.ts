@@ -44,3 +44,9 @@ export class RegistryRangeDisplay extends AbstractRegistryConsumer {
     
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "registry-range-display": RegistryRangeDisplay;
+    }
+}

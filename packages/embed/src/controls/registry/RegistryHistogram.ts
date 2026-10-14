@@ -35,19 +35,19 @@ export class RegistryHistogram extends AbstractRegistryConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.loading = this.registry.histogram.loading;
+        this.loading = this.registryObject.histogram.loading;
 
-        this.registry.histogram.onCalculationStart.set( this.UUID, () => {
+        this.registryObject.histogram.onCalculationStart.set( this.UUID, () => {
             this.loading = true;
             this.error = false;
         } );
 
-        this.registry.histogram.onCalculationEnd.set( this.UUID, (success) => {
+        this.registryObject.histogram.onCalculationEnd.set( this.UUID, (success) => {
             this.loading = false;
             this.error = !success;
         } );
 
-        this.registry.loading.addListener( this.UUID, value => {
+        this.registryObject.loading.addListener( this.UUID, value => {
             if (value === true) {
                 this.loading = true;
             }
@@ -58,7 +58,7 @@ export class RegistryHistogram extends AbstractRegistryConsumer {
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
         super.firstUpdated( _changedProperties );
 
-        this.registry.histogram.addListener( this.UUID, value => {
+        this.registryObject.histogram.addListener( this.UUID, value => {
             this.histogram = value;
         } );
 
@@ -68,10 +68,10 @@ export class RegistryHistogram extends AbstractRegistryConsumer {
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
-        this.registry.loading.removeListener(this.UUID);
-        this.registry.histogram.removeListener( this.UUID );
-        this.registry.histogram.onCalculationStart.delete( this.UUID );
-        this.registry.histogram.onCalculationEnd.delete( this.UUID );
+        this.registryObject.loading.removeListener(this.UUID);
+        this.registryObject.histogram.removeListener( this.UUID );
+        this.registryObject.histogram.onCalculationStart.delete( this.UUID );
+        this.registryObject.histogram.onCalculationEnd.delete( this.UUID );
     }
 
     static styles = css`
@@ -227,4 +227,10 @@ export class RegistryHistogram extends AbstractRegistryConsumer {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "registry-histogram": RegistryHistogram;
+    }
 }

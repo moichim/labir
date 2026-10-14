@@ -22,14 +22,20 @@ export class ManagerImageSmoothSwitch extends AbstractManagerConsumer {
         return html`<thermal-btn-group>
             <thermal-btn
     variant=${this.smooth ? "default" : "foreground"}
-    @click=${() => this.manager.smooth.setSmooth(false)}
+    @click=${() => this.managerObject.smooth.setSmooth(false)}
 >${t(T.pixelated)}</thermal-btn>
 
 <thermal-btn
     variant=${this.smooth ? "foreground" : "default"}
-    @click=${() => this.manager.smooth.setSmooth(true)}
+    @click=${() => this.managerObject.smooth.setSmooth(true)}
 >${t(T.smooth)}</thermal-btn>
         </thermal-btn-group>`;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "manager-image-smooth-switch": ManagerImageSmoothSwitch;
+    }
 }

@@ -24,7 +24,7 @@ export class GroupDropinElement extends AbstractGroupDropin {
 
         if (this.container.value !== undefined) {
 
-            const listener = this.manager.service.handleDropzone(this.container.value, true);
+            const listener = this.managerObject.service.handleDropzone(this.container.value, true);
 
             listener.onMouseEnter.add(this.UUID, () => {
                 console.log("mouseenter");
@@ -198,4 +198,10 @@ export class GroupDropinElement extends AbstractGroupDropin {
     }
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-dropin-element": GroupDropinElement;
+    }
 }

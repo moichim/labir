@@ -6,43 +6,69 @@ import { property, state } from "lit/decorators.js";
 import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
+import { ifDefined } from "lit/directives/if-defined.js";
 
+
+/**
+ * Form control for editing a thermal registry's active range. It keeps its
+ * inputs synchronized with registry range data and provides range presets,
+ * bounded stepping, and rounding.
+ *
+ * @see AbstractRegistryConsumer
+ * @see RegistryController
+ */
 export class RegistryRangeForm extends AbstractRegistryConsumer {
 
+    /**
+     * Whether to arrange the form controls in a stacked layout. Reflected to
+     * the `stacked` attribute; defaults to `false`.
+     */
     @property({reflect: true, converter: booleanConverter(true)})
     public stacked: boolean = false;
 
+    /** The registry minimum, or `undefined` until bounds are available. */
     @state()
     protected min: number | undefined;
 
+    /** The registry maximum, or `undefined` until bounds are available. */
     @state()
     protected max: number | undefined;
 
+    /** The active range's lower endpoint, or `undefined` before synchronization. */
     @state()
     protected from: number | undefined;
-    
+
+    /** The active range's upper endpoint, or `undefined` before synchronization. */
     @state()
     protected to: number | undefined;
 
+    /** The increment used by the endpoint step controls; defaults to `1`. */
     @state()
     protected step: number = 1;
 
+    /** Step sizes offered by the endpoint controls; defaults to `[0.01, 0.1, 0.5, 1, 5, 10]`. */
     @state()
     protected availableSteps: number[] = [0.01, 0.1, 0.5, 1, 5, 10];
 
+    /** Input text for each endpoint; both values default to empty strings. */
     @state()
     protected inputValues: { from: string; to: string } = { from: "", to: "" };
 
+    /** Whether a registry range is being applied; defaults to `false`. */
     @state()
     protected isUpdatingFromRegistry: boolean = false;
 
+    /** Timer used to debounce endpoint input updates; initially `undefined`. */
     private debounceTimer: number | undefined;
 
+    /** The latest automatic range, or `undefined` until one is available. */
     @state()
     protected autoValue: ThermalRangeOrUndefined;
 
+    /** Registry currently observed by this form, initially unset. */
     private subscribedRegistry?: ThermalRegistry;
 
+    /** Whether the automatic-range control is active; defaults to `false`. */
     private autoRangeHovered: boolean = false;
 
     connectedCallback(): void {
@@ -50,7 +76,7 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         this.hydrate();
     }
 
-    protected willUpdate(changedProperties: PropertyValues<this>): void {
+    willUpdate(changedProperties: PropertyValues<this>): void {
         super.willUpdate(changedProperties);
         this.hydrate();
     }
@@ -63,41 +89,61 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         }
     }
 
+    /**
+     * Synchronizes local form state with the current registry and subscribes to
+     * its range updates.
+     */
     private hydrate(): void {
         const registry = this.registryController?.registryObject;
         if (registry === undefined || registry === this.subscribedRegistry) {
             return;
         }
 
+        // Replace any previous subscriptions before observing the new registry.
         this.dehydrate();
         this.subscribedRegistry = registry;
 
+        // Synchronize the initial values before listening for subsequent updates.
         this.recieveMinmax(registry.minmax.value);
         this.recieveRange(registry.range.value);
         this.recieveAutoValue(registry.range.autoValue);
 
+        // Subscribe to bounds, active-range, and automatic-range changes.
         registry.minmax.addListener(this.UUID, this.recieveMinmax);
         registry.range.addListener(this.UUID, this.recieveRange);
         registry.range.onAutoValueChanged.set(this.UUID, this.recieveAutoValue);
     }
 
+    /**
+     * Removes this form's listeners from the subscribed registry and clears the
+     * subscription reference.
+     */
     private dehydrate(): void {
         const registry = this.subscribedRegistry;
         if (registry === undefined) {
             return;
         }
 
+        // Remove every listener registered during hydration.
         registry.minmax.removeListener(this.UUID);
         registry.range.removeListener(this.UUID);
         registry.range.onAutoValueChanged.delete(this.UUID);
         this.subscribedRegistry = undefined;
     }
 
+    /**
+     * Updates the displayed registry bounds and clears range inputs when bounds
+     * are unavailable.
+     *
+     * @param value The registry's current minimum and maximum, or `undefined`
+     * when unavailable.
+     */
     private recieveMinmax = (value: ThermalMinmaxOrUndefined): void => {
         if ( value ) {
             if (this.min !== value.min ) this.min = value.min;
             if (this.max !== value.max ) this.max = value.max;
         } else {
+            // Clear range state when the registry no longer has known bounds.
             this.min = undefined;
             this.max = undefined;
             this.from = undefined;
@@ -106,9 +152,15 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         }
     }
 
+    /**
+     * Synchronizes the form's range values and input text with the registry.
+     *
+     * @param value The registry's active range, or `undefined` when no range is set.
+     */
     private recieveRange = (value: ThermalRangeOrUndefined): void => {
+        // Prevent incoming registry values from being written back as user edits.
         this.isUpdatingFromRegistry = true;
-        
+
         if ( value ) {
             if (this.from !== value.from ) {
                 this.from = value.from;
@@ -123,64 +175,100 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
             this.to = undefined;
             this.inputValues = { from: "", to: "" };
         }
-        
+
         this.isUpdatingFromRegistry = false;
     }
 
+    /**
+     * Stores the latest automatic range and refreshes its highlight when hovered.
+     *
+     * @param value The registry's current automatic range, or `undefined` when
+     * unavailable.
+     */
     private recieveAutoValue = (value: ThermalRangeOrUndefined): void => {
         this.autoValue = value;
         if (this.autoRangeHovered) {
+            // Keep the preview in sync while its control remains active.
             this.registryController.setHighlight(value);
         }
     }
 
+    /**
+     * Highlights the registry's full bounds while the full-range control is
+     * hovered or focused.
+     */
     private handleFullRangeMouseEnter = (): void => {
-        const minmax = this.registry.minmax.value;
+        const minmax = this.registryObject.minmax.value;
         if (minmax !== undefined) {
             this.registryController.setHighlight({ from: minmax.min, to: minmax.max });
         }
     }
 
+    /** Applies the registry's full minimum-to-maximum range. */
     private handleFullRangeClick = (): void => {
-        this.registry.range.applyMinmax();
+        this.registryObject.range.applyMinmax();
     }
 
+    /** Highlights the automatic range while its control is hovered or focused. */
     private handleAutoRangeMouseEnter = (): void => {
         this.autoRangeHovered = true;
         this.registryController.setHighlight(this.autoValue);
     }
 
+    /** Applies the registry's automatically calculated range. */
     private handleAutoRangeClick = (): void => {
-        this.registry.range.applyAuto();
+        this.registryObject.range.applyAuto();
     }
 
+    /** Clears the automatic-range hover state and removes the registry highlight. */
     private handleHighlightMouseLeave = (): void => {
         this.autoRangeHovered = false;
         this.registryController.setHighlight(undefined);
     }
 
-    private updateFrom( value: number | undefined ): void {
-        if ( this.registry && value !== undefined && this.to !== undefined) {
+    /**
+     * Updates the lower endpoint and imposes the resulting range on the registry
+     * when both endpoints are available.
+     *
+     * @param value The new lower endpoint.
+     */
+    private updateFrom(value: number | undefined): void {
+        if (this.registryObject && value !== undefined && this.to !== undefined) {
             this.from = value;
-            this.registry.range.imposeRange( { from: value, to: this.to } );
+            this.registryObject.range.imposeRange({ from: value, to: this.to });
         }
     }
 
-    private updateTo( value: number | undefined ): void {
-        if ( this.registry && value !== undefined && this.from !== undefined) {
+    /**
+     * Updates the upper endpoint and imposes the resulting range on the registry
+     * when both endpoints are available.
+     *
+     * @param value The new upper endpoint.
+     */
+    private updateTo(value: number | undefined): void {
+        if (this.registryObject && value !== undefined && this.from !== undefined) {
             this.to = value;
-            this.registry.range.imposeRange( { from: this.from, to: value } );
+            this.registryObject.range.imposeRange({ from: this.from, to: value });
         }
     }
 
+    /**
+     * Debounces input edits, validates the parsed value, and applies it to the
+     * selected endpoint.
+     *
+     * @param type The endpoint being edited.
+     * @param value The current text entered by the user.
+     */
     private debouncedUpdate(type: 'from' | 'to', value: string): void {
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
         }
 
         this.debounceTimer = window.setTimeout(() => {
+            // Ignore delayed edits while synchronizing a registry update.
             if (this.isUpdatingFromRegistry) return;
-            
+
+            // Parse and validate the input before applying it to the registry.
             const numValue = parseFloat(value);
             if (isNaN(numValue)) return;
 
@@ -192,96 +280,158 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         }, 300);
     }
 
+    /**
+     * Checks whether a lower-endpoint value is within the known minimum and
+     * upper endpoint.
+     *
+     * @param value The candidate lower endpoint.
+     * @returns `true` if the value is valid; otherwise, `false`.
+     */
     private isValidFromValue(value: number): boolean {
         if (this.min !== undefined && value < this.min) return false;
         if (this.to !== undefined && value > this.to) return false;
         return true;
     }
 
+    /**
+     * Checks whether an upper-endpoint value is within the known lower endpoint
+     * and maximum.
+     *
+     * @param value The candidate upper endpoint.
+     * @returns `true` if the value is valid; otherwise, `false`.
+     */
     private isValidToValue(value: number): boolean {
         if (this.max !== undefined && value > this.max) return false;
         if (this.from !== undefined && value < this.from) return false;
         return true;
     }
 
+    /**
+     * Determines whether the lower endpoint can move one configured step in the
+     * given direction.
+     *
+     * @param direction The direction in which to step.
+     * @returns `true` if the stepped value is valid; otherwise, `false`.
+     */
     private canStepFrom(direction: 'up' | 'down'): boolean {
         if (this.from === undefined) return false;
-        
-        const newValue = direction === 'up' 
-            ? this.from + this.step 
+
+        const newValue = direction === 'up'
+            ? this.from + this.step
             : this.from - this.step;
-            
+
         return this.isValidFromValue(newValue);
     }
 
+    /**
+     * Determines whether the upper endpoint can move one configured step in the
+     * given direction.
+     *
+     * @param direction The direction in which to step.
+     * @returns `true` if the stepped value is valid; otherwise, `false`.
+     */
     private canStepTo(direction: 'up' | 'down'): boolean {
         if (this.to === undefined) return false;
-        
-        const newValue = direction === 'up' 
-            ? this.to + this.step 
+
+        const newValue = direction === 'up'
+            ? this.to + this.step
             : this.to - this.step;
-            
+
         return this.isValidToValue(newValue);
     }
 
+    /**
+     * Checks whether the registry minimum can replace the current lower endpoint.
+     *
+     * @returns `true` if the minimum can be applied; otherwise, `false`.
+     */
     private canSetMin(): boolean {
-        return this.min !== undefined && 
-               this.to !== undefined && 
-               this.min <= this.to &&
-               this.from !== this.min;
+        return this.min !== undefined
+            && this.to !== undefined
+            && this.min <= this.to
+            && this.from !== this.min;
     }
 
+    /**
+     * Checks whether the registry maximum can replace the current upper endpoint.
+     *
+     * @returns `true` if the maximum can be applied; otherwise, `false`.
+     */
     private canSetMax(): boolean {
-        return this.max !== undefined && 
-               this.from !== undefined && 
-               this.max >= this.from &&
-               this.to !== this.max;
+        return this.max !== undefined
+            && this.from !== undefined
+            && this.max >= this.from
+            && this.to !== this.max;
     }
 
+    /**
+     * Moves the lower endpoint by one configured step and applies the rounded
+     * value when valid.
+     *
+     * @param direction The direction in which to move the endpoint.
+     */
     private stepFrom(direction: 'up' | 'down'): void {
         if (this.from === undefined || !this.canStepFrom(direction)) return;
-        
-        const newValue = direction === 'up' 
-            ? this.from + this.step 
+
+        const newValue = direction === 'up'
+            ? this.from + this.step
             : this.from - this.step;
-            
-        // Zaokrouhlit na 2 desetinná místa pro eliminaci floating point chyb
+
+        // Round to two decimal places to avoid floating-point precision errors.
         const roundedValue = parseFloat(newValue.toFixed(2));
         this.inputValues.from = roundedValue.toFixed(2);
         this.updateFrom(roundedValue);
     }
 
+    /**
+     * Moves the upper endpoint by one configured step and applies the rounded
+     * value when valid.
+     *
+     * @param direction The direction in which to move the endpoint.
+     */
     private stepTo(direction: 'up' | 'down'): void {
         if (this.to === undefined || !this.canStepTo(direction)) return;
-        
-        const newValue = direction === 'up' 
-            ? this.to + this.step 
+
+        const newValue = direction === 'up'
+            ? this.to + this.step
             : this.to - this.step;
-            
-        // Zaokrouhlit na 2 desetinná místa pro eliminaci floating point chyb
+
+        // Round to two decimal places to avoid floating-point precision errors.
         const roundedValue = parseFloat(newValue.toFixed(2));
         this.inputValues.to = roundedValue.toFixed(2);
         this.updateTo(roundedValue);
     }
 
+    /** Sets the lower endpoint to the registry minimum when the range permits it. */
     private setMinValue(): void {
         if (!this.canSetMin() || this.min === undefined) return;
-        
+
         this.inputValues.from = this.min.toFixed(2);
         this.updateFrom(this.min);
     }
 
+    /** Sets the upper endpoint to the registry maximum when the range permits it. */
     private setMaxValue(): void {
         if (!this.canSetMax() || this.max === undefined) return;
-        
+
         this.inputValues.to = this.max.toFixed(2);
         this.updateTo(this.max);
     }
 
+    /**
+     * Sets the increment used when stepping range endpoints.
+     *
+     * @param newStep The step size to use.
+     */
     private setStep(newStep: number): void {
         this.step = newStep;
     }
 
+    /**
+     * Rounds the selected range endpoint to the nearest valid integer and applies it.
+     *
+     * @param type The endpoint to round.
+     */
     private roundToNearestInteger(type: 'from' | 'to'): void {
         const currentValue = type === 'from' ? this.from : this.to;
         if (currentValue === undefined) return;
@@ -289,24 +439,20 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         const rounded = Math.round(currentValue);
         let safeValue = rounded;
 
-        if ( 
-            type === "from" 
-            && rounded < ( this.min! ) 
-        ) {
+        // Keep rounding inside the registry bounds when they are available.
+        if (type === "from" && rounded < this.min!) {
             safeValue = Math.ceil( currentValue );
         }
 
-        if (
-            type === "to"
-            && rounded > ( this.max! )
-        ) {
+        if (type === "to" && rounded > this.max!) {
             safeValue = Math.floor( currentValue );
         }
 
-        const isValid = type === 'from' 
+        const isValid = type === 'from'
             ? this.isValidFromValue(safeValue)
             : this.isValidToValue(safeValue);
 
+        // Update the displayed value and registry only when the rounded value is valid.
         if (isValid) {
             if (type === 'from') {
                 this.inputValues.from = safeValue.toFixed(2);
@@ -318,67 +464,94 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         }
     }
 
+    /**
+     * Returns step sizes that can move at least one current endpoint in either
+     * direction.
+     *
+     * @returns The available step sizes.
+     */
     private getAvailableSteps(): number[] {
         return this.availableSteps.filter(step => {
-            // Step je dostupný, pokud alespoň jeden z inputů může provést krok v obou směrech
+            // Keep a step if either endpoint can move up or down by that amount.
             const fromCanStep = this.from !== undefined && (
-                this.isValidFromValue(this.from + step) || 
+                this.isValidFromValue(this.from + step) ||
                 this.isValidFromValue(this.from - step)
             );
             const toCanStep = this.to !== undefined && (
-                this.isValidToValue(this.to + step) || 
+                this.isValidToValue(this.to + step) ||
                 this.isValidToValue(this.to - step)
             );
             return fromCanStep || toCanStep;
         });
     }
 
+    /**
+     * Checks whether a defined value is an integer.
+     *
+     * @param value The value to check.
+     * @returns `true` if the value is an integer; otherwise, `false`.
+     */
     private isWholeNumber(value: number | undefined): boolean {
         return value !== undefined && Math.round(value) === value;
     }
 
+    /**
+     * Parses endpoint input and clamps it to the currently valid range, falling
+     * back to the current value when input is empty or invalid.
+     *
+     * @param inputValue The text entered in the endpoint input.
+     * @param type The endpoint being validated.
+     * @returns The parsed, clamped value, or the current endpoint value.
+     */
     private getClosestValidValue(inputValue: string, type: 'from' | 'to'): number | undefined {
-        // Pokud je input prázdný nebo nevalidní, vrátíme současnou hodnotu
+        // Preserve the current endpoint for empty input.
         if (!inputValue.trim()) {
             return type === 'from' ? this.from : this.to;
         }
 
         const numValue = parseFloat(inputValue);
-        
-        // Pokud není číslo, vrátíme současnou hodnotu
+
+        // Preserve the current endpoint when the input cannot be parsed.
         if (isNaN(numValue)) {
             return type === 'from' ? this.from : this.to;
         }
 
-        // Najdeme nejbližší validní hodnotu v rozsahu
+        // Clamp the parsed value to the selected endpoint's valid bounds.
         if (type === 'from') {
             const minBound = this.min ?? Number.NEGATIVE_INFINITY;
             const maxBound = this.to ?? Number.POSITIVE_INFINITY;
-            
+
             if (numValue < minBound) return minBound;
             if (numValue > maxBound) return maxBound;
             return numValue;
         } else {
             const minBound = this.from ?? Number.NEGATIVE_INFINITY;
             const maxBound = this.max ?? Number.POSITIVE_INFINITY;
-            
+
             if (numValue < minBound) return minBound;
             if (numValue > maxBound) return maxBound;
             return numValue;
         }
     }
 
+    /**
+     * Normalizes an endpoint input on blur and applies the corrected value to
+     * the registry.
+     *
+     * @param type The endpoint whose input lost focus.
+     * @param inputValue The input text to normalize.
+     */
     private handleInputBlur(type: 'from' | 'to', inputValue: string): void {
         const correctedValue = this.getClosestValidValue(inputValue, type);
-        
+
         if (correctedValue !== undefined) {
-            // Aktualizujeme zobrazovanou hodnotu
-            this.inputValues = { 
-                ...this.inputValues, 
+            // Update the displayed text with the normalized endpoint.
+            this.inputValues = {
+                ...this.inputValues,
                 [type]: correctedValue.toFixed(2) 
             };
-            
-            // Aktualizujeme registry
+
+            // Apply the normalized endpoint to the registry.
             if (type === 'from') {
                 this.updateFrom(correctedValue);
             } else {
@@ -388,6 +561,7 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
     }
 
 
+    /** Styles the range inputs, step controls, and range preset buttons. */
     static styles?: CSSResultGroup | undefined = css`
 
         :host {
@@ -661,6 +835,15 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
     
     `;
 
+    /**
+     * Renders one range endpoint input with its step controls and interaction
+     * handlers.
+     *
+     * @param type The endpoint represented by the input.
+     * @param before Optional content rendered before the input controls.
+     * @param after Optional content rendered after the input controls.
+     * @returns The Lit template for the endpoint input.
+     */
     protected renderInput(
         type: 'from' | 'to',
         before: unknown = undefined,
@@ -697,8 +880,8 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
                     .value=${inputValue}
                     type="number"
                     step=${this.step}
-                    min=${type === 'from' ? this.min : this.from}
-                    max=${type === 'from' ? this.to : this.max}
+                    min=${ifDefined( type === 'from' ? this.min : this.from)}
+                    max=${ifDefined( type === 'from' ? this.to : this.max)}
                     @input=${(e: InputEvent) => {
                         const target = e.target as HTMLInputElement;
                         this.inputValues = { ...this.inputValues, [type]: target.value };
@@ -792,13 +975,13 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
                 ?disabled=${!this.canSetMin() && !this.canSetMax()}
             >
                 <svg width="35" height="16" viewBox="0 0 35 16" fill="none" style="display: block;" stroke-linecap="butt" stroke-linejoin="miter">
-                    <!-- Levý symbol (min) -->
+                    <!-- Minimum-bound icon. -->
                     <line x1="3" y1="2" x2="3" y2="14" stroke="currentColor" stroke-width="1"/>
                     <line x1="3" y1="8" x2="8" y2="3" stroke="currentColor" stroke-width="1"/>
                     <line x1="3" y1="8" x2="8" y2="13" stroke="currentColor" stroke-width="1"/>
-                    <!-- Spojitá čára se šipkami na koncích -->
+                    <!-- Line connecting the endpoint arrows. -->
                     <line x1="3" y1="8" x2="32" y2="8" stroke="currentColor" stroke-width="1"/>
-                    <!-- Pravý symbol (max) -->
+                    <!-- Maximum-bound icon. -->
                     <line x1="32" y1="2" x2="32" y2="14" stroke="currentColor" stroke-width="1"/>
                     <line x1="32" y1="8" x2="27" y2="3" stroke="currentColor" stroke-width="1"/>
                     <line x1="32" y1="8" x2="27" y2="13" stroke="currentColor" stroke-width="1"/>
@@ -859,4 +1042,10 @@ export class RegistryRangeForm extends AbstractRegistryConsumer {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "registry-range-form": RegistryRangeForm;
+    }
 }

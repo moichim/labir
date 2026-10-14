@@ -576,3 +576,9 @@ export class ThermalBtnElement extends AbstractThermalElement {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-btn": ThermalBtnElement;
+    }
+}

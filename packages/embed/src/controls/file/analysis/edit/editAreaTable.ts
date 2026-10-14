@@ -64,6 +64,7 @@ export class AreaEditTable extends AbstractThermalElement {
             this.maxX = analysis.file.width;
             this.maxY = analysis.file.height;
         }
+
     }
 
     protected updated(changedProperties: PropertyValues): void {
@@ -75,6 +76,7 @@ export class AreaEditTable extends AbstractThermalElement {
             if ( oldAnalysis ) {
                 oldAnalysis.onSerializableChange.delete( this.UUID );
             }
+
 
             this.analysis.onSerializableChange.set(this.UUID, (analysis) => {
                 this.top = analysis.top;
@@ -181,4 +183,10 @@ export class AreaEditTable extends AbstractThermalElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "edit-area": AreaEditTable;
+    }
 }

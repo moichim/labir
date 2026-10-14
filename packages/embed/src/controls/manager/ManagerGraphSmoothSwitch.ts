@@ -23,14 +23,20 @@ export class ManagerGraphSmoothSwitch extends AbstractManagerConsumer {
             <thermal-btn-group>
                 <thermal-btn
                     variant=${this.smooth ? "default" : "foreground"}
-                    @click=${() => this.manager.graphSmooth.setGraphSmooth(false)}
+                    @click=${() => this.managerObject.graphSmooth.setGraphSmooth(false)}
                 >${t(T.straightlines)}</thermal-btn>
                 <thermal-btn
                     variant=${this.smooth ? "foreground" : "default"}
-                    @click=${() => this.manager.graphSmooth.setGraphSmooth(true)}
+                    @click=${() => this.managerObject.graphSmooth.setGraphSmooth(true)}
                 >${t(T.smoothlines)}</thermal-btn>
             </thermal-btn-group>
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "manager-graph-smooth-switch": ManagerGraphSmoothSwitch;
+    }
 }

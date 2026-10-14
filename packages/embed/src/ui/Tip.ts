@@ -72,3 +72,9 @@ thermal-icon {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-tip": ThermalTipElement;
+    }
+}

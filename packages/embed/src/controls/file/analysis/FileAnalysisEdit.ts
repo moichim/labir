@@ -27,6 +27,7 @@ export class FileAnalisisEditDialog extends AbstractThermalElement {
             this.name = this.analysis.name;
             this.type = this.analysis.getType();
         }
+
     }
 
     updated(changedProperties: PropertyValues): void {
@@ -38,6 +39,7 @@ export class FileAnalisisEditDialog extends AbstractThermalElement {
             if ( oldAnalysis ) {
                 oldAnalysis.onSetName.delete( this.UUID );
             }
+
 
             this.analysis.onSetName.set(this.UUID, (value) => {
                 this.name = value;
@@ -81,4 +83,10 @@ export class FileAnalisisEditDialog extends AbstractThermalElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-edit": FileAnalisisEditDialog;
+    }
 }

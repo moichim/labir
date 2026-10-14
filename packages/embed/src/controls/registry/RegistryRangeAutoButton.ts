@@ -6,7 +6,7 @@ import { T } from "../../translations/Languages";
 export class RegistryRangeAutoButton extends AbstractRegistryConsumer {
 
     doAction() {
-        this.registry.range.applyAuto();
+        this.registryObject.range.applyAuto();
     }
 
     protected render(): unknown {
@@ -15,4 +15,10 @@ export class RegistryRangeAutoButton extends AbstractRegistryConsumer {
 
     
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "registry-range-auto-button": RegistryRangeAutoButton;
+    }
 }

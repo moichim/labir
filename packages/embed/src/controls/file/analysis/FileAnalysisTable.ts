@@ -7,7 +7,7 @@ import { property, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { fileAnalysisListContext } from "../../../hierarchy/controllers/FileController";
-import { interactiveAnalysisContext } from "../../../hierarchy/controllers/ManagerController";
+import { managerInteractiveAnalysesContext } from "../../../hierarchy/controllers/ManagerController";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import type { AnalysisTableMode } from "./AnalysisTableOptions";
@@ -30,7 +30,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
     @property({ attribute: "graph-activation-enabled", converter: booleanConverter(true) })
     public graphActivationEnabled: boolean = true;
 
-    @consume({ context: interactiveAnalysisContext, subscribe: true })
+    @consume({ context: managerInteractiveAnalysesContext, subscribe: true })
     @property({ converter: booleanConverter(false) })
     public interactiveanalysis: boolean = false;
 
@@ -52,6 +52,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
     protected get allowsSelection(): boolean {
         return this.selectionEnabled ?? this.interactive;
     }
+
 
     protected get allowsEdit(): boolean {
         return this.editEnabled ?? this.interactive;
@@ -246,5 +247,11 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
                 </table>
             </div>
         `;
+    }
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-table": FileAnalysisTableElement;
     }
 }

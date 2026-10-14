@@ -41,7 +41,7 @@ interface IHostProperties {
 
 export interface IElementWithManagerController extends IBaseElement, IHostProperties {}
 
-export type ManagerPaletteContext = {
+export type ManagerPaletteContextType = {
     key: AvailableThermalPalette;
     data: ThermalPaletteType;
 };
@@ -50,12 +50,12 @@ export type ManagerPaletteContext = {
 export const managerControllerContext = createContext<ManagerController>("manager-controller-context");
 
 export const managerContext = createContext<ThermalManager>("manager-instance");
-export const managerPaletteContext = createContext<ManagerPaletteContext>("manager-palette-context");
+export const managerPaletteContext = createContext<ManagerPaletteContextType>("manager-palette-context");
 export const managerAdvancedPalettesContext = createContext<boolean>("manager-advanced-palettes-context");
 export const managerSmoothContext = createContext<boolean>("manager-smooth-context");
 export const managerGraphFunctionContext = createContext<boolean>("manager-graph-function-context");
-export const toolContext = createContext<ThermalTool>("tool-context");
-export const interactiveAnalysisContext = createContext<boolean>("interactive-analysis-context");
+export const managerToolContext = createContext<ThermalTool>("manager-tool-context");
+export const managerInteractiveAnalysesContext = createContext<boolean>("manager-interactive-analysis-context");
 
 export class ManagerController extends AbstractHierarchyController<IElementWithManagerController> {
 
@@ -111,7 +111,7 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
 
     public get toolObject(): ThermalTool { return this.managerObject.tool.value; }
 
-    private readonly toolContextProvider: ContextProvider<typeof toolContext, IElementWithManagerController>;
+    private readonly toolContextProvider: ContextProvider<typeof managerToolContext, IElementWithManagerController>;
 
 
     /** Graph smoothing flag accessed from the host element */
@@ -161,7 +161,7 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         // Create the tool context provider
         this.toolContextProvider = new ContextProvider(
             this.host,
-            { context: toolContext }
+            { context: managerToolContext }
         );
 
         // Create the smooth graph context provider
@@ -295,7 +295,7 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
 
     private _paletteStringToContextValue(
         palette: AvailableThermalPalette
-    ): ManagerPaletteContext {
+    ): ManagerPaletteContextType {
 
         return {
             key: palette,

@@ -3,7 +3,10 @@
 import fs from "fs"
 import path from "path"
 import { defineConfig } from "vite"
-import htmlMinifier from 'vite-plugin-html-minifier'
+import htmlMinifier from 'vite-plugin-html-minifier';
+import { minifyCssLiteral } from '@arcmantle/vite-plugin-minify-css-literal';
+
+import minifyHTML from '@lit-labs/rollup-plugin-minify-html-literals';
 
 export default defineConfig({
     root: path.resolve("./"),
@@ -29,8 +32,30 @@ export default defineConfig({
                 entryFileNames: '[name].iife.js',
                 assetFileNames: '[name].iife.[ext]',
             },
-            
+
             plugins: [
+                // minifyHTML(),
+
+                minifyHTML(),
+                
+                
+                htmlMinifier({
+
+                    minify: {
+                        collapseWhitespace: true,
+                        keepClosingSlash: true,
+                        removeComments: true,
+                        removeRedundantAttributes: true,
+                        removeScriptTypeAttributes: true,
+                        removeStyleLinkTypeAttributes: true,
+                        removeEmptyAttributes: true,
+                        useShortDoctype: true,
+                        minifyCSS: true,
+                        minifyJS: true,
+                        minifyURLs: true,
+                    }
+
+                }),
 
                 /** After IIFE build, copy files to the packages that depend on it. */
                 {
@@ -56,7 +81,7 @@ export default defineConfig({
                         console.log("IIFE build: @labirthermal/webcomponents build copied into @labirthermal/server");
 
                     }
-                }
+                },
 
             ],
 
@@ -67,6 +92,10 @@ export default defineConfig({
     },
 
     plugins: [
+
+        // minifyHTML(),
+
+       minifyCssLiteral("error"),
 
         /** @todo This plugin does not seem to have any effect */
         htmlMinifier({
@@ -83,6 +112,7 @@ export default defineConfig({
                 minifyCSS: true,
                 minifyJS: true,
                 minifyURLs: true,
+                minifyHTML: true
             }
 
         })

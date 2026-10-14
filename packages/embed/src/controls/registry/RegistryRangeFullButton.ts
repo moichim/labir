@@ -10,15 +10,15 @@ export class RegistryRangeFullButton extends AbstractRegistryConsumer {
     protected buttonRef: Ref<HTMLElement> = createRef();
 
     doAction() {
-        this.registry.range.applyMinmax();
+        this.registryObject.range.applyMinmax();
     }
 
     mouseenter() {
 
-        if (this.registry.minmax.value !== undefined && this.registryController) {
+        if (this.registryObject.minmax.value !== undefined && this.registryController) {
             this.registryController.setHighlight({
-                from: this.registry.minmax.value.min,
-                to: this.registry.minmax.value.max
+                from: this.registryObject.minmax.value.min,
+                to: this.registryObject.minmax.value.max
             });
         }
     }
@@ -44,4 +44,10 @@ export class RegistryRangeFullButton extends AbstractRegistryConsumer {
 
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "registry-range-full-button": RegistryRangeFullButton;
+    }
 }

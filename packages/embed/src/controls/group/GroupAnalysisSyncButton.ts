@@ -16,17 +16,17 @@ export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
 
         if (this.on) {
             const id = this.UUID + "__initial";
-            this.group.files.addListener(id, value => {
+            this.groupObject.files.addListener(id, value => {
                 if (value.length > 0) {
-                    this.group.analysisSync.turnOn(value[0]);
-                    this.group.files.removeListener(id);
+                    this.groupObject.analysisSync.turnOn(value[0]);
+                    this.groupObject.files.removeListener(id);
                 }
             });
         } else {
-            this.on = this.group.analysisSync.value;
+            this.on = this.groupObject.analysisSync.value;
         }
 
-        this.group.analysisSync.addListener(this.UUID, value => {
+        this.groupObject.analysisSync.addListener(this.UUID, value => {
             this.on = value;
         });
 
@@ -36,13 +36,13 @@ export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
     }
 
     public turnOn() {
-        if (this.group.files.value.length > 0) {
-            this.group.analysisSync.turnOn(this.group.files.value[0]);
+        if (this.groupObject.files.value.length > 0) {
+            this.groupObject.analysisSync.turnOn(this.groupObject.files.value[0]);
         }
     }
 
     public turnOff() {
-        this.group.analysisSync.turnOff();
+        this.groupObject.analysisSync.turnOff();
     }
 
     public toggle() {
@@ -62,8 +62,9 @@ export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
 
         :host(:hover) {
             span {
-                
+
             }
+
         }
 
         :host([on=true]) {
@@ -119,4 +120,10 @@ export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-analysis-sync-button": GroupAnalysisSyncButton;
+    }
 }

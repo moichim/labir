@@ -82,3 +82,9 @@ export class ThermalPosterElement extends AbstractThermalElement {
 
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-loading": ThermalPosterElement;
+    }
+}

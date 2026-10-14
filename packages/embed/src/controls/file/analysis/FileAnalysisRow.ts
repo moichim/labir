@@ -57,6 +57,7 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
         if (this.hovered || this.focused) {
             this.highlightAnalysis();
         }
+
     };
 
     willUpdate(changedProperties: PropertyValues): void {
@@ -379,5 +380,11 @@ export class FileAnalysisRowElement extends AbstractThermalElement {
             ${compact ? nothing : html`<td>${dimension}</td>`}
             ${!compact && hasActions ? html`<td>${this.renderActions()}</td>` : nothing}
         `;
+    }
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-table-row": FileAnalysisRowElement;
     }
 }

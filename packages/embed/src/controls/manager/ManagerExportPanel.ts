@@ -14,7 +14,7 @@ export class ManagerExportPanel extends AbstractThermalElement {
     @consume({ context: configContext, subscribe: true })
     protected configController?: ConfigController;
 
-    
+
 
     protected renderRow(
         label: string,
@@ -49,7 +49,7 @@ export class ManagerExportPanel extends AbstractThermalElement {
         value: boolean,
         onChange: (value: boolean) => void
     ) {
-        const content = html`<input name="${key}" type="checkbox" ?checked="${value}" @input=${( event: InputEvent) => {
+        const content = html`<input name="${key}" type="checkbox" ?checked="${value}" @input=${(event: InputEvent) => {
             const target = event.target as HTMLInputElement;
             const value = target.checked;
             onChange(value);
@@ -83,7 +83,7 @@ export class ManagerExportPanel extends AbstractThermalElement {
             }}"
             ></input>`;
 
-        const help = html`<strong>${value} ${unit}</strong> (${min} - ${max} ${unit})${hint ? "<br />" + hint : "" }`;
+        const help = html`<strong>${value} ${unit}</strong> (${min} - ${max} ${unit})${hint ? "<br />" + hint : ""}`;
         const tip = this.formatTip(help);
 
         return this.renderRow(label, content, tip);
@@ -114,10 +114,12 @@ export class ManagerExportPanel extends AbstractThermalElement {
                 }
 
             }
+
+            
         
         `;
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
         if (!this.configController || !_changedProperties.has("config")) {
@@ -148,25 +150,31 @@ export class ManagerExportPanel extends AbstractThermalElement {
 
         return html`
 
-        ${this.renderGroup( t(T.exportcontent), html`
-            ${this.renderCheckbox( "pngExportAnalyses", t(T.analyses), png.analyses, value => this.configController!.setPngAnalyses(value) ) }
-            ${this.renderCheckbox( "pngExportScale", t(T.thermalscale), png.thermalScale, value => this.configController!.setPngThermalScale(value) )}
-            ${this.renderCheckbox( "pngExportFileName", t(T.exportfilenames), png.fileName, value => this.configController!.setPngFileName(value) )}
-            ${this.renderCheckbox( "pngExportFileDate", t(T.filedate), png.fileDate, value => this.configController!.setPngFileDate(value) )}
+        ${this.renderGroup(t(T.exportcontent), html`
+            ${this.renderCheckbox("pngExportAnalyses", t(T.analyses), png.analyses, value => this.configController!.setPngAnalyses(value))}
+            ${this.renderCheckbox("pngExportScale", t(T.thermalscale), png.thermalScale, value => this.configController!.setPngThermalScale(value))}
+            ${this.renderCheckbox("pngExportFileName", t(T.exportfilenames), png.fileName, value => this.configController!.setPngFileName(value))}
+            ${this.renderCheckbox("pngExportFileDate", t(T.filedate), png.fileDate, value => this.configController!.setPngFileDate(value))}
         ` )}
 
-        ${this.renderGroup( t(T.exportdimensions), html`
-            ${this.renderSlider( "pngWidth", t(T.exportimagewidth), png.width, "px", 500, 2000, 50, value => this.configController!.setPngWidth(value) )}
+        ${this.renderGroup(t(T.exportdimensions), html`
+            ${this.renderSlider("pngWidth", t(T.exportimagewidth), png.width, "px", 500, 2000, 50, value => this.configController!.setPngWidth(value))}
 
-            ${this.renderSlider( "pngFs", t(T.exportimagefontsize), png.fontSize, "px", 10, 50, 1, value => this.configController!.setPngFontSize(value) )}
+            ${this.renderSlider("pngFs", t(T.exportimagefontsize), png.fontSize, "px", 10, 50, 1, value => this.configController!.setPngFontSize(value))}
         ` )}
 
-        ${this.renderGroup( t(T.exportgroup), html`
-            ${this.renderCheckbox( "pngExportGroupName", t(T.exportgroupname), group.groupName, value => this.configController!.setGroupGroupName(value) ) }
-            ${this.renderSlider( "pngColumns", t(T.exportfilenames), group.columns, "sloupců", 1, 5, 1, value => this.configController!.setGroupColumns(value) )}
+        ${this.renderGroup(t(T.exportgroup), html`
+            ${this.renderCheckbox("pngExportGroupName", t(T.exportgroupname), group.groupName, value => this.configController!.setGroupGroupName(value))}
+            ${this.renderSlider("pngColumns", t(T.exportfilenames), group.columns, "sloupců", 1, 5, 1, value => this.configController!.setGroupColumns(value))}
         ` )}
 
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "manager-export-panel": ManagerExportPanel;
+    }
 }

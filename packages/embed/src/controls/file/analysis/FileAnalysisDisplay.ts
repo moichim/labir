@@ -32,6 +32,7 @@ export class FileAnalysisDisplayElement extends AbstractFileConsumer {
         if (this.file) {
             this.analysis = this.file.analysis.value;
         }
+
         this.bindFile();
     }
 
@@ -293,4 +294,10 @@ export class FileAnalysisDisplayElement extends AbstractFileConsumer {
 
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-display": FileAnalysisDisplayElement;
+    }
 }

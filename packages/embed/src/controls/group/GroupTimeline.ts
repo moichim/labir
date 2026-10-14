@@ -48,12 +48,12 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
 
         super.connectedCallback();
 
-        this.group.registry.batch.onBatchComplete.set(
+        this.groupObject.registry.batch.onBatchComplete.set(
             this.UUID,
             this.onRegistryBatchEnded.bind(this)
         );
 
-        this.group.files.addListener(this.UUID, (value) => {
+        this.groupObject.files.addListener(this.UUID, (value) => {
             if ( this.listener !== undefined ) {
                 clearTimeout( this.listener );
             }
@@ -62,11 +62,11 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
             }, 0 );
         });
 
-        this.group.playback.addListener(this.UUID, value => this.ms = value);
+        this.groupObject.playback.addListener(this.UUID, value => this.ms = value);
 
-        this.group.playback.onPlayingStatusChange.set(this.UUID, value => this.playing = value);
+        this.groupObject.playback.onPlayingStatusChange.set(this.UUID, value => this.playing = value);
 
-        this.group.playback.onHasAnyCallback.set(this.UUID, value => this.has = value);
+        this.groupObject.playback.onHasAnyCallback.set(this.UUID, value => this.has = value);
 
     }
 
@@ -78,8 +78,8 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
         if (_changedProperties.has("ms")) {
             if (this.ms !== undefined) {
 
-                if (this.ms !== this.group.playback.value)
-                    this.group.playback.setValueByRelativeMs(this.ms);
+                if (this.ms !== this.groupObject.playback.value)
+                    this.groupObject.playback.setValueByRelativeMs(this.ms);
 
                 if (this.indicatorRef.value) {
                     this.indicatorRef.value.style.width = this.msToPercent(this.ms) + "%";
@@ -103,7 +103,7 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
             .filter(result => {
                 if (result instanceof ThermalFileFailure)
                     return false;
-                return result.group.id === this.group.id
+                return result.group.id === this.groupObject.id
             }) as Instance[];
 
         this.instances.forEach(result => {
@@ -199,10 +199,10 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
     }
 
     protected handlePlayButtonClick() {
-        if (this.group.playback.playing) {
-            this.group.playback.stop();
+        if (this.groupObject.playback.playing) {
+            this.groupObject.playback.stop();
         } else {
-            this.group.playback.play();
+            this.groupObject.playback.play();
         }
     }
 
@@ -319,4 +319,10 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
         </div>`;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-timeline": GroupTimelineElement;
+    }
 }

@@ -10,7 +10,7 @@ import type { Ref} from "lit/directives/ref.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import type { FileControllerCurrentFrameType, FileControllerDurationContextType} from "../../hierarchy/controllers/FileController";
-import { fileDurationContext, filaMayStopContext, fileCurrentFrameContext, filePlayingContext, fileTimeCursorContext } from "../../hierarchy/controllers/FileController";
+import { fileDurationContext, fileMayStopContext, fileCurrentFrameContext, filePlayingContext, fileTimeCursorContext } from "../../hierarchy/controllers/FileController";
 import { T } from "../../translations/Languages";
 import type { Tick} from "../../utils/timelineTicks";
 import { calculateTicks, renderTicks, ticksCss } from "../../utils/timelineTicks";
@@ -29,7 +29,7 @@ export class FileTimelineElement extends AbstractFileConsumer {
     @state()
     protected duration?: FileControllerDurationContextType;
 
-    @consume({ context: filaMayStopContext, subscribe: true })
+    @consume({ context: fileMayStopContext, subscribe: true })
     @state()
     protected mayStop: boolean = true;
 
@@ -464,4 +464,10 @@ export type TimelineHighlightData = {
     fromMs: number,
     toMs: number,
     text: string
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-timeline": FileTimelineElement;
+    }
 }

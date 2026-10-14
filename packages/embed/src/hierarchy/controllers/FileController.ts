@@ -95,7 +95,7 @@ export const filePlaybackSpeedContext = createContext<PlaybackSpeeds | undefined
 export const fileRecordingContext = createContext<boolean>("file-is-recording-state");
 
 /** Exposes the current may stop state from the `FileController` */
-export const filaMayStopContext = createContext<boolean>("file-may-stop-state");
+export const fileMayStopContext = createContext<boolean>("file-may-stop-state");
 
 /** Exposes the array of current analyses from the `FileController` */
 export const fileAnalysisListContext = createContext<AbstractAnalysis[]>("file-analysis-list");
@@ -105,6 +105,11 @@ export const fileAnalysisListContext = createContext<AbstractAnalysis[]>("file-a
 /** Unified properties of an analysis attribute of the host webcomponent */
 const ANALYSIS_STATE_DECLARATION: PropertyDeclaration = { type: String, reflect: true };
 
+/** The `FileController` is responsible for managing the state and interactions related to a file within the hierarchy. 
+ * 
+ * @author Jan Jáchim <jachim@zcu.cz>
+ * @module @labirthermal/webcomponents
+*/
 export class FileController extends AbstractHierarchyController<IElementWithFileController> {
 
 
@@ -190,7 +195,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     private fileRecordingContextProvider: ContextProvider<typeof fileRecordingContext, IElementWithFileController>;
 
-    private fileMayStopContextProvider: ContextProvider<typeof filaMayStopContext, IElementWithFileController>;
+    private fileMayStopContextProvider: ContextProvider<typeof fileMayStopContext, IElementWithFileController>;
 
     private fileAnalysesContextProvider: ContextProvider<typeof fileAnalysisListContext, IElementWithFileController>;
 
@@ -273,7 +278,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
         this.fileMayStopContextProvider = new ContextProvider(
             this.host,
-            { context: filaMayStopContext }
+            { context: fileMayStopContext }
         );
 
         this.fileAnalysesContextProvider = new ContextProvider(

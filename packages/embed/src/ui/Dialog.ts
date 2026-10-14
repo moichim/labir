@@ -244,3 +244,9 @@ export class ThermalDialogElement extends LitElement {
     }
 
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-dialog": ThermalDialogElement;
+    }
+}
