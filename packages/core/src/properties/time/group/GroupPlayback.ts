@@ -1,4 +1,4 @@
-import { Instance } from "../../../file/instance";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../../hierarchy/ThermalGroup";
 import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
@@ -28,7 +28,7 @@ export class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
     }
     public readonly onHasAnyCallback = new CallbacksManager<(value: boolean) => void>
     protected recalculateHasAnyPlayback(
-        instances: Instance[]
+        instances: ThermalFileInstance[]
     ) {
         let temporaryHas = false;
 
@@ -80,7 +80,7 @@ export class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
     }
     public readonly onDurationChanged = new CallbacksManager<(value: number | undefined) => void>
     protected recalculateDuration(
-        instances: Instance[]
+        instances: ThermalFileInstance[]
     ) {
         let temporaryDuration = 0;
 
@@ -114,7 +114,7 @@ export class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
             results => {
 
                 // Filter only affected items
-                const instances = results.filter(res => res instanceof Instance) as Instance[];
+                const instances = results.filter(res => res instanceof ThermalFileInstance) as ThermalFileInstance[];
 
                 // Update local attributes
                 this.recalculateDuration(instances);

@@ -1,4 +1,4 @@
-import { Instance } from "../../../../file/instance";
+import { ThermalFileInstance } from "../../../../file/ThermalFileInstance";
 import { AreaAnalysisData, PointAnalysisData } from "../../../../loading/workers/parsers/structure";
 import { AnalysisGraph } from "../../data/graphs/AnalysisGraph";
 import { CallbacksManager } from "../../../callbacksManager";
@@ -358,7 +358,7 @@ export abstract class AbstractAnalysis {
 
     public constructor(
         public readonly key: string,
-        public readonly file: Instance,
+        public readonly file: ThermalFileInstance,
         initialColor: string
     ) {
 

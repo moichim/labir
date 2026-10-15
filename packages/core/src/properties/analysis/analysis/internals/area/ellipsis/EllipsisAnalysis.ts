@@ -1,4 +1,4 @@
-import { Instance } from "../../../../../../file/instance";
+import { ThermalFileInstance } from "../../../../../../file/ThermalFileInstance";
 import { AreaAnalysisData } from "../../../../../../loading/workers/parsers/structure";
 import { AbstractArea } from "../AbstractArea";
 import { AbstractAreaAnalysis } from "../AbstractAreaAnalysis";
@@ -14,7 +14,7 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
     public static startAddingAtPoint(
         key: string,
         color: string,
-        file: Instance,
+        file: ThermalFileInstance,
         top: number,
         left: number
     ): EllipsisAnalysis {
@@ -37,7 +37,7 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
     public static build(
         key: string,
         color: string,
-        file: Instance,
+        file: ThermalFileInstance,
         _top: number,
         _left: number,
         _right: number,

@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../../../devserver/node/scaffold';
-import { Instance } from '../../../../file/instance';
+import { ThermalFileInstance } from '../../../../file/ThermalFileInstance';
 import { AbstractAreaAnalysis } from './area/AbstractAreaAnalysis';
 
 const left = 10;
@@ -12,15 +12,15 @@ const bottom = 100;
 const width = right - left;
 const height = bottom - top;
 
-const getRectAnalysis = (name: string, instance: Instance) => {
+const getRectAnalysis = (name: string, instance: ThermalFileInstance) => {
     return instance.analysis.layers.placeRectAt(name, top, left, right, bottom);
 }
 
-const getEllipsisAnalysis = (name: string, instance: Instance) => {
+const getEllipsisAnalysis = (name: string, instance: ThermalFileInstance) => {
     return instance.analysis.layers.placeEllipsisAt(name, top, left, right, bottom);
 }
 
-const getPointAnalysis = (name: string, instance: Instance) => {
+const getPointAnalysis = (name: string, instance: ThermalFileInstance) => {
     return instance.analysis.layers.placePointAt(name, top, left);
 }
 

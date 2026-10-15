@@ -1,9 +1,8 @@
 import * as workerpool from "workerpool";
-import * as zip from "zip-slim";
-import { zip as zip$1 } from "zip-slim";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { addDays, addHours, addMonths, addYears, endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, formatISO9075, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import domtoimage from "dom-to-image";
+import { zip } from "zip-slim";
 //#region package.json
 var version = "1.3.4";
 //#endregion
@@ -5158,15 +5157,15 @@ var FilePngExport = class FilePngExport extends AbstractPngExport {
 	}
 };
 //#endregion
-//#region src/file/instance.ts
+//#region src/file/ThermalFileInstance.ts
 /**
 * An instance of the loaded file
 * 
-* Holds DOM, displays the canvas, 
-* handles playback and do all important 
-* stuff.
+* Holds DOM, displays the canvas, handles playback and do all important stuff.
+* 
+* Is necessarily tied to a `ThermalGroup` object and is based on a `ThermalFileReader`.
 */
-var Instance = class Instance extends AbstractThermalFile {
+var ThermalFileInstance = class ThermalFileInstance extends AbstractThermalFile {
 	group;
 	reader;
 	firstFrame;
@@ -5247,7 +5246,7 @@ var Instance = class Instance extends AbstractThermalFile {
 		return [];
 	}
 	static fromService(group, service, baseInfo, firstFrame) {
-		return new Instance(group, service, baseInfo, firstFrame).buildInternalProperties();
+		return new ThermalFileInstance(group, service, baseInfo, firstFrame).buildInternalProperties();
 	}
 	recieveCursorPosition(position) {
 		if (position !== void 0) {
@@ -5391,7 +5390,7 @@ var ThermalFileReader = class extends AbstractFileResult {
 		const reader = this.cloneForInstance();
 		const baseInfo = await reader.baseInfo();
 		const firstFrame = await reader.frameData(0);
-		const instance = Instance.fromService(group, reader, baseInfo, firstFrame);
+		const instance = ThermalFileInstance.fromService(group, reader, baseInfo, firstFrame);
 		if (doAdd) group.files.addFile(instance);
 		return instance;
 	}
@@ -6574,7 +6573,7 @@ var GroupExportPNG = class GroupExportPNG extends AbstractPngExport {
 		batch.onResolve.set("temporary export listener", (results) => {
 			const width = 100 / params.columns;
 			results.forEach((result) => {
-				if (result instanceof Instance) this.buildInstance(result, width, params.showAnalysis, params.showFileDate, params.showFileName, params.fontSize.toString() + "px");
+				if (result instanceof ThermalFileInstance) this.buildInstance(result, width, params.showAnalysis, params.showFileDate, params.showFileName, params.fontSize.toString() + "px");
 			});
 			setTimeout(() => {
 				if (this.container) this.downloadImage(params.fileName, this.container);
@@ -6875,7 +6874,7 @@ var FilesState = class extends AbstractProperty {
 		} else return this._map.get(file.thermalUrl);
 	}
 	removeFile(file) {
-		const entry = file instanceof Instance ? file : this.map.get(file);
+		const entry = file instanceof ThermalFileInstance ? file : this.map.get(file);
 		if (entry) {
 			entry.unmountFromDom();
 			this.value = this.value.filter((e) => e.thermalUrl !== entry.thermalUrl);
@@ -6901,7 +6900,7 @@ var FilesState = class extends AbstractProperty {
 			const file = new File([blob], instance.fileName, { type: "application/octet-stream" });
 			files.push(file);
 		});
-		zip$1(files, true).then((result) => {
+		zip(files, true).then((result) => {
 			const link = document.createElement("a");
 			link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
 			link.href = URL.createObjectURL(result);
@@ -7044,7 +7043,7 @@ var GroupPlayback = class extends AbstractProperty {
 		* the maximal duration
 		*/
 		this.parent.registry.batch.onBatchComplete.set(this.UUID, (results) => {
-			const instances = results.filter((res) => res instanceof Instance);
+			const instances = results.filter((res) => res instanceof ThermalFileInstance);
 			this.recalculateDuration(instances);
 			this.recalculateHasAnyPlayback(instances);
 			const newVal = this.value;
@@ -8015,6 +8014,6 @@ var TimeRound = class TimeRound extends TimeUtilsBase {
 //#region src/index.ts
 console.info("@labirthermal/core", version);
 //#endregion
-export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, AnalysisGraph, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, Instance, PointAnalysis, RectangleAnalysis, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalPalettes, ThermalRegistry, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty, zip };
+export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, AnalysisGraph, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, ThermalFileInstance as Instance, PointAnalysis, RectangleAnalysis, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalPalettes, ThermalRegistry, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
 
 //# sourceMappingURL=index.mjs.map

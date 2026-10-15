@@ -1,4 +1,4 @@
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { IParserObject, ParsedFileBaseInfo } from "./parsers/structure";
@@ -172,7 +172,7 @@ export class ThermalFileReader extends AbstractFileResult {
     public async createInstance(
         group: ThermalGroup,
         doAdd: boolean = true
-    ): Promise<Instance> {
+    ): Promise<ThermalFileInstance> {
 
         // Create a new instance with copied buffer
         const reader = this.cloneForInstance();
@@ -192,7 +192,7 @@ export class ThermalFileReader extends AbstractFileResult {
         const firstFrame = await reader.frameData( 0 );
 
         // Create the instance with the necessary information
-        const instance = Instance.fromService( group, reader, baseInfo, firstFrame );
+        const instance = ThermalFileInstance.fromService( group, reader, baseInfo, firstFrame );
 
         // Register the instance to the group
         if (doAdd) {

@@ -1,8 +1,8 @@
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { AbstractProperty } from "../abstractProperty";
 import { ThermalCursorPositionOrUndefined } from "./CursorPositionDrive";
 
-export class CursorValueDrive extends AbstractProperty<number|undefined, Instance>{
+export class CursorValueDrive extends AbstractProperty<number|undefined, ThermalFileInstance>{
 
 
 

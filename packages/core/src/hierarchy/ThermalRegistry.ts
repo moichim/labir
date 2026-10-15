@@ -1,5 +1,5 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { Instance } from "../file/instance";
+import { ThermalFileInstance } from "../file/ThermalFileInstance";
 import { FilterContainer } from "../filters/FilterContainer";
 import { BatchLoader } from "../loading/batch/BatchLoader";
 import { ThermalFileRequest } from "../loading/ThermalRequest";
@@ -20,7 +20,7 @@ export type ThermalRegistryOptions = {
 }
 
 export type BatchLoadingCallback = ( 
-    result: ThermalFileFailure|Instance 
+    result: ThermalFileFailure|ThermalFileInstance 
 ) => Promise< void >;
 
 /**
@@ -67,7 +67,7 @@ export class ThermalRegistry extends BaseStructureObject {
         this.groups.value.forEach(fn);
     }
 
-    public forEveryInstance(fn: (instance: Instance) => void) {
+    public forEveryInstance(fn: (instance: ThermalFileInstance) => void) {
         this.forEveryGroup(group => group.files.forEveryInstance(fn));
     }
 
@@ -289,7 +289,7 @@ export class ThermalRegistry extends BaseStructureObject {
     public readonly filters = new FilterContainer( this );
 
     public getInstances() {
-        let instances: Instance[] = [];
+        let instances: ThermalFileInstance[] = [];
 
         this.groups.value.forEach( group => {
             instances = [ 

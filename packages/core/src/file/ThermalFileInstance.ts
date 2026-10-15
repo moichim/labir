@@ -20,11 +20,11 @@ import { FilePngExport } from "./utils/FilePngExport";
 /**
  * An instance of the loaded file
  * 
- * Holds DOM, displays the canvas, 
- * handles playback and do all important 
- * stuff.
+ * Holds DOM, displays the canvas, handles playback and do all important stuff.
+ * 
+ * Is necessarily tied to a `ThermalGroup` object and is based on a `ThermalFileReader`.
  */
-export class Instance extends AbstractThermalFile {
+export class ThermalFileInstance extends AbstractThermalFile {
 
     declare public timeline: TimelineDrive;
     declare public analysis: AnalysisDrive;
@@ -185,10 +185,10 @@ export class Instance extends AbstractThermalFile {
         service: ThermalFileReader,
         baseInfo: ParsedFileBaseInfo,
         firstFrame: ParsedFileFrame,
-    ): Instance {
+    ): ThermalFileInstance {
 
 
-        const instance = new Instance(
+        const instance = new ThermalFileInstance(
             group,
             service,
             baseInfo,

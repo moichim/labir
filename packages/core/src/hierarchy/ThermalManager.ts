@@ -1,7 +1,7 @@
 import * as workerpool from "workerpool";
 import Pool from "workerpool/types/Pool";
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { Instance } from "../file/instance";
+import { ThermalFileInstance } from "../file/ThermalFileInstance";
 import { AvailableThermalPalette } from "../properties/scale/palettes";
 import { FilterContainer } from "../filters/FilterContainer";
 import { FilesService } from "../loading/workers/FilesService";
@@ -103,7 +103,7 @@ export class ThermalManager extends BaseStructureObject {
 
     public getInstances() {
 
-        let instances: Instance[] = [];
+        let instances: ThermalFileInstance[] = [];
 
         this.forEveryRegistry( registry => {
             instances = [
@@ -116,7 +116,7 @@ export class ThermalManager extends BaseStructureObject {
     }
 
 
-    public forEveryInstance( callback: (instance: Instance) => void ): void {
+    public forEveryInstance( callback: (instance: ThermalFileInstance) => void ): void {
         this.forEveryRegistry( registry => registry.forEveryInstance( callback ) );
     }
 

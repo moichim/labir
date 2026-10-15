@@ -1,4 +1,4 @@
-import { Instance } from "../../../../file/instance";
+import { ThermalFileInstance } from "../../../../file/ThermalFileInstance";
 import { AbstractPoint } from "../../analysis/internals/AbstractPoint";
 import { AbstractTool, ITool } from "./AbstractTool";
 
@@ -76,7 +76,7 @@ export class EditTool extends AbstractTool implements ITool {
     }
 
 
-    public getLabelValue(x: number, y: number, file: Instance): string {
+    public getLabelValue(x: number, y: number, file: ThermalFileInstance): string {
 
         const temperature = file.getTemperatureAtPoint(x, y);
 

@@ -1,4 +1,4 @@
-import { Instance } from "../../../file/instance";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
 import { AbstractProperty } from "../../abstractProperty";
 import { AbstractAnalysis } from "../analysis/internals/AbstractAnalysis";
 import { AbstractAreaAnalysis } from "../analysis/internals/area/AbstractAreaAnalysis";
@@ -16,7 +16,7 @@ export type SlotInitialisationValue = number | true | false;
  * 
  * Value of this property is a map.
  */
-export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Instance> {
+export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, ThermalFileInstance> {
 
     public static readonly MAX_SLOTS = 7;
 

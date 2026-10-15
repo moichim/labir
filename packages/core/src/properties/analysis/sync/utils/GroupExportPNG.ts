@@ -1,4 +1,4 @@
-import { Instance } from "../../../../file/instance";
+import { ThermalFileInstance } from "../../../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../../../hierarchy/ThermalGroup";
 import { Batch } from "../../../../loading/batch/Batch";
 import { AbstractExportProps, AbstractExportTypeMandatory, AbstractPngExport } from "../../../../utils/AbstractPngExport";
@@ -81,7 +81,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
 
 
     protected buildInstance(
-        instance: Instance,
+        instance: ThermalFileInstance,
         width: number,
         showAnalysis: boolean,
         showFileDate: boolean,
@@ -135,7 +135,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
         // Build the image
         if (this.list) {
 
-            const reference: Instance | undefined = this.group.files.value.find( i => i.fileName === instance.fileName );
+            const reference: ThermalFileInstance | undefined = this.group.files.value.find( i => i.fileName === instance.fileName );
 
             if ( reference ) {
 
@@ -370,7 +370,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
 
             // Build all recieved instances
             results.forEach(result => {
-                if (result instanceof Instance) {
+                if (result instanceof ThermalFileInstance) {
                     this.buildInstance(
                         result, 
                         width, 

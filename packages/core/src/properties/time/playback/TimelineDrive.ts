@@ -1,6 +1,6 @@
 
 import { format } from "date-fns";
-import { Instance } from "../../../file/instance";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
 import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../../loading/workers/parsers/structure";
 import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
@@ -32,9 +32,9 @@ export const playbackSpeed = {
 export type PlaybackSpeeds = keyof typeof playbackSpeed;
 
 /** Stores the frames and the time pointer which is in the miliseconds */
-export class TimelineDrive extends AbstractProperty<number, Instance> {
+export class TimelineDrive extends AbstractProperty<number, ThermalFileInstance> {
 
-    declare public readonly parent: Instance;
+    declare public readonly parent: ThermalFileInstance;
 
 
     protected _playbackSpeed: PlaybackSpeeds = 1;
@@ -105,7 +105,7 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
     }
 
     public constructor(
-        parent: Instance,
+        parent: ThermalFileInstance,
         initial: number,
         public readonly steps: ParsedFileBaseInfo["timeline"],
         initialFrameData: ParsedFileFrame

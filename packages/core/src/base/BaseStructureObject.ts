@@ -1,9 +1,9 @@
-import { Instance } from "../file/instance";
+import { ThermalFileInstance } from "../file/ThermalFileInstance";
 
 
 export abstract class BaseStructureObject {
 
-    public abstract getInstances(): Instance[];
+    public abstract getInstances(): ThermalFileInstance[];
 
     public abstract destroySelfAndBelow(): void;
 

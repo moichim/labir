@@ -1,4 +1,3 @@
-import * as zip from "zip-slim";
 import Pool from "workerpool/types/Pool";
 //#region src/properties/callbacksManager.d.ts
 /**
@@ -401,7 +400,7 @@ declare enum PointPlacement {
 declare abstract class AbstractPoint {
   readonly key: string;
   readonly analysis: AbstractAnalysis;
-  get file(): Instance;
+  get file(): ThermalFileInstance;
   private pxX;
   private _x;
   get x(): number;
@@ -498,7 +497,7 @@ declare abstract class AbstractPoint {
 type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 export declare abstract class AbstractAnalysis {
   readonly key: string;
-  readonly file: Instance;
+  readonly file: ThermalFileInstance;
   /** Return a string representing the type of the analysis */
   abstract getType(): string;
   private static LISTENER_PROMOTE_PROPERTIES_CHANGE;
@@ -605,7 +604,7 @@ export declare abstract class AbstractAnalysis {
   protected _name: string;
   get name(): string;
   setName(value: string): void;
-  constructor(key: string, file: Instance, initialColor: string);
+  constructor(key: string, file: ThermalFileInstance, initialColor: string);
   /** Recieved a serialized representation of the analysis, parse it and change the internal state accordingly */
   abstract recievedSerialized(input: string): void;
   /** Convert the internal state of an analysis to a serialized representation */
@@ -706,7 +705,7 @@ type SlotInitialisationValue = number | true | false;
  *
  * Value of this property is a map.
  */
-declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Instance> {
+declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, ThermalFileInstance> {
   static readonly MAX_SLOTS = 7;
   /** Callback called every time any slot changes */
   readonly onAnySlotChanged: CallbacksManager<() => void>;
@@ -805,8 +804,8 @@ export declare abstract class AbstractTool {
   /** Actions taken upon tool deactivation */
   deactivate(): void;
   protected abstract onDeactivate(): void;
-  abstract onCanvasClick(x: number, y: number, file: Instance): void;
-  abstract onCanvasLeave(file: Instance): void;
+  abstract onCanvasClick(x: number, y: number, file: ThermalFileInstance): void;
+  abstract onCanvasLeave(file: ThermalFileInstance): void;
   /** Whenever a point is entered by the mouse */
   abstract onPointEnter(point: AbstractPoint): void;
   /** Whenever the mouse leaves the point */
@@ -818,7 +817,7 @@ export declare abstract class AbstractTool {
   /** Whenever a point is ended clicking */
   abstract onPointUp(point: AbstractPoint): void;
   /** Assamble the cursor label at the given point */
-  abstract getLabelValue(x: number, y: number, file: Instance): string;
+  abstract getLabelValue(x: number, y: number, file: ThermalFileInstance): string;
 }
 //#endregion
 //#region src/properties/analysis/tool/ToolDrive.d.ts
@@ -858,7 +857,7 @@ declare class AnalysisPointsAccessor {
 }
 //#endregion
 //#region src/properties/analysis/analysis/AnalysisDrive.d.ts
-declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance> {
+declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], ThermalFileInstance> {
   readonly layers: AnalysisLayersStorage;
   readonly points: AnalysisPointsAccessor;
   protected listener?: HTMLElement;
@@ -987,7 +986,7 @@ export declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     width: number;
     height: number;
   };
-  protected constructor(key: string, color: string, file: Instance, top: number, left: number, width?: number, height?: number);
+  protected constructor(key: string, color: string, file: ThermalFileInstance, top: number, left: number, width?: number, height?: number);
   setColorCallback(value: string): void;
   protected calculateBounds(): void;
   protected addPoint(role: string, top: number, left: number, placementX: PointPlacement, placementY: PointPlacement): CornerPoint;
@@ -1019,8 +1018,8 @@ export declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 //#region src/properties/analysis/analysis/internals/area/ellipsis/EllipsisAnalysis.d.ts
 export declare class EllipsisAnalysis extends AbstractAreaAnalysis {
   getType(): string;
-  static startAddingAtPoint(key: string, color: string, file: Instance, top: number, left: number): EllipsisAnalysis;
-  static build(key: string, color: string, file: Instance, _top: number, _left: number, _right: number, _bottom: number): EllipsisAnalysis;
+  static startAddingAtPoint(key: string, color: string, file: ThermalFileInstance, top: number, left: number): EllipsisAnalysis;
+  static build(key: string, color: string, file: ThermalFileInstance, _top: number, _left: number, _right: number, _bottom: number): EllipsisAnalysis;
   protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea;
   protected getValues(): {
     min?: number;
@@ -1070,8 +1069,8 @@ export declare class PointAnalysis extends AbstractAnalysis {
   readonly center: PointPoint;
   protected _graph: AnalysisGraph | undefined;
   get graph(): AnalysisGraph;
-  static addAtPoint(key: string, color: string, file: Instance, top: number, left: number): PointAnalysis;
-  protected constructor(key: string, color: string, file: Instance, top: number, left: number);
+  static addAtPoint(key: string, color: string, file: ThermalFileInstance, top: number, left: number): PointAnalysis;
+  protected constructor(key: string, color: string, file: ThermalFileInstance, top: number, left: number);
   setColorCallback(value: string): void;
   isWithin(x: number, y: number): boolean;
   protected getValues(): {
@@ -1103,8 +1102,8 @@ export declare class PointAnalysis extends AbstractAnalysis {
 //#region src/properties/analysis/analysis/internals/area/rectangle/RectangleAnalysis.d.ts
 export declare class RectangleAnalysis extends AbstractAreaAnalysis {
   getType(): string;
-  static startAddingAtPoint(key: string, color: string, file: Instance, top: number, left: number): RectangleAnalysis;
-  static build(key: string, color: string, file: Instance, _top: number, _left: number, _right: number, _bottom: number): RectangleAnalysis;
+  static startAddingAtPoint(key: string, color: string, file: ThermalFileInstance, top: number, left: number): RectangleAnalysis;
+  static build(key: string, color: string, file: ThermalFileInstance, _top: number, _left: number, _right: number, _bottom: number): RectangleAnalysis;
   protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea;
   protected getValues(): {
     min?: number;
@@ -1255,12 +1254,12 @@ type AnalysisDataStateValue = {
   colors: string[];
 };
 /** Stores the data of all analysis. Purpose: store data for the purpose of graph. The graph data format is constructed for Google Charts webcomponent. */
-declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
+declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, ThermalFileInstance> {
   protected _hasActiveGraphs: boolean;
   get hasActiveGraphs(): boolean;
   readonly onGraphsPresence: CallbacksManager<(hasActiveGraphs: boolean) => void>;
   readonly listeners: AnalysisGraphsStorage;
-  constructor(parent: Instance);
+  constructor(parent: ThermalFileInstance);
   protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
   protected afterSetEffect(): void;
   dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
@@ -1342,7 +1341,7 @@ declare class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataO
 //#endregion
 //#region src/properties/abstractProperty.d.ts
 /** All available property data types */
-type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap | ThermalGraphGroupDataOrUndefined;
+type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | ThermalFileInstance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap | ThermalGraphGroupDataOrUndefined;
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
 /**
  * A common basis for all observable properties.
@@ -1448,7 +1447,7 @@ export declare class ThermalFileFailure extends AbstractFileResult {
 declare class BatchLoader {
   readonly registry: ThermalRegistry;
   readonly onBatchStart: CallbacksManager<() => void>;
-  readonly onBatchComplete: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
+  readonly onBatchComplete: CallbacksManager<(result: (ThermalFileInstance | ThermalFileFailure)[]) => void>;
   private set;
   get numberOfBatches(): number;
   get currentOpenBatch(): Batch | undefined;
@@ -1568,7 +1567,7 @@ declare class LoadingState extends AbstractProperty<boolean, ThermalRegistry> {
 type ThermalRegistryOptions = {
   histogramResolution?: number;
 };
-type BatchLoadingCallback = (result: ThermalFileFailure | Instance) => Promise<void>;
+type BatchLoadingCallback = (result: ThermalFileFailure | ThermalFileInstance) => Promise<void>;
 /**
  * The global thermal registry
  * @todo implementing EventTarget
@@ -1585,13 +1584,13 @@ export declare class ThermalRegistry extends BaseStructureObject {
   readonly groups: GroupsState;
   /** Iterator methods */
   forEveryGroup(fn: ((group: ThermalGroup) => void)): void;
-  forEveryInstance(fn: (instance: Instance) => void): void;
+  forEveryInstance(fn: (instance: ThermalFileInstance) => void): void;
   /** Full load of the registry with multiple files @deprecated */
   loadFullMultipleFiles(files: {
     [index: string]: ThermalFileRequest[];
-  }): Promise<(false | Instance)[][]>;
+  }): Promise<(false | ThermalFileInstance)[][]>;
   /** Load the registry with only one file. @deprecated */
-  loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<ThermalFileFailure | Instance>;
+  loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<ThermalFileInstance | ThermalFileFailure>;
   private _batch?;
   get batch(): BatchLoader;
   /** @deprecated use batch member class instead */
@@ -1638,7 +1637,7 @@ export declare class ThermalRegistry extends BaseStructureObject {
    */
   readonly palette: PaletteDrive;
   readonly filters: FilterContainer;
-  getInstances(): Instance[];
+  getInstances(): ThermalFileInstance[];
 }
 type ThermalStatistics = {
   from: number;
@@ -1666,7 +1665,7 @@ export declare class Batch {
   readonly id?: string | undefined;
   private _loading;
   get loading(): boolean;
-  readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
+  readonly onResolve: CallbacksManager<(result: (ThermalFileInstance | ThermalFileFailure)[]) => void>;
   /** The current timeout fn that is being overriden by every call of the `request` method */
   private timeout?;
   /** Array of currently queued requests */
@@ -1819,7 +1818,7 @@ declare class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Gro
   /** @deprecated not needed anymore */
   protected buildHeader(): HTMLDivElement;
   protected buildList(): HTMLDivElement;
-  protected buildInstance(instance: Instance, width: number, showAnalysis: boolean, showFileDate: boolean, showFileName: boolean, fontSize: string): void;
+  protected buildInstance(instance: ThermalFileInstance, width: number, showAnalysis: boolean, showFileDate: boolean, showFileName: boolean, fontSize: string): void;
   protected onBuildDom(): void;
   protected beforeDomRemoved(): void;
   protected afterDomRemoved(): void;
@@ -1835,9 +1834,9 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
   static readonly LISTENER_KEY = "__analysis__sync";
   /** Event that is triggered every time a slot is synchronised & serialised */
   readonly onSlotSync: CallbacksManager<(serialized: string | undefined, slot: number) => void>;
-  protected _currentPointer?: Instance;
+  protected _currentPointer?: ThermalFileInstance;
   /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
-  get currentPointer(): Instance | undefined;
+  get currentPointer(): ThermalFileInstance | undefined;
   protected _csv?: GroupExportCSV;
   /** Lazy loaded CSV export object. */
   get csv(): GroupExportCSV;
@@ -1849,7 +1848,7 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
   /**
    * Enable analysis synchronisation for the group
    */
-  turnOn(instance: Instance): void;
+  turnOn(instance: ThermalFileInstance): void;
   /**
    * Disable the synchronisation analysis for the group
    */
@@ -1861,7 +1860,7 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
   /**
    * Set a given instance as the current ponter for synchronisation
    */
-  setCurrentPointer(instance?: Instance): void;
+  setCurrentPointer(instance?: ThermalFileInstance): void;
   private getSlotListeners;
   /**
    * Interrnal method to start synchronisation of a given slot number on the given instance
@@ -1874,15 +1873,15 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
   /**
    * Deletes a slot and analysis from all instances in the group except the provided one
    */
-  deleteSlot(instance: Instance, slotNumber: number): void;
+  deleteSlot(instance: ThermalFileInstance, slotNumber: number): void;
   /**
    * A method for synchronising selection state across all instances of the group
    */
-  setSlotSelected(instance: Instance, slotNumber: number): void;
+  setSlotSelected(instance: ThermalFileInstance, slotNumber: number): void;
   /**
    * A method for synchronising selection state across all instances of the group
    */
-  setSlotDeselected(instance: Instance, slotNumber: number): void;
+  setSlotDeselected(instance: ThermalFileInstance, slotNumber: number): void;
   /**
    * Execute a given function on all files slot
    */
@@ -1897,13 +1896,13 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
    *
    * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
    */
-  copyOneSlotToAllInstances(instance: Instance, slotNumber: number): void;
+  copyOneSlotToAllInstances(instance: ThermalFileInstance, slotNumber: number): void;
   /**
    * Copy the entire analysis state from one instance to all other instances in the group
    *
    * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
    */
-  copyAllSlotsToAllInstances(instance: Instance): void;
+  copyAllSlotsToAllInstances(instance: ThermalFileInstance): void;
 }
 //#endregion
 //#region src/loading/workers/ThermalFileReader.d.ts
@@ -1952,22 +1951,22 @@ export declare class ThermalFileReader extends AbstractFileResult {
    * This method does not emit anything - it only changes the array buffer.
    */
   applyFilters(filters: AbstractFilter[]): Promise<ThermalFileReader>;
-  createInstance(group: ThermalGroup, doAdd?: boolean): Promise<Instance>;
+  createInstance(group: ThermalGroup, doAdd?: boolean): Promise<ThermalFileInstance>;
 }
 //#endregion
 //#region src/properties/lists/filesState.d.ts
-declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
-  protected _map: Map<string, Instance>;
-  get map(): Map<string, Instance>;
-  protected validate(value: Instance[]): Instance[];
+declare class FilesState extends AbstractProperty<ThermalFileInstance[], ThermalGroup> {
+  protected _map: Map<string, ThermalFileInstance>;
+  get map(): Map<string, ThermalFileInstance>;
+  protected validate(value: ThermalFileInstance[]): ThermalFileInstance[];
   /** Array of all files sorted by timestamp from the earliest to the latest. */
-  get sortedFiles(): Instance[];
+  get sortedFiles(): ThermalFileInstance[];
   /**
    * Whenever the instances change, recreate the index
    */
-  protected afterSetEffect(value: Instance[]): void;
-  addFile(file: Instance): Instance;
-  removeFile(file: string | Instance): void;
+  protected afterSetEffect(value: ThermalFileInstance[]): void;
+  addFile(file: ThermalFileInstance): ThermalFileInstance;
+  removeFile(file: string | ThermalFileInstance): void;
   /**
    * Removal
    */
@@ -1975,7 +1974,7 @@ declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
   /**
    * Iteration through all instances
    */
-  forEveryInstance(fn: ((instance: Instance) => void)): void;
+  forEveryInstance(fn: ((instance: ThermalFileInstance) => void)): void;
   downloadAllFiles(): void;
   batchCreateInstances(readers: ThermalFileReader[], doReplaceExisting?: boolean): Promise<void>;
 }
@@ -2005,7 +2004,7 @@ declare class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
   get hasAnyPlayback(): boolean;
   protected set hasAnyPlayback(value: boolean);
   readonly onHasAnyCallback: CallbacksManager<(value: boolean) => void>;
-  protected recalculateHasAnyPlayback(instances: Instance[]): void;
+  protected recalculateHasAnyPlayback(instances: ThermalFileInstance[]): void;
   protected _playing: boolean;
   get playing(): boolean;
   protected set playing(value: boolean);
@@ -2025,7 +2024,7 @@ declare class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
   get duration(): number;
   protected set duration(value: number);
   readonly onDurationChanged: CallbacksManager<(value: number | undefined) => void>;
-  protected recalculateDuration(instances: Instance[]): void;
+  protected recalculateDuration(instances: ThermalFileInstance[]): void;
   protected UUID: string;
   constructor(parent: ThermalGroup, initial: number);
   protected validate(value: number): number;
@@ -2082,18 +2081,18 @@ export declare class ThermalGroup extends BaseStructureObject {
   protected _playback?: GroupPlayback;
   get playback(): GroupPlayback;
   /** Iteration */
-  forEveryInstance: (fn: ((instance: Instance) => void)) => void;
+  forEveryInstance: (fn: ((instance: ThermalFileInstance) => void)) => void;
   /** Remove all instances, reset the minmax */
   destroySelfAndBelow(): void;
   removeAllChildren(): void;
   reset(): void;
   readonly filters: FilterContainer;
-  getInstances(): Instance[];
+  getInstances(): ThermalFileInstance[];
   startBatch(id: string): Batch;
 }
 //#endregion
 //#region src/properties/cursor/CursorValueDrive.d.ts
-declare class CursorValueDrive extends AbstractProperty<number | undefined, Instance> {
+declare class CursorValueDrive extends AbstractProperty<number | undefined, ThermalFileInstance> {
   protected validate(value: number | undefined): number | undefined;
   protected afterSetEffect(): void;
   recalculateFromCursor(position: ThermalCursorPositionOrUndefined): void;
@@ -2156,9 +2155,9 @@ export declare const playbackSpeed: {
 };
 type PlaybackSpeeds = keyof typeof playbackSpeed;
 /** Stores the frames and the time pointer which is in the miliseconds */
-declare class TimelineDrive extends AbstractProperty<number, Instance> {
+declare class TimelineDrive extends AbstractProperty<number, ThermalFileInstance> {
   readonly steps: ParsedFileBaseInfo["timeline"];
-  readonly parent: Instance;
+  readonly parent: ThermalFileInstance;
   protected _playbackSpeed: PlaybackSpeeds;
   get playbackSpeed(): PlaybackSpeeds;
   set playbackSpeed(value: PlaybackSpeeds);
@@ -2191,7 +2190,7 @@ declare class TimelineDrive extends AbstractProperty<number, Instance> {
   get currentFrameIndex(): number;
   get currentTime(): string;
   get frames(): ParsedTimelineFrame[];
-  constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
+  constructor(parent: ThermalFileInstance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
   init(): void;
   protected afterSetEffect(): void;
   protected validate(value: number): number;
@@ -2219,8 +2218,8 @@ declare class TimelineDrive extends AbstractProperty<number, Instance> {
 }
 //#endregion
 //#region src/properties/time/recording/RecordingDrive.d.ts
-declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
-  parent: Instance;
+declare class RecordingDrive extends AbstractProperty<boolean, ThermalFileInstance> {
+  parent: ThermalFileInstance;
   protected stream?: MediaStream;
   protected recorder?: MediaRecorder;
   protected mimeType?: string;
@@ -2556,10 +2555,10 @@ declare class FilterContainer {
 type FileExportPngParams = AbstractExportProps;
 type FileExportPngParamsMandatory = AbstractExportTypeMandatory;
 declare class FilePngExport extends AbstractPngExport<FileExportPngParams, FileExportPngParamsMandatory> {
-  readonly file: Instance;
+  readonly file: ThermalFileInstance;
   static DEFAULT_PARAMS: FileExportPngParamsMandatory;
-  protected localInstance?: Instance;
-  constructor(file: Instance);
+  protected localInstance?: ThermalFileInstance;
+  constructor(file: ThermalFileInstance);
   protected onBuildDom(): void;
   protected beforeDomRemoved(): void;
   protected afterDomRemoved(): void;
@@ -2567,15 +2566,15 @@ declare class FilePngExport extends AbstractPngExport<FileExportPngParams, FileE
   protected onDownload(params: AbstractExportTypeMandatory): Promise<void>;
 }
 //#endregion
-//#region src/file/instance.d.ts
+//#region src/file/ThermalFileInstance.d.ts
 /**
  * An instance of the loaded file
  *
- * Holds DOM, displays the canvas,
- * handles playback and do all important
- * stuff.
+ * Holds DOM, displays the canvas, handles playback and do all important stuff.
+ *
+ * Is necessarily tied to a `ThermalGroup` object and is based on a `ThermalFileReader`.
  */
-export declare class Instance extends AbstractThermalFile {
+declare class ThermalFileInstance extends AbstractThermalFile {
   readonly group: ThermalGroup;
   readonly reader: ThermalFileReader;
   readonly firstFrame: ParsedFileFrame;
@@ -2597,7 +2596,7 @@ export declare class Instance extends AbstractThermalFile {
   protected formatId(thermalUrl: string): string;
   protected onSetPixels(): void;
   getPixelsForHistogram(): number[];
-  static fromService(group: ThermalGroup, service: ThermalFileReader, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame): Instance;
+  static fromService(group: ThermalGroup, service: ThermalFileReader, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame): ThermalFileInstance;
   recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
   getInstances(): this[];
   getAllApplicableFilters(): AbstractFilter[];
@@ -2606,7 +2605,7 @@ export declare class Instance extends AbstractThermalFile {
 //#endregion
 //#region src/base/BaseStructureObject.d.ts
 declare abstract class BaseStructureObject {
-  abstract getInstances(): Instance[];
+  abstract getInstances(): ThermalFileInstance[];
   abstract destroySelfAndBelow(): void;
   abstract removeAllChildren(): void;
   abstract reset(): void;
@@ -2651,8 +2650,8 @@ export declare class ThermalManager extends BaseStructureObject {
   addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
   removeRegistry(id: string): void;
   readonly filters: FilterContainer;
-  getInstances(): Instance[];
-  forEveryInstance(callback: (instance: Instance) => void): void;
+  getInstances(): ThermalFileInstance[];
+  forEveryInstance(callback: (instance: ThermalFileInstance) => void): void;
   destroySelfAndBelow(): void;
   removeAllChildren(): void;
   reset(): void;
@@ -2681,13 +2680,13 @@ export declare class AddEllipsisTool extends AbstractAddTool implements ITool {
   protected onActivate(): void;
   protected onDeactivate(): void;
   onCanvasLeave(): void;
-  onCanvasClick(top: number, left: number, file: Instance): void;
+  onCanvasClick(top: number, left: number, file: ThermalFileInstance): void;
   onPointDown(): void;
   onPointUp(point: AbstractPoint): void;
   onPointMove(point: AbstractPoint, top: number, left: number): void;
   onPointLeave(): void;
   onPointEnter(): void;
-  getLabelValue: (x: number, y: number, file: Instance) => string;
+  getLabelValue: (x: number, y: number, file: ThermalFileInstance) => string;
 }
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/rectangle/AddRectangleTool.d.ts
@@ -2699,13 +2698,13 @@ export declare class AddRectangleTool extends AbstractAddTool implements ITool {
   protected onActivate(): void;
   protected onDeactivate(): void;
   onCanvasLeave(): void;
-  onCanvasClick(x: number, y: number, file: Instance): void;
+  onCanvasClick(x: number, y: number, file: ThermalFileInstance): void;
   onPointDown(): void;
   onPointUp(point: AbstractPoint): void;
   onPointMove(point: AbstractPoint, top: number, left: number): void;
   onPointLeave(): void;
   onPointEnter(): void;
-  getLabelValue: (x: number, y: number, file: Instance) => string;
+  getLabelValue: (x: number, y: number, file: ThermalFileInstance) => string;
 }
 //#endregion
 //#region src/properties/analysis/tool/internals/EditTool.d.ts
@@ -2723,7 +2722,7 @@ export declare class EditTool extends AbstractTool implements ITool {
   onPointMove(point: AbstractPoint, top: number, left: number): void;
   onPointDown(point: AbstractPoint): void;
   onPointUp(point: AbstractPoint): void;
-  getLabelValue(x: number, y: number, file: Instance): string;
+  getLabelValue(x: number, y: number, file: ThermalFileInstance): string;
 }
 //#endregion
 //#region src/properties/analysis/tool/internals/InspectTool.d.ts
@@ -2741,7 +2740,7 @@ export declare class InspectTool extends AbstractTool implements ITool {
   onPointMove(): void;
   onPointDown(): void;
   onPointUp(): void;
-  getLabelValue: (x: number, y: number, file: Instance) => string;
+  getLabelValue: (x: number, y: number, file: ThermalFileInstance) => string;
 }
 //#endregion
 //#region src/utils/time/base.d.ts
@@ -2790,5 +2789,5 @@ export declare class TimeRound extends TimeUtilsBase {
   static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 //#endregion
-export { type AnalysisDataStateValue, type AvailableThermalPalette, type ParsedTimelineFrame, type PlaybackSpeeds, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, type ThermalRangeOrUndefined, type ThermalRegistryOptions, type ThermalTool, zip };
+export { type AnalysisDataStateValue, type AvailableThermalPalette, ThermalFileInstance as Instance, type ParsedTimelineFrame, type PlaybackSpeeds, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, type ThermalRangeOrUndefined, type ThermalRegistryOptions, type ThermalTool };
 //# sourceMappingURL=index.d.mts.map

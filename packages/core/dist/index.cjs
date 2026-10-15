@@ -23,12 +23,11 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 //#endregion
 let workerpool = require("workerpool");
 workerpool = __toESM(workerpool, 1);
-let zip_slim = require("zip-slim");
-zip_slim = __toESM(zip_slim, 1);
 let export_to_csv = require("export-to-csv");
 let date_fns = require("date-fns");
 let dom_to_image = require("dom-to-image");
 dom_to_image = __toESM(dom_to_image, 1);
+let zip_slim = require("zip-slim");
 //#region package.json
 var version = "1.3.4";
 //#endregion
@@ -5183,15 +5182,15 @@ var FilePngExport = class FilePngExport extends AbstractPngExport {
 	}
 };
 //#endregion
-//#region src/file/instance.ts
+//#region src/file/ThermalFileInstance.ts
 /**
 * An instance of the loaded file
 * 
-* Holds DOM, displays the canvas, 
-* handles playback and do all important 
-* stuff.
+* Holds DOM, displays the canvas, handles playback and do all important stuff.
+* 
+* Is necessarily tied to a `ThermalGroup` object and is based on a `ThermalFileReader`.
 */
-var Instance = class Instance extends AbstractThermalFile {
+var ThermalFileInstance = class ThermalFileInstance extends AbstractThermalFile {
 	group;
 	reader;
 	firstFrame;
@@ -5272,7 +5271,7 @@ var Instance = class Instance extends AbstractThermalFile {
 		return [];
 	}
 	static fromService(group, service, baseInfo, firstFrame) {
-		return new Instance(group, service, baseInfo, firstFrame).buildInternalProperties();
+		return new ThermalFileInstance(group, service, baseInfo, firstFrame).buildInternalProperties();
 	}
 	recieveCursorPosition(position) {
 		if (position !== void 0) {
@@ -5416,7 +5415,7 @@ var ThermalFileReader = class extends AbstractFileResult {
 		const reader = this.cloneForInstance();
 		const baseInfo = await reader.baseInfo();
 		const firstFrame = await reader.frameData(0);
-		const instance = Instance.fromService(group, reader, baseInfo, firstFrame);
+		const instance = ThermalFileInstance.fromService(group, reader, baseInfo, firstFrame);
 		if (doAdd) group.files.addFile(instance);
 		return instance;
 	}
@@ -6599,7 +6598,7 @@ var GroupExportPNG = class GroupExportPNG extends AbstractPngExport {
 		batch.onResolve.set("temporary export listener", (results) => {
 			const width = 100 / params.columns;
 			results.forEach((result) => {
-				if (result instanceof Instance) this.buildInstance(result, width, params.showAnalysis, params.showFileDate, params.showFileName, params.fontSize.toString() + "px");
+				if (result instanceof ThermalFileInstance) this.buildInstance(result, width, params.showAnalysis, params.showFileDate, params.showFileName, params.fontSize.toString() + "px");
 			});
 			setTimeout(() => {
 				if (this.container) this.downloadImage(params.fileName, this.container);
@@ -6900,7 +6899,7 @@ var FilesState = class extends AbstractProperty {
 		} else return this._map.get(file.thermalUrl);
 	}
 	removeFile(file) {
-		const entry = file instanceof Instance ? file : this.map.get(file);
+		const entry = file instanceof ThermalFileInstance ? file : this.map.get(file);
 		if (entry) {
 			entry.unmountFromDom();
 			this.value = this.value.filter((e) => e.thermalUrl !== entry.thermalUrl);
@@ -7069,7 +7068,7 @@ var GroupPlayback = class extends AbstractProperty {
 		* the maximal duration
 		*/
 		this.parent.registry.batch.onBatchComplete.set(this.UUID, (results) => {
-			const instances = results.filter((res) => res instanceof Instance);
+			const instances = results.filter((res) => res instanceof ThermalFileInstance);
 			this.recalculateDuration(instances);
 			this.recalculateHasAnyPlayback(instances);
 			const newVal = this.value;
@@ -8054,7 +8053,7 @@ exports.DropinElementListener = DropinElementListener;
 exports.EditTool = EditTool;
 exports.EllipsisAnalysis = EllipsisAnalysis;
 exports.InspectTool = InspectTool;
-exports.Instance = Instance;
+exports.Instance = ThermalFileInstance;
 exports.PointAnalysis = PointAnalysis;
 exports.RectangleAnalysis = RectangleAnalysis;
 exports.ThermalFileFailure = ThermalFileFailure;
@@ -8071,11 +8070,5 @@ exports.getPool = getPool;
 exports.playbackSpeed = playbackSpeed;
 exports.supportedFileTypes = supportedFileTypes;
 exports.supportedFileTypesInputProperty = supportedFileTypesInputProperty;
-Object.defineProperty(exports, "zip", {
-	enumerable: true,
-	get: function() {
-		return zip_slim;
-	}
-});
 
 //# sourceMappingURL=index.cjs.map

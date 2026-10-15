@@ -1,11 +1,11 @@
-import { Instance } from "../../../file/instance";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
 import { AbstractProperty } from "../../abstractProperty";
 import { AbstractAnalysis } from "./internals/AbstractAnalysis";
 import { AnalysisLayersStorage } from "./storage/AnalysisLayersStorage";
 import { AnalysisPointsAccessor } from "./storage/AnalysisPointsAccessor";
 
 
-export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance> {
+export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], ThermalFileInstance> {
 
     public readonly layers = new AnalysisLayersStorage(this);
     public readonly points = new AnalysisPointsAccessor(this);

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
 import { ThermalFileReader } from './ThermalFileReader';
 import { FilesService } from './FilesService';
-import { Instance } from '../../file/instance';
+import { ThermalFileInstance } from '../../file/ThermalFileInstance';
 import { getPool } from '../../utils/pool';
 
 enum IDS {
@@ -29,7 +29,7 @@ describe( "reloading", () => {
 
         const instance = await file.createInstance( group );
 
-        expect( instance ).toBeInstanceOf( Instance );
+        expect( instance ).toBeInstanceOf( ThermalFileInstance );
 
 
 

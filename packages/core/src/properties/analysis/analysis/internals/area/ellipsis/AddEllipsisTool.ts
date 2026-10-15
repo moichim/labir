@@ -1,4 +1,4 @@
-import { Instance } from "../../../../../../file/instance";
+import { ThermalFileInstance } from "../../../../../../file/ThermalFileInstance";
 import { AnalysisSlotsState } from "../../../../slots/AnalysisSlotsDrive";
 import { ITool } from "../../../../tool/internals/AbstractTool";
 import { AbstractAddTool } from "../../AbstractAddTool";
@@ -32,7 +32,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
     public onCanvasLeave(): void { }
 
 
-    public onCanvasClick(top: number, left: number, file: Instance): void {
+    public onCanvasClick(top: number, left: number, file: ThermalFileInstance): void {
         const newRect = file.analysis.layers.createEllipsisFrom(top, left);
         newRect.setSelected(true);
     }
@@ -80,7 +80,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
     public onPointEnter(): void { }
 
 
-    getLabelValue = (x: number, y: number, file: Instance): string => {
+    getLabelValue = (x: number, y: number, file: ThermalFileInstance): string => {
         const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
         return `X:${x}<br />Y:${y}<br />${temperature}`;
     }

@@ -1,5 +1,5 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { Instance } from "../file/instance";
+import { ThermalFileInstance } from "../file/ThermalFileInstance";
 import { FilterContainer } from "../filters/FilterContainer";
 import { Batch } from "../loading/batch/Batch";
 import { AnalysisGroupGraph } from "../properties/analysis/group/AnalysisGroupGraph";
@@ -64,7 +64,7 @@ export class ThermalGroup extends BaseStructureObject {
 
 
     /** Iteration */
-    public forEveryInstance = ( fn: ( (instance: Instance) => void ) ) => {
+    public forEveryInstance = ( fn: ( (instance: ThermalFileInstance) => void ) ) => {
         this.files.value.forEach( instance => fn( instance ) );
     }
 

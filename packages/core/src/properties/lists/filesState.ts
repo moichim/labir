@@ -1,4 +1,4 @@
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
 import { AbstractProperty } from "../abstractProperty";
@@ -6,17 +6,17 @@ import { AbstractProperty } from "../abstractProperty";
 import { zip } from "zip-slim"
 
 export type InstanceFetchCallback = (
-    instance?: Instance,
+    instance?: ThermalFileInstance,
     errors?: string
 ) => void;
 
-export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
+export class FilesState extends AbstractProperty<ThermalFileInstance[], ThermalGroup> {
 
-    protected _map: Map<string, Instance> = new Map<string, Instance>();
+    protected _map: Map<string, ThermalFileInstance> = new Map<string, ThermalFileInstance>();
 
     public get map() { return this._map; }
 
-    protected validate(value: Instance[]): Instance[] {
+    protected validate(value: ThermalFileInstance[]): ThermalFileInstance[] {
         return value.sort( (a,b) => a.timestamp - b.timestamp );
     }
 
@@ -28,7 +28,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     /**
      * Whenever the instances change, recreate the index
      */
-    protected afterSetEffect(value: Instance[]) {
+    protected afterSetEffect(value: ThermalFileInstance[]) {
 
         // Clear the index
         this.map.clear();
@@ -37,7 +37,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         value.forEach(instance => this._map.set(instance.thermalUrl, instance));
     }
 
-    public addFile(file: Instance) {
+    public addFile(file: ThermalFileInstance) {
 
         if (!this._map.has(file.thermalUrl)) {
             this.value = [...this.value, file];
@@ -48,8 +48,8 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         
     }
 
-    public removeFile(file: string | Instance) {
-        const entry = file instanceof Instance
+    public removeFile(file: string | ThermalFileInstance) {
+        const entry = file instanceof ThermalFileInstance
             ? file
             : this.map.get(file);
         if (entry) {
@@ -73,7 +73,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     /** 
      * Iteration through all instances
      */
-    public forEveryInstance(fn: ((instance: Instance) => void
+    public forEveryInstance(fn: ((instance: ThermalFileInstance) => void
     )) {
         this.value.forEach(instance => fn(instance));
     }

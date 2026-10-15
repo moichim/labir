@@ -1,5 +1,5 @@
 import { download, generateCsv, mkConfig } from "export-to-csv";
-import { Instance } from "../../../file/instance";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
 import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisGraphsStorage } from "./graphs/AnalysisGraphsStorage";
@@ -31,7 +31,7 @@ type AnalysisExtractDefinition = [
 ]
 
 /** Stores the data of all analysis. Purpose: store data for the purpose of graph. The graph data format is constructed for Google Charts webcomponent. */
-export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
+export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, ThermalFileInstance> {
 
     protected _hasActiveGraphs: boolean = false;
     public get hasActiveGraphs() {
@@ -44,7 +44,7 @@ export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, 
 
     public readonly listeners = new AnalysisGraphsStorage(this)
 
-    public constructor(parent: Instance) {
+    public constructor(parent: ThermalFileInstance) {
         super(parent, { values: [[]], colors: [] });
 
         this.listeners.onOutput.set("__mirror_output_to_local_state", async (output) => {

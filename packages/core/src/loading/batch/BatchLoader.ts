@@ -1,4 +1,4 @@
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { BatchLoadingCallback, ThermalRegistry } from "../../hierarchy/ThermalRegistry";
 import { CallbacksManager } from "../../properties/callbacksManager";
@@ -15,7 +15,7 @@ export class BatchLoader {
 
     public readonly onBatchStart = new CallbacksManager< () => void >();
 
-    public readonly onBatchComplete = new CallbacksManager< ( result: (Instance|ThermalFileFailure)[] ) => void >();
+    public readonly onBatchComplete = new CallbacksManager< ( result: (ThermalFileInstance|ThermalFileFailure)[] ) => void >();
 
     private set: Set<Batch> = new Set;
 

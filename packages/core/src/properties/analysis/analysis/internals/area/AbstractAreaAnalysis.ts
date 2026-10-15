@@ -1,4 +1,4 @@
-import { Instance } from "../../../../../file/instance";
+import { ThermalFileInstance } from "../../../../../file/ThermalFileInstance";
 import { AnalysisGraph } from "../../../data/graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { PointPlacement } from "../AbstractPoint";
@@ -71,7 +71,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     protected constructor(
         key: string,
         color: string,
-        file: Instance,
+        file: ThermalFileInstance,
         top: number,
         left: number,
         width?: number,

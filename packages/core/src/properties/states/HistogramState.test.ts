@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, expect, test, vi } from "vitest";
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalManager } from "../../hierarchy/ThermalManager";
 import { LrcParser } from "../../loading/workers/parsers/lrc/LrcParser";
 import { getPool } from "../../utils/pool";
@@ -34,7 +34,7 @@ describe("HistogramState", async () => {
             max: 20,
             draw: () => undefined,
             reader
-        } as Instance;
+        } as ThermalFileInstance;
         sourceGroup.files.addFile(sourceInstance);
 
         const sourceHistogramReady = new Promise<void>(resolve => {
@@ -49,7 +49,7 @@ describe("HistogramState", async () => {
         const copiedInstance = {
             ...sourceInstance,
             reader
-        } as Instance;
+        } as ThermalFileInstance;
         copyGroup.files.addFile(copiedInstance);
 
         const copyHistogramReady = new Promise<void>(resolve => {

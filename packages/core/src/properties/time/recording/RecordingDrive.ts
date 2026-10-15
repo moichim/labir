@@ -1,10 +1,10 @@
-import { Instance } from "../../../file/instance";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
 import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 
-export class RecordingDrive extends AbstractProperty<boolean, Instance> {
+export class RecordingDrive extends AbstractProperty<boolean, ThermalFileInstance> {
 
-    declare parent: Instance;
+    declare parent: ThermalFileInstance;
 
     protected stream?: MediaStream;
     protected recorder?: MediaRecorder;

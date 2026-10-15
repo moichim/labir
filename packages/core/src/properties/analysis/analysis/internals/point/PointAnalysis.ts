@@ -1,4 +1,4 @@
-import { Instance } from "../../../../../file/instance";
+import { ThermalFileInstance } from "../../../../../file/ThermalFileInstance";
 import { PointAnalysisData } from "../../../../../loading/workers/parsers/structure";
 import { AnalysisGraph } from "../../../data/graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
@@ -25,7 +25,7 @@ export class PointAnalysis extends AbstractAnalysis {
     public static addAtPoint(
         key: string,
         color: string,
-        file: Instance,
+        file: ThermalFileInstance,
         top: number,
         left: number
     ): PointAnalysis {
@@ -43,7 +43,7 @@ export class PointAnalysis extends AbstractAnalysis {
     protected constructor(
         key: string,
         color: string,
-        file: Instance,
+        file: ThermalFileInstance,
         top: number,
         left: number
     ) {

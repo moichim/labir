@@ -1,4 +1,4 @@
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalRegistry, ThermalStatistics } from "../../hierarchy/ThermalRegistry";
 import { LrcParser } from "../../loading/workers/parsers/lrc/LrcParser";
 import { AbstractProperty } from "../abstractProperty";
@@ -72,7 +72,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
             return state;
 
-        }, [] as Instance[] );
+        }, [] as ThermalFileInstance[] );
 
         if (
             allFiles.length === 0
