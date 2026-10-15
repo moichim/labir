@@ -1006,7 +1006,7 @@ export declare const filePlayingContext: {
 };
 /** Exposes the current playback speed value from `FileController`. */
 export declare const filePlaybackSpeedContext: {
-  __context__: 1 | 2 | 3 | 5 | 0.5 | 10 | undefined;
+  __context__: 1 | 2 | 0.5 | 3 | 5 | 10 | undefined;
 };
 /** Exposes the current recording state from `FileController`. */
 export declare const fileRecordingContext: {
@@ -1032,7 +1032,7 @@ export declare class FileController extends AbstractHierarchyController<IElement
   get fileObject(): ThermalFileInstance | undefined;
   get failure(): ThermalFileFailure | undefined;
   get ms(): number;
-  get playbackSpeed(): 1 | 2 | 3 | 5 | 0.5 | 10;
+  get playbackSpeed(): 1 | 2 | 0.5 | 3 | 5 | 10;
   get analysis1(): string | undefined;
   get analysis2(): string | undefined;
   get analysis3(): string | undefined;

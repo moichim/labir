@@ -9,4 +9,7 @@ export default defineConfig({
   clean: true,
   target: false,
   sourcemap: true,
+  deps: {
+    onlyBundle: false
+  }
 });
