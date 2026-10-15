@@ -1,5 +1,5 @@
 import { ThermalRegistry } from "../../hierarchy/ThermalRegistry";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { AbstractProperty } from "../abstractProperty";
 import { CallbacksManager } from "../callbacksManager";
 
 
@@ -10,13 +10,6 @@ type ThermalRangeType = {
 }
 /** The range or undefined */
 export type ThermalRangeOrUndefined = ThermalRangeType | undefined;
-
-
-
-/** An object with range should implement it in a unified way */
-export interface IWithRange extends IBaseProperty {
-    range: RangeDriver
-}
 
 /** Handles the thermal range display. */
 export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {

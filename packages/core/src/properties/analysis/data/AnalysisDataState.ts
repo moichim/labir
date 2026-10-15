@@ -1,13 +1,9 @@
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { Instance } from "../../../file/instance";
-import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisGraphsStorage } from "./graphs/AnalysisGraphsStorage";
 import { PointAnalysis } from "../analysis/internals/point/PointAnalysis";
-
-export interface IWithAnalysisDataState extends IBaseProperty {
-    analysisDataState: AnalysisDataState
-}
 
 type HeaderRow = string[];
 export type ValueRow = [Date, ...number[]];

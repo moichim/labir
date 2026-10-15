@@ -1,15 +1,10 @@
 import { Instance } from "../../../file/instance";
 import { ThermalGroup } from "../../../hierarchy/ThermalGroup";
-import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisSlot } from "../slots/AnalysisSlot";
 import { GroupExportCSV } from "./utils/GroupExportCSV";
 import { GroupExportPNG } from "./utils/GroupExportPNG";
-
-export interface IWithAnalysisSync extends IBaseProperty {
-    analysisSync: AnalysisSyncDrive
-}
-
 
 export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 

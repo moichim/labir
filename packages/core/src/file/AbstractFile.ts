@@ -7,7 +7,6 @@ import { CursorValueDrive } from "../properties/cursor/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { InstanceDOM } from "./dom/InstanceDom";
-import { IFileInstance } from "./IFileInstance";
 import { AbstractRenderer } from "./render/AbstractRenderer";
 import { CpuRenderer } from "./render/CpuRenderer";
 import { GlRenderer } from "./render/GlRenderer";
@@ -20,7 +19,7 @@ import { FileMeta } from "./utils/FileMeta";
  * 
  * Most drivers are set in individual implementations, not here.
  */
-export abstract class AbstractFile extends BaseStructureObject implements IFileInstance {
+export abstract class AbstractFile extends BaseStructureObject {
 
     private _label?: string;
     public get label(): string | undefined {

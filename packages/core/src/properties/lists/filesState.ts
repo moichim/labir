@@ -1,14 +1,9 @@
 import { Instance } from "../../file/instance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { AbstractProperty } from "../abstractProperty";
 
 import { zip } from "zip-slim"
-
-
-export interface IWithFiles extends IBaseProperty {
-    files: FilesState
-}
 
 export type InstanceFetchCallback = (
     instance?: Instance,

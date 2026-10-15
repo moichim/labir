@@ -2,15 +2,9 @@
 import { format } from "date-fns";
 import { Instance } from "../../../file/instance";
 import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../../loading/workers/parsers/structure";
-import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { FrameBuffer } from "./internals/FrameBuffer";
-
-export interface IWithTimeline extends IBaseProperty {
-    timeline: TimelineDrive
-}
-
-
 
 type FramesMap = Map<number, ParsedTimelineFrame>
 

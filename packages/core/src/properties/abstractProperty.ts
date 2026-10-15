@@ -10,6 +10,7 @@ import { AbstractTool } from "./analysis/tool/internals/AbstractTool";
 import { AnalysisSlotsMap } from "./analysis/slots/AnalysisSlotsDrive";
 import { ThermalGraphGroupDataOrUndefined } from "./analysis/group/AnalysisGroupGraph";
 import { CallbacksManager } from "./callbacksManager";
+import { BaseStructureObject } from "../base/BaseStructureObject";
 
 /** All available property data types */
 type PropertyListenersTypes = boolean
@@ -29,8 +30,6 @@ type PropertyListenersTypes = boolean
 
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 
-export interface IBaseProperty { } //eslint-disable-line @typescript-eslint/no-empty-interface
-
 
 /** 
  * A common basis for all observable properties.
@@ -48,7 +47,7 @@ export interface IBaseProperty { } //eslint-disable-line @typescript-eslint/no-e
  */
 export abstract class AbstractProperty<
     ValueType extends PropertyListenersTypes,
-    ParentType extends IBaseProperty
+    ParentType extends BaseStructureObject
 > {
 
     private _value: ValueType;

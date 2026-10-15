@@ -4,14 +4,15 @@ import { zip as zip$1 } from "zip-slim";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { addDays, addHours, addMonths, addYears, endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, formatISO9075, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import domtoimage from "dom-to-image";
-
 //#region package.json
 var version = "1.3.4";
-
 //#endregion
 //#region src/properties/callbacksManager.ts
 /**
-* Manage callbacks on optional property values
+* Manage callbacks on optional property values. All callbacks are registered with a unique key. This class extends the built-in `Map` class.
+* 
+* @module @labirthermal/core
+* @author Jan Jáchim <jachim@zcu.cz>
 */
 var CallbacksManager = class extends Map {
 	/** An alternative to built-in `set` method enabling one-shot callbacks */
@@ -22,11 +23,11 @@ var CallbacksManager = class extends Map {
 		}));
 		else this.set(key, callback);
 	}
+	/** Trigger all registered callbacks wuth the provided value(s) */
 	call(...args) {
 		this.forEach((fn) => fn(...args));
 	}
 };
-
 //#endregion
 //#region src/utils/pool.ts
 let pool = void 0;
@@ -34,14 +35,13 @@ const getPool = async () => {
 	if (!pool) pool = workerpool.pool({ maxWorkers: 6 });
 	return pool;
 };
-
 //#endregion
 //#region src/base/BaseStructureObject.ts
 var BaseStructureObject = class {};
-
 //#endregion
 //#region src/filters/FilterContainer.ts
 var FilterContainer = class {
+	parent;
 	_layers = [];
 	get layers() {
 		return this._layers;
@@ -77,27 +77,18 @@ var FilterContainer = class {
 	}
 	getFiltersArray() {}
 };
-
 //#endregion
 //#region src/loading/workers/errors.ts
-/** Codes of errors */
-let FileErrors = /* @__PURE__ */ function(FileErrors) {
-	FileErrors[FileErrors["NOT_SPECIFIED"] = 0] = "NOT_SPECIFIED";
-	FileErrors[FileErrors["FILE_NOT_FOUND"] = 1] = "FILE_NOT_FOUND";
-	FileErrors[FileErrors["MIME_UNSUPPORTED"] = 2] = "MIME_UNSUPPORTED";
-	FileErrors[FileErrors["PARSING_ERROR"] = 3] = "PARSING_ERROR";
-	FileErrors[FileErrors["OUT_OF_MEMORY"] = 4] = "OUT_OF_MEMORY";
-	return FileErrors;
-}({});
 /** The error that is thrown anytime something happens during the loading */
 var FileLoadingError = class extends Error {
+	code;
+	url;
 	constructor(code, url, message) {
 		super(message);
 		this.code = code;
 		this.url = url;
 	}
 };
-
 //#endregion
 //#region src/loading/workers/parsers/lrc/jobs/baseInfo.ts
 const baseInfo = async (entireFileBuffer) => {
@@ -198,7 +189,6 @@ const baseInfo = async (entireFileBuffer) => {
 		averageReflectedKelvins: sums.reflectedKelvins / frames.length
 	};
 };
-
 //#endregion
 //#region src/loading/workers/parsers/lrc/jobs/getFrameSubset.ts
 const getFrameSubset = (entireFileBuffer, index) => {
@@ -255,7 +245,6 @@ const frameData = async (frameSubset, dataType) => {
 		pixels
 	};
 };
-
 //#endregion
 //#region src/loading/workers/parsers/lrc/jobs/pointAnalysisData.ts
 const pointAnalysisData = async (entireFileBuffer, x, y) => {
@@ -309,7 +298,6 @@ const pointAnalysisData = async (entireFileBuffer, x, y) => {
 	}
 	return output;
 };
-
 //#endregion
 //#region src/loading/workers/parsers/lrc/jobs/rectAnalysisData.ts
 const rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
@@ -386,7 +374,6 @@ const rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) =>
 	}
 	return output;
 };
-
 //#endregion
 //#region src/loading/workers/parsers/lrc/jobs/histogram.ts
 const registryHistogram = async (files) => {
@@ -473,7 +460,6 @@ const registryHistogram = async (files) => {
 		};
 	});
 };
-
 //#endregion
 //#region src/loading/workers/parsers/lrc/jobs/is.ts
 const is = (data, url) => {
@@ -481,7 +467,6 @@ const is = (data, url) => {
 	const hasCorrectSignature = new TextDecoder().decode(data.slice(0, 4)) === "LRC\0";
 	return hasCorrectExtension && hasCorrectSignature;
 };
-
 //#endregion
 //#region src/loading/workers/parsers/lrc/jobs/ellipsisAnalysisData.ts
 const ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
@@ -565,10 +550,7 @@ const ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height
 	}
 	return output;
 };
-
-//#endregion
-//#region src/loading/workers/parsers/lrc/LrcParser.ts
-const parser = {
+const LrcParser = Object.freeze({
 	name: "LabIR Recording (.lrc)",
 	description: "Radiometric data developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
 	devices: [{
@@ -596,16 +578,10 @@ const parser = {
 	pointAnalysisData,
 	rectAnalysisData,
 	ellipsisAnalysisData
-};
-const LrcParser = Object.freeze(parser);
-
+});
 //#endregion
 //#region src/loading/workers/parsers/index.ts
-/**
-* Add parser objects here to register them
-*/
-const parsers = { LrcParser };
-const parsersArray = Object.values(parsers);
+const parsersArray = Object.values({ LrcParser });
 /**
 * Determines the parser and returns it (throws error if none found)
 * 
@@ -613,7 +589,7 @@ const parsersArray = Object.values(parsers);
 */
 const determineParser = (buffer, url) => {
 	const parser = parsersArray.find((parser) => parser.is(buffer, url));
-	if (parser === void 0) throw new FileLoadingError(FileErrors.MIME_UNSUPPORTED, url, `No parser found for '${url}'.`);
+	if (parser === void 0) throw new FileLoadingError(2, url, `No parser found for '${url}'.`);
 	return parser;
 };
 /**
@@ -624,11 +600,12 @@ const determineParser = (buffer, url) => {
 */
 const supportedFileTypes = parsersArray.map((parser) => parser.extensions);
 const supportedFileTypesInputProperty = supportedFileTypes.map((type) => type.map((entry) => entry.minme + ", ." + entry.extension).join(", ")).join(", ");
-
 //#endregion
 //#region src/loading/workers/dropin/DropinElementManager.ts
 /** Turn any element into a dropzone! */
 var DropinElementListener = class DropinElementListener {
+	service;
+	element;
 	_hover = false;
 	get hover() {
 		return this._hover;
@@ -762,20 +739,22 @@ var DropinElementListener = class DropinElementListener {
 		}
 	}
 };
-
 //#endregion
 //#region src/loading/workers/AbstractFileResult.ts
 /** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
 var AbstractFileResult = class {
+	thermalUrl;
+	visibleUrl;
 	constructor(thermalUrl, visibleUrl) {
 		this.thermalUrl = thermalUrl;
 		this.visibleUrl = visibleUrl;
 	}
 };
-
 //#endregion
 //#region src/loading/workers/ThermalFileFailure.ts
 var ThermalFileFailure = class ThermalFileFailure extends AbstractFileResult {
+	code;
+	message;
 	constructor(thermalUrl, code, message) {
 		super(thermalUrl);
 		this.code = code;
@@ -788,7 +767,6 @@ var ThermalFileFailure = class ThermalFileFailure extends AbstractFileResult {
 		return new ThermalFileFailure(error.url, error.code, error.message);
 	}
 };
-
 //#endregion
 //#region src/properties/abstractProperty.ts
 /** 
@@ -806,6 +784,8 @@ var ThermalFileFailure = class ThermalFileFailure extends AbstractFileResult {
 * @internal 
 */
 var AbstractProperty = class {
+	parent;
+	_initial;
 	_value;
 	/** Get the current value @readonly */
 	get value() {
@@ -862,10 +842,11 @@ var AbstractProperty = class {
 		this._listeners.call(this._value);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/AbstractAnalysis.ts
 var AbstractAnalysis = class AbstractAnalysis {
+	key;
+	file;
 	static LISTENER_PROMOTE_PROPERTIES_CHANGE = "pch";
 	static LISTENER_PROMOTE_MOVE_RESIZE = "mvr";
 	static SERIALISABLE_CHANGES = [
@@ -1115,11 +1096,11 @@ var AbstractAnalysis = class AbstractAnalysis {
 			this.recalculateValues();
 			/** @todo */
 			this.onSerializableChange.call(this, "moveOrResize");
-			this.layers.onAnySerializableChange.call(this, AnalysisSerializableChangeType.RESIZEMOVE);
+			this.layers.onAnySerializableChange.call(this, 2);
 		});
 		/** Anytime a seralisable change occures, promote it to the layers storage */
 		this.onSerializableChange.set(AbstractAnalysis.LISTENER_PROMOTE_PROPERTIES_CHANGE, (analysis, change) => {
-			if (AbstractAnalysis.SERIALISABLE_CHANGES.includes(change)) this.layers.onAnySerializableChange.call(analysis, AnalysisSerializableChangeType.PROPERTIESCHANGE);
+			if (AbstractAnalysis.SERIALISABLE_CHANGES.includes(change)) this.layers.onAnySerializableChange.call(analysis, 3);
 		});
 	}
 	/**
@@ -1216,16 +1197,11 @@ var AbstractAnalysis = class AbstractAnalysis {
 		this.onValues.call(this.min, this.max, this.avg);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/AbstractPoint.ts
-let PointPlacement = /* @__PURE__ */ function(PointPlacement) {
-	PointPlacement[PointPlacement["START"] = 1] = "START";
-	PointPlacement[PointPlacement["MIDDLE"] = 2] = "MIDDLE";
-	PointPlacement[PointPlacement["END"] = 3] = "END";
-	return PointPlacement;
-}({});
 var AbstractPoint = class {
+	key;
+	analysis;
 	get file() {
 		return this.analysis.file;
 	}
@@ -1298,12 +1274,12 @@ var AbstractPoint = class {
 	/** Format the `left` style from given position and placement */
 	getXStyle(value, placement) {
 		const percent = this.calculatePercentageX(value);
-		const offset = placement === PointPlacement.START ? 0 : placement === PointPlacement.END ? this.pxX : this.pxX / 2;
+		const offset = placement === 1 ? 0 : placement === 3 ? this.pxX : this.pxX / 2;
 		return this.formatPositionStyle(percent, offset);
 	}
 	getYStyle(value, placement) {
 		const percent = this.calculatePercentageY(value);
-		const offset = placement === PointPlacement.START ? 0 : placement === PointPlacement.END ? this.pxY : this.pxY / 2;
+		const offset = placement === 1 ? 0 : placement === 3 ? this.pxY : this.pxY / 2;
 		return this.formatPositionStyle(percent, offset);
 	}
 	/** Convert a percentage and a offset in pixels into a CSS style string */
@@ -1423,7 +1399,6 @@ var AbstractPoint = class {
 		this.actionOnDeactivate();
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/point/PointPoint.ts
 var PointPoint = class PointPoint extends AbstractPoint {
@@ -1437,13 +1412,13 @@ var PointPoint = class PointPoint extends AbstractPoint {
 	analyzeXFromTool(value) {
 		return {
 			x: value,
-			placement: PointPlacement.MIDDLE
+			placement: 2
 		};
 	}
 	analyzeYFromTool(value) {
 		return {
 			y: value,
-			placement: PointPlacement.MIDDLE
+			placement: 2
 		};
 	}
 	sideEffectOnXFromTool() {
@@ -1453,7 +1428,7 @@ var PointPoint = class PointPoint extends AbstractPoint {
 		this.analysis.setTop(this.y);
 	}
 	constructor(key, top, left, analysis, color) {
-		super(key, top, left, analysis, color, PointPlacement.MIDDLE, PointPlacement.MIDDLE);
+		super(key, top, left, analysis, color, 2, 2);
 		this.axisX = this.buildAxisX();
 		this.axisY = this.buildAxisY();
 		this.center = this.buildCenter();
@@ -1550,7 +1525,6 @@ var PointPoint = class PointPoint extends AbstractPoint {
 		}
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/point/PointAnalysis.ts
 var PointAnalysis = class PointAnalysis extends AbstractAnalysis {
@@ -1600,11 +1574,11 @@ var PointAnalysis = class PointAnalysis extends AbstractAnalysis {
 		return 0;
 	}
 	onSetLeft(validatedValue) {
-		this.center.setXDirectly(validatedValue, PointPlacement.MIDDLE);
+		this.center.setXDirectly(validatedValue, 2);
 		this.onSerializableChange.call(this, "left");
 	}
 	onSetTop(validatedValue) {
-		this.center.setYDirectly(validatedValue, PointPlacement.MIDDLE);
+		this.center.setYDirectly(validatedValue, 2);
 		this.onSerializableChange.call(this, "top");
 	}
 	onSetWidth() {}
@@ -1661,10 +1635,10 @@ var PointAnalysis = class PointAnalysis extends AbstractAnalysis {
 		return output.join(";");
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/data/graphs/AnalysisGraph.ts
 var AnalysisGraph = class {
+	analysis;
 	constructor(analysis) {
 		this.analysis = analysis;
 		this.hydrate();
@@ -1722,16 +1696,20 @@ var AnalysisGraph = class {
 			this.onAnalysisSelection.call(true, analysis);
 		});
 		this.analysis.onMoveOrResize.set("__graphs", async (analysis) => {
-			this.value = await analysis.getAnalysisData();
+			const data = await analysis.getAnalysisData();
+			this.value = data;
 		});
-		this.value = await this.getGraphData();
+		const data = await this.getGraphData();
+		this.value = data;
 	}
 	async getGraphData() {
 		return await this.analysis.getAnalysisData();
 	}
 	getGraphColors() {
-		if (this.analysis instanceof PointAnalysis) if (this._avg) return [this.analysis.initialColor];
-		else return [];
+		if (this.analysis instanceof PointAnalysis) {
+			if (this._avg) return [this.analysis.initialColor];
+			else return [];
+		}
 		const output = [];
 		Object.values(this.state).forEach((value) => {
 			if (value) output.push(this.analysis.initialColor);
@@ -1739,8 +1717,10 @@ var AnalysisGraph = class {
 		return output;
 	}
 	getGraphLabels() {
-		if (this.analysis instanceof PointAnalysis) if (this._avg) return [this.analysis.name];
-		else return [];
+		if (this.analysis instanceof PointAnalysis) {
+			if (this._avg) return [this.analysis.name];
+			else return [];
+		}
 		const output = [];
 		Object.entries(this.state).forEach(([key, value]) => {
 			if (value) output.push(`${this.analysis.name} ${key}`);
@@ -1752,8 +1732,10 @@ var AnalysisGraph = class {
 		return this._min || this._max || this._avg;
 	}
 	getDtaAtTime(timestamp) {
-		if (this.analysis instanceof PointAnalysis) if (this._avg) return [this.value[timestamp]];
-		else return [];
+		if (this.analysis instanceof PointAnalysis) {
+			if (this._avg) return [this.value[timestamp]];
+			else return [];
+		}
 		const output = [];
 		const value = this.value;
 		if (this._min) output.push(value[timestamp].min);
@@ -1762,7 +1744,6 @@ var AnalysisGraph = class {
 		return output;
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/AbstractHandlePoint.ts
 var AbstractHandlePoint = class extends AbstractPoint {
@@ -1797,7 +1778,6 @@ var AbstractHandlePoint = class extends AbstractPoint {
 		}
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/CornerPoint.ts
 var CornerPoint = class extends AbstractHandlePoint {
@@ -1845,31 +1825,31 @@ var CornerPoint = class extends AbstractHandlePoint {
 	analyzeXFromTool(value) {
 		return {
 			x: value,
-			placement: this.isLeftSide ? PointPlacement.START : PointPlacement.END
+			placement: this.isLeftSide ? 1 : 3
 		};
 	}
 	analyzeYFromTool(value) {
 		return {
 			y: value,
-			placement: this.isTopSide ? PointPlacement.START : PointPlacement.END
+			placement: this.isTopSide ? 1 : 3
 		};
 	}
 	sideEffectOnXFromTool(value, placement) {
 		this.pairX.setXDirectly(value, placement);
 		if (value > this.pairY.x) this.analysis.leftSidePoints.forEach((p) => {
-			p.setXDirectly(p.x, PointPlacement.START);
+			p.setXDirectly(p.x, 1);
 		});
 		else this.analysis.rightSidePoints.forEach((p) => {
-			p.setXDirectly(p.x, PointPlacement.END);
+			p.setXDirectly(p.x, 3);
 		});
 	}
 	sideEffectOnYFromTool(value, placement) {
 		this.pairY.setYDirectly(value, placement);
 		if (value > this.pairX.y) this.analysis.topSidePoints.forEach((p) => {
-			p.setYDirectly(p.y, PointPlacement.START);
+			p.setYDirectly(p.y, 1);
 		});
 		else this.analysis.bottomSidePoints.forEach((p) => {
-			p.setYDirectly(p.y, PointPlacement.END);
+			p.setYDirectly(p.y, 3);
 		});
 	}
 	isMoving = false;
@@ -1883,7 +1863,6 @@ var CornerPoint = class extends AbstractHandlePoint {
 		if (this.innerElement) this.setColor(this.isInSelectedLayer() ? this.initialColor : this.inactiveColor);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/AbstractAreaAnalysis.ts
 var AbstractAreaAnalysis = class extends AbstractAnalysis {
@@ -1922,10 +1901,10 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
 			bottom = top + height;
 		}
 		this.area = this.buildArea(top, left, width, height);
-		this.tl = this.addPoint("tl", top, left, PointPlacement.START, PointPlacement.START);
-		this.tr = this.addPoint("tr", top, right, PointPlacement.END, PointPlacement.START);
-		this.bl = this.addPoint("bl", bottom, left, PointPlacement.START, PointPlacement.END);
-		this.br = this.addPoint("br", bottom, right, PointPlacement.END, PointPlacement.END);
+		this.tl = this.addPoint("tl", top, left, 1, 1);
+		this.tr = this.addPoint("tr", top, right, 3, 1);
+		this.bl = this.addPoint("bl", bottom, left, 1, 3);
+		this.br = this.addPoint("br", bottom, right, 3, 3);
 		this.tl.setPairX(this.bl);
 		this.tl.setPairY(this.tr);
 		this.tr.setPairX(this.br);
@@ -1979,37 +1958,37 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
 	onSetLeft(validatedValue) {
 		this.area.left = validatedValue;
 		this.forPoints(this.leftSidePoints, (point) => {
-			point.setXDirectly(validatedValue, PointPlacement.START);
+			point.setXDirectly(validatedValue, 1);
 		});
 		this.forPoints(this.rightSidePoints, (point) => {
-			point.setXDirectly(this.right, PointPlacement.END);
+			point.setXDirectly(this.right, 3);
 		});
 	}
 	onSetTop(validatedValue) {
 		this.area.top = validatedValue;
 		this.forPoints(this.topSidePoints, (point) => {
-			point.setYDirectly(validatedValue, PointPlacement.START);
+			point.setYDirectly(validatedValue, 1);
 		});
 		this.forPoints(this.bottomSidePoints, (point) => {
-			point.setYDirectly(this.bottom, PointPlacement.END);
+			point.setYDirectly(this.bottom, 3);
 		});
 	}
 	onSetWidth(validatedValue) {
 		this.area.width = validatedValue;
 		this.forPoints(this.leftSidePoints, (point) => {
-			point.setXDirectly(this.left, PointPlacement.START);
+			point.setXDirectly(this.left, 1);
 		});
 		this.forPoints(this.rightSidePoints, (point) => {
-			point.setXDirectly(this.right, PointPlacement.END);
+			point.setXDirectly(this.right, 3);
 		});
 	}
 	onSetHeight(validatedValue) {
 		this.area.height = validatedValue;
 		this.forPoints(this.topSidePoints, (point) => {
-			point.setYDirectly(this.top, PointPlacement.START);
+			point.setYDirectly(this.top, 1);
 		});
 		this.forPoints(this.bottomSidePoints, (point) => {
-			point.setYDirectly(this.bottom, PointPlacement.END);
+			point.setYDirectly(this.bottom, 3);
 		});
 	}
 	getVerticalDimensionFromNewValue(value, preferredSide) {
@@ -2026,17 +2005,18 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
 			bottom: maxW,
 			height: maxW - theOtherSide
 		};
-		else if (preferredSide === "bottom") if (val <= this.top) return {
-			top: val,
-			bottom: this.top,
-			height: this.top - val
-		};
-		else return {
-			top: this.top,
-			bottom: val,
-			height: val - this.top
-		};
-		else if (val >= this.bottom) return {
+		else if (preferredSide === "bottom") {
+			if (val <= this.top) return {
+				top: val,
+				bottom: this.top,
+				height: this.top - val
+			};
+			else return {
+				top: this.top,
+				bottom: val,
+				height: val - this.top
+			};
+		} else if (val >= this.bottom) return {
 			top: this.bottom,
 			bottom: val,
 			height: val - this.bottom
@@ -2061,17 +2041,18 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
 			right: maxW,
 			width: maxW - theOtherSide
 		};
-		else if (preferredSide === "right") if (val <= this.left) return {
-			left: val,
-			right: this.left,
-			width: this.left - val
-		};
-		else return {
-			left: this.left,
-			right: val,
-			width: val - this.left
-		};
-		else if (val >= this.right) return {
+		else if (preferredSide === "right") {
+			if (val <= this.left) return {
+				left: val,
+				right: this.left,
+				width: this.left - val
+			};
+			else return {
+				left: this.left,
+				right: val,
+				width: val - this.left
+			};
+		} else if (val >= this.right) return {
 			left: this.right,
 			right: val,
 			width: val - this.right
@@ -2148,10 +2129,10 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
 		return output.join(";");
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/AbstractArea.ts
 var AbstractArea = class {
+	analysis;
 	pxX;
 	pxY;
 	get fileWidth() {
@@ -2222,7 +2203,6 @@ var AbstractArea = class {
 		this.onSetColor(value);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/ellipsis/EllipsisArea.ts
 var EllipsisArea = class extends AbstractArea {
@@ -2236,7 +2216,6 @@ var EllipsisArea = class extends AbstractArea {
 		this.element.style.borderColor = value;
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/ellipsis/EllipsisAnalysis.ts
 var EllipsisAnalysis = class EllipsisAnalysis extends AbstractAreaAnalysis {
@@ -2294,7 +2273,6 @@ var EllipsisAnalysis = class EllipsisAnalysis extends AbstractAreaAnalysis {
 		return await this.file.reader.ellipsisAnalysisData(this.left, this.top, this.width, this.height);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/rectangle/RectangleArea.ts
 var RectangleArea = class extends AbstractArea {
@@ -2307,7 +2285,6 @@ var RectangleArea = class extends AbstractArea {
 		this.element.style.borderColor = value;
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/rectangle/RectangleAnalysis.ts
 var RectangleAnalysis = class RectangleAnalysis extends AbstractAreaAnalysis {
@@ -2359,23 +2336,8 @@ var RectangleAnalysis = class RectangleAnalysis extends AbstractAreaAnalysis {
 		return await this.file.reader.rectAnalysisData(this.left, this.top, this.width, this.height);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/storage/AnalysisLayersStorage.ts
-/** What kind of change occured with the given analysis? */
-let AnalysisSerializableChangeType = /* @__PURE__ */ function(AnalysisSerializableChangeType) {
-	/** The analysis was added */
-	AnalysisSerializableChangeType[AnalysisSerializableChangeType["ADD"] = 0] = "ADD";
-	/** The analysis was removed */
-	AnalysisSerializableChangeType[AnalysisSerializableChangeType["REMOVE"] = 1] = "REMOVE";
-	/** The analysis was resized or moved */
-	AnalysisSerializableChangeType[AnalysisSerializableChangeType["RESIZEMOVE"] = 2] = "RESIZEMOVE";
-	/** Other properties of the analysis were changed */
-	AnalysisSerializableChangeType[AnalysisSerializableChangeType["PROPERTIESCHANGE"] = 3] = "PROPERTIESCHANGE";
-	/** Graph visibility changes */
-	AnalysisSerializableChangeType[AnalysisSerializableChangeType["GRAPH"] = 4] = "GRAPH";
-	return AnalysisSerializableChangeType;
-}({});
 const availableAnalysisColors = [
 	"Blue",
 	"Red",
@@ -2391,6 +2353,7 @@ const availableAnalysisColors = [
 	"SkyBlue"
 ];
 var AnalysisLayersStorage = class extends Map {
+	drive;
 	/** Array of all layers ordered from oldest to the newest */
 	layers = [];
 	/** Get the slots driver */
@@ -2439,7 +2402,7 @@ var AnalysisLayersStorage = class extends Map {
 		const slotNum = slotNumber === true ? this.slots.getNextFreeSlotNumber() : slotNumber === false ? void 0 : slotNumber;
 		if (slotNum !== void 0) this.slots.assignAnalysisToSlot(slotNum, analysis);
 		this.onAdd.call(analysis, this.all);
-		this.onAnySerializableChange.call(analysis, AnalysisSerializableChangeType.ADD);
+		this.onAnySerializableChange.call(analysis, 0);
 		this.drive.dangerouslySetValueFromStorage(this.all);
 		return this;
 	}
@@ -2459,7 +2422,7 @@ var AnalysisLayersStorage = class extends Map {
 				this.layers = this.layers.filter((analysis) => analysis.key !== key);
 				this.drive.dangerouslySetValueFromStorage(this.all);
 				this.onRemove.call(key);
-				this.onAnySerializableChange.call(analysis, AnalysisSerializableChangeType.REMOVE);
+				this.onAnySerializableChange.call(analysis, 1);
 			}
 		}
 	}
@@ -2553,11 +2516,11 @@ var AnalysisLayersStorage = class extends Map {
 		return `${type} ${index}`;
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/storage/AnalysisPointsAccessor.ts
 /** Access list of points from analysis layers */
 var AnalysisPointsAccessor = class {
+	drive;
 	constructor(drive) {
 		this.drive = drive;
 	}
@@ -2581,7 +2544,6 @@ var AnalysisPointsAccessor = class {
 		}, []);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/AnalysisDrive.ts
 var AnalysisDrive = class extends AbstractProperty {
@@ -2664,10 +2626,10 @@ var AnalysisDrive = class extends AbstractProperty {
 		if (this.bindedPointerUpListener && this.listener) this.listener.removeEventListener("pointerup", this.bindedPointerUpListener);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/data/graphs/AnalysisGraphsStorage.ts
 var AnalysisGraphsStorage = class {
+	drive;
 	listenerKey = "___listen-to-graphs___";
 	get layers() {
 		return this.drive.parent.analysis.layers;
@@ -2799,7 +2761,6 @@ var AnalysisGraphsStorage = class {
 		};
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/data/AnalysisDataState.ts
 /** Stores the data of all analysis. Purpose: store data for the purpose of graph. The graph data format is constructed for Google Charts webcomponent. */
@@ -2940,7 +2901,6 @@ var AnalysisDataState = class extends AbstractProperty {
 		}
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/slots/AnalysisSlot.ts
 /** 
@@ -2953,6 +2913,7 @@ var AnalysisDataState = class extends AbstractProperty {
 * One analysis may be in one slot only. Never in two slots.
 */
 var AnalysisSlot = class {
+	slot;
 	_analysis;
 	get analysis() {
 		return this._analysis;
@@ -3015,7 +2976,6 @@ var AnalysisSlot = class {
 		}
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/slots/AnalysisSlotsDrive.ts
 /**
@@ -3241,7 +3201,6 @@ var AnalysisSlotsState = class AnalysisSlotsState extends AbstractProperty {
 		}
 	}
 };
-
 //#endregion
 //#region src/properties/cursor/CursorValueDrive.ts
 var CursorValueDrive = class extends AbstractProperty {
@@ -3258,10 +3217,10 @@ var CursorValueDrive = class extends AbstractProperty {
 		return this.parent.pixels[index];
 	}
 };
-
 //#endregion
 //#region src/properties/time/playback/internals/FrameBuffer.ts
 var FrameBuffer = class {
+	drive;
 	/** @internal use accessors to get and set with side effects */
 	_currentFrame;
 	/** The current frame data @readonly */
@@ -3351,7 +3310,6 @@ var FrameBuffer = class {
 		};
 	}
 };
-
 //#endregion
 //#region src/properties/time/playback/TimelineDrive.ts
 const playbackSpeed = {
@@ -3364,6 +3322,7 @@ const playbackSpeed = {
 };
 /** Stores the frames and the time pointer which is in the miliseconds */
 var TimelineDrive = class extends AbstractProperty {
+	steps;
 	_playbackSpeed = 1;
 	get playbackSpeed() {
 		return this._playbackSpeed;
@@ -3573,7 +3532,6 @@ var TimelineDrive = class extends AbstractProperty {
 		this.callbacksStop.call();
 	}
 };
-
 //#endregion
 //#region src/properties/time/recording/RecordingDrive.ts
 var RecordingDrive = class extends AbstractProperty {
@@ -3713,7 +3671,6 @@ var RecordingDrive = class extends AbstractProperty {
 		this.mimeType = void 0;
 	}
 };
-
 //#endregion
 //#region src/file/dom/domFactories.ts
 var ThermalDomFactory = class ThermalDomFactory {
@@ -3866,10 +3823,10 @@ var ThermalDomFactory = class ThermalDomFactory {
 		return axeLabel;
 	}
 };
-
 //#endregion
 //#region src/file/dom/layers/AbstractLayer.ts
 var AbstractLayer = class {
+	instance;
 	constructor(instance) {
 		this.instance = instance;
 	}
@@ -3897,7 +3854,6 @@ var AbstractLayer = class {
 		this.onDestroy();
 	}
 };
-
 //#endregion
 //#region src/file/dom/layers/thermalCanvasLayer.ts
 /** Displays the canvas and renders it */
@@ -3934,7 +3890,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
 		this.container.remove();
 	}
 };
-
 //#endregion
 //#region src/file/dom/layers/thermalCursorLayer.ts
 /** Displays the cursor pointer and its value */
@@ -4038,7 +3993,6 @@ var ThermalCursorLayer = class extends AbstractLayer {
 		this.layerRoot.remove();
 	}
 };
-
 //#endregion
 //#region src/file/dom/layers/thermalListenerLayer.ts
 /** Listens for the mouse events. Needs to be placed on top. */
@@ -4055,11 +4009,11 @@ var ThermalListenerLayer = class extends AbstractLayer {
 		this.container.remove();
 	}
 };
-
 //#endregion
 //#region src/file/dom/layers/VisibleLayer.ts
 /** Contains the visible image. Needs to be placed on the bottom. */
 var VisibleLayer = class extends AbstractLayer {
+	_url;
 	container;
 	image;
 	get url() {
@@ -4090,10 +4044,11 @@ var VisibleLayer = class extends AbstractLayer {
 		this.container.remove();
 	}
 };
-
 //#endregion
 //#region src/file/dom/InstanceDom.ts
 var InstanceDOM = class InstanceDOM {
+	parent;
+	root;
 	static CLASS_BASE = "thermalImageRoot";
 	static CLASS_BUILT = InstanceDOM.CLASS_BASE + "__built";
 	static CLASS_HYDRATED = InstanceDOM.CLASS_BASE + "__mounted";
@@ -4254,10 +4209,11 @@ var InstanceDOM = class InstanceDOM {
 		this.setHydrated(false);
 	}
 };
-
 //#endregion
 //#region src/file/render/AbstractRenderer.ts
 var AbstractRenderer = class {
+	file;
+	canvas;
 	_initialised = false;
 	get initialised() {
 		return this._initialised;
@@ -4311,7 +4267,6 @@ var AbstractRenderer = class {
 		return await this.executeRender();
 	}
 };
-
 //#endregion
 //#region src/file/render/CpuRenderer.ts
 var CpuRenderer = class extends AbstractRenderer {
@@ -4351,7 +4306,6 @@ var CpuRenderer = class extends AbstractRenderer {
 	}
 	async destroy() {}
 };
-
 //#endregion
 //#region src/file/render/GlRenderer.ts
 var GlRenderer = class GlRenderer extends AbstractRenderer {
@@ -4482,7 +4436,7 @@ var GlRenderer = class GlRenderer extends AbstractRenderer {
 	}
 	/** Inicializuj palette buffer */
 	initPaletteBuffer() {
-		return new Float32Array(256 * 4);
+		return /* @__PURE__ */ new Float32Array(1024);
 	}
 	/** Inicializuj palette texture */
 	initPaletteTexture() {
@@ -4533,7 +4487,6 @@ var GlRenderer = class GlRenderer extends AbstractRenderer {
 		this.context.deleteTexture(this.paletteTexture);
 	}
 };
-
 //#endregion
 //#region src/file/utils/FileMeta.ts
 /**
@@ -4568,7 +4521,6 @@ var FileMeta = class {
 		this.onChange.call(this.current);
 	}
 };
-
 //#endregion
 //#region src/file/AbstractFile.ts
 /** 
@@ -4831,7 +4783,6 @@ var AbstractFile = class extends BaseStructureObject {
 	}
 	reset() {}
 };
-
 //#endregion
 //#region src/utils/AbstractPngExport.ts
 var AbstractPngExport = class AbstractPngExport {
@@ -4938,12 +4889,12 @@ var AbstractPngExport = class AbstractPngExport {
 	buildHorizontalScale(element, min, max, from, to, gradient, bgColor, text, highlight) {
 		const elementWidth = element.clientWidth;
 		const singleItemWidth = 60;
-		const numElements = elementWidth / (singleItemWidth + 40);
+		const numElements = elementWidth / 100;
 		const box = document.createElement("div");
 		box.style.width = "100%";
 		box.style.position = "relative";
-		box.style.paddingLeft = singleItemWidth / 2 + "px";
-		box.style.paddingRight = singleItemWidth / 2 + "px";
+		box.style.paddingLeft = "30px";
+		box.style.paddingRight = "30px";
 		box.style.boxSizing = "border-box";
 		const scale = document.createElement("div");
 		scale.style.width = "100%";
@@ -4974,14 +4925,13 @@ var AbstractPngExport = class AbstractPngExport {
 			tick.style.position = "absolute";
 			tick.style.top = "0px";
 			tick.style.left = `calc( ${percent}% - ${singleItemWidth / 2}px )`;
-			tick.style.width = singleItemWidth + "px";
+			tick.style.width = "60px";
 			tick.style.textAlign = "center";
 			tick.style.lineHeight = "0px";
 			const val = document.createElement("div");
 			const pointer = document.createElement("div");
 			const pointerInner = document.createElement("div");
-			const pointerScale = 7;
-			const pointerScalePx = pointerScale + "px";
+			const pointerScalePx = "7px";
 			val.innerHTML = (min + value).toFixed(2) + " °C";
 			val.style.display = "inline-block";
 			val.style.fontSize = AbstractPngExport.FONT_SIZE_SMALL;
@@ -4996,8 +4946,8 @@ var AbstractPngExport = class AbstractPngExport {
 			pointerInner.style.content = "";
 			pointerInner.style.display = "inline-block";
 			if (highlightTick) {
-				pointerInner.style.width = pointerScale * 2 + "px";
-				pointerInner.style.height = pointerScale * 2 + "px";
+				pointerInner.style.width = "14px";
+				pointerInner.style.height = "14px";
 				pointerInner.style.rotate = "45deg";
 				pointerInner.style.backgroundColor = background;
 				val.style.backgroundColor = background;
@@ -5039,7 +4989,6 @@ var AbstractPngExport = class AbstractPngExport {
 		return box;
 	}
 };
-
 //#endregion
 //#region src/utils/time/base.ts
 var TimeUtilsBase = class {
@@ -5053,7 +5002,6 @@ var TimeUtilsBase = class {
 		return value;
 	};
 };
-
 //#endregion
 //#region src/utils/time/formatting.ts
 /** Utility class for time formatting in the LabIR ecosystem. */
@@ -5105,10 +5053,10 @@ var TimeFormat = class TimeFormat extends TimeUtilsBase {
 		return `${TimeFormat.humanDate(date)} ${TimeFormat.humanTime(date, true)} `;
 	}
 };
-
 //#endregion
 //#region src/file/utils/FilePngExport.ts
 var FilePngExport = class FilePngExport extends AbstractPngExport {
+	file;
 	static DEFAULT_PARAMS = {
 		fileName: "sth",
 		width: 1200,
@@ -5248,7 +5196,6 @@ var FilePngExport = class FilePngExport extends AbstractPngExport {
 		}
 	}
 };
-
 //#endregion
 //#region src/file/instance.ts
 /**
@@ -5259,6 +5206,9 @@ var FilePngExport = class FilePngExport extends AbstractPngExport {
 * stuff.
 */
 var Instance = class Instance extends AbstractFile {
+	group;
+	reader;
+	firstFrame;
 	slots;
 	/**
 	* Exports
@@ -5266,7 +5216,10 @@ var Instance = class Instance extends AbstractFile {
 	_export;
 	/** Lazy-loaded `ThermalFileExport` object */
 	get export() {
-		if (!this._export) this._export = new FilePngExport(this);
+		if (!this._export) {
+			const newExport = new FilePngExport(this);
+			this._export = newExport;
+		}
 		return this._export;
 	}
 	constructor(group, reader, baseInfo, firstFrame) {
@@ -5377,7 +5330,6 @@ var Instance = class Instance extends AbstractFile {
 		this.setPixels(frameData.pixels);
 	}
 };
-
 //#endregion
 //#region src/loading/workers/ThermalFileReader.ts
 /**
@@ -5386,6 +5338,8 @@ var Instance = class Instance extends AbstractFile {
 * - the instances are retrieved using `FilesService.loadOneFile`
 */
 var ThermalFileReader = class extends AbstractFileResult {
+	service;
+	parser;
 	/** For the purpose of testing we have a unique ID */
 	id = Math.random();
 	/** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
@@ -5481,7 +5435,6 @@ var ThermalFileReader = class extends AbstractFileResult {
 		return instance;
 	}
 };
-
 //#endregion
 //#region src/loading/workers/FileRequest.ts
 /**
@@ -5490,6 +5443,9 @@ var ThermalFileReader = class extends AbstractFileResult {
 * - `load()` method effcently handles the fetch and processing of the file
 */
 var FileRequest = class FileRequest {
+	service;
+	thermalUrl;
+	visibleUrl;
 	constructor(service, thermalUrl, visibleUrl) {
 		this.service = service;
 		this.thermalUrl = thermalUrl;
@@ -5519,7 +5475,7 @@ var FileRequest = class FileRequest {
 	*/
 	async processResponse(response) {
 		const res = response;
-		if (res.status !== 200) return this.pocessTheService(new ThermalFileFailure(this.thermalUrl, FileErrors.FILE_NOT_FOUND, `File '${this.thermalUrl}' was not found.`));
+		if (res.status !== 200) return this.pocessTheService(new ThermalFileFailure(this.thermalUrl, 1, `File '${this.thermalUrl}' was not found.`));
 		const buffer = await res.arrayBuffer();
 		try {
 			const parser = determineParser(buffer, this.thermalUrl);
@@ -5537,13 +5493,13 @@ var FileRequest = class FileRequest {
 		return result;
 	}
 };
-
 //#endregion
 //#region src/loading/workers/FilesService.ts
 /**
 * A singleton instance handling file loading
 */
 var FilesService = class {
+	manager;
 	get pool() {
 		return this.manager.pool;
 	}
@@ -5585,7 +5541,7 @@ var FilesService = class {
 			const parser = determineParser(buffer, file.name);
 			return new ThermalFileReader(this, buffer, parser, file.name);
 		} catch (error) {
-			return new ThermalFileFailure(file.name, FileErrors.PARSING_ERROR, error.message);
+			return new ThermalFileFailure(file.name, 3, error.message);
 		}
 	}
 	/** Create a dropzone listener on a HTML element */
@@ -5614,7 +5570,6 @@ var FilesService = class {
 		}));
 	}
 };
-
 //#endregion
 //#region src/properties/display/GraphSmoothDrive.ts
 /** Controls image smoothing */
@@ -5627,7 +5582,6 @@ var GraphSmoothDrive = class extends AbstractProperty {
 		this.value = value;
 	}
 };
-
 //#endregion
 //#region src/properties/scale/palettes.ts
 const generatePaletteFromStops = (stops) => {
@@ -5644,7 +5598,10 @@ const generatePaletteFromStops = (stops) => {
 		}
 		const range = endStop.percent - startStop.percent;
 		const rangePercent = range === 0 ? 0 : (percent - startStop.percent) / range;
-		palette[i] = `rgb(${Math.round(startStop.color[0] + rangePercent * (endStop.color[0] - startStop.color[0]))},${Math.round(startStop.color[1] + rangePercent * (endStop.color[1] - startStop.color[1]))},${Math.round(startStop.color[2] + rangePercent * (endStop.color[2] - startStop.color[2]))})`;
+		const r = Math.round(startStop.color[0] + rangePercent * (endStop.color[0] - startStop.color[0]));
+		const g = Math.round(startStop.color[1] + rangePercent * (endStop.color[1] - startStop.color[1]));
+		const b = Math.round(startStop.color[2] + rangePercent * (endStop.color[2] - startStop.color[2]));
+		palette[i] = `rgb(${r},${g},${b})`;
 	}
 	return palette;
 };
@@ -5653,7 +5610,7 @@ const generateGradientFromStops = (stops) => {
 };
 const generateTextureArrayFromStops = (stops) => {
 	const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
-	const arr = new Float32Array(256 * 4);
+	const arr = /* @__PURE__ */ new Float32Array(1024);
 	for (let i = 0; i < 256; i++) {
 		const percent = i / 255 * 100;
 		let lowerStop = sortedStops[0];
@@ -6052,7 +6009,8 @@ const LAVA = generatePaletteFromStops(LAVA_STOPS);
 const ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
 const RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
 const RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
-const PALETTES = {
+/** Palette definitions available in `@labirthermal/core`. */
+const ThermalPalettes = {
 	iron: {
 		name: "IRON",
 		gradient: generateGradientFromStops(IRON_STOPS),
@@ -6110,10 +6068,6 @@ const PALETTES = {
 		slug: "rainbow_hc"
 	}
 };
-/** Palette definitions available in `@labirthermal/core`. */
-const ThermalPalettes = PALETTES;
-const defaultPaletteKey = "jet";
-
 //#endregion
 //#region src/properties/scale/PaletteDrive.ts
 var PaletteDrive = class extends AbstractProperty {
@@ -6139,13 +6093,12 @@ var PaletteDrive = class extends AbstractProperty {
 	}
 	/** Takes any string input and converts it to a valid AvailableThermalPalettes key */
 	sanitizeInputKey(input) {
-		if (input === null || input === void 0) return defaultPaletteKey;
+		if (input === null || input === void 0) return "jet";
 		const f = this.availablePalettes[input];
 		if (f) return f.slug;
-		else return defaultPaletteKey;
+		else return "jet";
 	}
 };
-
 //#endregion
 //#region src/properties/display/SmoothDrive.ts
 /** Controls image smoothing */
@@ -6162,7 +6115,6 @@ var SmoothDrive = class extends AbstractProperty {
 		this.value = value;
 	}
 };
-
 //#endregion
 //#region src/loading/batch/Batch.ts
 /**
@@ -6178,6 +6130,8 @@ var SmoothDrive = class extends AbstractProperty {
 * 
 */
 var Batch = class Batch {
+	loader;
+	id;
 	_loading = false;
 	get loading() {
 		return this._loading;
@@ -6245,7 +6199,6 @@ var Batch = class Batch {
 		this._loading = true;
 	}
 };
-
 //#endregion
 //#region src/loading/batch/BatchLoader.ts
 /**
@@ -6254,6 +6207,7 @@ var Batch = class Batch {
 * This class should be used as a lazy-loaded member of a thermal registry.
 */
 var BatchLoader = class {
+	registry;
 	onBatchStart = new CallbacksManager();
 	onBatchComplete = new CallbacksManager();
 	set = /* @__PURE__ */ new Set();
@@ -6314,7 +6268,6 @@ var BatchLoader = class {
 		if (this.numberOfBatches === 0) this.registry.loading.markAsLoaded();
 	}
 };
-
 //#endregion
 //#region src/properties/display/OpacityDrive.ts
 var OpacityDrive = class extends AbstractProperty {
@@ -6336,85 +6289,61 @@ var OpacityDrive = class extends AbstractProperty {
 		return this.value;
 	}
 };
-
 //#endregion
-//#region src/properties/scale/RangeDriver.ts
-/** Handles the thermal range display. */
-var RangeDriver = class extends AbstractProperty {
-	onAutoValueChanged = new CallbacksManager();
-	_autoValue = void 0;
-	get currentRange() {
-		return this.value;
+//#region src/properties/analysis/group/AnalysisGroupGraph.ts
+var AnalysisGroupGraph = class AnalysisGroupGraph extends AbstractProperty {
+	static LISTENER_ID = "AnalysisGroupGraph";
+	constructor(parent) {
+		super(parent, void 0);
 	}
-	/** 
-	* Make sure the range is allways within the minmax values.
-	* 
-	* If this method should work, the value needs to be set before the minmax is calculated.
-	*/
+	timeout;
+	calculateData() {
+		const colors = [];
+		const header = [];
+		const data = [];
+		const orderedFiles = this.parent.files.value.sort((a, b) => a.timestamp - b.timestamp);
+		const firstRow = orderedFiles[0].analysisData.value.values[0];
+		header.push(...firstRow);
+		colors.push(...orderedFiles[0].analysisData.value.colors);
+		this.parent.files.forEveryInstance((instance) => {
+			const row = [new Date(instance.timestamp)];
+			instance.analysis.value.forEach(async (analysis) => {
+				if (analysis.graph.state.MIN === true && analysis.min) row.push(analysis.min);
+				if (analysis.graph.state.MAX === true && analysis.max) row.push(analysis.max);
+				if (analysis.graph.state.AVG === true && analysis.avg) row.push(analysis.avg);
+			});
+			if (row.length > 1) data.push(row);
+		});
+		if (colors.length > 0) this.value = {
+			colors,
+			data: [header, ...data]
+		};
+		else this.value = void 0;
+	}
+	turnOn() {
+		this.parent.files.forEveryInstance((instance) => {
+			instance.analysisData.addListener(AnalysisGroupGraph.LISTENER_ID, () => {
+				if (this.timeout !== void 0) clearTimeout(this.timeout);
+				this.timeout = setTimeout(() => {
+					this.calculateData();
+				}, 0);
+			});
+		});
+	}
+	turnOff() {
+		this.parent.files.forEveryInstance((instance) => {
+			instance.analysisData.removeListener(AnalysisGroupGraph.LISTENER_ID);
+		});
+	}
 	validate(value) {
-		if (value === void 0) return;
-		const minmax = this.parent.minmax.value;
-		if (minmax === void 0) return value;
-		const result = { ...value };
-		if (value.from < minmax.min) result.from = minmax.min;
-		if (value.to > minmax.max) result.to = minmax.max;
-		return result;
+		return value;
 	}
-	/**
-	* Whenever the range changes, propagate the value to all instances
-	*/
-	afterSetEffect(value) {
-		if (value) this.parent.forEveryInstance((instance) => instance.draw());
-		this.recalculateAutoValue();
-	}
-	/** 
-	* Imposes a range to itself and below
-	* - needs to be called before the minmax is calculated!
-	*/
-	imposeRange(value) {
-		if (value === void 0 && this.value === void 0) {} else if (value === void 0 && this.value !== void 0) this.value = value;
-		if (value !== void 0 && this.value === void 0) this.value = value;
-		else if (value !== void 0 && this.value !== void 0) {
-			if (this.value.from !== value.from || this.value.to !== value.to) this.value = value;
-		}
-		return this.value;
-	}
-	/** Sets the range to the current minmax values */
-	applyMinmax() {
-		if (this.parent.minmax.value) {
-			const newRange = {
-				from: this.parent.minmax.value.min,
-				to: this.parent.minmax.value.max
-			};
-			this.imposeRange(newRange);
-		}
-	}
-	/** Sets the range automatically based on the current histogram */
-	applyAuto() {
-		this.imposeRange(this._autoValue);
-	}
-	get autoValue() {
-		return this._autoValue;
-	}
-	recalculateAutoValue() {
-		const previousValue = this._autoValue;
-		if (this.parent.histogram.value) {
-			const percentage = 10;
-			const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
-			if (histogramBarsOverPercentage.length > 0) this._autoValue = {
-				from: histogramBarsOverPercentage[0].from,
-				to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
-			};
-			else this._autoValue = void 0;
-		} else this._autoValue = void 0;
-		if (previousValue?.from !== this._autoValue?.from || previousValue?.to !== this._autoValue?.to) this.onAutoValueChanged.call(this._autoValue);
-		return this._autoValue;
-	}
+	afterSetEffect() {}
 };
-
 //#endregion
 //#region src/properties/analysis/sync/utils/GroupExportCSV.ts
 var GroupExportCSV = class {
+	drive;
 	constructor(drive) {
 		this.drive = drive;
 	}
@@ -6520,10 +6449,10 @@ var GroupExportCSV = class {
 		download(csvConfig)(csv);
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/sync/utils/GroupExportPNG.ts
 var GroupExportPNG = class GroupExportPNG extends AbstractPngExport {
+	drive;
 	static DEFAULT_PROPS = {
 		fileName: "export.png",
 		columns: 3,
@@ -6705,7 +6634,6 @@ var GroupExportPNG = class GroupExportPNG extends AbstractPngExport {
 		};
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/sync/analysisSync.ts
 var AnalysisSyncDrive = class AnalysisSyncDrive extends AbstractProperty {
@@ -6935,7 +6863,6 @@ var AnalysisSyncDrive = class AnalysisSyncDrive extends AbstractProperty {
 		});
 	}
 };
-
 //#endregion
 //#region src/properties/cursor/CursorPositionDrive.ts
 /** Handles cursor position */
@@ -6955,7 +6882,6 @@ var CursorPositionDrive = class extends AbstractProperty {
 		this.value = position;
 	}
 };
-
 //#endregion
 //#region src/properties/lists/filesState.ts
 var FilesState = class extends AbstractProperty {
@@ -7030,7 +6956,6 @@ var FilesState = class extends AbstractProperty {
 		} else this.value = [...this.value, ...instances];
 	}
 };
-
 //#endregion
 //#region src/properties/scale/abstractMinmaxProperty.ts
 /** 
@@ -7043,7 +6968,6 @@ var AbstractMinmaxProperty = class extends AbstractProperty {
 		return Math.abs(this.value.min - this.value.max);
 	}
 };
-
 //#endregion
 //#region src/properties/scale/MinmaxGroupProperty.ts
 var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
@@ -7071,7 +6995,6 @@ var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
 		});
 	}
 };
-
 //#endregion
 //#region src/properties/time/group/GroupPlayback.ts
 /** 
@@ -7161,7 +7084,8 @@ var GroupPlayback = class extends AbstractProperty {
 			const instances = results.filter((res) => res instanceof Instance);
 			this.recalculateDuration(instances);
 			this.recalculateHasAnyPlayback(instances);
-			this.value = this.value;
+			const newVal = this.value;
+			this.value = newVal;
 		});
 	}
 	validate(value) {
@@ -7239,65 +7163,16 @@ var GroupPlayback = class extends AbstractProperty {
 		}
 	}
 };
-
-//#endregion
-//#region src/properties/analysis/group/AnalysisGroupGraph.ts
-var AnalysisGroupGraph = class AnalysisGroupGraph extends AbstractProperty {
-	static LISTENER_ID = "AnalysisGroupGraph";
-	constructor(parent) {
-		super(parent, void 0);
-	}
-	timeout;
-	calculateData() {
-		const colors = [];
-		const header = [];
-		const data = [];
-		const orderedFiles = this.parent.files.value.sort((a, b) => a.timestamp - b.timestamp);
-		const firstRow = orderedFiles[0].analysisData.value.values[0];
-		header.push(...firstRow);
-		colors.push(...orderedFiles[0].analysisData.value.colors);
-		this.parent.files.forEveryInstance((instance) => {
-			const row = [new Date(instance.timestamp)];
-			instance.analysis.value.forEach(async (analysis) => {
-				if (analysis.graph.state.MIN === true && analysis.min) row.push(analysis.min);
-				if (analysis.graph.state.MAX === true && analysis.max) row.push(analysis.max);
-				if (analysis.graph.state.AVG === true && analysis.avg) row.push(analysis.avg);
-			});
-			if (row.length > 1) data.push(row);
-		});
-		if (colors.length > 0) this.value = {
-			colors,
-			data: [header, ...data]
-		};
-		else this.value = void 0;
-	}
-	turnOn() {
-		this.parent.files.forEveryInstance((instance) => {
-			instance.analysisData.addListener(AnalysisGroupGraph.LISTENER_ID, () => {
-				if (this.timeout !== void 0) clearTimeout(this.timeout);
-				this.timeout = setTimeout(() => {
-					this.calculateData();
-				}, 0);
-			});
-		});
-	}
-	turnOff() {
-		this.parent.files.forEveryInstance((instance) => {
-			instance.analysisData.removeListener(AnalysisGroupGraph.LISTENER_ID);
-		});
-	}
-	validate(value) {
-		return value;
-	}
-	afterSetEffect() {}
-};
-
 //#endregion
 //#region src/hierarchy/ThermalGroup.ts
 /**
 * Group of thermal images
 */
 var ThermalGroup = class extends BaseStructureObject {
+	registry;
+	id;
+	name;
+	description;
 	hash = Math.random();
 	/** Human readable label = name or id or hasn */
 	get label() {
@@ -7353,7 +7228,6 @@ var ThermalGroup = class extends BaseStructureObject {
 		return this.registry.batch.getBatchById(id);
 	}
 };
-
 //#endregion
 //#region src/properties/lists/GroupsState.ts
 /** Handles group creation and removal */
@@ -7391,7 +7265,106 @@ var GroupsState = class extends AbstractProperty {
 		this.value = [];
 	}
 };
-
+//#endregion
+//#region src/properties/scale/MinmaxRegistryState.ts
+var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
+	validate(value) {
+		return value;
+	}
+	afterSetEffect() {}
+	recalculateFromGroups() {
+		const groups = this.parent.groups.value;
+		this.value = this._getMinmaxFromAllGroups(groups);
+		return this.value;
+	}
+	_getMinmaxFromAllGroups(groups) {
+		if (groups.length === 0) return;
+		return groups.reduce((state, current) => {
+			if (current.minmax.value === void 0) return state;
+			return {
+				min: current.minmax.value.min < state.min ? current.minmax.value.min : state.min,
+				max: current.minmax.value.max > state.max ? current.minmax.value.max : state.max
+			};
+		}, {
+			min: Infinity,
+			max: -Infinity
+		});
+	}
+};
+//#endregion
+//#region src/properties/scale/RangeDriver.ts
+/** Handles the thermal range display. */
+var RangeDriver = class extends AbstractProperty {
+	onAutoValueChanged = new CallbacksManager();
+	_autoValue = void 0;
+	get currentRange() {
+		return this.value;
+	}
+	/** 
+	* Make sure the range is allways within the minmax values.
+	* 
+	* If this method should work, the value needs to be set before the minmax is calculated.
+	*/
+	validate(value) {
+		if (value === void 0) return;
+		const minmax = this.parent.minmax.value;
+		if (minmax === void 0) return value;
+		const result = { ...value };
+		if (value.from < minmax.min) result.from = minmax.min;
+		if (value.to > minmax.max) result.to = minmax.max;
+		return result;
+	}
+	/**
+	* Whenever the range changes, propagate the value to all instances
+	*/
+	afterSetEffect(value) {
+		if (value) this.parent.forEveryInstance((instance) => instance.draw());
+		this.recalculateAutoValue();
+	}
+	/** 
+	* Imposes a range to itself and below
+	* - needs to be called before the minmax is calculated!
+	*/
+	imposeRange(value) {
+		if (value === void 0 && this.value === void 0) {} else if (value === void 0 && this.value !== void 0) this.value = value;
+		if (value !== void 0 && this.value === void 0) this.value = value;
+		else if (value !== void 0 && this.value !== void 0) {
+			if (this.value.from !== value.from || this.value.to !== value.to) this.value = value;
+		}
+		return this.value;
+	}
+	/** Sets the range to the current minmax values */
+	applyMinmax() {
+		if (this.parent.minmax.value) {
+			const newRange = {
+				from: this.parent.minmax.value.min,
+				to: this.parent.minmax.value.max
+			};
+			this.imposeRange(newRange);
+		}
+	}
+	/** Sets the range automatically based on the current histogram */
+	applyAuto() {
+		this.imposeRange(this._autoValue);
+	}
+	get autoValue() {
+		return this._autoValue;
+	}
+	recalculateAutoValue() {
+		const previousValue = this._autoValue;
+		if (this.parent.histogram.value) {
+			const percentage = 10;
+			const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
+			if (histogramBarsOverPercentage.length > 0) this._autoValue = {
+				from: histogramBarsOverPercentage[0].from,
+				to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
+			};
+			else this._autoValue = void 0;
+		} else this._autoValue = void 0;
+		if (previousValue?.from !== this._autoValue?.from || previousValue?.to !== this._autoValue?.to) this.onAutoValueChanged.call(this._autoValue);
+		return this._autoValue;
+	}
+};
 //#endregion
 //#region src/properties/states/HistogramResultCache.ts
 const MAX_CACHE_ENTRIES = 64;
@@ -7428,7 +7401,8 @@ var HistogramResultCache = class {
 		return calculation.then(cloneHistogram);
 	}
 	createKey(readers) {
-		return `${HISTOGRAM_ALGORITHM_VERSION}:${readers.map((reader) => this.getReaderId(reader)).sort((a, b) => a - b).join(",")}`;
+		const readerIds = readers.map((reader) => this.getReaderId(reader)).sort((a, b) => a - b);
+		return `${HISTOGRAM_ALGORITHM_VERSION}:${readerIds.join(",")}`;
 	}
 	getReaderId(reader) {
 		let id = this.readerIds.get(reader);
@@ -7452,7 +7426,6 @@ var HistogramResultCache = class {
 };
 /** Shared across all managers using this core module instance. */
 const histogramResultCache = new HistogramResultCache();
-
 //#endregion
 //#region src/properties/states/HistogramState.ts
 /** 
@@ -7518,7 +7491,8 @@ var HistogramState = class extends AbstractProperty {
 		this.onCalculationStart.call();
 		this.loading = true;
 		try {
-			this.value = await histogramResultCache.getOrCalculate(allFiles.map((instance) => instance.reader), () => this.parent.pool.exec(LrcParser.registryHistogram, [allFiles.map((instance) => instance.reader.buffer)]));
+			const result = await histogramResultCache.getOrCalculate(allFiles.map((instance) => instance.reader), () => this.parent.pool.exec(LrcParser.registryHistogram, [allFiles.map((instance) => instance.reader.buffer)]));
+			this.value = result;
 			this.loading = false;
 			this.onCalculationEnd.call(true);
 		} catch (error) {
@@ -7528,7 +7502,6 @@ var HistogramState = class extends AbstractProperty {
 		}
 	}
 };
-
 //#endregion
 //#region src/properties/states/LoadingState.ts
 var LoadingState = class extends AbstractProperty {
@@ -7543,34 +7516,6 @@ var LoadingState = class extends AbstractProperty {
 		if (this.value === true) this.value = false;
 	}
 };
-
-//#endregion
-//#region src/properties/scale/MinmaxRegistryState.ts
-var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
-	validate(value) {
-		return value;
-	}
-	afterSetEffect() {}
-	recalculateFromGroups() {
-		const groups = this.parent.groups.value;
-		this.value = this._getMinmaxFromAllGroups(groups);
-		return this.value;
-	}
-	_getMinmaxFromAllGroups(groups) {
-		if (groups.length === 0) return;
-		return groups.reduce((state, current) => {
-			if (current.minmax.value === void 0) return state;
-			return {
-				min: current.minmax.value.min < state.min ? current.minmax.value.min : state.min,
-				max: current.minmax.value.max > state.max ? current.minmax.value.max : state.max
-			};
-		}, {
-			min: Infinity,
-			max: -Infinity
-		});
-	}
-};
-
 //#endregion
 //#region src/hierarchy/ThermalRegistry.ts
 /**
@@ -7578,6 +7523,8 @@ var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
 * @todo implementing EventTarget
 */
 var ThermalRegistry = class extends BaseStructureObject {
+	id;
+	manager;
 	hash = Math.random();
 	constructor(id, manager, options) {
 		super();
@@ -7726,10 +7673,10 @@ var ThermalRegistry = class extends BaseStructureObject {
 		return instances;
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/tool/internals/AbstractTool.ts
 var AbstractTool = class {
+	manager;
 	active = false;
 	constructor(manager) {
 		this.manager = manager;
@@ -7743,12 +7690,10 @@ var AbstractTool = class {
 		this.onDeactivate();
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/AbstractAddTool.ts
 /** Tool for analysis addition */
 var AbstractAddTool = class extends AbstractTool {};
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/ellipsis/AddEllipsisTool.ts
 var AddEllipsisTool = class extends AbstractAddTool {
@@ -7796,7 +7741,6 @@ var AddEllipsisTool = class extends AbstractAddTool {
 		return `X:${x}<br />Y:${y}<br />${file.group.tool.tools.inspect.getLabelValue(x, y, file)}`;
 	};
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/rectangle/AddRectangleTool.ts
 var AddRectangleTool = class extends AbstractAddTool {
@@ -7844,7 +7788,6 @@ var AddRectangleTool = class extends AbstractAddTool {
 		return `X:${x}<br />Y:${y}<br />${file.group.tool.tools.inspect.getLabelValue(x, y, file)}`;
 	};
 };
-
 //#endregion
 //#region src/properties/analysis/analysis/internals/point/AddPointTool.ts
 var AddPointTool = class extends AbstractAddTool {
@@ -7882,7 +7825,6 @@ var AddPointTool = class extends AbstractAddTool {
 		return `X:${x}<br />Y:${y}<br />${file.group.tool.tools.inspect.getLabelValue(x, y, file)}`;
 	};
 };
-
 //#endregion
 //#region src/properties/analysis/tool/internals/EditTool.ts
 var EditTool = class extends AbstractTool {
@@ -7927,7 +7869,6 @@ var EditTool = class extends AbstractTool {
 		return `${hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : ""}${temperature && temperature.toFixed(2) + " °C<br />"}X: ${x}<br />Y: ${y}`;
 	}
 };
-
 //#endregion
 //#region src/properties/analysis/tool/internals/InspectTool.ts
 var InspectTool = class extends AbstractTool {
@@ -7957,7 +7898,6 @@ var InspectTool = class extends AbstractTool {
 		}
 	};
 };
-
 //#endregion
 //#region src/properties/analysis/tool/ToolDrive.ts
 const toolsRegistry = [
@@ -8002,7 +7942,6 @@ var ToolDrive = class extends AbstractProperty {
 		else this.value = this.tools[tool];
 	}
 };
-
 //#endregion
 //#region src/hierarchy/ThermalManager.ts
 const options = "chrome" in window ? { maxWorkers: 4 } : {};
@@ -8051,8 +7990,22 @@ var ThermalManager = class extends BaseStructureObject {
 	forEveryInstance(callback) {
 		this.forEveryRegistry((registry) => registry.forEveryInstance(callback));
 	}
+	destroySelfAndBelow() {
+		this.removeAllChildren();
+		this.reset();
+	}
+	removeAllChildren() {
+		this.forEveryRegistry((registry) => {
+			this.removeRegistry(registry.id);
+		});
+	}
+	reset() {
+		this.palette.reset();
+		this.smooth.reset();
+		this.graphSmooth.reset();
+		this.tool.reset();
+	}
 };
-
 //#endregion
 //#region src/utils/time/periods.ts
 /** Defined time periods used in the LabIR ecosystem. */
@@ -8064,23 +8017,22 @@ let TimePeriod = /* @__PURE__ */ function(TimePeriod) {
 	TimePeriod["YEAR"] = "jeden rok";
 	return TimePeriod;
 }({});
-
 //#endregion
 //#region src/utils/time/rounding.ts
 /** Utility class for time rounding in the LabIR ecosystem. */
 var TimeRound = class TimeRound extends TimeUtilsBase {
 	static down = (value, roundTo) => {
-		if (roundTo === TimePeriod.HOUR) return startOfHour(value);
-		else if (roundTo === TimePeriod.DAY) return startOfDay(value);
-		else if (roundTo === TimePeriod.WEEK) return startOfWeek(value);
-		else if (roundTo === TimePeriod.MONTH) return startOfMonth(value);
+		if (roundTo === "jednu hodinu") return startOfHour(value);
+		else if (roundTo === "jeden den") return startOfDay(value);
+		else if (roundTo === "jeden týden") return startOfWeek(value);
+		else if (roundTo === "jeden měsíc") return startOfMonth(value);
 		return startOfYear(value);
 	};
 	static up = (value, roundTo) => {
-		if (roundTo === TimePeriod.HOUR) return endOfHour(value);
-		else if (roundTo === TimePeriod.DAY) return endOfDay(value);
-		else if (roundTo === TimePeriod.WEEK) return endOfWeek(value);
-		else if (roundTo === TimePeriod.MONTH) return endOfMonth(value);
+		if (roundTo === "jednu hodinu") return endOfHour(value);
+		else if (roundTo === "jeden den") return endOfDay(value);
+		else if (roundTo === "jeden týden") return endOfWeek(value);
+		else if (roundTo === "jeden měsíc") return endOfMonth(value);
 		return endOfYear(value);
 	};
 	static pick = (value, period) => {
@@ -8088,19 +8040,18 @@ var TimeRound = class TimeRound extends TimeUtilsBase {
 	};
 	static modify = (value, amount, period) => {
 		switch (period) {
-			case TimePeriod.HOUR: return addHours(value, amount);
-			case TimePeriod.DAY: return addDays(value, amount);
-			case TimePeriod.WEEK: return addDays(value, amount * 7);
-			case TimePeriod.MONTH: return addMonths(value, amount);
-			case TimePeriod.YEAR: return addYears(value, amount);
+			case "jednu hodinu": return addHours(value, amount);
+			case "jeden den": return addDays(value, amount);
+			case "jeden týden": return addDays(value, amount * 7);
+			case "jeden měsíc": return addMonths(value, amount);
+			case "jeden rok": return addYears(value, amount);
 		}
 	};
 };
-
 //#endregion
 //#region src/index.ts
 console.info("@labirthermal/core", version);
-
 //#endregion
 export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, AnalysisGraph, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, Instance, PointAnalysis, RectangleAnalysis, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalPalettes, ThermalRegistry, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty, zip };
+
 //# sourceMappingURL=index.mjs.map

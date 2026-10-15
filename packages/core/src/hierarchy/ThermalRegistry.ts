@@ -1,5 +1,3 @@
-"use client";
-
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
 import { FilterContainer } from "../filters/FilterContainer";
@@ -9,12 +7,11 @@ import { ThermalFileFailure } from "../loading/workers/ThermalFileFailure";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { CallbacksManager } from "../properties/callbacksManager";
 import { OpacityDrive } from "../properties/display/OpacityDrive";
-import { RangeDriver } from "../properties/scale/RangeDriver";
 import { GroupsState } from "../properties/lists/GroupsState";
+import { MinmaxRegistryProperty } from "../properties/scale/MinmaxRegistryState";
+import { RangeDriver } from "../properties/scale/RangeDriver";
 import { HistogramState } from "../properties/states/HistogramState";
 import { LoadingState } from "../properties/states/LoadingState";
-import { MinmaxRegistryProperty } from "../properties/scale/MinmaxRegistryState";
-import { IThermalRegistry } from "../properties/structure";
 import { ThermalGroup } from "./ThermalGroup";
 import { ThermalManager } from "./ThermalManager";
 
@@ -30,7 +27,7 @@ export type BatchLoadingCallback = (
  * The global thermal registry
  * @todo implementing EventTarget
  */
-export class ThermalRegistry extends BaseStructureObject implements IThermalRegistry {
+export class ThermalRegistry extends BaseStructureObject {
 
     public readonly hash = Math.random();
 

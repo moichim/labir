@@ -1,19 +1,21 @@
 import * as zip from "zip-slim";
-import * as workerpool_types_Pool0 from "workerpool/types/Pool";
 import Pool from "workerpool/types/Pool";
-
 //#region src/properties/callbacksManager.d.ts
 /**
- * Manage callbacks on optional property values
+ * Manage callbacks on optional property values. All callbacks are registered with a unique key. This class extends the built-in `Map` class.
+ *
+ * @module @labirthermal/core
+ * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
+export declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
   /** An alternative to built-in `set` method enabling one-shot callbacks */
   add(key: string, callback: CallbackType, oneShot?: boolean): void;
+  /** Trigger all registered callbacks wuth the provided value(s) */
   call(...args: Parameters<CallbackType>): void;
 }
 //#endregion
 //#region src/utils/pool.d.ts
-declare const getPool: () => Promise<Pool>;
+export declare const getPool: () => Promise<Pool>;
 //#endregion
 //#region src/filters/AbstractFilter.d.ts
 type AbstractFilterParameters = {
@@ -108,7 +110,7 @@ declare class ThermalListenerLayer extends AbstractLayer {
 //#endregion
 //#region src/loading/workers/AbstractFileResult.d.ts
 /** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
-declare abstract class AbstractFileResult {
+export declare abstract class AbstractFileResult {
   readonly thermalUrl: string;
   readonly visibleUrl?: string | undefined;
   constructor(thermalUrl: string, visibleUrl?: string | undefined);
@@ -117,7 +119,7 @@ declare abstract class AbstractFileResult {
 //#endregion
 //#region src/loading/workers/dropin/DropinElementManager.d.ts
 /** Turn any element into a dropzone! */
-declare class DropinElementListener {
+export declare class DropinElementListener {
   readonly service: FilesService;
   readonly element: HTMLElement;
   protected _hover: boolean;
@@ -238,10 +240,15 @@ declare class FilesService {
 //#region src/properties/scale/palettes.d.ts
 /** Definition of a palette containing its name, gradient and pixels value. */
 type ThermalPaletteType = {
-  /** Actial pixels that shall be ised for drawings of thermograms. */pixels: string[]; /** Human-readable name of the palette. */
-  name: string; /** A CSS gradient representing the color scale in the UI. */
-  gradient: string; /** The CSS slug */
-  slug: AvailableThermalPalette; /** Float array containing color values for WebGL2 texture */
+  /** Actial pixels that shall be ised for drawings of thermograms. */
+  pixels: string[];
+  /** Human-readable name of the palette. */
+  name: string;
+  /** A CSS gradient representing the color scale in the UI. */
+  gradient: string;
+  /** The CSS slug */
+  slug: AvailableThermalPalette;
+  /** Float array containing color values for WebGL2 texture */
   texturePixels: Float32Array;
 };
 declare const PALETTES: {
@@ -305,7 +312,7 @@ declare const PALETTES: {
 /** Keys of palettes available in `@labirthermal/core`. */
 type AvailableThermalPalette = keyof typeof PALETTES;
 /** Palette definitions available in `@labirthermal/core`. */
-declare const ThermalPalettes: Record<AvailableThermalPalette, ThermalPaletteType>;
+export declare const ThermalPalettes: Record<AvailableThermalPalette, ThermalPaletteType>;
 //#endregion
 //#region src/properties/scale/abstractMinmaxProperty.d.ts
 interface ThermalMinmaxType {
@@ -357,9 +364,11 @@ type ParsedFileFrame = {
 /**
  * Definition of a supported file type
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-*/
+ */
 type ParserFileType = {
-  /** File extension, lowercase and without starting dots */extension: string; /** Mime type of the file */
+  /** File extension, lowercase and without starting dots */
+  extension: string;
+  /** Mime type of the file */
   minme: string;
 };
 /** A supported device dedfinition */
@@ -429,7 +438,7 @@ interface IParserObject {
 //#endregion
 //#region src/properties/analysis/data/graphs/AnalysisGraph.d.ts
 type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
-declare class AnalysisGraph {
+export declare class AnalysisGraph {
   readonly analysis: AbstractAnalysis;
   constructor(analysis: AbstractAnalysis);
   protected _min: boolean;
@@ -562,7 +571,7 @@ declare abstract class AbstractPoint {
 //#endregion
 //#region src/properties/analysis/analysis/internals/AbstractAnalysis.d.ts
 type AnalysisEvent = (analysis: AbstractAnalysis) => void;
-declare abstract class AbstractAnalysis {
+export declare abstract class AbstractAnalysis {
   readonly key: string;
   readonly file: Instance;
   /** Return a string representing the type of the analysis */
@@ -826,8 +835,8 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
   /**
    * Create an analysis from a serialized state on a given slot
    */
-  createAnalysisFromSerialized(serialized: string, /** If a slot number is provided, assign the analysis to this particular slot */
-
+  createAnalysisFromSerialized(serialized: string,
+  /** If a slot number is provided, assign the analysis to this particular slot */
   slotNumber?: SlotInitialisationValue): AbstractAnalysis | undefined;
   protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap;
   protected afterSetEffect(): void;
@@ -861,7 +870,7 @@ interface ITool {
   icon: string;
   active: boolean;
 }
-declare abstract class AbstractTool {
+export declare abstract class AbstractTool {
   readonly manager: ThermalManager;
   active: boolean;
   constructor(manager: ThermalManager);
@@ -888,9 +897,6 @@ declare abstract class AbstractTool {
 }
 //#endregion
 //#region src/properties/analysis/tool/ToolDrive.d.ts
-interface IWithTool extends IBaseProperty {
-  tool: ToolDrive;
-}
 /** The tool type merging Abstract class and the interface */
 type ThermalTool = AbstractTool & ITool & {
   key: string;
@@ -927,9 +933,6 @@ declare class AnalysisPointsAccessor {
 }
 //#endregion
 //#region src/properties/analysis/analysis/AnalysisDrive.d.ts
-interface IWithAnalysis extends IBaseProperty {
-  analysis: AnalysisDrive;
-}
 declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance> {
   readonly layers: AnalysisLayersStorage;
   readonly points: AnalysisPointsAccessor;
@@ -1040,7 +1043,7 @@ declare class RectangleArea extends AbstractArea {
 }
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/AbstractAreaAnalysis.d.ts
-declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
+export declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
   points: Map<string, CornerPoint>;
   protected readonly wPx: string;
   protected readonly hPx: string;
@@ -1089,7 +1092,7 @@ declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 }
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/ellipsis/EllipsisAnalysis.d.ts
-declare class EllipsisAnalysis extends AbstractAreaAnalysis {
+export declare class EllipsisAnalysis extends AbstractAreaAnalysis {
   getType(): string;
   static startAddingAtPoint(key: string, color: string, file: Instance, top: number, left: number): EllipsisAnalysis;
   static build(key: string, color: string, file: Instance, _top: number, _left: number, _right: number, _bottom: number): EllipsisAnalysis;
@@ -1137,7 +1140,7 @@ declare class PointPoint extends AbstractPoint {
 }
 //#endregion
 //#region src/properties/analysis/analysis/internals/point/PointAnalysis.d.ts
-declare class PointAnalysis extends AbstractAnalysis {
+export declare class PointAnalysis extends AbstractAnalysis {
   getType(): string;
   readonly center: PointPoint;
   protected _graph: AnalysisGraph | undefined;
@@ -1173,7 +1176,7 @@ declare class PointAnalysis extends AbstractAnalysis {
 }
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/rectangle/RectangleAnalysis.d.ts
-declare class RectangleAnalysis extends AbstractAreaAnalysis {
+export declare class RectangleAnalysis extends AbstractAreaAnalysis {
   getType(): string;
   static startAddingAtPoint(key: string, color: string, file: Instance, top: number, left: number): RectangleAnalysis;
   static build(key: string, color: string, file: Instance, _top: number, _left: number, _right: number, _bottom: number): RectangleAnalysis;
@@ -1206,7 +1209,7 @@ declare enum AnalysisSerializableChangeType {
 type AnySerializableChangeCallback = (analysis: AbstractAnalysis, change: AnalysisSerializableChangeType) => void;
 type SlotUnion = "analysis1" | "analysis2" | "analysis3" | "analysis4" | "analysis5" | "analysis6" | "analysis7";
 type SlotNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7;
-declare const availableAnalysisColors: string[];
+export declare const availableAnalysisColors: string[];
 declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
   readonly drive: AnalysisDrive;
   /** Array of all layers ordered from oldest to the newest */
@@ -1349,10 +1352,6 @@ type ThermalCursorPosition = {
 };
 /** The cursor position coordinates or undefined */
 type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
-/** An object that has CursorPositionDrive should implement it in one particular way. */
-interface IWithCursorPosition extends IBaseProperty {
-  cursorPosition: CursorPositionDrive;
-}
 /** Handles cursor position */
 declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup> {
   protected _hover: boolean;
@@ -1370,10 +1369,6 @@ type ThermalRangeType = {
 };
 /** The range or undefined */
 type ThermalRangeOrUndefined = ThermalRangeType | undefined;
-/** An object with range should implement it in a unified way */
-interface IWithRange extends IBaseProperty {
-  range: RangeDriver;
-}
 /** Handles the thermal range display. */
 declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
   readonly onAutoValueChanged: CallbacksManager<(value: ThermalRangeOrUndefined) => void>;
@@ -1424,7 +1419,6 @@ declare class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataO
 /** All available property data types */
 type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap | ThermalGraphGroupDataOrUndefined;
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
-interface IBaseProperty {}
 /**
  * A common basis for all observable properties.
  *
@@ -1439,7 +1433,7 @@ interface IBaseProperty {}
  *
  * @internal
  */
-declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes, ParentType extends IBaseProperty> {
+declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes, ParentType extends BaseStructureObject> {
   readonly parent: ParentType;
   private readonly _initial;
   private _value;
@@ -1482,9 +1476,6 @@ declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes
 }
 //#endregion
 //#region src/properties/scale/PaletteDrive.d.ts
-interface IWithPalette extends IBaseProperty {
-  palette: PaletteDrive;
-}
 declare class PaletteDrive extends AbstractProperty<AvailableThermalPalette, ThermalManager> {
   private get availablePalettes();
   /** All the current palette properties should be accessed through this property. */
@@ -1515,7 +1506,7 @@ declare class FileLoadingError extends Error {
 }
 //#endregion
 //#region src/loading/workers/ThermalFileFailure.d.ts
-declare class ThermalFileFailure extends AbstractFileResult {
+export declare class ThermalFileFailure extends AbstractFileResult {
   readonly code: FileErrors;
   readonly message: string;
   constructor(thermalUrl: string, code: FileErrors, message: string);
@@ -1568,9 +1559,6 @@ type ThermalFileRequest = {
 };
 //#endregion
 //#region src/properties/display/OpacityDrive.d.ts
-interface IWithOpacity extends IBaseProperty {
-  opacity: OpacityDrive;
-}
 declare class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
   /** Make sure the value is allways between 0 and 1 */
   protected validate(value: number): number;
@@ -1583,9 +1571,6 @@ declare class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
 }
 //#endregion
 //#region src/properties/lists/GroupsState.d.ts
-interface IWithGroups extends IBaseProperty {
-  groups: GroupsState;
-}
 /** Handles group creation and removal */
 declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegistry> {
   protected _map: Map<string, ThermalGroup>;
@@ -1596,6 +1581,14 @@ declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegist
   addOrGetGroup(groupId: string, name?: string, description?: string): ThermalGroup;
   removeGroup(groupId: string): void;
   removeAllGroups(): void;
+}
+//#endregion
+//#region src/properties/scale/MinmaxRegistryState.d.ts
+declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegistry> {
+  protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
+  protected afterSetEffect(): void;
+  recalculateFromGroups(): ThermalMinmaxOrUndefined;
+  protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
 }
 //#endregion
 //#region src/properties/states/HistogramState.d.ts
@@ -1625,7 +1618,7 @@ declare class HistogramState extends AbstractProperty<ThermalStatistics[], Therm
    *
    * @notice Higher the number, lower the resolution.
    * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
-  */
+   */
   setResolution(value: number): void;
   /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
   protected validate(value: ThermalStatistics[]): ThermalStatistics[];
@@ -1639,26 +1632,132 @@ declare class HistogramState extends AbstractProperty<ThermalStatistics[], Therm
 }
 //#endregion
 //#region src/properties/states/LoadingState.d.ts
-interface IWithLoading extends IBaseProperty {
-  /** Stores the loading state and executes all the listeners. */
-  loading: LoadingState;
-}
-declare class LoadingState extends AbstractProperty<boolean, IWithLoading> {
+declare class LoadingState extends AbstractProperty<boolean, ThermalRegistry> {
   protected validate(value: boolean): boolean;
   protected afterSetEffect(): void;
   markAsLoading(): void;
   markAsLoaded(): void;
 }
 //#endregion
-//#region src/properties/scale/MinmaxRegistryState.d.ts
-interface IWithMinmaxRegistry extends IBaseProperty {
-  minmax: MinmaxRegistryProperty;
+//#region src/hierarchy/ThermalRegistry.d.ts
+type ThermalRegistryOptions = {
+  histogramResolution?: number;
+};
+type BatchLoadingCallback = (result: ThermalFileFailure | Instance) => Promise<void>;
+/**
+ * The global thermal registry
+ * @todo implementing EventTarget
+ */
+export declare class ThermalRegistry extends BaseStructureObject {
+  readonly id: string;
+  readonly manager: ThermalManager;
+  readonly hash: number;
+  constructor(id: string, manager: ThermalManager, options?: ThermalRegistryOptions);
+  /** Service */
+  get service(): FilesService;
+  get pool(): import("workerpool/types/Pool");
+  /** Groups are stored in an observable property */
+  readonly groups: GroupsState;
+  /** Iterator methods */
+  forEveryGroup(fn: ((group: ThermalGroup) => void)): void;
+  forEveryInstance(fn: (instance: Instance) => void): void;
+  /** Full load of the registry with multiple files @deprecated */
+  loadFullMultipleFiles(files: {
+    [index: string]: ThermalFileRequest[];
+  }): Promise<(false | Instance)[][]>;
+  /** Load the registry with only one file. @deprecated */
+  loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<Instance | ThermalFileFailure>;
+  private _batch?;
+  get batch(): BatchLoader;
+  /** @deprecated use batch member class instead */
+  registerRequest(thermalUrl: string, visibleUrl: undefined | string, group: ThermalGroup, callback: BatchLoadingCallback): void;
+  readonly onProcessingStart: CallbacksManager<() => void>;
+  readonly onProcessingEnd: CallbacksManager<() => void>;
+  /**
+   * Actions to take after the registry is loaded
+   * - recalculate the minmax of groups
+   * - recalculate minmax of registry
+   * - impose new minmax as new range
+   * - recalculate the histogram
+   */
+  postLoadedProcessing(): Promise<void>;
+  reset(): void;
+  removeAllChildren(): void;
+  destroySelfAndBelow(): void;
+  destroySelfInTheManager(): void;
+  /**
+   * Observable properties and drives
+   */
+  /**
+   * Opacity property
+   */
+  readonly opacity: OpacityDrive;
+  /**
+   * Minmax property
+   */
+  readonly minmax: MinmaxRegistryProperty;
+  /**
+   * Loading
+   */
+  readonly loading: LoadingState;
+  /**
+   * Range
+   */
+  readonly range: RangeDriver;
+  /**
+   * Histogram
+   */
+  readonly histogram: HistogramState;
+  /**
+   * Palette
+   */
+  readonly palette: PaletteDrive;
+  readonly filters: FilterContainer;
+  getInstances(): Instance[];
 }
-declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegistry> {
-  protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
-  protected afterSetEffect(): void;
-  recalculateFromGroups(): ThermalMinmaxOrUndefined;
-  protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
+type ThermalStatistics = {
+  from: number;
+  to: number;
+  percentage: number;
+  count: number;
+  height: number;
+};
+//#endregion
+//#region src/loading/batch/Batch.d.ts
+/**
+ * A single batch object
+ *
+ * A batch is created from all requests registered in a single tick.
+ * The Batch creation and requests registration is handled completely
+ * by `BatchLoader.request` method.
+ *
+ * Internally, this object stores an array of file requests along
+ * with all the necessary additional information: the target group
+ * and a callback that will be fired AFTER ALL FILES OF THE BATCH ARE LOADED.
+ *
+ */
+export declare class Batch {
+  protected readonly loader: BatchLoader;
+  readonly id?: string | undefined;
+  private _loading;
+  get loading(): boolean;
+  readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
+  /** The current timeout fn that is being overriden by every call of the `request` method */
+  private timeout?;
+  /** Array of currently queued requests */
+  private queue;
+  get size(): number;
+  protected constructor(loader: BatchLoader, id?: string | undefined);
+  static init(loader: BatchLoader, id?: string): Batch;
+  static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: undefined | string, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
+  /**
+   * Request a thermal file
+   *
+   * Requesting adds new record to the queue and creates a new
+   * timeout closure.
+   */
+  request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+  close(): void;
 }
 //#endregion
 //#region src/properties/analysis/sync/utils/GroupExportCSV.d.ts
@@ -1807,9 +1906,6 @@ declare class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Gro
 }
 //#endregion
 //#region src/properties/analysis/sync/analysisSync.d.ts
-interface IWithAnalysisSync extends IBaseProperty {
-  analysisSync: AnalysisSyncDrive;
-}
 declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
   static readonly LISTENER_KEY = "__analysis__sync";
   /** Event that is triggered every time a slot is synchronised & serialised */
@@ -1891,7 +1987,7 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
  * - this service is registered in FilesService
  * - the instances are retrieved using `FilesService.loadOneFile`
  */
-declare class ThermalFileReader extends AbstractFileResult {
+export declare class ThermalFileReader extends AbstractFileResult {
   readonly service: FilesService;
   readonly parser: IParserObject;
   /** For the purpose of testing we have a unique ID */
@@ -1935,9 +2031,6 @@ declare class ThermalFileReader extends AbstractFileResult {
 }
 //#endregion
 //#region src/properties/lists/filesState.d.ts
-interface IWithFiles extends IBaseProperty {
-  files: FilesState;
-}
 declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
   protected _map: Map<string, Instance>;
   get map(): Map<string, Instance>;
@@ -1962,326 +2055,13 @@ declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
   batchCreateInstances(readers: ThermalFileReader[], doReplaceExisting?: boolean): Promise<void>;
 }
 //#endregion
-//#region src/properties/cursor/CursorValueDrive.d.ts
-interface IWithCursorValue extends IBaseProperty {
-  cursorValue: CursorValueDrive;
-}
-declare class CursorValueDrive extends AbstractProperty<number | undefined, Instance> {
-  protected validate(value: number | undefined): number | undefined;
-  protected afterSetEffect(): void;
-  recalculateFromCursor(position: ThermalCursorPositionOrUndefined): void;
-  protected _getValueAtCoordinate(x: number | undefined, y: number | undefined): number | undefined;
-}
-//#endregion
 //#region src/properties/scale/MinmaxGroupProperty.d.ts
-interface IWithMinmaxGroup extends IBaseProperty {
-  minmax: MinmaxGroupProperty;
-}
 declare class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
   protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
   protected afterSetEffect(): void;
   /** Call this method once all instances are created */
   recalculateFromInstances(): ThermalMinmaxOrUndefined;
   protected _getMinmaxFromInstances(): ThermalMinmaxOrUndefined;
-}
-//#endregion
-//#region src/properties/time/playback/internals/FrameBuffer.d.ts
-declare class FrameBuffer {
-  protected readonly drive: TimelineDrive;
-  /** @internal use accessors to get and set with side effects */
-  protected _currentFrame: ParsedFileFrame;
-  /** The current frame data @readonly */
-  get currentFrame(): ParsedFileFrame;
-  /** Upon every update of current frame, propagate current pixels to the instance */
-  protected set currentFrame(frame: ParsedFileFrame);
-  /** Get the current step value calculated from _currentFrame */
-  get currentStep(): ParsedTimelineFrame;
-  /** Number of images to preload at once */
-  readonly bufferSize: number;
-  /** The actual buffer holding pair of step & frame */
-  protected buffer: Map<ParsedTimelineFrame, ParsedFileFrame>;
-  /** Accessor to array of steps preloaded in the given moment */
-  get preloadedSteps(): ParsedTimelineFrame[];
-  /** Accessor to array of relative timestamps preloaded in the given moment */
-  get preloadedTimestampsRelative(): number[];
-  constructor(drive: TimelineDrive, firstFrame: ParsedFileFrame);
-  init(): Promise<TimelineChangedStatusType>;
-  /**
-   * Activate a step
-   * - look for the buffer for the corresponding frame
-   * - if there is a corresponding frame, apply it
-   * - if there is none, fetch it
-   * - if sequence, fetch buffer
-   *
-   * **THIS IS THE MAIN SETTER**
-   */
-  recieveStep(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
-  /** Preload frame data to the buffer based on the provided step */
-  protected preloadAfterFrameSet(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
-}
-//#endregion
-//#region src/properties/time/playback/TimelineDrive.d.ts
-interface IWithTimeline extends IBaseProperty {
-  timeline: TimelineDrive;
-}
-type FramesMap = Map<number, ParsedTimelineFrame>;
-type TimelineChangedStatusType = {
-  absoluteTime: number;
-  relativeTime: number;
-  currentFrame: ParsedFileFrame;
-  currentStep: ParsedTimelineFrame;
-  buffer: ParsedTimelineFrame[];
-  preloaded: boolean;
-  hasChanged: boolean;
-};
-declare const playbackSpeed: {
-  1: number;
-  0.5: number;
-  2: number;
-  3: number;
-  5: number;
-  10: number;
-};
-type PlaybackSpeeds = keyof typeof playbackSpeed;
-/** Stores the frames and the time pointer which is in the miliseconds */
-declare class TimelineDrive extends AbstractProperty<number, Instance> {
-  readonly steps: ParsedFileBaseInfo["timeline"];
-  readonly parent: Instance;
-  protected _playbackSpeed: PlaybackSpeeds;
-  get playbackSpeed(): PlaybackSpeeds;
-  set playbackSpeed(value: PlaybackSpeeds);
-  get playbackSpeedAspect(): number;
-  readonly onFrame: CallbacksManager<(currentFrame: ParsedTimelineFrame) => void>;
-  get duration(): number;
-  get frameCount(): number;
-  readonly startTimestampRelative: number;
-  /** @deprecated not in use? */
-  readonly endTimestampRelative: number;
-  readonly stepsByAbsolute: FramesMap;
-  readonly stepsByRelative: FramesMap;
-  readonly stepsByIndex: FramesMap;
-  readonly relativeSteps: number[];
-  protected _currentStep: ParsedTimelineFrame;
-  get currentStep(): ParsedTimelineFrame;
-  readonly isSequence: boolean;
-  protected _isPlaying: boolean;
-  get isPlaying(): boolean;
-  protected timer?: ReturnType<typeof setTimeout>;
-  readonly buffer: FrameBuffer;
-  readonly callbackdPlaybackSpeed: CallbacksManager<(value: PlaybackSpeeds) => void>;
-  readonly callbacksPlay: CallbacksManager<() => void>;
-  readonly callbacksPause: CallbacksManager<() => void>;
-  readonly callbacksStop: CallbacksManager<() => void>;
-  readonly callbacksEnd: CallbacksManager<() => void>;
-  readonly callbacksChangeFrame: CallbacksManager<(frame: ParsedTimelineFrame) => void>;
-  get currentMs(): number;
-  get currentPercentage(): number;
-  get currentFrameIndex(): number;
-  get currentTime(): string;
-  get frames(): ParsedTimelineFrame[];
-  constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
-  init(): void;
-  protected afterSetEffect(): void;
-  protected validate(value: number): number;
-  _validateRelativeTime(value: number): number;
-  _validateIndex(value: number): number;
-  _convertRelativeToAspect(relativeTimeInMs: number): number;
-  _convertRelativeToPercent(relativeTimeInMs: number): number;
-  _convertPercenttRelative(percent: number): number;
-  formatDuration(ms: number): string;
-  next(): void;
-  prev(): void;
-  protected findPreviousOrThis(relativeTimeInMs: number): ParsedTimelineFrame;
-  /**
-   * Find previous frame by relative ms.
-   */
-  findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
-  findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
-  setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;
-  setValueByPercent(percent: number): Promise<TimelineChangedStatusType>;
-  /** This is the main play method */
-  protected createNextStepTimer(): void;
-  play(): void;
-  pause(): void;
-  stop(): void;
-}
-//#endregion
-//#region src/properties/time/recording/RecordingDrive.d.ts
-interface IWithRedording extends IBaseProperty {
-  recording: RecordingDrive;
-}
-declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
-  parent: Instance;
-  protected stream?: MediaStream;
-  protected recorder?: MediaRecorder;
-  protected mimeType?: string;
-  protected fileExt?: string;
-  protected _isRecording: boolean;
-  protected _mayStop: boolean;
-  get mayStop(): boolean;
-  protected set mayStop(value: boolean);
-  protected recordedChunks: Blob[];
-  readonly callbackMayStop: CallbacksManager<(value: boolean) => void>;
-  protected validate(value: boolean): boolean;
-  protected afterSetEffect(value: boolean): void;
-  start(): void;
-  end(): void;
-  /** Records the entire file from start to the end. */
-  recordEntireFile(): Promise<void>;
-  getOutputMimeType(): {
-    mime: string;
-    ext: string;
-  } | undefined;
-  protected initRecording(): {
-    stream: MediaStream;
-    recorder: MediaRecorder;
-    options: MediaRecorderOptions;
-  };
-  private createRecordingFileName;
-  protected download(): void;
-  protected clearRecording(): void;
-}
-//#endregion
-//#region src/properties/structure.d.ts
-/**
- * Object types
- */
-/** Base object of the thermal tree */
-interface IThermalObjectBase {
-  destroySelfAndBelow: () => void;
-  removeAllChildren: () => void;
-  reset: () => void;
-}
-/** Base object for container tree containers */
-interface IThermalContainer extends IThermalObjectBase {}
-/** An instance and its properties */
-interface IThermalInstance extends IThermalObjectBase, IWithCursorValue, IWithRedording, IWithAnalysis, IWithTimeline {
-  group: ThermalGroup;
-}
-/** Thermal group definition with all its properties */
-interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles, IWithCursorPosition, IWithTool, IWithAnalysisSync {}
-/** Thermal registry definition with all its properties */
-interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {}
-//#endregion
-//#region src/hierarchy/ThermalRegistry.d.ts
-type ThermalRegistryOptions = {
-  histogramResolution?: number;
-};
-type BatchLoadingCallback = (result: ThermalFileFailure | Instance) => Promise<void>;
-/**
- * The global thermal registry
- * @todo implementing EventTarget
- */
-declare class ThermalRegistry extends BaseStructureObject implements IThermalRegistry {
-  readonly id: string;
-  readonly manager: ThermalManager;
-  readonly hash: number;
-  constructor(id: string, manager: ThermalManager, options?: ThermalRegistryOptions);
-  /** Service */
-  get service(): FilesService;
-  get pool(): workerpool_types_Pool0;
-  /** Groups are stored in an observable property */
-  readonly groups: GroupsState;
-  /** Iterator methods */
-  forEveryGroup(fn: ((group: ThermalGroup) => void)): void;
-  forEveryInstance(fn: (instance: Instance) => void): void;
-  /** Full load of the registry with multiple files @deprecated */
-  loadFullMultipleFiles(files: {
-    [index: string]: ThermalFileRequest[];
-  }): Promise<(false | Instance)[][]>;
-  /** Load the registry with only one file. @deprecated */
-  loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<Instance | ThermalFileFailure>;
-  private _batch?;
-  get batch(): BatchLoader;
-  /** @deprecated use batch member class instead */
-  registerRequest(thermalUrl: string, visibleUrl: undefined | string, group: ThermalGroup, callback: BatchLoadingCallback): void;
-  readonly onProcessingStart: CallbacksManager<() => void>;
-  readonly onProcessingEnd: CallbacksManager<() => void>;
-  /**
-   * Actions to take after the registry is loaded
-   * - recalculate the minmax of groups
-   * - recalculate minmax of registry
-   * - impose new minmax as new range
-   * - recalculate the histogram
-  */
-  postLoadedProcessing(): Promise<void>;
-  reset(): void;
-  removeAllChildren(): void;
-  destroySelfAndBelow(): void;
-  destroySelfInTheManager(): void;
-  /**
-   * Observable properties and drives
-   */
-  /**
-   * Opacity property
-   */
-  readonly opacity: OpacityDrive;
-  /**
-   * Minmax property
-   */
-  readonly minmax: MinmaxRegistryProperty;
-  /**
-   * Loading
-   */
-  readonly loading: LoadingState;
-  /**
-   * Range
-   */
-  readonly range: RangeDriver;
-  /**
-   * Histogram
-   */
-  readonly histogram: HistogramState;
-  /**
-   * Palette
-   */
-  readonly palette: PaletteDrive;
-  readonly filters: FilterContainer;
-  getInstances(): Instance[];
-}
-type ThermalStatistics = {
-  from: number;
-  to: number;
-  percentage: number;
-  count: number;
-  height: number;
-};
-//#endregion
-//#region src/loading/batch/Batch.d.ts
-/**
- * A single batch object
- *
- * A batch is created from all requests registered in a single tick.
- * The Batch creation and requests registration is handled completely
- * by `BatchLoader.request` method.
- *
- * Internally, this object stores an array of file requests along
- * with all the necessary additional information: the target group
- * and a callback that will be fired AFTER ALL FILES OF THE BATCH ARE LOADED.
- *
- */
-declare class Batch {
-  protected readonly loader: BatchLoader;
-  readonly id?: string | undefined;
-  private _loading;
-  get loading(): boolean;
-  readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
-  /** The current timeout fn that is being overriden by every call of the `request` method */
-  private timeout?;
-  /** Array of currently queued requests */
-  private queue;
-  get size(): number;
-  protected constructor(loader: BatchLoader, id?: string | undefined);
-  static init(loader: BatchLoader, id?: string): Batch;
-  static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: undefined | string, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
-  /**
-   * Request a thermal file
-   *
-   * Requesting adds new record to the queue and creates a new
-   * timeout closure.
-   */
-  request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
-  close(): void;
 }
 //#endregion
 //#region src/properties/time/group/GroupPlayback.d.ts
@@ -2357,7 +2137,7 @@ declare class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
 /**
  * Group of thermal images
  */
-declare class ThermalGroup extends BaseStructureObject implements IThermalGroup {
+export declare class ThermalGroup extends BaseStructureObject {
   readonly registry: ThermalRegistry;
   readonly id: string;
   readonly name?: string | undefined;
@@ -2365,7 +2145,7 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
   readonly hash: number;
   /** Human readable label = name or id or hasn */
   get label(): string;
-  get pool(): workerpool_types_Pool0;
+  get pool(): import("workerpool/types/Pool");
   constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
   readonly minmax: MinmaxGroupProperty;
   /** Tool drive from above */
@@ -2385,6 +2165,165 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
   readonly filters: FilterContainer;
   getInstances(): Instance[];
   startBatch(id: string): Batch;
+}
+//#endregion
+//#region src/properties/cursor/CursorValueDrive.d.ts
+declare class CursorValueDrive extends AbstractProperty<number | undefined, Instance> {
+  protected validate(value: number | undefined): number | undefined;
+  protected afterSetEffect(): void;
+  recalculateFromCursor(position: ThermalCursorPositionOrUndefined): void;
+  protected _getValueAtCoordinate(x: number | undefined, y: number | undefined): number | undefined;
+}
+//#endregion
+//#region src/properties/time/playback/internals/FrameBuffer.d.ts
+declare class FrameBuffer {
+  protected readonly drive: TimelineDrive;
+  /** @internal use accessors to get and set with side effects */
+  protected _currentFrame: ParsedFileFrame;
+  /** The current frame data @readonly */
+  get currentFrame(): ParsedFileFrame;
+  /** Upon every update of current frame, propagate current pixels to the instance */
+  protected set currentFrame(frame: ParsedFileFrame);
+  /** Get the current step value calculated from _currentFrame */
+  get currentStep(): ParsedTimelineFrame;
+  /** Number of images to preload at once */
+  readonly bufferSize: number;
+  /** The actual buffer holding pair of step & frame */
+  protected buffer: Map<ParsedTimelineFrame, ParsedFileFrame>;
+  /** Accessor to array of steps preloaded in the given moment */
+  get preloadedSteps(): ParsedTimelineFrame[];
+  /** Accessor to array of relative timestamps preloaded in the given moment */
+  get preloadedTimestampsRelative(): number[];
+  constructor(drive: TimelineDrive, firstFrame: ParsedFileFrame);
+  init(): Promise<TimelineChangedStatusType>;
+  /**
+   * Activate a step
+   * - look for the buffer for the corresponding frame
+   * - if there is a corresponding frame, apply it
+   * - if there is none, fetch it
+   * - if sequence, fetch buffer
+   *
+   * **THIS IS THE MAIN SETTER**
+   */
+  recieveStep(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
+  /** Preload frame data to the buffer based on the provided step */
+  protected preloadAfterFrameSet(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
+}
+//#endregion
+//#region src/properties/time/playback/TimelineDrive.d.ts
+type FramesMap = Map<number, ParsedTimelineFrame>;
+type TimelineChangedStatusType = {
+  absoluteTime: number;
+  relativeTime: number;
+  currentFrame: ParsedFileFrame;
+  currentStep: ParsedTimelineFrame;
+  buffer: ParsedTimelineFrame[];
+  preloaded: boolean;
+  hasChanged: boolean;
+};
+export declare const playbackSpeed: {
+  1: number;
+  0.5: number;
+  2: number;
+  3: number;
+  5: number;
+  10: number;
+};
+type PlaybackSpeeds = keyof typeof playbackSpeed;
+/** Stores the frames and the time pointer which is in the miliseconds */
+declare class TimelineDrive extends AbstractProperty<number, Instance> {
+  readonly steps: ParsedFileBaseInfo["timeline"];
+  readonly parent: Instance;
+  protected _playbackSpeed: PlaybackSpeeds;
+  get playbackSpeed(): PlaybackSpeeds;
+  set playbackSpeed(value: PlaybackSpeeds);
+  get playbackSpeedAspect(): number;
+  readonly onFrame: CallbacksManager<(currentFrame: ParsedTimelineFrame) => void>;
+  get duration(): number;
+  get frameCount(): number;
+  readonly startTimestampRelative: number;
+  /** @deprecated not in use? */
+  readonly endTimestampRelative: number;
+  readonly stepsByAbsolute: FramesMap;
+  readonly stepsByRelative: FramesMap;
+  readonly stepsByIndex: FramesMap;
+  readonly relativeSteps: number[];
+  protected _currentStep: ParsedTimelineFrame;
+  get currentStep(): ParsedTimelineFrame;
+  readonly isSequence: boolean;
+  protected _isPlaying: boolean;
+  get isPlaying(): boolean;
+  protected timer?: ReturnType<typeof setTimeout>;
+  readonly buffer: FrameBuffer;
+  readonly callbackdPlaybackSpeed: CallbacksManager<(value: PlaybackSpeeds) => void>;
+  readonly callbacksPlay: CallbacksManager<() => void>;
+  readonly callbacksPause: CallbacksManager<() => void>;
+  readonly callbacksStop: CallbacksManager<() => void>;
+  readonly callbacksEnd: CallbacksManager<() => void>;
+  readonly callbacksChangeFrame: CallbacksManager<(frame: ParsedTimelineFrame) => void>;
+  get currentMs(): number;
+  get currentPercentage(): number;
+  get currentFrameIndex(): number;
+  get currentTime(): string;
+  get frames(): ParsedTimelineFrame[];
+  constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
+  init(): void;
+  protected afterSetEffect(): void;
+  protected validate(value: number): number;
+  _validateRelativeTime(value: number): number;
+  _validateIndex(value: number): number;
+  _convertRelativeToAspect(relativeTimeInMs: number): number;
+  _convertRelativeToPercent(relativeTimeInMs: number): number;
+  _convertPercenttRelative(percent: number): number;
+  formatDuration(ms: number): string;
+  next(): void;
+  prev(): void;
+  protected findPreviousOrThis(relativeTimeInMs: number): ParsedTimelineFrame;
+  /**
+   * Find previous frame by relative ms.
+   */
+  findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
+  findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
+  setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;
+  setValueByPercent(percent: number): Promise<TimelineChangedStatusType>;
+  /** This is the main play method */
+  protected createNextStepTimer(): void;
+  play(): void;
+  pause(): void;
+  stop(): void;
+}
+//#endregion
+//#region src/properties/time/recording/RecordingDrive.d.ts
+declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
+  parent: Instance;
+  protected stream?: MediaStream;
+  protected recorder?: MediaRecorder;
+  protected mimeType?: string;
+  protected fileExt?: string;
+  protected _isRecording: boolean;
+  protected _mayStop: boolean;
+  get mayStop(): boolean;
+  protected set mayStop(value: boolean);
+  protected recordedChunks: Blob[];
+  readonly callbackMayStop: CallbacksManager<(value: boolean) => void>;
+  protected validate(value: boolean): boolean;
+  protected afterSetEffect(value: boolean): void;
+  start(): void;
+  end(): void;
+  /** Records the entire file from start to the end. */
+  recordEntireFile(): Promise<void>;
+  getOutputMimeType(): {
+    mime: string;
+    ext: string;
+  } | undefined;
+  protected initRecording(): {
+    stream: MediaStream;
+    recorder: MediaRecorder;
+    options: MediaRecorderOptions;
+  };
+  private createRecordingFileName;
+  protected download(): void;
+  protected clearRecording(): void;
 }
 //#endregion
 //#region src/file/dom/InstanceDom.d.ts
@@ -2429,16 +2368,6 @@ declare class InstanceDOM {
   dehydrate(): void;
 }
 //#endregion
-//#region src/file/IFileInstance.d.ts
-/** Define properties for a file */
-interface IFileInstance extends IThermalInstance, BaseStructureObject {
-  root: HTMLDivElement | null;
-  horizontalLimit: number;
-  id: string;
-  verticalLimit: number;
-  duration: number;
-}
-//#endregion
 //#region src/file/render/AbstractRenderer.d.ts
 declare abstract class AbstractRenderer {
   protected readonly file: AbstractFile;
@@ -2456,8 +2385,8 @@ declare abstract class AbstractRenderer {
   /** Alias vedoucí na současné TO teplotního rozsahu */
   protected get to(): number;
   protected get palette(): string[];
-  constructor(file: AbstractFile, /** Canvas musí být vytvořený před inicializací rendereru */
-
+  constructor(file: AbstractFile,
+  /** Canvas musí být vytvořený před inicializací rendereru */
   canvas: HTMLCanvasElement);
   /** Inicializace rendereru - vytvoření patřičných listenerů či shaderů atd... */
   init(): Promise<void>;
@@ -2499,7 +2428,7 @@ declare class FileMeta {
  *
  * Most drivers are set in individual implementations, not here.
  */
-declare abstract class AbstractFile extends BaseStructureObject implements IFileInstance {
+declare abstract class AbstractFile extends BaseStructureObject {
   private _label?;
   get label(): string | undefined;
   setLabel(label: string | undefined): void;
@@ -2510,7 +2439,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
   /** Internal limit for cursor label position */
   readonly verticalLimit: number;
   readonly group: ThermalGroup;
-  get pool(): workerpool_types_Pool0;
+  get pool(): import("workerpool/types/Pool");
   readonly thermalUrl: string;
   private _visibleUrl?;
   get visibleUrl(): string | undefined;
@@ -2664,7 +2593,7 @@ declare class FilePngExport extends AbstractPngExport<FileExportPngParams, FileE
  * handles playback and do all important
  * stuff.
  */
-declare class Instance extends AbstractFile {
+export declare class Instance extends AbstractFile {
   readonly group: ThermalGroup;
   readonly reader: ThermalFileReader;
   readonly firstFrame: ParsedFileFrame;
@@ -2696,6 +2625,9 @@ declare class Instance extends AbstractFile {
 //#region src/base/BaseStructureObject.d.ts
 declare abstract class BaseStructureObject {
   abstract getInstances(): Instance[];
+  abstract destroySelfAndBelow(): void;
+  abstract removeAllChildren(): void;
+  abstract reset(): void;
 }
 //#endregion
 //#region src/properties/display/GraphSmoothDrive.d.ts
@@ -2718,7 +2650,7 @@ declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
 type ThermalManagerOptions = {
   palette?: AvailableThermalPalette;
 };
-declare class ThermalManager extends BaseStructureObject {
+export declare class ThermalManager extends BaseStructureObject {
   readonly id: number;
   /** Service for creation of loading and caching the files. */
   readonly service: FilesService;
@@ -2739,6 +2671,9 @@ declare class ThermalManager extends BaseStructureObject {
   readonly filters: FilterContainer;
   getInstances(): Instance[];
   forEveryInstance(callback: (instance: Instance) => void): void;
+  destroySelfAndBelow(): void;
+  removeAllChildren(): void;
+  reset(): void;
 }
 //#endregion
 //#region src/loading/workers/parsers/index.d.ts
@@ -2748,15 +2683,15 @@ declare class ThermalManager extends BaseStructureObject {
  * - no functionality is relies on this data
  * - all the functionality needs to be implemented in static functions of the parser itself
  */
-declare const supportedFileTypes: IParserObject["extensions"][];
-declare const supportedFileTypesInputProperty: string;
+export declare const supportedFileTypes: IParserObject["extensions"][];
+export declare const supportedFileTypesInputProperty: string;
 //#endregion
 //#region src/properties/analysis/analysis/internals/AbstractAddTool.d.ts
 /** Tool for analysis addition */
-declare abstract class AbstractAddTool extends AbstractTool {}
+export declare abstract class AbstractAddTool extends AbstractTool {}
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/ellipsis/AddEllipsisTool.d.ts
-declare class AddEllipsisTool extends AbstractAddTool implements ITool {
+export declare class AddEllipsisTool extends AbstractAddTool implements ITool {
   readonly key: string;
   readonly name: string;
   readonly description: string;
@@ -2774,7 +2709,7 @@ declare class AddEllipsisTool extends AbstractAddTool implements ITool {
 }
 //#endregion
 //#region src/properties/analysis/analysis/internals/area/rectangle/AddRectangleTool.d.ts
-declare class AddRectangleTool extends AbstractAddTool implements ITool {
+export declare class AddRectangleTool extends AbstractAddTool implements ITool {
   readonly key: string;
   readonly name: string;
   readonly description: string;
@@ -2792,7 +2727,7 @@ declare class AddRectangleTool extends AbstractAddTool implements ITool {
 }
 //#endregion
 //#region src/properties/analysis/tool/internals/EditTool.d.ts
-declare class EditTool extends AbstractTool implements ITool {
+export declare class EditTool extends AbstractTool implements ITool {
   readonly key = "edit";
   readonly name = "editanalysis";
   readonly description = "dragcornersofselectedanalysis";
@@ -2810,7 +2745,7 @@ declare class EditTool extends AbstractTool implements ITool {
 }
 //#endregion
 //#region src/properties/analysis/tool/internals/InspectTool.d.ts
-declare class InspectTool extends AbstractTool implements ITool {
+export declare class InspectTool extends AbstractTool implements ITool {
   readonly key = "inspect";
   readonly name: string;
   readonly description: string;
@@ -2836,7 +2771,7 @@ declare abstract class TimeUtilsBase {
 //#endregion
 //#region src/utils/time/formatting.d.ts
 /** Utility class for time formatting in the LabIR ecosystem. */
-declare class TimeFormat extends TimeUtilsBase {
+export declare class TimeFormat extends TimeUtilsBase {
   /** YYYY-MM-DD */
   static isoDate: (value: AcceptableDateInput) => string;
   /** HH:MM:SS */
@@ -2856,22 +2791,22 @@ declare class TimeFormat extends TimeUtilsBase {
 //#endregion
 //#region src/utils/time/periods.d.ts
 /** Defined time periods used in the LabIR ecosystem. */
-declare enum TimePeriod {
+export declare enum TimePeriod {
   HOUR = "jednu hodinu",
   DAY = "jeden den",
-  WEEK = "jeden t\u00FDden",
-  MONTH = "jeden m\u011Bs\u00EDc",
+  WEEK = "jeden týden",
+  MONTH = "jeden měsíc",
   YEAR = "jeden rok"
 }
 //#endregion
 //#region src/utils/time/rounding.d.ts
 /** Utility class for time rounding in the LabIR ecosystem. */
-declare class TimeRound extends TimeUtilsBase {
+export declare class TimeRound extends TimeUtilsBase {
   static down: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
   static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
   static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
   static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 //#endregion
-export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalette, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, Instance, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty, zip };
+export { type AnalysisDataStateValue, type AvailableThermalPalette, type ParsedTimelineFrame, type PlaybackSpeeds, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, type ThermalRangeOrUndefined, type ThermalRegistryOptions, type ThermalTool, zip };
 //# sourceMappingURL=index.d.mts.map

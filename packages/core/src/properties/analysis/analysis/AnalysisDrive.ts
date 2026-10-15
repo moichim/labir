@@ -1,12 +1,9 @@
 import { Instance } from "../../../file/instance";
-import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { AbstractProperty } from "../../abstractProperty";
 import { AbstractAnalysis } from "./internals/AbstractAnalysis";
 import { AnalysisLayersStorage } from "./storage/AnalysisLayersStorage";
 import { AnalysisPointsAccessor } from "./storage/AnalysisPointsAccessor";
 
-export interface IWithAnalysis extends IBaseProperty {
-    analysis: AnalysisDrive
-}
 
 export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance> {
 

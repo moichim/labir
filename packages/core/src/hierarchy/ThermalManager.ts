@@ -1,5 +1,3 @@
-"use client";
-
 import * as workerpool from "workerpool";
 import Pool from "workerpool/types/Pool";
 import { BaseStructureObject } from "../base/BaseStructureObject";
@@ -120,6 +118,29 @@ export class ThermalManager extends BaseStructureObject {
 
     public forEveryInstance( callback: (instance: Instance) => void ): void {
         this.forEveryRegistry( registry => registry.forEveryInstance( callback ) );
+    }
+
+    public destroySelfAndBelow(): void {
+
+        this.removeAllChildren();
+
+        this.reset();
+
+    }
+
+    public removeAllChildren(): void {
+
+        this.forEveryRegistry(registry => {
+            this.removeRegistry(registry.id);
+        });
+
+    }
+
+    public reset(): void {
+        this.palette.reset();
+        this.smooth.reset();
+        this.graphSmooth.reset();
+        this.tool.reset();
     }
 
 

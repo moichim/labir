@@ -153,7 +153,7 @@ export const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
     timestamps.forEach((t, index) => {
 
         const next = timestamps[index + 1];
-        let offset: number = 0;
+        let offset: number = 0; //eslint-disable-line no-useless-assignment
         if (next === undefined) {
             offset = 0;
         } else {

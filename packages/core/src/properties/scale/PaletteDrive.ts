@@ -1,11 +1,7 @@
 
 import { AvailableThermalPalette, defaultPaletteKey, ThermalPalettes } from "./palettes";
 import { ThermalManager } from "../../hierarchy/ThermalManager";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
-
-export interface IWithPalette extends IBaseProperty {
-    palette: PaletteDrive
-}
+import { AbstractProperty } from "../abstractProperty";
 
 export class PaletteDrive extends AbstractProperty< AvailableThermalPalette, ThermalManager > {
 
