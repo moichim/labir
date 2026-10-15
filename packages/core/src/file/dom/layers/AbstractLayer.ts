@@ -1,5 +1,4 @@
 import { AbstractFile } from "../../AbstractFile";
-import { Instance } from "../../instance";
 
 export abstract class AbstractLayer {
 

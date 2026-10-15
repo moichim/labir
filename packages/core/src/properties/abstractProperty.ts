@@ -29,7 +29,7 @@ type PropertyListenersTypes = boolean
 
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 
-export interface IBaseProperty { }
+export interface IBaseProperty { } //eslint-disable-line @typescript-eslint/no-empty-interface
 
 
 /** 

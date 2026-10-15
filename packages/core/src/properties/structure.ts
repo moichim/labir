@@ -32,7 +32,7 @@ interface IThermalObjectBase {
 
 /** Base object for container tree containers */
 interface IThermalContainer 
-    extends IThermalObjectBase { }
+    extends IThermalObjectBase { } //eslint-disable @typescript-eslint/no-empty-interface
 
 /** An instance and its properties */
 export interface IThermalInstance

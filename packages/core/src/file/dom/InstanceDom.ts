@@ -1,4 +1,3 @@
-import { CallbacksManager } from "../../properties/callbacksManager";
 import { AbstractFile } from "../AbstractFile";
 import { ThermalCanvasLayer } from "./layers/thermalCanvasLayer";
 import ThermalCursorLayer from "./layers/thermalCursorLayer";

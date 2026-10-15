@@ -1,7 +1,6 @@
-import { Instance } from "../../instance";
-import { AbstractLayer } from "./AbstractLayer";
-import ThermalDomFactory from "../domFactories";
 import { AbstractFile } from "../../AbstractFile";
+import ThermalDomFactory from "../domFactories";
+import { AbstractLayer } from "./AbstractLayer";
 
 /** Contains the visible image. Needs to be placed on the bottom. */
 export class VisibleLayer extends AbstractLayer {
