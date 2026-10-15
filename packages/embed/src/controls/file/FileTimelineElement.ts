@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { format } from "date-fns";
 import { t } from "i18next";
@@ -62,7 +62,7 @@ export class FileTimelineElement extends AbstractFileConsumer {
     @state()
     protected pointerMs?: number;
 
-    public onInstanceCreated(instance: Instance): void {
+    public onInstanceCreated(instance: ThermalFileInstance): void {
         if (this.containerRef.value) {
             this.ticks = calculateTicks(this.containerRef.value.clientWidth, instance.duration);
         }
@@ -314,7 +314,7 @@ export class FileTimelineElement extends AbstractFileConsumer {
 
 
     private renderControls(
-        file: Instance,
+        file: ThermalFileInstance,
         disabled: string,
         playButtonClasses: { [key: string]: boolean }
     ): unknown {
@@ -356,7 +356,7 @@ export class FileTimelineElement extends AbstractFileConsumer {
 
     protected render(): unknown {
 
-        const file = this.file as Instance;
+        const file = this.file as ThermalFileInstance;
 
         if (file === undefined) {
             return nothing;

@@ -1,4 +1,4 @@
-import type { AbstractAnalysis, Instance } from "@labirthermal/core";
+import type { AbstractAnalysis, ThermalFileInstance } from "@labirthermal/core";
 import { AbstractAddTool } from "@labirthermal/core";
 import { t } from "i18next";
 import type { CSSResultGroup, PropertyValues } from "lit";
@@ -45,7 +45,7 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
 
     protected observer?: ResizeObserver;
 
-    private boundFile?: Instance;
+    private boundFile?: ThermalFileInstance;
     private readonly watchedAnalyses = new Set<AbstractAnalysis>();
     private listenerLayer?: HTMLElement;
     private observedGraph?: HTMLDivElement;

@@ -1,4 +1,4 @@
-import { AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, CallbacksManager, DropinElementListener, Instance, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalPaletteType, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
+import { AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, CallbacksManager, DropinElementListener, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalFileInstance, ThermalFileReader, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalPaletteType, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
 import * as lit from "lit";
 import { CSSResultGroup, LitElement, PropertyDeclaration, PropertyValueMap, PropertyValues, ReactiveController, html, nothing } from "lit";
 import { ContextProvider } from "@lit/context";
@@ -938,7 +938,7 @@ type IHostProperties$4 = {
   registryController: RegistryController;
   groupController: GroupController;
   fileController: FileController;
-  file?: Instance;
+  file?: ThermalFileInstance;
   failure?: ThermalFileFailure;
   loading: boolean;
   ms: number;
@@ -957,9 +957,9 @@ interface IElementWithFileController extends IBaseElement, IHostProperties$4 {}
 declare const fileControllerContext: {
   __context__: FileController;
 };
-/** A crucial context exposing the `Instance` object from `FileController`. */
+/** A crucial context exposing the `ThermalFileInstance` object from `FileController`. */
 declare const fileContext: {
-  __context__: Instance | undefined;
+  __context__: ThermalFileInstance | undefined;
 };
 /** Expose the file error value from the `FileController`. */
 declare const fileFailureContext: {
@@ -979,7 +979,7 @@ declare const fileTimeCursorContext: {
 };
 /** The `FileController` exposes the current file frame values as context. Current time is not possible to set by modification of this context. To change the current frame, it is necessary to use either:
  * - a) the `FileController.setMs()`
- * - b) the internal methods of `@labirthermal/core` `Instance["timeline"]` methods such as play, pause, setTimeRelative etc..
+ * - b) the internal methods of `@labirthermal/core` `ThermalFileInstance["timeline"]` methods such as play, pause, setTimeRelative etc..
  */
 type FileControllerCurrentFrameType = {
   index: number;
@@ -1029,7 +1029,7 @@ declare class FileController extends AbstractHierarchyController<IElementWithFil
   private _UUID;
   get UUID(): string;
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$4>;
-  get fileObject(): Instance | undefined;
+  get fileObject(): ThermalFileInstance | undefined;
   get failure(): ThermalFileFailure | undefined;
   get ms(): number;
   get playbackSpeed(): 1 | 2 | 0.5 | 3 | 5 | 10;
@@ -1050,7 +1050,7 @@ declare class FileController extends AbstractHierarchyController<IElementWithFil
   get analyses(): AbstractAnalysis[];
   get duration(): FileControllerDurationContextType | undefined;
   readonly onLoadingStart: CallbacksManager<() => void>;
-  readonly onSuccess: CallbacksManager<(instance: Instance) => void>;
+  readonly onSuccess: CallbacksManager<(instance: ThermalFileInstance) => void>;
   readonly onFailure: CallbacksManager<(error: ThermalFileFailure) => void>;
   private fileControllerContextProvider;
   private fileContextProvider;
@@ -1085,7 +1085,7 @@ declare class FileController extends AbstractHierarchyController<IElementWithFil
   /**
    * This is crucial - once the instance is loaded or retrieved somewhere, all the magic happens. Existence of this method enables controller to change the instance at any time.
    */
-  receiveInstance(instance: Instance): void;
+  receiveInstance(instance: ThermalFileInstance): void;
   removeInstance(): void;
   receiveFailure(failure: ThermalFileFailure): void;
   private _propagateInstanceCurrentFrame;
@@ -1170,7 +1170,7 @@ declare enum GroupOrdering {
 /** @internal */
 interface GroupListingRenderOptions {
   allowFileChanges?: boolean;
-  onOpenDetail?: (instance: Instance) => void;
+  onOpenDetail?: (instance: ThermalFileInstance) => void;
   onCloseDetail?: () => void;
 }
 type IHostProperties$2 = {
@@ -1190,10 +1190,10 @@ declare class GroupListingController extends AbstractHierarchyController<IElemen
   get hasBackup(): boolean;
   constructor(host: IElementWithGroupListingController);
   clearBackup(): void;
-  backupReadersFromInstances(instances: Instance[]): void;
+  backupReadersFromInstances(instances: ThermalFileInstance[]): void;
   backupReaders(readers: ThermalFileReader[]): void;
   restoreTheEntireBackup(): Promise<void>;
-  showOneAndBackup(instance: Instance): Promise<void>;
+  showOneAndBackup(instance: ThermalFileInstance): Promise<void>;
   static CLASS_TABLE: string;
   static CLASS_COLUMNS: string;
   static readonly styles: lit.CSSResult;
@@ -1212,11 +1212,11 @@ declare class GroupListingController extends AbstractHierarchyController<IElemen
   hostWillUpdateWatcher(): void;
   hostUpdatedWatcher(): void;
   private _orderFiles;
-  renderList(fileRendererFn: (file: Instance) => unknown, emptyRendererFn?: () => unknown): unknown;
+  renderList(fileRendererFn: (file: ThermalFileInstance) => unknown, emptyRendererFn?: () => unknown): unknown;
   private handleFileDropAdd;
   renderListHeader(slot?: string, options?: GroupListingRenderOptions): unknown;
-  renderThumbnail(instance: Instance, options?: GroupListingRenderOptions): lit.TemplateResult<1>;
-  renderDetailHeader(instance: Instance, slot?: string, options?: GroupListingRenderOptions): unknown;
+  renderThumbnail(instance: ThermalFileInstance, options?: GroupListingRenderOptions): lit.TemplateResult<1>;
+  renderDetailHeader(instance: ThermalFileInstance, slot?: string, options?: GroupListingRenderOptions): unknown;
   /** Assumes the contexts to be provided by the host element */
   renderDetailBody(): unknown;
 }
@@ -1403,10 +1403,10 @@ declare class GroupAnalysisSyncController extends AbstractHierarchyController<IE
   private _applyHostValues;
   private _applySlot;
   onLoaded(): void;
-  _analysesFromInstanceToGroup(instance: Instance): void;
+  _analysesFromInstanceToGroup(instance: ThermalFileInstance): void;
   turnOnOnFirstInstanceWithAnalyses(): void;
   turnOnWithAttributeAnalyses(): void;
-  turnOn(instance: Instance): void;
+  turnOn(instance: ThermalFileInstance): void;
   turnOff(): void;
 }
 //#endregion
@@ -1982,7 +1982,7 @@ declare abstract class AbstractFileProvider extends AbstractGroupConsumer implem
     autoHighlight: lit.PropertyDeclaration<unknown, unknown>;
   };
   fileController: FileController;
-  file?: Instance;
+  file?: ThermalFileInstance;
   failure?: ThermalFileFailure;
   /** Loading is managed and published by FileController, independently of file presence. */
   loading: boolean;
@@ -1991,7 +1991,7 @@ declare abstract class AbstractFileProvider extends AbstractGroupConsumer implem
   playbackSpeed: PlaybackSpeeds;
   recording: boolean;
   playing: boolean;
-  /** List of all analyses taken from the `Instance.analysis.layers.all` */
+  /** List of all analyses taken from the `ThermalFileInstance.analysis.layers.all` */
   analyses: AbstractAnalysis[];
   analysis1?: string;
   analysis2?: string;
@@ -2002,7 +2002,7 @@ declare abstract class AbstractFileProvider extends AbstractGroupConsumer implem
   analysis7?: string;
   autoHighlight: boolean;
   /** Register instance callback listeners. @deprecated */
-  recieveInstance(instance: Instance): void;
+  recieveInstance(instance: ThermalFileInstance): void;
   /** @deprecated */
   removeInstance(): void;
   deleteFile(): void;
@@ -2085,7 +2085,7 @@ declare abstract class AbstractRegistryProvider extends AbstractManagerConsumer 
 //#endregion
 //#region src/hierarchy/consumers/AbstractFileConsumer.d.ts
 /**
- * Abstract base class for web components that consume a file `Instance` and
+ * Abstract base class for web components that consume a file `ThermalFileInstance` and
  * related state from a parent `FileController`.
  *
  * The controller is typically provided by an ancestor application or file
@@ -2100,7 +2100,7 @@ declare abstract class AbstractRegistryProvider extends AbstractManagerConsumer 
  *
  * @see {@link AbstractGroupConsumer}
  * @see {@link FileController}
- * @see {@link Instance}
+ * @see {@link ThermalFileInstance}
  *
  * @example
  * ```ts
@@ -2131,7 +2131,7 @@ declare abstract class AbstractFileConsumer extends AbstractGroupConsumer {
   /** Consume the `FileController` context indicating whether the file is currently being loaded. */
   protected fileIsLoading: boolean;
   /** Consume the `FileController` context providing the actual file instance. */
-  file?: Instance;
+  file?: ThermalFileInstance;
   /** Consume the `FileController` context providing the failure information if the file loading fails. */
   protected failure?: ThermalFileFailure;
   /** Consume the `FileController` context indicating whether the file is currently being recorded. */
@@ -2146,7 +2146,7 @@ declare abstract class AbstractFileConsumer extends AbstractGroupConsumer {
    *
    * @param instance The successfully loaded file instance.
    */
-  abstract onInstanceCreated(instance: Instance): void;
+  abstract onInstanceCreated(instance: ThermalFileInstance): void;
   /**
    * Handles a failure reported by the parent `FileController` while loading
    * a file.
@@ -2183,7 +2183,7 @@ declare class ConfigDialog extends AbstractThermalElement {
  * - `ManagerController` and `ThermalManager`
  * - `RegistryController` and `ThermalRegistry`
  * - `GroupController` and `ThermalGroup`
- * - `FileController` and `Instance`
+ * - `FileController` and `ThermalFileInstance`
  *
  * @tag file-copy
  *
@@ -2241,7 +2241,7 @@ declare class FileCopyElement extends AbstractThermalElement implements IElement
     smoothGraph: lit.PropertyDeclaration<unknown, unknown>;
     tool: lit.PropertyDeclaration<unknown, unknown>;
   };
-  originalFile: Instance;
+  originalFile: ThermalFileInstance;
   /** Mirror the analyses of the original file to the copy. Changing the value at runtime copies or clears the analyses. */
   withAnalyses: boolean;
   managerSlug: string;
@@ -2267,7 +2267,7 @@ declare class FileCopyElement extends AbstractThermalElement implements IElement
   groupController: GroupController;
   autoclearGroup: boolean;
   fileController: FileController;
-  file?: Instance | undefined;
+  file?: ThermalFileInstance | undefined;
   failure?: ThermalFileFailure | undefined;
   ms: number;
   playbackSpeed: PlaybackSpeeds;
@@ -2858,7 +2858,7 @@ declare global {
 //#endregion
 //#region src/controls/group/GroupChartElement.d.ts
 declare class GroupChartElement extends AbstractGroupConsumer {
-  protected instances: Instance[];
+  protected instances: ThermalFileInstance[];
   protected timeout?: NodeJS.Timeout;
   protected data: [string[], ...[Date, ...number[]][]] | undefined;
   protected colors?: string[];
@@ -2996,7 +2996,7 @@ declare class GroupTimelineElement extends AbstractGroupConsumer {
   ms: number;
   pointerMs?: number;
   playing: boolean;
-  instances: Instance[];
+  instances: ThermalFileInstance[];
   has: boolean;
   ticks: Tick[];
   protected timelineRef: Ref<HTMLDivElement>;
@@ -3004,9 +3004,9 @@ declare class GroupTimelineElement extends AbstractGroupConsumer {
   listener?: ReturnType<typeof setTimeout>;
   connectedCallback(): void;
   updated(_changedProperties: PropertyValues): void;
-  protected onRegistryBatchEnded(results: (Instance | ThermalFileFailure)[]): void;
+  protected onRegistryBatchEnded(results: (ThermalFileInstance | ThermalFileFailure)[]): void;
   protected calculateTicks(width: number, duration: number): void;
-  protected forEveryAffectedInstance(fn: (instance: Instance) => void): void;
+  protected forEveryAffectedInstance(fn: (instance: ThermalFileInstance) => void): void;
   protected percentToMs(percent: number): number | undefined;
   protected msToPercent(ms: number): number | undefined;
   protected getValueFromEvent(event: MouseEvent): {
@@ -3115,7 +3115,7 @@ declare class FileDownloadButton extends AbstractFileConsumer {
   iconStyle?: string;
   protected recordingGraphRef: Ref<ThermalDialogElement>;
   protected dropdownRef: Ref<ThermalDropdownElement>;
-  onInstanceCreated(instance: Instance): void;
+  onInstanceCreated(instance: ThermalFileInstance): void;
   onFailure(): void;
   protected render(): unknown;
 }
@@ -3154,9 +3154,9 @@ declare abstract class AbstractFileButton extends AbstractFileConsumer {
 declare class FileButtonElement extends AbstractFileButton {
   tooltip: undefined;
   label: string;
-  onEnter?: (instance: Instance) => void;
-  onLeave?: (instance: Instance) => void;
-  onAction?: (instance: Instance) => void;
+  onEnter?: (instance: ThermalFileInstance) => void;
+  onLeave?: (instance: ThermalFileInstance) => void;
+  onAction?: (instance: ThermalFileInstance) => void;
   enter(): void;
   leave(): void;
   action(): void;
@@ -3218,7 +3218,7 @@ declare global {
 declare class FileRangePropagator extends AbstractFileButton {
   protected tooltip: string;
   hideLabel: boolean;
-  onInstanceCreated(file: Instance): void;
+  onInstanceCreated(file: ThermalFileInstance): void;
   enter(): void;
   leave(): void;
   action(): void;
@@ -3664,7 +3664,7 @@ declare class FileAnalysisGraphElement extends AbstractFileConsumer {
   protected shadowWidth: number;
   protected shadowHeight: number;
   protected graphSmooth: boolean;
-  onInstanceCreated(instance: Instance): void;
+  onInstanceCreated(instance: ThermalFileInstance): void;
   connectedCallback(): void;
   disconnectedCallback(): void;
   onFailure(): void;
@@ -4005,7 +4005,7 @@ declare class DropinAppElement extends AbstractApp implements IWithlocale, IElem
   groupObject: ThermalGroup;
   autoclearGroup: boolean;
   groupController: GroupController;
-  file?: Instance | undefined;
+  file?: ThermalFileInstance | undefined;
   failure?: ThermalFileFailure | undefined;
   ms: number;
   playbackSpeed: PlaybackSpeeds;
@@ -4024,7 +4024,7 @@ declare class DropinAppElement extends AbstractApp implements IWithlocale, IElem
   displayMode: Mode;
   get manager(): ThermalManager;
   protected ip?: string;
-  toDisplay: Instance[];
+  toDisplay: ThermalFileInstance[];
   locale: Locales;
   connectedCallback(): void;
   willUpdate(_changedProperties: PropertyValues<DropinAppElement>): void;
@@ -4113,7 +4113,7 @@ declare class ThermalFileAppElement extends AbstractApp implements IElementWithM
   groupController: GroupController;
   autoclearGroup: boolean;
   fileController: FileController;
-  file?: Instance | undefined;
+  file?: ThermalFileInstance | undefined;
   failure?: ThermalFileFailure | undefined;
   ms: number;
   playbackSpeed: PlaybackSpeeds;
@@ -4195,7 +4195,7 @@ declare class ThermalGroupAppElement extends AbstractApp implements IElementWith
   groupController: GroupController;
   autoclearGroup: boolean;
   fileController: FileController;
-  file?: Instance | undefined;
+  file?: ThermalFileInstance | undefined;
   failure?: ThermalFileFailure | undefined;
   ms: number;
   playbackSpeed: PlaybackSpeeds;
@@ -4271,7 +4271,7 @@ declare class FileTimelineElement extends AbstractFileConsumer {
   static collapseWidth: number;
   protected ticks: Tick[];
   protected pointerMs?: number;
-  onInstanceCreated(instance: Instance): void;
+  onInstanceCreated(instance: ThermalFileInstance): void;
   onFailure(): void;
   protected update(changedProperties: PropertyValues): void;
   /** Handlers */
@@ -4329,7 +4329,7 @@ interface ISingleVideoExportElement {
   recordingPhaseProgress: number;
   setRecordingPhase(phase: RecordingPhase): void;
   setRecordingPhaseProgress(progress: number): void;
-  get innerFile(): Instance | undefined;
+  get innerFile(): ThermalFileInstance | undefined;
   get exportedElement(): HTMLElement | undefined;
   renderProps: SingleVideoRenderProps;
   setHasHistogram(value: boolean): void;
@@ -4353,8 +4353,8 @@ declare abstract class AbstractSingleVideoExport extends AbstractFileConsumer im
   fileCopyElementRef: Ref<FileCopyElement>;
   exportedDivRef: Ref<HTMLElement>;
   get slug(): string;
-  get outerFile(): Instance | undefined;
-  get innerFile(): Instance | undefined;
+  get outerFile(): ThermalFileInstance | undefined;
+  get innerFile(): ThermalFileInstance | undefined;
   get exportedElement(): HTMLElement | undefined;
   parentHasAnalyses: boolean;
   recordingPhase: RecordingPhase;
@@ -4398,7 +4398,7 @@ declare class FileVideoExportPanel extends AbstractSingleVideoExport {
   private exportRealWidth;
   /** Reálná výška exportu v pixelech */
   private exportRealHeight;
-  onInstanceCreated(instance: Instance): void;
+  onInstanceCreated(instance: ThermalFileInstance): void;
   onFailure(): void;
   connectedCallback(): void;
   disconnectedCallback(): void;
@@ -4440,7 +4440,7 @@ declare class FileDetailElement extends AbstractFileConsumer {
 //#endregion
 //#region src/renderers/FileThumbnail.d.ts
 declare class FileThumbnailElement extends AbstractFileConsumer {
-  ondetail?: (file: Instance) => void;
+  ondetail?: (file: ThermalFileInstance) => void;
   norender: boolean;
   label?: string;
   grouping?: GridGrouping;

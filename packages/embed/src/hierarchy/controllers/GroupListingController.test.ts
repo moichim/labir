@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { html, LitElement, render } from "lit";
 import { repeat } from "lit/directives/repeat.js";
@@ -14,7 +14,7 @@ vi.mock("../consumers/AbstractFileConsumer", async () => {
     const { LitElement } = await import("lit");
     class AbstractFileConsumer extends LitElement {
         static properties = { file: { attribute: false } };
-        declare public file?: Instance;
+        declare public file?: ThermalFileInstance;
         public loading = false;
     }
     return { AbstractFileConsumer };
@@ -22,7 +22,7 @@ vi.mock("../consumers/AbstractFileConsumer", async () => {
 
 class TestProvider extends LitElement {
     static properties = { file: { attribute: false } };
-    declare public file: Instance;
+    declare public file: ThermalFileInstance;
 
     protected render() {
         return html`<slot></slot>`;
@@ -41,7 +41,7 @@ class TestListing extends AbstractThermalElement implements IElementWithGroupLis
     declare public fileController: FileController;
     public orderby = GroupOrderby.DATE;
     public ordering = GroupOrdering.ASC;
-    public files: Instance[] = [];
+    public files: ThermalFileInstance[] = [];
     public groupListingController: GroupListingController = new GroupListingController(this);
 
     protected render() {

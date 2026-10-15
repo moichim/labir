@@ -1,4 +1,4 @@
-import type { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { AvailableThermalPalette, ThermalFileInstance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { ThermalFileReader } from "@labirthermal/core";
 import type { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
 import { provide } from "@lit/context";
@@ -74,7 +74,7 @@ export class DropinAppElement
     groupController: GroupController = new GroupController(this);
 
 
-    file?: Instance | undefined;
+    file?: ThermalFileInstance | undefined;
     failure?: ThermalFileFailure | undefined;
     ms: number = 0;
     playbackSpeed: PlaybackSpeeds = 1;
@@ -103,7 +103,7 @@ export class DropinAppElement
     protected ip?: string;
 
     @state()
-    public toDisplay: Instance[] = [];
+    public toDisplay: ThermalFileInstance[] = [];
 
     @provide({ context: localeContext })
     @property({ reflect: true, converter: localeConverter })

@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { BufferTarget, Mp4OutputFormat, Output, VideoSample, VideoSampleSource } from "mediabunny";
 import type { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 import { RecordingPhase } from "../ISingleVideoExportElement";
@@ -39,7 +39,7 @@ export class VideoRecorder {
     private muxingCanvas?: OffscreenCanvas;
     private muxingContext?: OffscreenCanvasRenderingContext2D;
 
-    private readonly file: Instance;
+    private readonly file: ThermalFileInstance;
     private readonly exportedElement: HTMLElement;
 
     // === Připravené struktury pro rychlý export ===

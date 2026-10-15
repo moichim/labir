@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { t } from "i18next";
 import type { PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
@@ -23,7 +23,7 @@ export class FileCanvasElement extends AbstractFileConsumer {
     public container: Ref<HTMLDivElement> = createRef();
 
     /** Actual DOM-mounted instance, retained for cleanup even before a pending file update completes. Not reactive. */
-    private mountedInstance?: Instance;
+    private mountedInstance?: ThermalFileInstance;
 
     /** Indicates whether the component prefers to use GPU for rendering... */
     @property({ type: Boolean, attribute: "prefers-gpu" })

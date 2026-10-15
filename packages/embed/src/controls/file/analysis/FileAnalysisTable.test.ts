@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Instance, ThermalFileReader, ThermalFileFailure } from "@labirthermal/core";
+import { ThermalFileInstance, ThermalFileReader, ThermalFileFailure } from "@labirthermal/core";
 import { FileErrors } from "../../../../../core/src/loading/workers/errors";
 import type { AbstractAnalysis } from "@labirthermal/core";
 import type { IParserObject } from "../../../../../core/src/loading/workers/parsers/structure";
@@ -46,7 +46,7 @@ describe("FileAnalysisTable", () => {
     let group: GroupProviderElement;
     let provider: TestFileProvider;
     let table: FileAnalysisTableElement;
-    let instance: Instance;
+    let instance: ThermalFileInstance;
     let area: AbstractAnalysis;
 
     function rows(): FileAnalysisRowElement[] {
@@ -69,7 +69,7 @@ describe("FileAnalysisTable", () => {
         return found;
     }
 
-    function fixture(sequence = true): Instance {
+    function fixture(sequence = true): ThermalFileInstance {
         const timeline = Array.from({ length: sequence ? 2 : 1 }, (_, index) => ({
             index, relative: index * 100, absolute: 1700000000000 + index * 100, offset: index,
         }));
@@ -97,7 +97,7 @@ describe("FileAnalysisTable", () => {
         const reader = new ThermalFileReader(
             manager.managerObject.service, new ArrayBuffer(16), parser, `fixture-${crypto.randomUUID()}.lrc`
         );
-        const file = Instance.fromService(group.groupObject, reader, info, frame);
+        const file = ThermalFileInstance.fromService(group.groupObject, reader, info, frame);
         file.setPreferWebGl(false);
         file.mountToDom(document.createElement("div"));
         return file;

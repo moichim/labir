@@ -1,4 +1,4 @@
-import type { Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { ThermalFileInstance, ThermalFileFailure } from "@labirthermal/core";
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
 import { state } from "lit/decorators.js";
@@ -28,7 +28,7 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
     /** Reálná výška exportu v pixelech */
     @state() private exportRealHeight: number = 0;
 
-    public onInstanceCreated(instance: Instance): void {
+    public onInstanceCreated(instance: ThermalFileInstance): void {
         this.parentHasAnalyses = instance.analysis.value.length > 0;
     }
 

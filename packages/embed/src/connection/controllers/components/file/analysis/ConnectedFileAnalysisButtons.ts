@@ -1,5 +1,5 @@
 import type { FileInfo } from "@labirthermal/client";
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
@@ -33,7 +33,7 @@ export class ConnectedFileAnalysisButtons extends AbstractControlledConsumer {
 
     @state()
     @consume({ context: fileContext, subscribe: true })
-    private file?: Instance;
+    private file?: ThermalFileInstance;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -52,7 +52,7 @@ export class ConnectedFileAnalysisButtons extends AbstractControlledConsumer {
     }
 
 
-    public onInstanceCreated(instance: Instance): void {
+    public onInstanceCreated(instance: ThermalFileInstance): void {
 
         if (instance) {
 
@@ -82,7 +82,7 @@ export class ConnectedFileAnalysisButtons extends AbstractControlledConsumer {
         }
     }
 
-    protected getCurrentAnalysisState(instance: Instance): string[] {
+    protected getCurrentAnalysisState(instance: ThermalFileInstance): string[] {
 
         const analyses: string[] = [];
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Instance, ThermalFileReader } from "@labirthermal/core";
+import { ThermalFileInstance, ThermalFileReader } from "@labirthermal/core";
 import type { PropertyValues } from "lit";
 import type { IParserObject } from "../../../../core/src/loading/workers/parsers/structure";
 import { GroupProviderElement } from "../providers/GroupProvider";
@@ -52,7 +52,7 @@ describe("GroupAnalysisSyncController", () => {
     let manager: ManagerProviderElement;
     let registry: RegistryProviderElement;
     let host: SyncGroup;
-    const files: Instance[] = [];
+    const files: ThermalFileInstance[] = [];
 
     async function settle() {
         for (let i = 0; i < 4; i++) {
@@ -61,7 +61,7 @@ describe("GroupAnalysisSyncController", () => {
         }
     }
 
-    function fixture(mount = true): Instance {
+    function fixture(mount = true): ThermalFileInstance {
         const timestamp = 1700000000000;
         const timeline = [{ index: 0, relative: 0, absolute: timestamp, offset: 0 }];
         const frame = {
@@ -85,7 +85,7 @@ describe("GroupAnalysisSyncController", () => {
         const reader = new ThermalFileReader(
             manager.managerObject.service, new ArrayBuffer(16), parser, `${crypto.randomUUID()}.lrc`
         );
-        const file = Instance.fromService(host.groupObject, reader, info, frame);
+        const file = ThermalFileInstance.fromService(host.groupObject, reader, info, frame);
         file.setPreferWebGl(false);
         files.push(file);
         if (mount) file.mountToDom(document.createElement("div"));

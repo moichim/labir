@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { ThermalFileFailure } from "@labirthermal/core";
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
@@ -29,7 +29,7 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
     playing: boolean = false;
 
     @state()
-    instances: Instance[] = [];
+    instances: ThermalFileInstance[] = [];
 
     @state()
     has: boolean = false;
@@ -92,7 +92,7 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
 
 
     protected onRegistryBatchEnded(
-        results: (Instance | ThermalFileFailure)[]
+        results: (ThermalFileInstance | ThermalFileFailure)[]
     ): void {
 
         let length = 0;
@@ -104,7 +104,7 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
                 if (result instanceof ThermalFileFailure)
                     return false;
                 return result.group.id === this.groupObject.id
-            }) as Instance[];
+            }) as ThermalFileInstance[];
 
         this.instances.forEach(result => {
 
@@ -153,7 +153,7 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
         this.ticks = calculateTicks( width, duration );
     }
 
-    protected forEveryAffectedInstance(fn: (instance: Instance) => void) {
+    protected forEveryAffectedInstance(fn: (instance: ThermalFileInstance) => void) {
         this.instances.forEach(fn);
     }
 

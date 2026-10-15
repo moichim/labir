@@ -1,4 +1,4 @@
-import type { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { AvailableThermalPalette, ThermalFileInstance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import type { PropertyValues } from "lit";
 import { css, html } from "lit";
 import type { IElementWithFileController } from "../hierarchy/controllers/FileController";
@@ -73,7 +73,7 @@ export class ThermalGroupAppElement
     // File controller properties
 
     fileController: FileController = new FileController(this);
-    file?: Instance | undefined;
+    file?: ThermalFileInstance | undefined;
     failure?: ThermalFileFailure | undefined;
     ms: number = 0;
     playbackSpeed: PlaybackSpeeds = 1;
@@ -112,7 +112,7 @@ export class ThermalGroupAppElement
         super.disconnectedCallback();
     }
 
-    private openDetail(instance: Instance): void {
+    private openDetail(instance: ThermalFileInstance): void {
         this.registryController.setHighlight(undefined);
         this.ms = instance.timeline.currentMs;
         this.playbackSpeed = instance.timeline.playbackSpeed;
@@ -150,7 +150,7 @@ export class ThermalGroupAppElement
     protected render(): unknown {
         const listingOptions = {
             allowFileChanges: false,
-            onOpenDetail: (instance: Instance) => this.openDetail(instance),
+            onOpenDetail: (instance: ThermalFileInstance) => this.openDetail(instance),
             onCloseDetail: () => this.closeDetail()
         };
         const hasFiles = this.groupObject?.files.value.length > 0;

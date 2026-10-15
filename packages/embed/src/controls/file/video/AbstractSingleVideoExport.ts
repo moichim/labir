@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import type { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import type { Ref } from "lit/directives/ref.js";
@@ -24,12 +24,12 @@ export abstract class AbstractSingleVideoExport extends AbstractFileConsumer imp
         ].join("__")
     }
 
-    public get outerFile(): Instance | undefined {
+    public get outerFile(): ThermalFileInstance | undefined {
         return this.file;
     }
 
 
-    public get innerFile(): Instance | undefined {
+    public get innerFile(): ThermalFileInstance | undefined {
         return this.fileCopyElementRef.value?.file;
     }
 

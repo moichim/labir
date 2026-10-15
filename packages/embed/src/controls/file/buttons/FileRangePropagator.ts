@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { t } from "i18next";
 import { property } from "lit/decorators.js";
 import { T } from "../../../translations/Languages";
@@ -12,7 +12,7 @@ export class FileRangePropagator extends AbstractFileButton {
     @property({ type: String, converter: booleanConverter(false) })
     public hideLabel: boolean = false;
 
-    public onInstanceCreated(file: Instance): void {
+    public onInstanceCreated(file: ThermalFileInstance): void {
         this.tooltip = [
             file.min.toFixed(2),
             "—",

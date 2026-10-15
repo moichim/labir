@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { property } from "lit/decorators.js";
 import { AbstractFileButton } from "./AbstractFileButton";
 
@@ -12,13 +12,13 @@ export class FileButtonElement extends AbstractFileButton {
     label!: string;
 
     @property({type: Object})
-    onEnter?: (instance: Instance) => void;
+    onEnter?: (instance: ThermalFileInstance) => void;
 
     @property({type: Object})
-    onLeave?: (instance: Instance) => void;;
+    onLeave?: (instance: ThermalFileInstance) => void;;
 
     @property({type: Object})
-    onAction?: (instance: Instance) => void;;
+    onAction?: (instance: ThermalFileInstance) => void;;
 
     enter() { if (this.onEnter && this.file) this.onEnter(this.file); }
     leave() { if ( this.onLeave && this.file ) this.onLeave(this.file);  }

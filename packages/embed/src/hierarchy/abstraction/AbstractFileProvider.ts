@@ -1,4 +1,4 @@
-import type { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import type { AbstractAnalysis, ThermalFileInstance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
 import { html } from "lit";
 import { AbstractGroupConsumer } from "../consumers/AbstractGroupConsumer";
 import type { IElementWithFileController } from "../controllers/FileController";
@@ -12,7 +12,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
 
     public fileController: FileController = new FileController(this);
 
-    public file?: Instance;
+    public file?: ThermalFileInstance;
 
     public failure?: ThermalFileFailure;
 
@@ -29,7 +29,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
 
     public playing: boolean = false;
 
-    /** List of all analyses taken from the `Instance.analysis.layers.all` */
+    /** List of all analyses taken from the `ThermalFileInstance.analysis.layers.all` */
     public analyses: AbstractAnalysis[] = [];
 
 
@@ -46,7 +46,7 @@ export abstract class AbstractFileProvider extends AbstractGroupConsumer impleme
 
     /** Register instance callback listeners. @deprecated */
     public recieveInstance(
-        instance: Instance
+        instance: ThermalFileInstance
     ) {
 
         this.fileController.receiveInstance(instance);

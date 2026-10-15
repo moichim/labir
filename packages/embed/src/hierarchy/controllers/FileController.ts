@@ -1,4 +1,4 @@
-import type { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
+import type { AbstractAnalysis, ThermalFileInstance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
 import { CallbacksManager } from "@labirthermal/core";
 import { FileAnalysisSynchronisators } from "./FileAnalysisSynchronisators";
 import { ContextProvider, createContext } from "@lit/context";
@@ -18,7 +18,7 @@ type IHostProperties = {
     fileController: FileController;
 
 
-    file?: Instance;
+    file?: ThermalFileInstance;
     failure?: ThermalFileFailure;
     loading: boolean;
 
@@ -43,8 +43,8 @@ export interface IElementWithFileController extends IBaseElement, IHostPropertie
 /** A crucial context for exporting the `FileController` object. */
 export const fileControllerContext = createContext<FileController>("file-controller-context");
 
-/** A crucial context exposing the `Instance` object from `FileController`. */
-export const fileContext = createContext<Instance | undefined>("file-object-context");
+/** A crucial context exposing the `ThermalFileInstance` object from `FileController`. */
+export const fileContext = createContext<ThermalFileInstance | undefined>("file-object-context");
 
 /** Expose the file error value from the `FileController`. */
 export const fileFailureContext = createContext<ThermalFileFailure | undefined>("file-failure-object");
@@ -63,7 +63,7 @@ export const fileTimeCursorContext = createContext<number | undefined>("file-tim
 
 /** The `FileController` exposes the current file frame values as context. Current time is not possible to set by modification of this context. To change the current frame, it is necessary to use either:
  * - a) the `FileController.setMs()`
- * - b) the internal methods of `@labirthermal/core` `Instance["timeline"]` methods such as play, pause, setTimeRelative etc..
+ * - b) the internal methods of `@labirthermal/core` `ThermalFileInstance["timeline"]` methods such as play, pause, setTimeRelative etc..
  */
 export type FileControllerCurrentFrameType = {
     index: number;
@@ -165,7 +165,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     // Callbacks managers
     public readonly onLoadingStart = new CallbacksManager<() => void>();
-    public readonly onSuccess = new CallbacksManager<(instance: Instance) => void>();
+    public readonly onSuccess = new CallbacksManager<(instance: ThermalFileInstance) => void>();
     public readonly onFailure = new CallbacksManager<(error: ThermalFileFailure) => void>();
 
 
@@ -352,7 +352,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     hostUpdatedWatcher(): void {}
 
     private _propagateContexts(
-        instance: Instance
+        instance: ThermalFileInstance
     ): void {
         this.fileContextProvider.setValue(instance);
         this.readyContextProvider.setValue(true);
@@ -382,7 +382,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         this.fileCursorContextProvider.setValue(undefined);
     }
 
-    private _attached?: Instance;
+    private _attached?: ThermalFileInstance;
 
     private _syncAssignment(): void {
 
@@ -408,7 +408,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     }
 
     private _attach(
-        instance: Instance,
+        instance: ThermalFileInstance,
         isReplacement: boolean
     ): void {
 
@@ -442,7 +442,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
 
     private _detach(
-        instance: Instance
+        instance: ThermalFileInstance
     ): void {
 
         this._unbindListeners(instance);
@@ -457,7 +457,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
 
     private _bindListeners(
-        instance: Instance,
+        instance: ThermalFileInstance,
         coreWins: boolean = false
     ): void {
 
@@ -522,7 +522,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
     }
 
 
-    private _unbindListeners(instance: Instance): void {
+    private _unbindListeners(instance: ThermalFileInstance): void {
         instance.timeline.callbacksPlay.delete(this.UUID);
         instance.timeline.callbacksPause.delete(this.UUID);
         instance.timeline.callbacksStop.delete(this.UUID);
@@ -541,7 +541,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
      * This is crucial - once the instance is loaded or retrieved somewhere, all the magic happens. Existence of this method enables controller to change the instance at any time. 
      */
     public receiveInstance(
-        instance: Instance
+        instance: ThermalFileInstance
     ): void {
 
         // Store the instance in the host
@@ -569,7 +569,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
 
     }
 
-    private _propagateInstanceCurrentFrame(instance: Instance): void {
+    private _propagateInstanceCurrentFrame(instance: ThermalFileInstance): void {
 
         this.fileCurrentFrameContextProvider.setValue({
             ms: instance.timeline.currentMs,
@@ -580,7 +580,7 @@ export class FileController extends AbstractHierarchyController<IElementWithFile
         });
     }
 
-    private _propagateInstanceAnalysesArray(instance: Instance): void {
+    private _propagateInstanceAnalysesArray(instance: ThermalFileInstance): void {
         // Implement the propagation of other instance-related contexts here
         this.fileAnalysesContextProvider.setValue(instance.analysis.layers.all);
     }

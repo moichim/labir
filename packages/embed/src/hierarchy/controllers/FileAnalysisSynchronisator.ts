@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import type { PropertyValues } from "lit";
 import type { FileController, IElementWithFileController } from "./FileController";
 
@@ -31,7 +31,7 @@ export class FileAnalysisSynchronisator {
         return this._slotObject?.serialized as string | undefined;
     }
 
-    private _fileObject?: Instance;
+    private _fileObject?: ThermalFileInstance;
 
     private get _slotObject() {
         return this._fileObject?.slots.getSlot(this._slotNumber);
@@ -48,7 +48,7 @@ export class FileAnalysisSynchronisator {
 
     /** Enables the listeners and internal objects necessary for synchronisation of the file analysis slot */
     public fileAssigned(
-        instance: Instance,
+        instance: ThermalFileInstance,
         coreWins: boolean = false
     ): void {
 

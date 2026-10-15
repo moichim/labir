@@ -1,4 +1,4 @@
-import type { Instance, ThermalGroup } from "@labirthermal/core";
+import type { ThermalFileInstance, ThermalGroup } from "@labirthermal/core";
 import { ContextProvider, createContext } from "@lit/context";
 import type { PropertyDeclaration, PropertyValueMap } from "lit";
 import type { IBaseElement } from "../AbstractThermalElement";
@@ -52,9 +52,9 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
 
     private readonly _onContextProvider: ContextProvider<typeof groupAnalysisSyncContext, IElementWithGroupAnalysisSyncController>;
     private _group?: ThermalGroup;
-    private readonly _files = new Set<Instance>();
+    private readonly _files = new Set<ThermalFileInstance>();
     private readonly _values = new Map<SlotNumber, string | undefined>();
-    private readonly _fileValues = new Map<Instance, Map<SlotNumber, string | undefined>>();
+    private readonly _fileValues = new Map<ThermalFileInstance, Map<SlotNumber, string | undefined>>();
     private _applying = false;
     private _changingCore = false;
     private _initialized = false;
@@ -168,7 +168,7 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
         if (this.on) this.onLoaded();
     }
 
-    private _unbindFile(file: Instance): void {
+    private _unbindFile(file: ThermalFileInstance): void {
         for (const slot of SLOT_NUMBERS) {
             file.slots.getOnSerializeManager(slot)?.delete(this.UUID);
         }
@@ -176,7 +176,7 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
         this._fileValues.delete(file);
     }
 
-    private _getFirstInstanceWithAnalyses(): Instance | undefined {
+    private _getFirstInstanceWithAnalyses(): ThermalFileInstance | undefined {
         return this._group?.files.value.find(file =>
             SLOT_NUMBERS.some(slot => file.slots.hasSlot(slot))
         );
@@ -243,7 +243,7 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
         }
     }
 
-    private _applySlot(file: Instance, slotNumber: SlotNumber, value: string | undefined): void {
+    private _applySlot(file: ThermalFileInstance, slotNumber: SlotNumber, value: string | undefined): void {
         const slot = file.slots.getSlot(slotNumber);
         if (value === undefined) {
             if (slot) file.slots.removeSlotAndAnalysis(slotNumber);
@@ -272,7 +272,7 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
         }
     }
 
-    public _analysesFromInstanceToGroup(instance: Instance): void {
+    public _analysesFromInstanceToGroup(instance: ThermalFileInstance): void {
         for (const slot of SLOT_NUMBERS) {
             const value = instance.slots.getSlot(slot)?.analysis.toSerialized();
             this._values.set(slot, value);
@@ -292,7 +292,7 @@ export class GroupAnalysisSyncController extends AbstractHierarchyController<IEl
         this._applyHostValues(SLOT_NUMBERS);
     }
 
-    public turnOn(instance: Instance): void {
+    public turnOn(instance: ThermalFileInstance): void {
         if (!this._group?.files.value.includes(instance)) {
             this.log("Cannot synchronize analyses from a file outside the group", instance.id);
             return;

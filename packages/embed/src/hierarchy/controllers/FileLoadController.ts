@@ -1,5 +1,5 @@
 import type { ThermalGroup, ThermalRegistry } from "@labirthermal/core";
-import { Instance, ThermalFileFailure } from "@labirthermal/core";
+import { ThermalFileInstance, ThermalFileFailure } from "@labirthermal/core";
 import type { PropertyValueMap } from "lit";
 import type { IBaseElement } from "../AbstractThermalElement";
 import type { HostReactiveProperties } from "./AbstractHierarchyController";
@@ -103,7 +103,7 @@ export class FileLoadController extends AbstractHierarchyController<IElementWith
             visible,
             this.group,
             async (result) => {
-                if (result instanceof Instance) {
+                if (result instanceof ThermalFileInstance) {
                     this.host.fileController.receiveInstance(result);
                 } else if (result instanceof ThermalFileFailure) {
                     this.host.fileController.receiveFailure(result);

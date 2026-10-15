@@ -1,4 +1,4 @@
-import type { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { AbstractAnalysis, ThermalFileInstance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import type { PropertyValues } from "lit";
@@ -41,7 +41,7 @@ export class FileAnalysisTableElement extends AbstractFileConsumer {
     @state()
     protected analysis: AbstractAnalysis[] = [];
 
-    private boundFile?: Instance;
+    private boundFile?: ThermalFileInstance;
 
     private readonly selectionChanged = () => this.requestUpdate();
 

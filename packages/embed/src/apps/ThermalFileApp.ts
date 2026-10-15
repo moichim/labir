@@ -1,4 +1,4 @@
-import type { AvailableThermalPalette, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry, ThermalGroup, Instance, ThermalFileFailure, PlaybackSpeeds } from "@labirthermal/core";
+import type { AvailableThermalPalette, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry, ThermalGroup, ThermalFileInstance, ThermalFileFailure, PlaybackSpeeds } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import type { PropertyValues } from "lit";
 import { css, html } from "lit";
@@ -78,7 +78,7 @@ implements
     // File controller properties
 
     fileController: FileController = new FileController(this);
-    file?: Instance | undefined;
+    file?: ThermalFileInstance | undefined;
     failure?: ThermalFileFailure | undefined;
     ms: number = 0;
     playbackSpeed: PlaybackSpeeds = 1;

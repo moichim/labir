@@ -1,4 +1,4 @@
-import type { AvailableThermalPalette, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { AvailableThermalPalette, ThermalFileInstance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import type { CSSResultGroup, PropertyValues } from "lit";
 import { css, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
@@ -19,7 +19,7 @@ import { RegistryController } from "../controllers/RegistryController";
  * - `ManagerController` and `ThermalManager`
  * - `RegistryController` and `ThermalRegistry`
  * - `GroupController` and `ThermalGroup`
- * - `FileController` and `Instance`
+ * - `FileController` and `ThermalFileInstance`
  * 
  * @tag file-copy
  * 
@@ -59,7 +59,7 @@ implements
         type: Object,
         attribute: false
     })
-    public originalFile!: Instance;
+    public originalFile!: ThermalFileInstance;
 
     /** Mirror the analyses of the original file to the copy. Changing the value at runtime copies or clears the analyses. */
     @property({
@@ -94,7 +94,7 @@ implements
     autoclearGroup: boolean = true;
 
     fileController: FileController = new FileController(this);
-    file?: Instance | undefined;
+    file?: ThermalFileInstance | undefined;
     failure?: ThermalFileFailure | undefined;
     ms: number = 0;
     playbackSpeed: PlaybackSpeeds = 1;

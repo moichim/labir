@@ -1,5 +1,5 @@
 import type { GridGrouping } from "@labirthermal/client";
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { t } from "i18next";
 import type { CSSResultGroup } from "lit";
 import { css, html } from "lit";
@@ -12,7 +12,7 @@ import { booleanConverter } from "../utils/converters/booleanConverter";
 export class FileThumbnailElement extends AbstractFileConsumer {
 
     @property({ type: Object })
-    ondetail?: (file: Instance) => void;
+    ondetail?: (file: ThermalFileInstance) => void;
 
     @property({ converter: booleanConverter(false) })
     public norender: boolean = false;

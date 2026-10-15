@@ -1,4 +1,4 @@
-import type { Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { ThermalFileInstance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
 import type { FileController } from "../controllers/FileController";
@@ -6,7 +6,7 @@ import { fileContext, fileControllerContext, fileFailureContext, fileLoadingCont
 import { AbstractGroupConsumer } from "./AbstractGroupConsumer";
 
 /**
- * Abstract base class for web components that consume a file `Instance` and
+ * Abstract base class for web components that consume a file `ThermalFileInstance` and
  * related state from a parent `FileController`.
  *
  * The controller is typically provided by an ancestor application or file
@@ -21,7 +21,7 @@ import { AbstractGroupConsumer } from "./AbstractGroupConsumer";
  *
  * @see {@link AbstractGroupConsumer}
  * @see {@link FileController}
- * @see {@link Instance}
+ * @see {@link ThermalFileInstance}
  *
  * @example
  * ```ts
@@ -63,7 +63,7 @@ export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
     /** Consume the `FileController` context providing the actual file instance. */
     @consume({ context: fileContext, subscribe: true })
     @state()
-    public file?: Instance;
+    public file?: ThermalFileInstance;
 
     /** Consume the `FileController` context providing the failure information if the file loading fails. */
     @consume({ context: fileFailureContext, subscribe: true })
@@ -129,7 +129,7 @@ export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
      *
      * @param instance The successfully loaded file instance.
      */
-    public abstract onInstanceCreated(instance: Instance): void;
+    public abstract onInstanceCreated(instance: ThermalFileInstance): void;
 
     /**
      * Handles a failure reported by the parent `FileController` while loading

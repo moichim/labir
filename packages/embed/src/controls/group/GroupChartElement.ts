@@ -19,7 +19,7 @@ import type { CSSResultGroup, PropertyValues } from 'lit';
 import { css, html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 
-import type { Instance } from '@labirthermal/core';
+import type { ThermalFileInstance } from '@labirthermal/core';
 import { AbstractGroupConsumer } from '../../hierarchy/consumers/AbstractGroupConsumer';
 
 import '@google-web-components/google-chart';
@@ -28,7 +28,7 @@ import '@google-web-components/google-chart';
 export class GroupChartElement extends AbstractGroupConsumer {
 
     @state()
-    protected instances: Instance[] = [];
+    protected instances: ThermalFileInstance[] = [];
 
     @state()
     protected timeout?: NodeJS.Timeout;

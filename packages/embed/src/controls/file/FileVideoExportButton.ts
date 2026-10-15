@@ -1,4 +1,3 @@
-import type { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";

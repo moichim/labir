@@ -1,4 +1,4 @@
-import type { AnalysisDataStateValue, Instance } from "@labirthermal/core";
+import type { AnalysisDataStateValue, ThermalFileInstance } from "@labirthermal/core";
 import { TimeFormat } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
@@ -48,7 +48,7 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
     private chartDataCache?: unknown[][];
     private chartOptionsCache?: object;
     private chartOptionsCacheKey?: string;
-    private boundFile?: Instance;
+    private boundFile?: ThermalFileInstance;
     private observer?: ResizeObserver;
     private observedContainer?: HTMLDivElement;
 
@@ -77,7 +77,7 @@ export class FileAnalysisGraphElement extends AbstractFileConsumer {
     @consume( {context: managerGraphFunctionContext, subscribe: true} )
     protected graphSmooth: boolean = false;
 
-    public onInstanceCreated(instance: Instance): void {
+    public onInstanceCreated(instance: ThermalFileInstance): void {
         this.graphs = instance.analysisData.value;
         this.hydrated = true;
         this.requestUpdate();

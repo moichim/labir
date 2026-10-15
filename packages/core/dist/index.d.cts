@@ -2574,7 +2574,7 @@ declare class FilePngExport extends AbstractPngExport<FileExportPngParams, FileE
  *
  * Is necessarily tied to a `ThermalGroup` object and is based on a `ThermalFileReader`.
  */
-declare class ThermalFileInstance extends AbstractThermalFile {
+export declare class ThermalFileInstance extends AbstractThermalFile {
   readonly group: ThermalGroup;
   readonly reader: ThermalFileReader;
   readonly firstFrame: ParsedFileFrame;
@@ -2789,5 +2789,5 @@ export declare class TimeRound extends TimeUtilsBase {
   static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 //#endregion
-export { type AnalysisDataStateValue, type AvailableThermalPalette, ThermalFileInstance as Instance, type ParsedTimelineFrame, type PlaybackSpeeds, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, type ThermalRangeOrUndefined, type ThermalRegistryOptions, type ThermalTool };
+export type { AnalysisDataStateValue, AvailableThermalPalette, ParsedTimelineFrame, PlaybackSpeeds, SlotNumber, SlotUnion, ThermalCursorPositionOrUndefined, ThermalManagerOptions, ThermalMinmaxOrUndefined, ThermalPaletteType, ThermalRangeOrUndefined, ThermalRegistryOptions, ThermalTool };
 //# sourceMappingURL=index.d.cts.map

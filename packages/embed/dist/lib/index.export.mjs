@@ -1,4 +1,4 @@
-import { AbstractAddTool, AbstractAreaAnalysis, CallbacksManager, Instance, PointAnalysis, ThermalFileFailure, ThermalFileReader, ThermalManager, ThermalPalettes, TimeFormat, availableAnalysisColors, playbackSpeed } from "@labirthermal/core";
+import { AbstractAddTool, AbstractAreaAnalysis, CallbacksManager, PointAnalysis, ThermalFileFailure, ThermalFileInstance, ThermalFileReader, ThermalManager, ThermalPalettes, TimeFormat, availableAnalysisColors, playbackSpeed } from "@labirthermal/core";
 import { LitElement, css, html, nothing } from "lit";
 import { ContextProvider, consume, createContext, provide } from "@lit/context";
 import i18next, { t } from "i18next";
@@ -1178,7 +1178,7 @@ var FileAnalysisSynchronisators = class {
 //#region src/hierarchy/controllers/FileController.ts
 /** A crucial context for exporting the `FileController` object. */
 const fileControllerContext = createContext("file-controller-context");
-/** A crucial context exposing the `Instance` object from `FileController`. */
+/** A crucial context exposing the `ThermalFileInstance` object from `FileController`. */
 const fileContext = createContext("file-object-context");
 /** Expose the file error value from the `FileController`. */
 const fileFailureContext = createContext("file-failure-object");
@@ -1628,7 +1628,7 @@ var FileLoadController = class extends AbstractHierarchyController {
 		if (this.host.fileController.fileObject) this.group.files.removeFile(this.host.fileController.fileObject);
 		this.host.fileController.startLoading();
 		return this.registry.batch.request(lrc, visible, this.group, async (result) => {
-			if (result instanceof Instance) this.host.fileController.receiveInstance(result);
+			if (result instanceof ThermalFileInstance) this.host.fileController.receiveInstance(result);
 			else if (result instanceof ThermalFileFailure) this.host.fileController.receiveFailure(result);
 		});
 	}
@@ -5839,7 +5839,7 @@ var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 //#endregion
 //#region src/hierarchy/consumers/AbstractFileConsumer.ts
 /**
-* Abstract base class for web components that consume a file `Instance` and
+* Abstract base class for web components that consume a file `ThermalFileInstance` and
 * related state from a parent `FileController`.
 *
 * The controller is typically provided by an ancestor application or file
@@ -5854,7 +5854,7 @@ var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 *
 * @see {@link AbstractGroupConsumer}
 * @see {@link FileController}
-* @see {@link Instance}
+* @see {@link ThermalFileInstance}
 *
 * @example
 * ```ts
@@ -6171,7 +6171,7 @@ var ConfigDialog = class extends AbstractThermalElement {
 * - `ManagerController` and `ThermalManager`
 * - `RegistryController` and `ThermalRegistry`
 * - `GroupController` and `ThermalGroup`
-* - `FileController` and `Instance`
+* - `FileController` and `ThermalFileInstance`
 * 
 * @tag file-copy
 * 

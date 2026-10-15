@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import type { IWithNotationContext, NotationCurrentContext, NotationListContext } from "./NotationContext";
 import { getCurrentNotationsByMs, grabNotationsFromSlot, notationCurrentContext, notationDurationContext, notationListContext } from "./NotationContext";
@@ -32,7 +32,7 @@ export class NotationProvider extends AbstractFileConsumer implements IWithNotat
     private observer: MutationObserver | null = null;
 
 
-    public onInstanceCreated(instance: Instance): void {
+    public onInstanceCreated(instance: ThermalFileInstance): void {
         this.duration = instance.timeline.duration;
 
         setTimeout( () => {

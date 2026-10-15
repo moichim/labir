@@ -1,4 +1,4 @@
-import type { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html, nothing } from "lit";
@@ -34,7 +34,7 @@ export class FileDownloadButton extends AbstractFileConsumer {
     protected recordingGraphRef: Ref<ThermalDialogElement> = createRef();
     protected dropdownRef: Ref<ThermalDropdownElement> = createRef();
 
-    public onInstanceCreated(instance: Instance): void {
+    public onInstanceCreated(instance: ThermalFileInstance): void {
         instance.analysisData.onGraphsPresence.set(this.UUID, value => {
             this.hasGraphs = value;
         });

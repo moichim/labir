@@ -1,4 +1,4 @@
-import type { AbstractFileResult, Instance, ThermalGroup } from "@labirthermal/core";
+import type { AbstractFileResult, ThermalFileInstance, ThermalGroup } from "@labirthermal/core";
 import { ThermalFileReader, TimeFormat } from "@labirthermal/core";
 import { css, html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -34,7 +34,7 @@ export enum GroupOrdering {
 /** @internal */
 interface GroupListingRenderOptions {
     allowFileChanges?: boolean;
-    onOpenDetail?: (instance: Instance) => void;
+    onOpenDetail?: (instance: ThermalFileInstance) => void;
     onCloseDetail?: () => void;
 }
 
@@ -77,7 +77,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     }
 
     public backupReadersFromInstances(
-        instances: Instance[]
+        instances: ThermalFileInstance[]
     ): void {
         this.backup.clear();
         instances.forEach(instance => this.backup.add(instance.reader));
@@ -101,7 +101,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     }
 
     public async showOneAndBackup(
-        instance: Instance
+        instance: ThermalFileInstance
     ): Promise<void> {
         const reader = instance.reader;
         this.backup.clear();
@@ -353,7 +353,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         // Do nothing
     }
 
-    private _orderFiles(): Instance[] {
+    private _orderFiles(): ThermalFileInstance[] {
         const files = Array.from(this.group.files.value);
 
         switch (this.host.orderby) {
@@ -378,7 +378,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     }
 
     public renderList(
-        fileRendererFn: (file: Instance) => unknown,
+        fileRendererFn: (file: ThermalFileInstance) => unknown,
         emptyRendererFn?: () => unknown,
     ): unknown {
 
@@ -469,7 +469,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     }
 
     public renderThumbnail(
-        instance: Instance,
+        instance: ThermalFileInstance,
         options: GroupListingRenderOptions = {}
     ) {
 
@@ -563,7 +563,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     }
 
     public renderDetailHeader(
-        instance: Instance,
+        instance: ThermalFileInstance,
         slot?: string,
         options: GroupListingRenderOptions = {}
     ): unknown {

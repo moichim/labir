@@ -1,4 +1,4 @@
-import type { Instance, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
+import type { ThermalFileInstance, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
 import { ThermalFileFailure, TimeFormat } from "@labirthermal/core";
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import type { ThermalGroupAppElement } from "../../apps/ThermalGroupApp";
@@ -11,7 +11,7 @@ export type FileEntry = {
     /** Individual name of the file provided optionally by the user */
     label?: string,
     /** The respective instance. */
-    instance: Instance,
+    instance: ThermalFileInstance,
     /** Optional inner html from the webcomponent. */
     innerHtml?: string,
     /** Automatically generated time relative to the actual grouping */
@@ -34,7 +34,7 @@ export class TimeGrouping {
         return this.records.length;
     }
 
-    public forEveryInstance(fn: (instance: Instance) => void) {
+    public forEveryInstance(fn: (instance: ThermalFileInstance) => void) {
         this.records.forEach(record => {
             fn(record.instance);
         });
@@ -77,7 +77,7 @@ export class TimeGrouping {
         entries.forEach(entry => {
 
             const callback = async (
-                result: Instance | ThermalFileFailure
+                result: ThermalFileInstance | ThermalFileFailure
             ) => {
 
                 if (result instanceof ThermalFileFailure) {
@@ -142,7 +142,7 @@ export class TimeGrouping {
         files.forEach(file => {
 
             const callback = async (
-                result: Instance | ThermalFileFailure
+                result: ThermalFileInstance | ThermalFileFailure
             ) => {
 
                 if (result instanceof ThermalFileFailure) {

@@ -8014,6 +8014,6 @@ var TimeRound = class TimeRound extends TimeUtilsBase {
 //#region src/index.ts
 console.info("@labirthermal/core", version);
 //#endregion
-export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, AnalysisGraph, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, ThermalFileInstance as Instance, PointAnalysis, RectangleAnalysis, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalPalettes, ThermalRegistry, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
+export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, AnalysisGraph, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, PointAnalysis, RectangleAnalysis, ThermalFileFailure, ThermalFileInstance, ThermalFileReader, ThermalGroup, ThermalManager, ThermalPalettes, ThermalRegistry, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
 
 //# sourceMappingURL=index.mjs.map
