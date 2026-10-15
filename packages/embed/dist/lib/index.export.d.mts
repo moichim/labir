@@ -1,22 +1,20 @@
 import { AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, CallbacksManager, DropinElementListener, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalFileInstance, ThermalFileReader, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalPaletteType, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
-import * as lit from "lit";
 import { CSSResultGroup, LitElement, PropertyDeclaration, PropertyValueMap, PropertyValues, ReactiveController, html, nothing } from "lit";
 import { ContextProvider } from "@lit/context";
-import * as lit_directives_ref_js0 from "lit/directives/ref.js";
 import { Ref } from "lit/directives/ref.js";
 import { Placement } from "@floating-ui/dom";
+import "@google-web-components/google-chart";
 import { GridGrouping } from "@labirthermal/client";
 import { Quality } from "mediabunny";
 import { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
-
 //#region src/utils/converters/numberRangeConverter.d.ts
-declare const numberRangeConverter: (emptyValue: number, min: number, max: number) => {
+export declare const numberRangeConverter: (emptyValue: number, min: number, max: number) => {
   fromAttribute: (value: unknown) => number;
   toAttribute: (value: number) => string;
 };
 //#endregion
 //#region src/utils/converters/booleanConverter.d.ts
-declare const booleanConverter: (emptyValue: boolean) => {
+export declare const booleanConverter: (emptyValue: boolean) => {
   fromAttribute: (value: string | null) => boolean;
   toAttribute: (value: boolean) => "true" | "false";
 };
@@ -36,27 +34,27 @@ declare const booleanConverter: (emptyValue: boolean) => {
  * }
  * ```
  */
-declare const paletteConverter: {
+export declare const paletteConverter: {
   fromAttribute: (value: unknown) => AvailableThermalPalette;
   toAttribute: (value: AvailableThermalPalette) => string;
 };
 //#endregion
 //#region src/utils/converters/stringOrUndefinedConverter.d.ts
-declare const stringOrUndefinedConverter: {
+export declare const stringOrUndefinedConverter: {
   fromAttribute(value: unknown): string | undefined;
   toAttribute(value: string | undefined): string | undefined;
 };
 //#endregion
 //#region src/utils/converters/durationConverter.d.ts
 /** Converts a duration property indicated as string to millis and back */
-declare const durationConverter: {
+export declare const durationConverter: {
   fromAttribute: (value: string | null) => number | undefined;
   toAttribute: (value: number | undefined) => string | undefined;
 };
 //#endregion
 //#region src/utils/getContrastColor.d.ts
 /** Choose the higher WCAG contrast against an opaque CSS background color. */
-declare function getContrastColor(backgroundColor: string): "#000000" | "#FFFFFF";
+export declare function getContrastColor(backgroundColor: string): "#000000" | "#FFFFFF";
 //#endregion
 //#region src/utils/icons.d.ts
 /**
@@ -222,7 +220,7 @@ declare const svg: {
  * TypeScript typ pro automaticky generovaný objekt ikon
  * Zajišťuje typovou bezpečnost - pouze existující ikony a jejich varianty
  */
-type IconsType = { [K in keyof typeof svg]: { [V in keyof typeof svg[K]]: (className?: string, styles?: string) => string } };
+type IconsType = { [K in keyof typeof svg]: { [V in keyof typeof svg[K]]: (className?: string, styles?: string) => string; }; };
 /**
  * Exportovaný objekt ikon s typovou bezpečností
  * Použití: icons.folder.outline("my-class", "color: red")
@@ -515,7 +513,7 @@ declare enum T {
  * This is the abstract class for all reactive controllers from the `@labirthermal/webcomponents` package.
  * @module @labirthermal/webcomponents
  */
-declare abstract class AbstractReactiveController<T extends AbstractThermalElement> implements ReactiveController {
+export declare abstract class AbstractReactiveController<T extends AbstractThermalElement> implements ReactiveController {
   host: T;
   /** Implement this method somehow to combine the host UUID and a unique marker of the controller. */
   abstract get UUID(): string;
@@ -533,7 +531,7 @@ declare abstract class AbstractReactiveController<T extends AbstractThermalEleme
  * @author Jan Jáchim <jachim@zcu.cz>
  * @see {@link AbstractReactiveController}
  */
-declare const INTERNAL_STATE_DECLARATION: PropertyDeclaration;
+export declare const INTERNAL_STATE_DECLARATION: PropertyDeclaration;
 /**
  * A declaration of the host property for the purpose of its reactive properties.
  *
@@ -561,7 +559,7 @@ declare const INTERNAL_STATE_DECLARATION: PropertyDeclaration;
  * ```
  *
  */
-type HostReactiveProperties<T> = { [key in keyof T]: PropertyDeclaration };
+type HostReactiveProperties<T> = { [key in keyof T]: PropertyDeclaration; };
 /**
  * Abstract base class for controllers related to the hierarchy of `@labirthermal/core`.
  *
@@ -574,7 +572,7 @@ type HostReactiveProperties<T> = { [key in keyof T]: PropertyDeclaration };
  * - b) `hostUpdatedWatcher` - for binding listeners & other stuff after the host is rendered.
  *
  */
-declare abstract class AbstractHierarchyController<T extends AbstractThermalElement> extends AbstractReactiveController<T> {
+export declare abstract class AbstractHierarchyController<T extends AbstractThermalElement> extends AbstractReactiveController<T> {
   constructor(host: T);
   /**
    * This method will be called automatically by the host element in its `willUpdate` method.
@@ -591,7 +589,7 @@ declare abstract class AbstractHierarchyController<T extends AbstractThermalElem
 //#endregion
 //#region src/hierarchy/controllers/HierarchyUpdatesHub.d.ts
 /** Perform updates in the hierarchy for all registered controllers */
-declare class HierarchyUpdatesHub {
+export declare class HierarchyUpdatesHub {
   private _controllers;
   /** Zaregistruje controller do hubu */
   register<C extends AbstractHierarchyController<any>>(controller: C): C;
@@ -620,7 +618,7 @@ declare class HierarchyUpdatesHub {
  * @module @labirthermal/webcomponents
  * @author Jan Jáchim <jachim@ntc.zcu.cz>
  */
-declare abstract class AbstractThermalElement extends LitElement {
+export declare abstract class AbstractThermalElement extends LitElement {
   private _hierarchy?;
   /**
    * Get the hierarchy for the purpose of managing updates using hierarchy controllers
@@ -663,7 +661,7 @@ declare abstract class AbstractThermalElement extends LitElement {
  * @see {@link AbstractThermalElement}
  * @module \@labirthermal/webcomponents
  * @author Jan Jáchim <jachim@zcu.cz>
-*/
+ */
 interface IBaseElement extends AbstractThermalElement {}
 //#endregion
 //#region src/hierarchy/controllers/ManagerController.d.ts
@@ -691,31 +689,31 @@ type ManagerPaletteContextType = {
   data: ThermalPaletteType;
 };
 /** Exposes the main manager controller with all its setters and direct access to the host element values. */
-declare const managerControllerContext: {
+export declare const managerControllerContext: {
   __context__: ManagerController;
 };
-declare const managerContext: {
+export declare const managerContext: {
   __context__: ThermalManager;
 };
-declare const managerPaletteContext: {
+export declare const managerPaletteContext: {
   __context__: ManagerPaletteContextType;
 };
-declare const managerAdvancedPalettesContext: {
+export declare const managerAdvancedPalettesContext: {
   __context__: boolean;
 };
-declare const managerSmoothContext: {
+export declare const managerSmoothContext: {
   __context__: boolean;
 };
-declare const managerGraphFunctionContext: {
+export declare const managerGraphFunctionContext: {
   __context__: boolean;
 };
-declare const managerToolContext: {
+export declare const managerToolContext: {
   __context__: ThermalTool;
 };
-declare const managerInteractiveAnalysesContext: {
+export declare const managerInteractiveAnalysesContext: {
   __context__: boolean;
 };
-declare class ManagerController extends AbstractHierarchyController<IElementWithManagerController> {
+export declare class ManagerController extends AbstractHierarchyController<IElementWithManagerController> {
   private _UUID;
   get UUID(): string;
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$7>;
@@ -794,35 +792,35 @@ type IHostProperties$6 = {
 };
 interface IElementWithRegistryController extends IBaseElement, IHostProperties$6 {}
 /** Exposes the current `RegistryController`. This is very important. */
-declare const registryControllerContext: {
+export declare const registryControllerContext: {
   __context__: RegistryController;
 };
 /** Exposes the current `ThermalRegistry` object from the `RegistryController`. */
-declare const registryObjectContext: {
+export declare const registryObjectContext: {
   __context__: ThermalRegistry;
 };
 /** Exposes the current opacity value context from the `RegistryController`. */
-declare const registryOpacityContext: {
+export declare const registryOpacityContext: {
   __context__: number;
 };
 /** Exposes the current range from value from the `RegistryController`. */
-declare const registryRangeFromContext: {
+export declare const registryRangeFromContext: {
   __context__: number | undefined;
 };
 /** Exposes the current range to value from the `RegistryController`. */
-declare const registryRangeToContext: {
+export declare const registryRangeToContext: {
   __context__: number | undefined;
 };
 /** Exposes the current registry loading value from the `RegistryController`. */
-declare const registryLoadingContext: {
+export declare const registryLoadingContext: {
   __context__: boolean;
 };
 /** Exposes the current registry min context from the `RegistryController` */
-declare const registryMinContext: {
+export declare const registryMinContext: {
   __context__: number | undefined;
 };
 /** Exposes the current registry max value from the `RegistryController` */
-declare const registryMaxContext: {
+export declare const registryMaxContext: {
   __context__: number | undefined;
 };
 /**
@@ -833,10 +831,10 @@ declare const registryMaxContext: {
  *
  * This context is exposed by a registry provider. It need to be consumed manually.
  */
-declare const registryHighlightContext: {
+export declare const registryHighlightContext: {
   __context__: ThermalRangeOrUndefined;
 };
-declare class RegistryController extends AbstractHierarchyController<IElementWithRegistryController> {
+export declare class RegistryController extends AbstractHierarchyController<IElementWithRegistryController> {
   private _UUID;
   get UUID(): string;
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$6>;
@@ -901,7 +899,7 @@ interface IElementWithGroupController extends IHostProperties$5, IBaseElement {}
  * @module @labirthermal/embed
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare const groupControllerContext: {
+export declare const groupControllerContext: {
   __context__: GroupController;
 };
 /**
@@ -912,10 +910,10 @@ declare const groupControllerContext: {
  * @module @labirthermal/embed
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare const groupObjectContext: {
+export declare const groupObjectContext: {
   __context__: ThermalGroup;
 };
-declare class GroupController extends AbstractHierarchyController<IElementWithGroupController> {
+export declare class GroupController extends AbstractHierarchyController<IElementWithGroupController> {
   private _UUID;
   get UUID(): string;
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$5>;
@@ -954,27 +952,27 @@ type IHostProperties$4 = {
 };
 interface IElementWithFileController extends IBaseElement, IHostProperties$4 {}
 /** A crucial context for exporting the `FileController` object. */
-declare const fileControllerContext: {
+export declare const fileControllerContext: {
   __context__: FileController;
 };
 /** A crucial context exposing the `ThermalFileInstance` object from `FileController`. */
-declare const fileContext: {
+export declare const fileContext: {
   __context__: ThermalFileInstance | undefined;
 };
 /** Expose the file error value from the `FileController`. */
-declare const fileFailureContext: {
+export declare const fileFailureContext: {
   __context__: ThermalFileFailure | undefined;
 };
 /** Whether a file request is in progress; independent of readiness or an existing instance. */
-declare const fileLoadingContext: {
+export declare const fileLoadingContext: {
   __context__: boolean;
 };
 /**. Current file MS value exposed as context. */
-declare const fileMsContext: {
+export declare const fileMsContext: {
   __context__: number;
 };
 /** File time cursor indicvates the MS on which an arbitrary HTML may be recplaced. Undended to share across elements such as timeline ang graph. In those, the context shall be set on hover using `FileController.setFileTimeCursorPercentage()` */
-declare const fileTimeCursorContext: {
+export declare const fileTimeCursorContext: {
   __context__: number | undefined;
 };
 /** The `FileController` exposes the current file frame values as context. Current time is not possible to set by modification of this context. To change the current frame, it is necessary to use either:
@@ -988,51 +986,53 @@ type FileControllerCurrentFrameType = {
   percentage: number;
   absolute: number;
 };
-declare const fileCurrentFrameContext: {
+export declare const fileCurrentFrameContext: {
   __context__: FileControllerCurrentFrameType | undefined;
 };
 /** The duration of the file is exposed from the `FileController` with the value pre-calculated for consumers */
 type FileControllerDurationContextType = {
-  /** The file duration in ms */ms: number; /** The file formatted duration as string */
+  /** The file duration in ms */
+  ms: number;
+  /** The file formatted duration as string */
   time: string;
 };
 /** Exposes the current file duration from `FileController` */
-declare const fileDurationContext: {
+export declare const fileDurationContext: {
   __context__: FileControllerDurationContextType | undefined;
 };
 /** Exposes the current playing state from `FileController`.  */
-declare const filePlayingContext: {
+export declare const filePlayingContext: {
   __context__: boolean;
 };
 /** Exposes the current playback speed value from `FileController`. */
-declare const filePlaybackSpeedContext: {
-  __context__: 1 | 2 | 0.5 | 3 | 5 | 10 | undefined;
+export declare const filePlaybackSpeedContext: {
+  __context__: 1 | 2 | 3 | 5 | 0.5 | 10 | undefined;
 };
 /** Exposes the current recording state from `FileController`. */
-declare const fileRecordingContext: {
+export declare const fileRecordingContext: {
   __context__: boolean;
 };
 /** Exposes the current may stop state from the `FileController` */
-declare const fileMayStopContext: {
+export declare const fileMayStopContext: {
   __context__: boolean;
 };
 /** Exposes the array of current analyses from the `FileController` */
-declare const fileAnalysisListContext: {
+export declare const fileAnalysisListContext: {
   __context__: AbstractAnalysis[];
 };
 /** The `FileController` is responsible for managing the state and interactions related to a file within the hierarchy.
  *
  * @author Jan Jáchim <jachim@zcu.cz>
  * @module @labirthermal/webcomponents
-*/
-declare class FileController extends AbstractHierarchyController<IElementWithFileController> {
+ */
+export declare class FileController extends AbstractHierarchyController<IElementWithFileController> {
   private _UUID;
   get UUID(): string;
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$4>;
   get fileObject(): ThermalFileInstance | undefined;
   get failure(): ThermalFileFailure | undefined;
   get ms(): number;
-  get playbackSpeed(): 1 | 2 | 0.5 | 3 | 5 | 10;
+  get playbackSpeed(): 1 | 2 | 3 | 5 | 0.5 | 10;
   get analysis1(): string | undefined;
   get analysis2(): string | undefined;
   get analysis3(): string | undefined;
@@ -1133,7 +1133,7 @@ interface IElementWithFileLoadController extends IBaseElement, IHostProperties$3
  * @module @labirthermal/webcomponents
  * @author Jan Jáchim <jachim@gmail.com>
  * */
-declare class FileLoadController extends AbstractHierarchyController<IElementWithFileLoadController> {
+export declare class FileLoadController extends AbstractHierarchyController<IElementWithFileLoadController> {
   private _UUID;
   get UUID(): string;
   private get group();
@@ -1153,7 +1153,7 @@ declare class FileLoadController extends AbstractHierarchyController<IElementWit
  * @module @labirthermal/webcomponents
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare enum GroupOrderby {
+export declare enum GroupOrderby {
   DATE = "date",
   LABEL = "label",
   MANUAL = "manual"
@@ -1163,7 +1163,7 @@ declare enum GroupOrderby {
  * @module @labirthermal/webcomponents
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare enum GroupOrdering {
+export declare enum GroupOrdering {
   ASC = "asc",
   DESC = "desc"
 }
@@ -1182,7 +1182,7 @@ interface IElementWithGroupListingController extends IBaseElement, IHostProperti
   fileController: FileController;
   groupListingController: GroupListingController;
 }
-declare class GroupListingController extends AbstractHierarchyController<IElementWithGroupListingController> {
+export declare class GroupListingController extends AbstractHierarchyController<IElementWithGroupListingController> {
   private _UUID;
   get UUID(): string;
   private get group();
@@ -1196,7 +1196,7 @@ declare class GroupListingController extends AbstractHierarchyController<IElemen
   showOneAndBackup(instance: ThermalFileInstance): Promise<void>;
   static CLASS_TABLE: string;
   static CLASS_COLUMNS: string;
-  static readonly styles: lit.CSSResult;
+  static readonly styles: import("lit").CSSResult;
   private _numColumns;
   private _asTable;
   private _previewWidth;
@@ -1215,7 +1215,7 @@ declare class GroupListingController extends AbstractHierarchyController<IElemen
   renderList(fileRendererFn: (file: ThermalFileInstance) => unknown, emptyRendererFn?: () => unknown): unknown;
   private handleFileDropAdd;
   renderListHeader(slot?: string, options?: GroupListingRenderOptions): unknown;
-  renderThumbnail(instance: ThermalFileInstance, options?: GroupListingRenderOptions): lit.TemplateResult<1>;
+  renderThumbnail(instance: ThermalFileInstance, options?: GroupListingRenderOptions): import("lit").TemplateResult<1>;
   renderDetailHeader(instance: ThermalFileInstance, slot?: string, options?: GroupListingRenderOptions): unknown;
   /** Assumes the contexts to be provided by the host element */
   renderDetailBody(): unknown;
@@ -1322,7 +1322,7 @@ type GroupLoaderFileRequest = {
  * @see {@link IElementWithGroupLoadController} for host requirements.
  * @see {@link GroupListingController} for how the loaded files are displayed and ordered.
  */
-declare class GroupLoadController extends AbstractHierarchyController<IElementWithGroupLoadController> {
+export declare class GroupLoadController extends AbstractHierarchyController<IElementWithGroupLoadController> {
   private _UUID;
   get UUID(): string;
   /** Necessary reactive properties of the host element needed by `GroupLoadController` */
@@ -1366,7 +1366,7 @@ type IHostProperties = {
 interface IElementWithGroupAnalysisSyncController extends IBaseElement, IHostProperties {
   groupController: GroupController;
 }
-declare const groupAnalysisSyncContext: {
+export declare const groupAnalysisSyncContext: {
   __context__: boolean;
 };
 /**
@@ -1374,7 +1374,7 @@ declare const groupAnalysisSyncContext: {
  * Initial nonempty host values win; otherwise existing file slots are adopted.
  * Later empty values delete slots. Analyses without slots are left untouched.
  */
-declare class GroupAnalysisSyncController extends AbstractHierarchyController<IElementWithGroupAnalysisSyncController> {
+export declare class GroupAnalysisSyncController extends AbstractHierarchyController<IElementWithGroupAnalysisSyncController> {
   get UUID(): string;
   private static readonly ANALYSIS_PROPERTY_DECLARATION;
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties>;
@@ -1434,11 +1434,11 @@ interface ConfigSettings {
   };
 }
 /** Exposes the general configuration context for the application. Setters are here. */
-declare const configContext: {
+export declare const configContext: {
   __context__: ConfigController;
 };
 /** Handles the global configuration related to the PNG exports */
-declare class ConfigController extends AbstractReactiveController<IBaseElement> {
+export declare class ConfigController extends AbstractReactiveController<IBaseElement> {
   private readonly _UUID;
   get UUID(): string;
   private _settings;
@@ -1463,7 +1463,7 @@ declare class ConfigController extends AbstractReactiveController<IBaseElement> 
 }
 //#endregion
 //#region src/ui/App.d.ts
-declare class ThermalAppElement extends AbstractThermalElement {
+export declare class ThermalAppElement extends AbstractThermalElement {
   language: string;
   private _overflowCount;
   private _overflowOpen;
@@ -1512,7 +1512,7 @@ declare class ThermalAppElement extends AbstractThermalElement {
   toggleFullscreen(): void;
   protected updated(changedProperties: PropertyValues): void;
   attributeChangedCallback(name: string, _old: string | null, value: string | null): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   private renderLabel;
   private renderCreditField;
   private renderCredits;
@@ -1526,11 +1526,11 @@ declare global {
   interface HTMLElementTagNameMap {
     "thermal-app": ThermalAppElement;
   }
-} //# sourceMappingURL=App.d.ts.map
+}
 //#endregion
 //#region src/ui/Bar.d.ts
-declare class ThermalBarElement extends LitElement {
-  static styles: lit.CSSResult;
+export declare class ThermalBarElement extends LitElement {
+  static styles: import("lit").CSSResult;
   protected collapsed: boolean;
   protected lastContentWidth: number;
   protected drawerRef: Ref<HTMLDivElement>;
@@ -1547,12 +1547,12 @@ declare global {
   interface HTMLElementTagNameMap {
     "thermal-bar": ThermalBarElement;
   }
-} //# sourceMappingURL=Bar.d.ts.map
+}
 //#endregion
 //#region src/ui/Btn.d.ts
 type BtnVariants = "primary" | "foreground" | "background" | "default" | "breadcrumb";
 type BtnSizes = "sm" | "md" | "lg" | "xl";
-declare class ThermalBtnElement extends AbstractThermalElement {
+export declare class ThermalBtnElement extends AbstractThermalElement {
   tooltipPlacement: Placement;
   pre?: string;
   variant?: BtnVariants;
@@ -1578,7 +1578,7 @@ declare class ThermalBtnElement extends AbstractThermalElement {
   private handleClick;
   private handleKeydown;
   disconnectedCallback(): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   private renderBadge;
   /**
    * Apply a temporary highlight animation to the button. The animation
@@ -1592,10 +1592,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "thermal-btn": ThermalBtnElement;
   }
-} //# sourceMappingURL=Btn.d.ts.map
+}
 //#endregion
 //#region src/ui/Dialog.d.ts
-declare class ThermalDialogElement extends LitElement {
+export declare class ThermalDialogElement extends LitElement {
   static shadowRootOptions: ShadowRootInit;
   button: string;
   protected dialogRef: Ref<HTMLDialogElement>;
@@ -1611,18 +1611,18 @@ declare class ThermalDialogElement extends LitElement {
   setOpen(): void;
   attributeChangedCallback(name: string, _old: string | null, value: string | null): void;
   connectedCallback(): void;
-  static styles: lit.CSSResult;
-  render(): lit.TemplateResult<1>;
+  static styles: import("lit").CSSResult;
+  render(): import("lit").TemplateResult<1>;
   closeFromTheOutside(): Promise<void>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-dialog": ThermalDialogElement;
   }
-} //# sourceMappingURL=Dialog.d.ts.map
+}
 //#endregion
 //#region src/ui/Dropdown.d.ts
-declare class ThermalDropdownElement extends AbstractThermalElement {
+export declare class ThermalDropdownElement extends AbstractThermalElement {
   static shadowRootOptions: ShadowRootInit;
   _options: Array<HTMLElement>;
   protected dropdownRef: Ref<HTMLDialogElement>;
@@ -1645,17 +1645,17 @@ declare class ThermalDropdownElement extends AbstractThermalElement {
   protected updated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void;
   protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void;
   attributeChangedCallback(name: string, _old: string | null, value: string | null): void;
-  static styles: lit.CSSResult;
-  render(): lit.TemplateResult<1>;
+  static styles: import("lit").CSSResult;
+  render(): import("lit").TemplateResult<1>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-dropdown": ThermalDropdownElement;
   }
-} //# sourceMappingURL=Dropdown.d.ts.map
+}
 //#endregion
 //#region src/ui/Dropin.d.ts
-declare class ThermalDropinElement extends AbstractThermalElement {
+export declare class ThermalDropinElement extends AbstractThermalElement {
   prompt?: string;
   static styles?: CSSResultGroup | undefined;
   protected render(): unknown;
@@ -1664,10 +1664,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "thermal-dropin": ThermalDropinElement;
   }
-} //# sourceMappingURL=Dropin.d.ts.map
+}
 //#endregion
 //#region src/ui/Expandable.d.ts
-declare class ThermalExpandableElement extends AbstractThermalElement {
+export declare class ThermalExpandableElement extends AbstractThermalElement {
   label?: string;
   closeIcon: boolean;
   variant?: BtnVariants;
@@ -1687,23 +1687,23 @@ declare global {
   interface HTMLElementTagNameMap {
     "thermal-expandable": ThermalExpandableElement;
   }
-} //# sourceMappingURL=Expandable.d.ts.map
+}
 //#endregion
 //#region src/ui/Field.d.ts
-declare class ThermalFieldElement extends LitElement {
+export declare class ThermalFieldElement extends LitElement {
   label: string;
   hint?: string;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-field": ThermalFieldElement;
   }
-} //# sourceMappingURL=Field.d.ts.map
+}
 //#endregion
 //#region src/ui/Icon.d.ts
-declare class ThermalIconElement extends AbstractThermalElement {
+export declare class ThermalIconElement extends AbstractThermalElement {
   icon?: string;
   variant?: string;
   classes?: string;
@@ -1718,10 +1718,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "thermal-icon": ThermalIconElement;
   }
-} //# sourceMappingURL=Icon.d.ts.map
+}
 //#endregion
 //#region src/ui/Loading.d.ts
-declare class ThermalPosterElement extends AbstractThermalElement {
+export declare class ThermalPosterElement extends AbstractThermalElement {
   protected loaded: boolean;
   loading: boolean;
   icon?: string;
@@ -1738,10 +1738,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "thermal-loading": ThermalPosterElement;
   }
-} //# sourceMappingURL=Loading.d.ts.map
+}
 //#endregion
 //#region src/ui/Radio.d.ts
-declare class ThermalRadioElement extends AbstractThermalElement {
+export declare class ThermalRadioElement extends AbstractThermalElement {
   type: "radio" | "checkbox";
   checked: boolean;
   onChange?: (checked: boolean) => void;
@@ -1749,56 +1749,56 @@ declare class ThermalRadioElement extends AbstractThermalElement {
   protected updated(changedProperties: Map<string, any>): void;
   protected handleClick(event: Event): void;
   connectedCallback(): void;
-  static styles: lit.CSSResult;
-  render(): lit.TemplateResult<1>;
+  static styles: import("lit").CSSResult;
+  render(): import("lit").TemplateResult<1>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-radio": ThermalRadioElement;
   }
-} //# sourceMappingURL=Radio.d.ts.map
+}
 //#endregion
 //#region src/ui/Slot.d.ts
-declare class ThermalSlotElement extends AbstractThermalElement {
+export declare class ThermalSlotElement extends AbstractThermalElement {
   label?: string;
   private _slottedElements;
   protected get slottedElements(): Element[];
   private handleSlotChange;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-slot": ThermalSlotElement;
   }
-} //# sourceMappingURL=Slot.d.ts.map
+}
 //#endregion
 //#region src/ui/Spinner.d.ts
-declare class ThermalSpinnerElement extends AbstractThermalElement {
+export declare class ThermalSpinnerElement extends AbstractThermalElement {
   message?: string;
   color: string;
   static shadowRootOptions: ShadowRootInit;
-  static styles: lit.CSSResult;
-  protected render(): lit.TemplateResult<1>;
+  static styles: import("lit").CSSResult;
+  protected render(): import("lit").TemplateResult<1>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-spinner": ThermalSpinnerElement;
   }
-} //# sourceMappingURL=Spinner.d.ts.map
+}
 //#endregion
 //#region src/ui/Tip.d.ts
-declare class ThermalTipElement extends AbstractThermalElement {
+export declare class ThermalTipElement extends AbstractThermalElement {
   icon: string;
   iconStyle: string;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-tip": ThermalTipElement;
   }
-} //# sourceMappingURL=Tip.d.ts.map
+}
 //#endregion
 //#region src/hierarchy/consumers/AbstractManagerConsumer.d.ts
 /**
@@ -1848,7 +1848,7 @@ class MyComponent extends AbstractManagerConsumer {
  * @module \@labirthermal/webcomponents
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare abstract class AbstractManagerConsumer extends AbstractThermalElement {
+export declare abstract class AbstractManagerConsumer extends AbstractThermalElement {
   /** Alias to the `ThermalManager` from the `ManagerController` */
   get managerObject(): ThermalManager;
   /**
@@ -1909,7 +1909,7 @@ class MyComponent extends AbstractRegistryConsumer {
  * @module \@labirthermal/webcomponents
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare abstract class AbstractRegistryConsumer extends AbstractManagerConsumer {
+export declare abstract class AbstractRegistryConsumer extends AbstractManagerConsumer {
   /** Alias to the `ThermalRegistry` from the `RegistryController` */
   get registryObject(): ThermalRegistry;
   /**
@@ -1947,7 +1947,7 @@ class MyComponent extends AbstractGroupConsumer {
  * @module \@labirthermal/webcomponents
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare abstract class AbstractGroupConsumer extends AbstractRegistryConsumer {
+export declare abstract class AbstractGroupConsumer extends AbstractRegistryConsumer {
   /** Alias to the `ThermalGroup` object from the `groupController` */
   get groupObject(): ThermalGroup;
   /**
@@ -1961,25 +1961,25 @@ declare abstract class AbstractGroupConsumer extends AbstractRegistryConsumer {
 }
 //#endregion
 //#region src/hierarchy/abstraction/AbstractFileProvider.d.ts
-declare abstract class AbstractFileProvider extends AbstractGroupConsumer implements IElementWithFileController {
+export declare abstract class AbstractFileProvider extends AbstractGroupConsumer implements IElementWithFileController {
   static properties: {
-    managerController: lit.PropertyDeclaration<unknown, unknown>;
-    registryController: lit.PropertyDeclaration<unknown, unknown>;
-    groupController: lit.PropertyDeclaration<unknown, unknown>;
-    fileController: lit.PropertyDeclaration<unknown, unknown>;
-    file?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    failure?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    loading: lit.PropertyDeclaration<unknown, unknown>;
-    ms: lit.PropertyDeclaration<unknown, unknown>;
-    playbackSpeed: lit.PropertyDeclaration<unknown, unknown>;
-    analysis1?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis2?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis3?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis4?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis5?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis6?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis7?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    autoHighlight: lit.PropertyDeclaration<unknown, unknown>;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryController: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupController: import("lit").PropertyDeclaration<unknown, unknown>;
+    fileController: import("lit").PropertyDeclaration<unknown, unknown>;
+    file?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    failure?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    loading: import("lit").PropertyDeclaration<unknown, unknown>;
+    ms: import("lit").PropertyDeclaration<unknown, unknown>;
+    playbackSpeed: import("lit").PropertyDeclaration<unknown, unknown>;
+    analysis1?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis2?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis3?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis4?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis5?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis6?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis7?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    autoHighlight: import("lit").PropertyDeclaration<unknown, unknown>;
   };
   fileController: FileController;
   file?: ThermalFileInstance;
@@ -2010,14 +2010,14 @@ declare abstract class AbstractFileProvider extends AbstractGroupConsumer implem
 }
 //#endregion
 //#region src/hierarchy/abstraction/AbstractGroupProvider.d.ts
-declare abstract class AbstractGroupProvider extends AbstractRegistryConsumer implements IElementWithGroupController {
+export declare abstract class AbstractGroupProvider extends AbstractRegistryConsumer implements IElementWithGroupController {
   static properties: {
-    managerController: lit.PropertyDeclaration<unknown, unknown>;
-    registryController: lit.PropertyDeclaration<unknown, unknown>;
-    groupSlug: lit.PropertyDeclaration<unknown, unknown>;
-    groupObject: lit.PropertyDeclaration<unknown, unknown>;
-    groupController: lit.PropertyDeclaration<unknown, unknown>;
-    autoclearGroup: lit.PropertyDeclaration<unknown, unknown>;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryController: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupController: import("lit").PropertyDeclaration<unknown, unknown>;
+    autoclearGroup: import("lit").PropertyDeclaration<unknown, unknown>;
   };
   groupSlug: string;
   groupController: GroupController;
@@ -2027,16 +2027,16 @@ declare abstract class AbstractGroupProvider extends AbstractRegistryConsumer im
 }
 //#endregion
 //#region src/hierarchy/abstraction/AbstractManagerProvider.d.ts
-declare abstract class AbstractManagerProvider extends AbstractThermalElement implements IElementWithManagerController {
+export declare abstract class AbstractManagerProvider extends AbstractThermalElement implements IElementWithManagerController {
   static properties: {
-    managerSlug: lit.PropertyDeclaration<unknown, unknown>;
-    managerObject: lit.PropertyDeclaration<unknown, unknown>;
-    managerController: lit.PropertyDeclaration<unknown, unknown>;
-    palette: lit.PropertyDeclaration<unknown, unknown>;
-    advancedPalettes: lit.PropertyDeclaration<unknown, unknown>;
-    smoothThermograms: lit.PropertyDeclaration<unknown, unknown>;
-    smoothGraph: lit.PropertyDeclaration<unknown, unknown>;
-    tool: lit.PropertyDeclaration<unknown, unknown>;
+    managerSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    managerObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    palette: import("lit").PropertyDeclaration<unknown, unknown>;
+    advancedPalettes: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothThermograms: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothGraph: import("lit").PropertyDeclaration<unknown, unknown>;
+    tool: import("lit").PropertyDeclaration<unknown, unknown>;
   };
   managerController: ManagerController;
   managerSlug: string;
@@ -2054,19 +2054,19 @@ declare abstract class AbstractManagerProvider extends AbstractThermalElement im
 }
 //#endregion
 //#region src/hierarchy/abstraction/AbstractRegistryProvider.d.ts
-declare abstract class AbstractRegistryProvider extends AbstractManagerConsumer implements IElementWithRegistryController {
+export declare abstract class AbstractRegistryProvider extends AbstractManagerConsumer implements IElementWithRegistryController {
   static properties: {
-    managerController: lit.PropertyDeclaration<unknown, unknown>;
-    registrySlug: lit.PropertyDeclaration<unknown, unknown>;
-    registryObject: lit.PropertyDeclaration<unknown, unknown>;
-    registryController: lit.PropertyDeclaration<unknown, unknown>;
-    opacity: lit.PropertyDeclaration<unknown, unknown>;
-    min?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    max?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    from?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    to?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    highlight?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    loading: lit.PropertyDeclaration<unknown, unknown>;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    registrySlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryController: import("lit").PropertyDeclaration<unknown, unknown>;
+    opacity: import("lit").PropertyDeclaration<unknown, unknown>;
+    min?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    max?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    from?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    to?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    highlight?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    loading: import("lit").PropertyDeclaration<unknown, unknown>;
   };
   registrySlug: string;
   registryObject: ThermalRegistry;
@@ -2120,7 +2120,7 @@ declare abstract class AbstractRegistryProvider extends AbstractManagerConsumer 
  * @module \@labirthermal/webcomponents
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare abstract class AbstractFileConsumer extends AbstractGroupConsumer {
+export declare abstract class AbstractFileConsumer extends AbstractGroupConsumer {
   fileController: FileController;
   /**
    * Returns a stable callback key unique to this consumer.
@@ -2157,13 +2157,13 @@ declare abstract class AbstractFileConsumer extends AbstractGroupConsumer {
 }
 //#endregion
 //#region src/controls/independent/AppInfoButton.d.ts
-declare class AppInfoButton extends AbstractThermalElement {
-  static styles: lit.CSSResult;
+export declare class AppInfoButton extends AbstractThermalElement {
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 //#endregion
 //#region src/controls/independent/DisplayPanel.d.ts
-declare class DisplayPanel extends AbstractThermalElement {
+export declare class DisplayPanel extends AbstractThermalElement {
   static styles?: CSSResultGroup | undefined;
   advancedPalettes: boolean;
   managerController: ManagerController;
@@ -2171,7 +2171,7 @@ declare class DisplayPanel extends AbstractThermalElement {
 }
 //#endregion
 //#region src/controls/independent/ConfigDialog.d.ts
-declare class ConfigDialog extends AbstractThermalElement {
+export declare class ConfigDialog extends AbstractThermalElement {
   protected render(): unknown;
 }
 //#endregion
@@ -2203,43 +2203,43 @@ declare class ConfigDialog extends AbstractThermalElement {
  * @author Jan Jáchim <jachim@zcu.cz>
  *
  */
-declare class FileCopyElement extends AbstractThermalElement implements IElementWithManagerController, IElementWithRegistryController, IElementWithGroupController, IElementWithFileController {
+export declare class FileCopyElement extends AbstractThermalElement implements IElementWithManagerController, IElementWithRegistryController, IElementWithGroupController, IElementWithFileController {
   static properties: {
-    managerController: lit.PropertyDeclaration<unknown, unknown>;
-    registryController: lit.PropertyDeclaration<unknown, unknown>;
-    groupController: lit.PropertyDeclaration<unknown, unknown>;
-    fileController: lit.PropertyDeclaration<unknown, unknown>;
-    file?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    failure?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    loading: lit.PropertyDeclaration<unknown, unknown>;
-    ms: lit.PropertyDeclaration<unknown, unknown>;
-    playbackSpeed: lit.PropertyDeclaration<unknown, unknown>;
-    analysis1?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis2?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis3?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis4?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis5?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis6?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis7?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    autoHighlight: lit.PropertyDeclaration<unknown, unknown>;
-    groupSlug: lit.PropertyDeclaration<unknown, unknown>;
-    groupObject: lit.PropertyDeclaration<unknown, unknown>;
-    autoclearGroup: lit.PropertyDeclaration<unknown, unknown>;
-    registrySlug: lit.PropertyDeclaration<unknown, unknown>;
-    registryObject: lit.PropertyDeclaration<unknown, unknown>;
-    opacity: lit.PropertyDeclaration<unknown, unknown>;
-    min?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    max?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    from?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    to?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    highlight?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    managerSlug: lit.PropertyDeclaration<unknown, unknown>;
-    managerObject: lit.PropertyDeclaration<unknown, unknown>;
-    palette: lit.PropertyDeclaration<unknown, unknown>;
-    advancedPalettes: lit.PropertyDeclaration<unknown, unknown>;
-    smoothThermograms: lit.PropertyDeclaration<unknown, unknown>;
-    smoothGraph: lit.PropertyDeclaration<unknown, unknown>;
-    tool: lit.PropertyDeclaration<unknown, unknown>;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryController: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupController: import("lit").PropertyDeclaration<unknown, unknown>;
+    fileController: import("lit").PropertyDeclaration<unknown, unknown>;
+    file?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    failure?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    loading: import("lit").PropertyDeclaration<unknown, unknown>;
+    ms: import("lit").PropertyDeclaration<unknown, unknown>;
+    playbackSpeed: import("lit").PropertyDeclaration<unknown, unknown>;
+    analysis1?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis2?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis3?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis4?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis5?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis6?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis7?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    autoHighlight: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    autoclearGroup: import("lit").PropertyDeclaration<unknown, unknown>;
+    registrySlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    opacity: import("lit").PropertyDeclaration<unknown, unknown>;
+    min?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    max?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    from?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    to?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    highlight?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    managerSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    managerObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    palette: import("lit").PropertyDeclaration<unknown, unknown>;
+    advancedPalettes: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothThermograms: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothGraph: import("lit").PropertyDeclaration<unknown, unknown>;
+    tool: import("lit").PropertyDeclaration<unknown, unknown>;
   };
   originalFile: ThermalFileInstance;
   /** Mirror the analyses of the original file to the copy. Changing the value at runtime copies or clears the analyses. */
@@ -2298,7 +2298,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-copy": FileCopyElement;
   }
-} //# sourceMappingURL=FileCopy.d.ts.map
+}
 //#endregion
 //#region src/hierarchy/providers/FileProvider.d.ts
 /**
@@ -2324,7 +2324,7 @@ declare global {
  * @module \@labirthermal/webcomponents
  * @author Jan Jáchim <jachim@zcu.cz>
  */
-declare class FileProviderElement extends AbstractFileProvider implements IElementWithFileLoadController {
+export declare class FileProviderElement extends AbstractFileProvider implements IElementWithFileLoadController {
   fileLoadController: FileLoadController;
   thermal: string | undefined;
   visible: string | undefined;
@@ -2333,42 +2333,42 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-provider": FileProviderElement;
   }
-} //# sourceMappingURL=FileProvider.d.ts.map
+}
 //#endregion
 //#region src/hierarchy/providers/GroupProvider.d.ts
-declare class GroupProviderElement extends AbstractGroupProvider {}
+export declare class GroupProviderElement extends AbstractGroupProvider {}
 declare global {
   interface HTMLElementTagNameMap {
     "group-provider": GroupProviderElement;
   }
-} //# sourceMappingURL=GroupProvider.d.ts.map
+}
 //#endregion
 //#region src/hierarchy/providers/ManagerProvider.d.ts
-declare class ManagerProviderElement extends AbstractManagerProvider {
+export declare class ManagerProviderElement extends AbstractManagerProvider {
   slug: string;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "manager-provider": ManagerProviderElement;
   }
-} //# sourceMappingURL=ManagerProvider.d.ts.map
+}
 //#endregion
 //#region src/hierarchy/providers/RegistryProvider.d.ts
-declare class RegistryProviderElement extends AbstractRegistryProvider {}
+export declare class RegistryProviderElement extends AbstractRegistryProvider {}
 declare global {
   interface HTMLElementTagNameMap {
     "registry-provider": RegistryProviderElement;
   }
-} //# sourceMappingURL=RegistryProvider.d.ts.map
+}
 //#endregion
 //#region src/controls/manager/ManagerExportPanel.d.ts
-declare class ManagerExportPanel extends AbstractThermalElement {
+export declare class ManagerExportPanel extends AbstractThermalElement {
   protected configController?: ConfigController;
-  protected renderRow(label: string, content: ReturnType<typeof html>, hint?: ReturnType<typeof html> | string): lit.TemplateResult<1>;
-  protected renderGroup(label: string, content: ReturnType<typeof html>): lit.TemplateResult<1>;
-  protected formatTip(value?: ReturnType<typeof html> | string): lit.TemplateResult<1> | "";
-  protected renderCheckbox(key: string, label: string, value: boolean, onChange: (value: boolean) => void): lit.TemplateResult<1>;
-  protected renderSlider(key: string, label: string, value: number, unit: string, min: number, max: number, step: number, onChange: (value: number) => void, hint?: ReturnType<typeof html> | string): lit.TemplateResult<1>;
+  protected renderRow(label: string, content: ReturnType<typeof html>, hint?: ReturnType<typeof html> | string): import("lit").TemplateResult<1>;
+  protected renderGroup(label: string, content: ReturnType<typeof html>): import("lit").TemplateResult<1>;
+  protected formatTip(value?: ReturnType<typeof html> | string): import("lit").TemplateResult<1> | "";
+  protected renderCheckbox(key: string, label: string, value: boolean, onChange: (value: boolean) => void): import("lit").TemplateResult<1>;
+  protected renderSlider(key: string, label: string, value: number, unit: string, min: number, max: number, step: number, onChange: (value: number) => void, hint?: ReturnType<typeof html> | string): import("lit").TemplateResult<1>;
   static styles?: CSSResultGroup | undefined;
   updated(_changedProperties: PropertyValues): void;
   protected render(): unknown;
@@ -2377,31 +2377,31 @@ declare global {
   interface HTMLElementTagNameMap {
     "manager-export-panel": ManagerExportPanel;
   }
-} //# sourceMappingURL=ManagerExportPanel.d.ts.map
+}
 //#endregion
 //#region src/controls/manager/ManagerGraphSmoothSwitch.d.ts
-declare class ManagerGraphSmoothSwitch extends AbstractManagerConsumer {
+export declare class ManagerGraphSmoothSwitch extends AbstractManagerConsumer {
   smooth: boolean;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "manager-graph-smooth-switch": ManagerGraphSmoothSwitch;
   }
-} //# sourceMappingURL=ManagerGraphSmoothSwitch.d.ts.map
+}
 //#endregion
 //#region src/controls/manager/ManagerImageSmoothSwitch.d.ts
-declare class ManagerImageSmoothSwitch extends AbstractManagerConsumer {
+export declare class ManagerImageSmoothSwitch extends AbstractManagerConsumer {
   smooth: boolean;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "manager-image-smooth-switch": ManagerImageSmoothSwitch;
   }
-} //# sourceMappingURL=ManagerImageSmoothSwitch.d.ts.map
+}
 //#endregion
 //#region src/controls/manager/AbstractPaletteSwitch.d.ts
 declare abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
@@ -2416,8 +2416,8 @@ declare abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 }
 //#endregion
 //#region src/controls/manager/ManagerPaletteButtons.d.ts
-declare class ManagerPaletteButtons extends AbstractPaletteSwitch {
-  static styles: lit.CSSResult;
+export declare class ManagerPaletteButtons extends AbstractPaletteSwitch {
+  static styles: import("lit").CSSResult;
   private paletteTemplate;
   protected render(): unknown;
 }
@@ -2425,29 +2425,29 @@ declare global {
   interface HTMLElementTagNameMap {
     "manager-palette-buttons": ManagerPaletteButtons;
   }
-} //# sourceMappingURL=ManagerPaletteButtons.d.ts.map
+}
 //#endregion
 //#region src/controls/manager/ManagerPaletteDropdown.d.ts
-declare class ManagerPaletteDropdown extends AbstractPaletteSwitch {
-  static styles: lit.CSSResult;
-  protected paletteTemplate(palette: ThermalPaletteType): lit.TemplateResult<1>;
+export declare class ManagerPaletteDropdown extends AbstractPaletteSwitch {
+  static styles: import("lit").CSSResult;
+  protected paletteTemplate(palette: ThermalPaletteType): import("lit").TemplateResult<1>;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "manager-palette-dropdown": ManagerPaletteDropdown;
   }
-} //# sourceMappingURL=ManagerPaletteDropdown.d.ts.map
+}
 //#endregion
 //#region src/controls/manager/ManagerToolsBar.d.ts
 /**
  * A standard toolbar that is either horizontal or vertical.
  */
-declare class ManagerToolBar extends AbstractManagerConsumer {
+export declare class ManagerToolBar extends AbstractManagerConsumer {
   protected value: ThermalTool;
   /** Handle user input events */
   protected onSelect(tool: ThermalTool): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected renderTool(key: string, tool: ThermalTool): unknown;
   protected render(): unknown;
 }
@@ -2455,7 +2455,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "manager-tool-bar": ManagerToolBar;
   }
-} //# sourceMappingURL=ManagerToolsBar.d.ts.map
+}
 //#endregion
 //#region src/controls/registry/RegistryRangeForm.d.ts
 /**
@@ -2466,7 +2466,7 @@ declare global {
  * @see AbstractRegistryConsumer
  * @see RegistryController
  */
-declare class RegistryRangeForm extends AbstractRegistryConsumer {
+export declare class RegistryRangeForm extends AbstractRegistryConsumer {
   /**
    * Whether to arrange the form controls in a stacked layout. Reflected to
    * the `stacked` attribute; defaults to `false`.
@@ -2691,14 +2691,14 @@ declare global {
   interface HTMLElementTagNameMap {
     "registry-range-form": RegistryRangeForm;
   }
-} //# sourceMappingURL=RegistryRangeForm.d.ts.map
+}
 //#endregion
 //#region src/controls/registry/RegistryTicksBar.d.ts
 type TickType = {
   percentage: number;
   value: number;
 };
-declare class RegistryTicksBar extends AbstractRegistryConsumer {
+export declare class RegistryTicksBar extends AbstractRegistryConsumer {
   static TICK_WIDTH: number;
   static TICK_FIXED: number;
   protected ticksRef: Ref<HTMLDivElement>;
@@ -2730,7 +2730,7 @@ declare class RegistryTicksBar extends AbstractRegistryConsumer {
   protected map(current: number, in_min: number, in_max: number, out_min: number, out_max: number): number;
   protected calculateTicks(minmax: ThermalMinmaxOrUndefined, width: number): void;
   protected calculateOneTick(minmax: ThermalMinmaxOrUndefined, percent: number): TickType | undefined;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
@@ -2740,7 +2740,7 @@ declare global {
 }
 //#endregion
 //#region src/controls/registry/RegistryRangeSlider.d.ts
-declare class RegistryRangeSlider extends AbstractRegistryConsumer {
+export declare class RegistryRangeSlider extends AbstractRegistryConsumer {
   height: string | null;
   private heightStyle;
   min?: number;
@@ -2767,17 +2767,17 @@ declare class RegistryRangeSlider extends AbstractRegistryConsumer {
   private keyDown;
   private wheel;
   private renderHandle;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "registry-range-slider": RegistryRangeSlider;
   }
-} //# sourceMappingURL=RegistryRangeSlider.d.ts.map
+}
 //#endregion
 //#region src/controls/registry/RegistryHistogram.d.ts
-declare class RegistryHistogram extends AbstractRegistryConsumer {
+export declare class RegistryHistogram extends AbstractRegistryConsumer {
   protected histogram: ThermalRegistry["histogram"]["value"];
   height: string;
   heightExpanded: string;
@@ -2789,17 +2789,17 @@ declare class RegistryHistogram extends AbstractRegistryConsumer {
   connectedCallback(): void;
   protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void;
   disconnectedCallback(): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "registry-histogram": RegistryHistogram;
   }
-} //# sourceMappingURL=RegistryHistogram.d.ts.map
+}
 //#endregion
 //#region src/controls/registry/RegistryRangeFullButton.d.ts
-declare class RegistryRangeFullButton extends AbstractRegistryConsumer {
+export declare class RegistryRangeFullButton extends AbstractRegistryConsumer {
   protected buttonRef: Ref<HTMLElement>;
   doAction(): void;
   mouseenter(): void;
@@ -2810,10 +2810,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "registry-range-full-button": RegistryRangeFullButton;
   }
-} //# sourceMappingURL=RegistryRangeFullButton.d.ts.map
+}
 //#endregion
 //#region src/controls/registry/RegistryRangeAutoButton.d.ts
-declare class RegistryRangeAutoButton extends AbstractRegistryConsumer {
+export declare class RegistryRangeAutoButton extends AbstractRegistryConsumer {
   doAction(): void;
   protected render(): unknown;
 }
@@ -2821,10 +2821,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "registry-range-auto-button": RegistryRangeAutoButton;
   }
-} //# sourceMappingURL=RegistryRangeAutoButton.d.ts.map
+}
 //#endregion
 //#region src/controls/registry/RegistryRangeDisplay.d.ts
-declare class RegistryRangeDisplay extends AbstractRegistryConsumer {
+export declare class RegistryRangeDisplay extends AbstractRegistryConsumer {
   protected from?: number;
   protected to?: number;
   fixed: number;
@@ -2835,10 +2835,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "registry-range-display": RegistryRangeDisplay;
   }
-} //# sourceMappingURL=RegistryRangeDisplay.d.ts.map
+}
 //#endregion
 //#region src/controls/registry/RegistryOpacitySlider.d.ts
-declare class RegistryOpacitySlider extends AbstractRegistryConsumer {
+export declare class RegistryOpacitySlider extends AbstractRegistryConsumer {
   value: number;
   protected containerRef: Ref<HTMLElement>;
   /** Handle user input events */
@@ -2847,17 +2847,17 @@ declare class RegistryOpacitySlider extends AbstractRegistryConsumer {
       value: string;
     };
   }): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "registry-opacity-slider": RegistryOpacitySlider;
   }
-} //# sourceMappingURL=RegistryOpacitySlider.d.ts.map
+}
 //#endregion
 //#region src/controls/group/GroupChartElement.d.ts
-declare class GroupChartElement extends AbstractGroupConsumer {
+export declare class GroupChartElement extends AbstractGroupConsumer {
   protected instances: ThermalFileInstance[];
   protected timeout?: NodeJS.Timeout;
   protected data: [string[], ...[Date, ...number[]][]] | undefined;
@@ -2872,10 +2872,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "group-chart": GroupChartElement;
   }
-} //# sourceMappingURL=GroupChartElement.d.ts.map
+}
 //#endregion
 //#region src/controls/group/GroupAnalysisSyncButton.d.ts
-declare class GroupAnalysisSyncButton extends AbstractGroupConsumer {
+export declare class GroupAnalysisSyncButton extends AbstractGroupConsumer {
   on: boolean;
   connectedCallback(): void;
   turnOn(): void;
@@ -2888,10 +2888,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "group-analysis-sync-button": GroupAnalysisSyncButton;
   }
-} //# sourceMappingURL=GroupAnalysisSyncButton.d.ts.map
+}
 //#endregion
 //#region src/controls/group/GroupDownloadDropdown.d.ts
-declare class GroupDownloadDropdown extends AbstractGroupConsumer {
+export declare class GroupDownloadDropdown extends AbstractGroupConsumer {
   static styles?: CSSResultGroup | undefined;
   private configController?;
   icon?: string;
@@ -2903,10 +2903,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "group-download-dropdown": GroupDownloadDropdown;
   }
-} //# sourceMappingURL=GroupDownloadDropdown.d.ts.map
+}
 //#endregion
 //#region src/controls/group/GroupDownloadButtons.d.ts
-declare class GroupDownloadButtons extends AbstractGroupConsumer {
+export declare class GroupDownloadButtons extends AbstractGroupConsumer {
   label?: string;
   protected configController?: ConfigController;
   static styles?: CSSResultGroup | undefined;
@@ -2916,7 +2916,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "group-download-buttons": GroupDownloadButtons;
   }
-} //# sourceMappingURL=GroupDownloadButtons.d.ts.map
+}
 //#endregion
 //#region src/controls/group/AbstractGroupDropin.d.ts
 declare abstract class AbstractGroupDropin extends AbstractGroupConsumer {
@@ -2929,22 +2929,22 @@ declare abstract class AbstractGroupDropin extends AbstractGroupConsumer {
 }
 //#endregion
 //#region src/controls/group/GroupDropinElement.d.ts
-declare class GroupDropinElement extends AbstractGroupDropin {
+export declare class GroupDropinElement extends AbstractGroupDropin {
   protected container: Ref<HTMLVideoElement>;
   protected hover: boolean;
   protected uploading: boolean;
   protected firstUpdated(_changedProperties: PropertyValues): void;
-  static styles: lit.CSSResult;
-  render(): lit.TemplateResult<1>;
+  static styles: import("lit").CSSResult;
+  render(): import("lit").TemplateResult<1>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "group-dropin-element": GroupDropinElement;
   }
-} //# sourceMappingURL=GroupDropinElement.d.ts.map
+}
 //#endregion
 //#region src/controls/group/GroupDropinInput.d.ts
-declare class GroupDropinInputElement extends AbstractGroupDropin {
+export declare class GroupDropinInputElement extends AbstractGroupDropin {
   icon?: string;
   iconStyle?: string;
   tooltip?: string;
@@ -2953,19 +2953,19 @@ declare class GroupDropinInputElement extends AbstractGroupDropin {
   protected hover: boolean;
   protected uploading: boolean;
   listener?: DropinElementListener;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected firstUpdated(_changedProperties: PropertyValues): void;
-  render(): lit.TemplateResult<1>;
+  render(): import("lit").TemplateResult<1>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "group-dropin-input": GroupDropinInputElement;
   }
-} //# sourceMappingURL=GroupDropinInput.d.ts.map
+}
 //#endregion
 //#region src/controls/group/GroupRangePropagator.d.ts
-declare class GroupRangePropagatorElement extends AbstractGroupConsumer {
-  static styles: lit.CSSResultGroup | undefined;
+export declare class GroupRangePropagatorElement extends AbstractGroupConsumer {
+  static styles: import("lit").CSSResultGroup | undefined;
   connectedCallback(): void;
   protected render(): unknown;
 }
@@ -2973,7 +2973,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "group-range-propagator": GroupRangePropagatorElement;
   }
-} //# sourceMappingURL=GroupRangePropagator.d.ts.map
+}
 //#endregion
 //#region src/utils/timelineTicks.d.ts
 declare enum TICK {
@@ -2989,7 +2989,7 @@ type Tick = {
 };
 //#endregion
 //#region src/controls/group/GroupTimeline.d.ts
-declare class GroupTimelineElement extends AbstractGroupConsumer {
+export declare class GroupTimelineElement extends AbstractGroupConsumer {
   static TICK_WIDTH: number;
   static TICK_POINTER_HEIGHT: number;
   longestDurationInMs?: number;
@@ -3026,7 +3026,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "group-timeline": GroupTimelineElement;
   }
-} //# sourceMappingURL=GroupTimeline.d.ts.map
+}
 //#endregion
 //#region src/controls/file/FileCanvas.d.ts
 /**
@@ -3037,7 +3037,7 @@ declare global {
  * @package @labirthermal/webcomponents
  * @author Jan Jáchim <jachim@ntc.zcu.cz>
  */
-declare class FileCanvasElement extends AbstractFileConsumer {
+export declare class FileCanvasElement extends AbstractFileConsumer {
   /** Dedicated core-owned mount target; must not contain any Lit-managed child parts. */
   container: Ref<HTMLDivElement>;
   /** Actual DOM-mounted instance, retained for cleanup even before a pending file update completes. Not reactive. */
@@ -3051,7 +3051,7 @@ declare class FileCanvasElement extends AbstractFileConsumer {
   /** Releases the actual mount rather than a possibly newer file context value. */
   private unmountInstance;
   disconnectedCallback(): void;
-  static readonly styles: lit.CSSResult;
+  static readonly styles: import("lit").CSSResult;
   private renderPlaceholder;
   private renderError;
   protected render(): unknown;
@@ -3060,10 +3060,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-canvas": FileCanvasElement;
   }
-} //# sourceMappingURL=FileCanvas.d.ts.map
+}
 //#endregion
 //#region src/controls/file/FileVideoExportButton.d.ts
-declare class FileVideoExportButton extends AbstractFileConsumer {
+export declare class FileVideoExportButton extends AbstractFileConsumer {
   variant?: BtnVariants;
   size?: BtnSizes;
   icon?: string;
@@ -3088,10 +3088,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-video-export-button": FileVideoExportButton;
   }
-} //# sourceMappingURL=FileVideoExportButton.d.ts.map
+}
 //#endregion
 //#region src/controls/file/FilePlaybackSpeedDropdown.d.ts
-declare class FilePlaybackSpeedDropdown extends AbstractFileConsumer {
+export declare class FilePlaybackSpeedDropdown extends AbstractFileConsumer {
   enabled: "on" | "off";
   protected playbackSpeed: PlaybackSpeeds;
   onInstanceCreated(): void;
@@ -3104,10 +3104,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-playback-speed-dropdown": FilePlaybackSpeedDropdown;
   }
-} //# sourceMappingURL=FilePlaybackSpeedDropdown.d.ts.map
+}
 //#endregion
 //#region src/controls/file/FileDownloadDropdown.d.ts
-declare class FileDownloadButton extends AbstractFileConsumer {
+export declare class FileDownloadButton extends AbstractFileConsumer {
   protected configController?: ConfigController;
   protected hasGraphs: boolean;
   variant?: string;
@@ -3123,7 +3123,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-download-dropdown": FileDownloadButton;
   }
-} //# sourceMappingURL=FileDownloadDropdown.d.ts.map
+}
 //#endregion
 //#region src/controls/file/buttons/AbstractFileButton.d.ts
 declare abstract class AbstractFileButton extends AbstractFileConsumer {
@@ -3133,7 +3133,7 @@ declare abstract class AbstractFileButton extends AbstractFileConsumer {
   iconStyle?: string;
   plain?: boolean;
   protected abstract tooltip?: string;
-  protected ref: lit_directives_ref_js0.Ref<HTMLElement>;
+  protected ref: import("lit/directives/ref.js").Ref<HTMLElement>;
   abstract getDefaultLabel(): string;
   abstract enter(): void;
   abstract action(): void;
@@ -3151,7 +3151,7 @@ declare abstract class AbstractFileButton extends AbstractFileConsumer {
 //#endregion
 //#region src/controls/file/buttons/FileButton.d.ts
 /** @deprecated Who knows what that is? */
-declare class FileButtonElement extends AbstractFileButton {
+export declare class FileButtonElement extends AbstractFileButton {
   tooltip: undefined;
   label: string;
   onEnter?: (instance: ThermalFileInstance) => void;
@@ -3166,10 +3166,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-button": FileButtonElement;
   }
-} //# sourceMappingURL=FileButton.d.ts.map
+}
 //#endregion
 //#region src/controls/file/buttons/FileDropdown.d.ts
-declare class FileDropdown extends AbstractThermalElement {
+export declare class FileDropdown extends AbstractThermalElement {
   label?: string;
   protected expanded: boolean;
   protected toggle(): void;
@@ -3183,10 +3183,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-dropdown-elt": FileDropdown;
   }
-} //# sourceMappingURL=FileDropdown.d.ts.map
+}
 //#endregion
 //#region src/controls/file/buttons/FileLrcButton.d.ts
-declare class FileLrcButton extends AbstractFileButton {
+export declare class FileLrcButton extends AbstractFileButton {
   tooltip: undefined;
   enter(): void;
   leave(): void;
@@ -3197,10 +3197,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-download-lrc": FileLrcButton;
   }
-} //# sourceMappingURL=FileLrcButton.d.ts.map
+}
 //#endregion
 //#region src/controls/file/buttons/FilePngButton.d.ts
-declare class FilePngButton extends AbstractFileButton {
+export declare class FilePngButton extends AbstractFileButton {
   tooltip: undefined;
   protected configController?: ConfigController;
   enter(): void;
@@ -3212,10 +3212,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-download-png": FilePngButton;
   }
-} //# sourceMappingURL=FilePngButton.d.ts.map
+}
 //#endregion
 //#region src/controls/file/buttons/FileRangePropagator.d.ts
-declare class FileRangePropagator extends AbstractFileButton {
+export declare class FileRangePropagator extends AbstractFileButton {
   protected tooltip: string;
   hideLabel: boolean;
   onInstanceCreated(file: ThermalFileInstance): void;
@@ -3228,13 +3228,13 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-range-propagator": FileRangePropagator;
   }
-} //# sourceMappingURL=FileRangePropagator.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/AnalysisTableOptions.d.ts
 type AnalysisTableMode = "full" | "compact";
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisComplex.d.ts
-declare class FileAnalysisComplexElement extends AbstractFileConsumer {
+export declare class FileAnalysisComplexElement extends AbstractFileConsumer {
   tableMode: AnalysisTableMode;
   forceinteractiveanalysis: boolean;
   graphActivationEnabled: boolean;
@@ -3272,10 +3272,10 @@ declare class FileAnalysisComplexElement extends AbstractFileConsumer {
   private observeGraph;
   /** Releases the observer even when Lit has already cleared the graph reference. */
   private disconnectObserver;
-  protected renderButtons(): lit.TemplateResult<1>;
-  protected renderCurrentTooltip(): lit.TemplateResult<1>;
-  protected renderAddAnalysis(): lit.TemplateResult<1>;
-  protected renderGraph(): lit.TemplateResult<1> | typeof nothing;
+  protected renderButtons(): import("lit").TemplateResult<1>;
+  protected renderCurrentTooltip(): import("lit").TemplateResult<1>;
+  protected renderAddAnalysis(): import("lit").TemplateResult<1>;
+  protected renderGraph(): import("lit").TemplateResult<1> | typeof nothing;
   static styles?: CSSResultGroup | undefined;
   protected render(): unknown;
 }
@@ -3283,11 +3283,11 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-analysis-complex": FileAnalysisComplexElement;
   }
-} //# sourceMappingURL=FileAnalysisComplex.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisDisplay.d.ts
 /** Display the analysis state for the purpose of exporting. */
-declare class FileAnalysisDisplayElement extends AbstractFileConsumer {
+export declare class FileAnalysisDisplayElement extends AbstractFileConsumer {
   protected container: Ref<HTMLDivElement>;
   protected analysis: AbstractAnalysis[];
   private boundFile?;
@@ -3304,7 +3304,7 @@ declare class FileAnalysisDisplayElement extends AbstractFileConsumer {
   private bindFile;
   /** Removes both listeners from the actual subscribed file when replacing it or disconnecting. */
   private unbindFile;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
   private renderAnalysisRow;
   private renderAnalysisRowTemperatureCell;
@@ -3313,24 +3313,24 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-analysis-display": FileAnalysisDisplayElement;
   }
-} //# sourceMappingURL=FileAnalysisDisplay.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisEdit.d.ts
 /** Trigger the edit dialog for an analysis */
-declare class FileAnalisisEditDialog extends AbstractThermalElement {
+export declare class FileAnalisisEditDialog extends AbstractThermalElement {
   analysis: AbstractAnalysis;
   protected name?: string;
   protected type?: string;
   willUpdate(changedProperties: PropertyValues): void;
   updated(changedProperties: PropertyValues): void;
   static styles?: CSSResultGroup | undefined;
-  protected render(): lit.TemplateResult<1>;
+  protected render(): import("lit").TemplateResult<1>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "file-analysis-edit": FileAnalisisEditDialog;
   }
-} //# sourceMappingURL=FileAnalysisEdit.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/chart/loader.d.ts
 /** Types that can be converted to `DataTable`. */
@@ -3403,9 +3403,9 @@ type DataTableLike = unknown[][] | {
  *
  * @demo demo/index.html
  */
-declare class ThermalChartElement extends LitElement {
+export declare class ThermalChartElement extends LitElement {
   /** @nocollapse */
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   /**
    * Fired after a chart type is rendered and ready for interaction.
    *
@@ -3582,7 +3582,7 @@ declare class ThermalChartElement extends LitElement {
   chartWrapper: google.visualization.ChartWrapper | null;
   private redrawTimeoutId;
   protected chartRef: Ref<HTMLDivElement>;
-  protected render(): lit.TemplateResult<1>;
+  protected render(): import("lit").TemplateResult<1>;
   private getGraphLayout;
   private isGraphVisualizationPoint;
   private handleGraphPointerMove;
@@ -3636,11 +3636,11 @@ declare global {
   interface HTMLElementTagNameMap {
     'thermal-chart': ThermalChartElement;
   }
-} //# sourceMappingURL=chart.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisGraph.d.ts
 /** High level component around `thermal-chart` that provides the functionality of a file analysis graph */
-declare class FileAnalysisGraphElement extends AbstractFileConsumer {
+export declare class FileAnalysisGraphElement extends AbstractFileConsumer {
   protected hydrated: boolean;
   graphWidth: number;
   graphHeight: number;
@@ -3683,7 +3683,7 @@ declare class FileAnalysisGraphElement extends AbstractFileConsumer {
   private escapeHtml;
   private handleGraphClick;
   private handleGraphHover;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
   private renderDownloads;
 }
@@ -3691,10 +3691,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-analysis-graph": FileAnalysisGraphElement;
   }
-} //# sourceMappingURL=FileAnalysisGraph.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisRow.d.ts
-declare class FileAnalysisRowElement extends AbstractThermalElement {
+export declare class FileAnalysisRowElement extends AbstractThermalElement {
   analysis?: AbstractAnalysis;
   tableMode: AnalysisTableMode;
   interactiveanalysis: boolean;
@@ -3725,7 +3725,7 @@ declare class FileAnalysisRowElement extends AbstractThermalElement {
   private readonly handleMouseOut;
   private readonly handleFocusIn;
   private readonly handleFocusOut;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   private renderActions;
   private renderName;
   private renderValue;
@@ -3735,10 +3735,10 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-analysis-table-row": FileAnalysisRowElement;
   }
-} //# sourceMappingURL=FileAnalysisRow.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisTable.d.ts
-declare class FileAnalysisTableElement extends AbstractFileConsumer {
+export declare class FileAnalysisTableElement extends AbstractFileConsumer {
   tableMode: AnalysisTableMode;
   showRangePropagator?: boolean;
   selectionEnabled?: boolean;
@@ -3766,14 +3766,14 @@ declare class FileAnalysisTableElement extends AbstractFileConsumer {
   private bindFile;
   /** Removes this component's selection listener from the file it is currently bound to. */
   private unbindFile;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "file-analysis-table": FileAnalysisTableElement;
   }
-} //# sourceMappingURL=FileAnalysisTable.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/edit/analysisColorDropdown.d.ts
 /**
@@ -3781,20 +3781,20 @@ declare global {
  * @package \@labirthermal/embed
  * @author Jan Jáchim
  */
-declare class AnalysisColorDropdown extends AbstractThermalElement {
+export declare class AnalysisColorDropdown extends AbstractThermalElement {
   analysis: AbstractAnalysis;
   protected color?: string;
   protected willUpdate(_changedProperties: PropertyValues): void;
   protected updated(_changedProperties: PropertyValues): void;
   static styles?: CSSResultGroup | undefined;
-  protected renderColor(value: string): lit.TemplateResult<1>;
+  protected renderColor(value: string): import("lit").TemplateResult<1>;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "analysis-color": AnalysisColorDropdown;
   }
-} //# sourceMappingURL=analysisColorDropdown.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/edit/analysisNameInput.d.ts
 /**
@@ -3802,7 +3802,7 @@ declare global {
  * @package \@labirthermal/embed
  * @author Jan Jáchim
  */
-declare class AnalysisNameInput extends AbstractThermalElement {
+export declare class AnalysisNameInput extends AbstractThermalElement {
   analysis: AbstractAnalysis;
   protected name?: string;
   protected willUpdate(changedProperties: PropertyValues): void;
@@ -3814,7 +3814,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "analysis-name": AnalysisNameInput;
   }
-} //# sourceMappingURL=analysisNameInput.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/edit/editAreaTable.d.ts
 /**
@@ -3822,7 +3822,7 @@ declare global {
  * @package \@labirthermal/embed
  * @author Jan Jáchim
  */
-declare class AreaEditTable extends AbstractThermalElement {
+export declare class AreaEditTable extends AbstractThermalElement {
   analysis: AbstractAreaAnalysis;
   protected color?: string;
   protected top?: number;
@@ -3837,14 +3837,14 @@ declare class AreaEditTable extends AbstractThermalElement {
   protected willUpdate(changedProperties: PropertyValues): void;
   protected updated(changedProperties: PropertyValues): void;
   protected handleInput(event: InputEvent, callback: (value: number) => void): void;
-  static styles: lit.CSSResult;
-  protected render(): lit.TemplateResult<1>;
+  static styles: import("lit").CSSResult;
+  protected render(): import("lit").TemplateResult<1>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "edit-area": AreaEditTable;
   }
-} //# sourceMappingURL=editAreaTable.d.ts.map
+}
 //#endregion
 //#region src/controls/file/analysis/edit/editPointTable.d.ts
 /**
@@ -3852,7 +3852,7 @@ declare global {
  * @package \@labirthermal/embed
  * @author Jan Jáchim
  */
-declare class EditpointTable extends AbstractThermalElement {
+export declare class EditpointTable extends AbstractThermalElement {
   analysis: PointAnalysis;
   protected top?: number;
   protected left?: number;
@@ -3863,14 +3863,14 @@ declare class EditpointTable extends AbstractThermalElement {
   protected willUpdate(changedProperties: PropertyValues): void;
   protected updated(changedProperties: PropertyValues): void;
   handleInput(event: InputEvent, callback: (value: number) => void): void;
-  static styles: lit.CSSResult;
-  protected render(): lit.TemplateResult<1>;
+  static styles: import("lit").CSSResult;
+  protected render(): import("lit").TemplateResult<1>;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "edit-point": EditpointTable;
   }
-} //# sourceMappingURL=editPointTable.d.ts.map
+}
 //#endregion
 //#region src/utils/iife.d.ts
 type ComponentsCatalog = Record<string, CustomElementConstructor>;
@@ -3880,13 +3880,13 @@ type ComponentsCatalog = Record<string, CustomElementConstructor>;
  * @module @labirthermal/webcomponents
  *
  */
-declare const defineAllWebcomponents: (catalog: ComponentsCatalog) => void;
+export declare const defineAllWebcomponents: (catalog: ComponentsCatalog) => void;
 /**
  * Registers a custom element and defines it right away.
  *
  * @module @labirthermal/webcomponents
  */
-declare const defineWebcomponent: (tag: string, cls: CustomElementConstructor) => void;
+export declare const defineWebcomponent: (tag: string, cls: CustomElementConstructor) => void;
 //#endregion
 //#region src/translations/localeContext.d.ts
 type Locales = "en" | "cs" | "fr" | "cy" | "de";
@@ -3923,9 +3923,9 @@ declare class AatAppElement extends AbstractThermalElement implements IWithlocal
   protected shouldUpdate(_changedProperties: PropertyValues<AatAppElement>): boolean;
   willUpdate(_changedProperties: PropertyValues<AatAppElement>): void;
   static styles?: CSSResultGroup | undefined;
-  protected renderNumberField(inputRef: Ref<HTMLInputElement>, id: "temperature" | "v" | "ha", label: string, unit: string | ReturnType<typeof html> | typeof nothing, value?: number, min?: number, max?: number, step?: number, hint?: string): lit.TemplateResult<1>;
-  protected renderResult(apparentTemperature: number, temperature: number): lit.TemplateResult<1>;
-  protected render(): lit.TemplateResult<1>;
+  protected renderNumberField(inputRef: Ref<HTMLInputElement>, id: "temperature" | "v" | "ha", label: string, unit: string | ReturnType<typeof html> | typeof nothing, value?: number, min?: number, max?: number, step?: number, hint?: string): import("lit").TemplateResult<1>;
+  protected renderResult(apparentTemperature: number, temperature: number): import("lit").TemplateResult<1>;
+  protected render(): import("lit").TemplateResult<1>;
 }
 //#endregion
 //#region src/apps/AbstractApp.d.ts
@@ -3947,41 +3947,41 @@ declare enum Mode {
 }
 declare class DropinAppElement extends AbstractApp implements IWithlocale, IElementWithManagerController, IElementWithRegistryController, IElementWithGroupController, IElementWithFileController, IElementWithGroupListingController {
   static properties: {
-    managerController: lit.PropertyDeclaration<unknown, unknown>;
-    registryController: lit.PropertyDeclaration<unknown, unknown>;
-    groupController: lit.PropertyDeclaration<unknown, unknown>;
-    fileController: lit.PropertyDeclaration<unknown, unknown>;
-    file?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    failure?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    loading: lit.PropertyDeclaration<unknown, unknown>;
-    ms: lit.PropertyDeclaration<unknown, unknown>;
-    playbackSpeed: lit.PropertyDeclaration<unknown, unknown>;
-    analysis1?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis2?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis3?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis4?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis5?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis6?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis7?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    autoHighlight: lit.PropertyDeclaration<unknown, unknown>;
-    groupSlug: lit.PropertyDeclaration<unknown, unknown>;
-    groupObject: lit.PropertyDeclaration<unknown, unknown>;
-    autoclearGroup: lit.PropertyDeclaration<unknown, unknown>;
-    registrySlug: lit.PropertyDeclaration<unknown, unknown>;
-    registryObject: lit.PropertyDeclaration<unknown, unknown>;
-    opacity: lit.PropertyDeclaration<unknown, unknown>;
-    min?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    max?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    from?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    to?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    highlight?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    managerSlug: lit.PropertyDeclaration<unknown, unknown>;
-    managerObject: lit.PropertyDeclaration<unknown, unknown>;
-    palette: lit.PropertyDeclaration<unknown, unknown>;
-    advancedPalettes: lit.PropertyDeclaration<unknown, unknown>;
-    smoothThermograms: lit.PropertyDeclaration<unknown, unknown>;
-    smoothGraph: lit.PropertyDeclaration<unknown, unknown>;
-    tool: lit.PropertyDeclaration<unknown, unknown>;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryController: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupController: import("lit").PropertyDeclaration<unknown, unknown>;
+    fileController: import("lit").PropertyDeclaration<unknown, unknown>;
+    file?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    failure?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    loading: import("lit").PropertyDeclaration<unknown, unknown>;
+    ms: import("lit").PropertyDeclaration<unknown, unknown>;
+    playbackSpeed: import("lit").PropertyDeclaration<unknown, unknown>;
+    analysis1?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis2?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis3?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis4?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis5?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis6?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis7?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    autoHighlight: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    autoclearGroup: import("lit").PropertyDeclaration<unknown, unknown>;
+    registrySlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    opacity: import("lit").PropertyDeclaration<unknown, unknown>;
+    min?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    max?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    from?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    to?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    highlight?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    managerSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    managerObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    palette: import("lit").PropertyDeclaration<unknown, unknown>;
+    advancedPalettes: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothThermograms: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothGraph: import("lit").PropertyDeclaration<unknown, unknown>;
+    tool: import("lit").PropertyDeclaration<unknown, unknown>;
   };
   managerSlug: string;
   managerObject: ThermalManager;
@@ -4035,58 +4035,58 @@ declare class DropinAppElement extends AbstractApp implements IWithlocale, IElem
   private onValueChangeTimeout;
   firstUpdated(_changedProperties: PropertyValues): void;
   protected handleClear(): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   handleDropAndClear(results: AbstractFileResult[]): Promise<void>;
-  protected renderIntroScene(): lit.TemplateResult<1>;
-  protected renderLayout(children: unknown): lit.TemplateResult<1>;
+  protected renderIntroScene(): import("lit").TemplateResult<1>;
+  protected renderLayout(children: unknown): import("lit").TemplateResult<1>;
   protected renderHeader(): unknown[];
   protected renderContent(): void;
-  protected renderDetail(): lit.TemplateResult<1>;
-  renderList(): lit.TemplateResult<1>;
-  protected renderAuto(): lit.TemplateResult<1>;
+  protected renderDetail(): import("lit").TemplateResult<1>;
+  renderList(): import("lit").TemplateResult<1>;
+  protected renderAuto(): import("lit").TemplateResult<1>;
   protected render(): unknown;
 }
 //#endregion
 //#region src/apps/ThermalFileApp.d.ts
 declare class ThermalFileAppElement extends AbstractApp implements IElementWithManagerController, IElementWithRegistryController, IElementWithGroupController, IElementWithFileController, IElementWithFileLoadController {
   static properties: {
-    thermal: lit.PropertyDeclaration<unknown, unknown>;
-    visible: lit.PropertyDeclaration<unknown, unknown>;
-    managerController: lit.PropertyDeclaration<unknown, unknown>;
-    registryController: lit.PropertyDeclaration<unknown, unknown>;
-    groupController: lit.PropertyDeclaration<unknown, unknown>;
-    fileController: lit.PropertyDeclaration<unknown, unknown>;
-    file?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    failure?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    loading: lit.PropertyDeclaration<unknown, unknown>;
-    ms: lit.PropertyDeclaration<unknown, unknown>;
-    playbackSpeed: lit.PropertyDeclaration<unknown, unknown>;
-    analysis1?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis2?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis3?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis4?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis5?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis6?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis7?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    autoHighlight: lit.PropertyDeclaration<unknown, unknown>;
-    groupSlug: lit.PropertyDeclaration<unknown, unknown>;
-    groupObject: lit.PropertyDeclaration<unknown, unknown>;
-    autoclearGroup: lit.PropertyDeclaration<unknown, unknown>;
-    registrySlug: lit.PropertyDeclaration<unknown, unknown>;
-    registryObject: lit.PropertyDeclaration<unknown, unknown>;
-    opacity: lit.PropertyDeclaration<unknown, unknown>;
-    min?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    max?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    from?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    to?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    highlight?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    managerSlug: lit.PropertyDeclaration<unknown, unknown>;
-    managerObject: lit.PropertyDeclaration<unknown, unknown>;
-    palette: lit.PropertyDeclaration<unknown, unknown>;
-    advancedPalettes: lit.PropertyDeclaration<unknown, unknown>;
-    smoothThermograms: lit.PropertyDeclaration<unknown, unknown>;
-    smoothGraph: lit.PropertyDeclaration<unknown, unknown>;
-    tool: lit.PropertyDeclaration<unknown, unknown>;
+    thermal: import("lit").PropertyDeclaration<unknown, unknown>;
+    visible: import("lit").PropertyDeclaration<unknown, unknown>;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryController: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupController: import("lit").PropertyDeclaration<unknown, unknown>;
+    fileController: import("lit").PropertyDeclaration<unknown, unknown>;
+    file?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    failure?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    loading: import("lit").PropertyDeclaration<unknown, unknown>;
+    ms: import("lit").PropertyDeclaration<unknown, unknown>;
+    playbackSpeed: import("lit").PropertyDeclaration<unknown, unknown>;
+    analysis1?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis2?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis3?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis4?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis5?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis6?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis7?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    autoHighlight: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    autoclearGroup: import("lit").PropertyDeclaration<unknown, unknown>;
+    registrySlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    opacity: import("lit").PropertyDeclaration<unknown, unknown>;
+    min?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    max?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    from?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    to?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    highlight?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    managerSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    managerObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    palette: import("lit").PropertyDeclaration<unknown, unknown>;
+    advancedPalettes: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothThermograms: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothGraph: import("lit").PropertyDeclaration<unknown, unknown>;
+    tool: import("lit").PropertyDeclaration<unknown, unknown>;
   };
   /** Enables selecting, editing and removing the analyses in the tables. Provided to all descendants. */
   interactiveanalysis: boolean;
@@ -4128,49 +4128,49 @@ declare class ThermalFileAppElement extends AbstractApp implements IElementWithM
   fileLoadController: FileLoadController;
   thermal: string | undefined;
   visible: string | undefined;
-  static styles: lit.CSSResult;
-  render(): lit.TemplateResult<1>;
+  static styles: import("lit").CSSResult;
+  render(): import("lit").TemplateResult<1>;
 }
 //#endregion
 //#region src/apps/ThermalGroupApp.d.ts
 declare class ThermalGroupAppElement extends AbstractApp implements IElementWithManagerController, IElementWithRegistryController, IElementWithGroupController, IElementWithFileController, IElementWithGroupListingController, IElementWithGroupLoadController {
   static properties: {
-    filesString?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    managerController: lit.PropertyDeclaration<unknown, unknown>;
-    registryController: lit.PropertyDeclaration<unknown, unknown>;
-    groupController: lit.PropertyDeclaration<unknown, unknown>;
-    fileController: lit.PropertyDeclaration<unknown, unknown>;
-    file?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    failure?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    loading: lit.PropertyDeclaration<unknown, unknown>;
-    ms: lit.PropertyDeclaration<unknown, unknown>;
-    playbackSpeed: lit.PropertyDeclaration<unknown, unknown>;
-    analysis1?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis2?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis3?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis4?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis5?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis6?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    analysis7?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    autoHighlight: lit.PropertyDeclaration<unknown, unknown>;
-    groupSlug: lit.PropertyDeclaration<unknown, unknown>;
-    groupObject: lit.PropertyDeclaration<unknown, unknown>;
-    autoclearGroup: lit.PropertyDeclaration<unknown, unknown>;
-    registrySlug: lit.PropertyDeclaration<unknown, unknown>;
-    registryObject: lit.PropertyDeclaration<unknown, unknown>;
-    opacity: lit.PropertyDeclaration<unknown, unknown>;
-    min?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    max?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    from?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    to?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    highlight?: lit.PropertyDeclaration<unknown, unknown> | undefined;
-    managerSlug: lit.PropertyDeclaration<unknown, unknown>;
-    managerObject: lit.PropertyDeclaration<unknown, unknown>;
-    palette: lit.PropertyDeclaration<unknown, unknown>;
-    advancedPalettes: lit.PropertyDeclaration<unknown, unknown>;
-    smoothThermograms: lit.PropertyDeclaration<unknown, unknown>;
-    smoothGraph: lit.PropertyDeclaration<unknown, unknown>;
-    tool: lit.PropertyDeclaration<unknown, unknown>;
+    filesString?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryController: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupController: import("lit").PropertyDeclaration<unknown, unknown>;
+    fileController: import("lit").PropertyDeclaration<unknown, unknown>;
+    file?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    failure?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    loading: import("lit").PropertyDeclaration<unknown, unknown>;
+    ms: import("lit").PropertyDeclaration<unknown, unknown>;
+    playbackSpeed: import("lit").PropertyDeclaration<unknown, unknown>;
+    analysis1?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis2?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis3?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis4?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis5?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis6?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis7?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    autoHighlight: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    autoclearGroup: import("lit").PropertyDeclaration<unknown, unknown>;
+    registrySlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    opacity: import("lit").PropertyDeclaration<unknown, unknown>;
+    min?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    max?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    from?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    to?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    highlight?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    managerSlug: import("lit").PropertyDeclaration<unknown, unknown>;
+    managerObject: import("lit").PropertyDeclaration<unknown, unknown>;
+    palette: import("lit").PropertyDeclaration<unknown, unknown>;
+    advancedPalettes: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothThermograms: import("lit").PropertyDeclaration<unknown, unknown>;
+    smoothGraph: import("lit").PropertyDeclaration<unknown, unknown>;
+    tool: import("lit").PropertyDeclaration<unknown, unknown>;
   };
   managerSlug: string;
   managerObject: ThermalManager;
@@ -4217,7 +4217,7 @@ declare class ThermalGroupAppElement extends AbstractApp implements IElementWith
   disconnectedCallback(): void;
   private openDetail;
   private closeDetail;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 //#endregion
@@ -4226,7 +4226,7 @@ declare class FileInfoButton extends AbstractFileConsumer {
   protected onFileLoaded(): void;
   onInstanceCreated(): void;
   onFailure(): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected renderRow(label: string, value: string): string;
   protected renderNumericalRow(label: string, value: number, fixed?: number, unit?: string): string;
   protected renderDownloadRow(label: string, text: string, href: string, title: string): string;
@@ -4236,7 +4236,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-info-button": FileInfoButton;
   }
-} //# sourceMappingURL=FileInfoButton.d.ts.map
+}
 //#endregion
 //#region src/controls/file/fileLabel.d.ts
 declare class FileLabelElement extends AbstractFileConsumer {
@@ -4244,14 +4244,14 @@ declare class FileLabelElement extends AbstractFileConsumer {
   label?: string;
   onInstanceCreated(): void;
   onFailure(): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "file-label": FileLabelElement;
   }
-} //# sourceMappingURL=fileLabel.d.ts.map
+}
 //#endregion
 //#region src/controls/file/FileTimelineElement.d.ts
 declare class FileTimelineElement extends AbstractFileConsumer {
@@ -4286,7 +4286,7 @@ declare class FileTimelineElement extends AbstractFileConsumer {
   handleBarEnter(event: MouseEvent): void;
   handleBarHover(event: MouseEvent): void;
   handleBarMouseLeave(): void;
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   private renderControls;
   protected render(): unknown;
 }
@@ -4294,7 +4294,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-timeline": FileTimelineElement;
   }
-} //# sourceMappingURL=FileTimelineElement.d.ts.map
+}
 //#endregion
 //#region src/controls/file/video/ISingleVideoExportElement.d.ts
 declare enum VideoExportSkin {
@@ -4424,7 +4424,7 @@ declare global {
   interface HTMLElementTagNameMap {
     "file-video-export-panel": FileVideoExportPanel;
   }
-} //# sourceMappingURL=FileVideoExportPanel.d.ts.map
+}
 //#endregion
 //#region src/renderers/FileDetail.d.ts
 declare class FileDetailElement extends AbstractFileConsumer {
@@ -4452,21 +4452,21 @@ declare class FileThumbnailElement extends AbstractFileConsumer {
 //#endregion
 //#region src/ui/BtnGroup.d.ts
 declare class BtnGroupElement extends AbstractThermalElement {
-  static styles: lit.CSSResult;
+  static styles: import("lit").CSSResult;
   protected render(): unknown;
 }
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-btn-group": BtnGroupElement;
   }
-} //# sourceMappingURL=BtnGroup.d.ts.map
+}
 //#endregion
 //#region src/iifeCatalog.d.ts
-declare const independentElements: {};
+export declare const independentElements: {};
 /**
  * List of provider components
  */
-declare const elementsProviders: {
+export declare const elementsProviders: {
   readonly "file-provider": typeof FileProviderElement;
   readonly "group-provider": typeof GroupProviderElement;
   readonly "registry-provider": typeof RegistryProviderElement;
@@ -4477,7 +4477,7 @@ declare const elementsProviders: {
  * All the webcomponents from the @labirthermal/webcomponents package in a list for the purpose of its registration in `defineAllWebcomponents`.
  * @see {@link defineAllWebcomponents}
  */
-declare const elementsAll: {
+export declare const elementsAll: {
   readonly "apparent-temperature-aat": typeof AatAppElement;
   readonly "thermal-dropin-app": typeof DropinAppElement;
   readonly "thermal-file-app": typeof ThermalFileAppElement;
@@ -4528,7 +4528,8 @@ declare const elementsAll: {
   readonly "manager-graph-smooth-switch": typeof ManagerGraphSmoothSwitch;
   readonly "manager-palette-dropdown": typeof ManagerPaletteDropdown;
   readonly "manager-palette-buttons": typeof ManagerPaletteButtons;
-  readonly "manager-tool-bar": typeof ManagerToolBar; /** @deprecated This sort of export should never be used. Please, do export thermal images only through the LIT components instead of the `@labirthermal/core` export. */
+  readonly "manager-tool-bar": typeof ManagerToolBar;
+  /** @deprecated This sort of export should never be used. Please, do export thermal images only through the LIT components instead of the `@labirthermal/core` export. */
   readonly "manager-export-panel": typeof ManagerExportPanel;
   readonly "file-provider": typeof FileProviderElement;
   readonly "group-provider": typeof GroupProviderElement;
@@ -4552,5 +4553,5 @@ declare const elementsAll: {
   readonly "thermal-tip": typeof ThermalTipElement;
 };
 //#endregion
-export { AbstractFileConsumer, AbstractFileProvider, AbstractGroupConsumer, AbstractGroupProvider, AbstractHierarchyController, AbstractManagerConsumer, AbstractManagerProvider, AbstractReactiveController, AbstractRegistryConsumer, AbstractRegistryProvider, AbstractThermalElement, AnalysisColorDropdown, AnalysisNameInput, AppInfoButton, AreaEditTable, type BtnSizes, type BtnVariants, ConfigController, ConfigDialog, type ConfigSettings, DisplayPanel, EditpointTable, FileAnalisisEditDialog, FileAnalysisComplexElement, FileAnalysisDisplayElement, FileAnalysisGraphElement, FileAnalysisRowElement, FileAnalysisTableElement, FileButtonElement, FileCanvasElement, FileController, type FileControllerCurrentFrameType, type FileControllerDurationContextType, FileCopyElement, FileDownloadButton, FileDropdown, FileLoadController, FileLrcButton, FilePlaybackSpeedDropdown, FilePngButton, FileProviderElement, FileRangePropagator, FileVideoExportButton, GroupAnalysisSyncButton, GroupAnalysisSyncController, GroupChartElement, GroupController, GroupDownloadButtons, GroupDownloadDropdown, GroupDropinElement, GroupDropinInputElement, type GroupExportSettings, GroupListingController, GroupLoadController, GroupOrderby, GroupOrdering, GroupProviderElement, GroupRangePropagatorElement, GroupTimelineElement, HierarchyUpdatesHub, type HostReactiveProperties, type IBaseElement, type IElementWithFileLoadController, type IElementWithGroupAnalysisSyncController, type IElementWithGroupController, type IElementWithGroupListingController, type IElementWithGroupLoadController, type IElementWithManagerController, type IElementWithRegistryController, INTERNAL_STATE_DECLARATION, ManagerController, ManagerExportPanel, ManagerGraphSmoothSwitch, ManagerImageSmoothSwitch, ManagerPaletteButtons, type ManagerPaletteContextType, ManagerPaletteDropdown, ManagerProviderElement, ManagerToolBar, type PngExportSettings, RegistryController, RegistryHistogram, RegistryOpacitySlider, RegistryProviderElement, RegistryRangeAutoButton, RegistryRangeDisplay, RegistryRangeForm, RegistryRangeFullButton, RegistryRangeSlider, RegistryTicksBar, ThermalAppElement, ThermalBarElement, ThermalBtnElement, ThermalChartElement, ThermalDialogElement, ThermalDropdownElement, ThermalDropinElement, ThermalExpandableElement, ThermalFieldElement, ThermalIconElement, ThermalPosterElement, ThermalRadioElement, ThermalSlotElement, ThermalSpinnerElement, ThermalTipElement, booleanConverter, configContext, defineAllWebcomponents, defineWebcomponent, durationConverter, elementsAll, elementsProviders, fileAnalysisListContext, fileContext, fileControllerContext, fileCurrentFrameContext, fileDurationContext, fileFailureContext, fileLoadingContext, fileMayStopContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, fileTimeCursorContext, getContrastColor, groupAnalysisSyncContext, groupControllerContext, groupObjectContext, icons, independentElements, managerAdvancedPalettesContext, managerContext, managerControllerContext, managerGraphFunctionContext, managerInteractiveAnalysesContext, managerPaletteContext, managerSmoothContext, managerToolContext, numberRangeConverter, paletteConverter, registryControllerContext, registryHighlightContext, registryLoadingContext, registryMaxContext, registryMinContext, registryObjectContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext, stringOrUndefinedConverter };
+export { type BtnSizes, type BtnVariants, type ConfigSettings, type FileControllerCurrentFrameType, type FileControllerDurationContextType, type GroupExportSettings, type HostReactiveProperties, type IBaseElement, type IElementWithFileLoadController, type IElementWithGroupAnalysisSyncController, type IElementWithGroupController, type IElementWithGroupListingController, type IElementWithGroupLoadController, type IElementWithManagerController, type IElementWithRegistryController, type ManagerPaletteContextType, type PngExportSettings, icons };
 //# sourceMappingURL=index.export.d.mts.map

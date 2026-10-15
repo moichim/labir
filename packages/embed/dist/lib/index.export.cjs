@@ -1,36 +1,7 @@
-Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-//#region \0rolldown/runtime.js
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __copyProps = (to, from, except, desc) => {
-	if (from && typeof from === "object" || typeof from === "function") {
-		for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
-			key = keys[i];
-			if (!__hasOwnProp.call(to, key) && key !== except) {
-				__defProp(to, key, {
-					get: ((k) => from[k]).bind(null, key),
-					enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
-				});
-			}
-		}
-	}
-	return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
-	value: mod,
-	enumerable: true
-}) : target, mod));
-
-//#endregion
+Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 let _labirthermal_core = require("@labirthermal/core");
 let lit = require("lit");
 let _lit_context = require("@lit/context");
-let i18next = require("i18next");
-i18next = __toESM(i18next);
 let lit_directives_unsafe_svg_js = require("lit/directives/unsafe-svg.js");
 let lit_directives_if_defined_js = require("lit/directives/if-defined.js");
 let lit_directives_repeat_js = require("lit/directives/repeat.js");
@@ -51,7 +22,6 @@ let lit_directives_guard_js = require("lit/directives/guard.js");
 let _labirthermal_client = require("@labirthermal/client");
 let mediabunny = require("mediabunny");
 let lit_directive_js = require("lit/directive.js");
-
 //#region src/utils/converters/numberRangeConverter.ts
 const numberRangeConverter = (emptyValue, min, max) => {
 	const fromAttribute = (value) => {
@@ -70,7 +40,6 @@ const numberRangeConverter = (emptyValue, min, max) => {
 		toAttribute
 	};
 };
-
 //#endregion
 //#region src/utils/converters/booleanConverter.ts
 const booleanConverter = (emptyValue) => {
@@ -87,7 +56,6 @@ const booleanConverter = (emptyValue) => {
 		toAttribute
 	};
 };
-
 //#endregion
 //#region src/utils/converters/paletteConverter.ts
 /** A unified converter for thermal palettes. Recommended usage:
@@ -111,7 +79,6 @@ const paletteConverter = {
 	},
 	toAttribute: (value) => value
 };
-
 //#endregion
 //#region src/utils/converters/stringOrUndefinedConverter.ts
 const stringOrUndefinedConverter = {
@@ -126,7 +93,6 @@ const stringOrUndefinedConverter = {
 		return trimmed?.length ? trimmed : void 0;
 	}
 };
-
 //#endregion
 //#region src/utils/converters/durationConverter.ts
 /** Converts a duration property indicated as string to millis and back */
@@ -157,7 +123,6 @@ const durationConverter = {
 		}
 	}
 };
-
 //#endregion
 //#region src/utils/getContrastColor.ts
 const contrastColors = /* @__PURE__ */ new Map();
@@ -187,7 +152,6 @@ function getContrastColor(backgroundColor) {
 	contrastColors.set(backgroundColor, result);
 	return result;
 }
-
 //#endregion
 //#region src/utils/icons.ts
 /**
@@ -462,8 +426,10 @@ const icon = (name, variant, className, styles) => {
 	if (className || styles) {
 		if (modifiedSvg.includes("class=\"")) modifiedSvg = modifiedSvg.replace(/class="([^"]*)"/, `class="$1 ${className || ""}"`);
 		else modifiedSvg = modifiedSvg.replace(/<svg([^>]*)>/, `<svg$1 class="${className || ""}">`);
-		if (styles) if (modifiedSvg.includes("style=\"")) modifiedSvg = modifiedSvg.replace(/style="([^"]*)"/, `style="$1; ${styles}"`);
-		else modifiedSvg = modifiedSvg.replace(/<svg([^>]*)>/, `<svg$1 style="${styles}">`);
+		if (styles) {
+			if (modifiedSvg.includes("style=\"")) modifiedSvg = modifiedSvg.replace(/style="([^"]*)"/, `style="$1; ${styles}"`);
+			else modifiedSvg = modifiedSvg.replace(/<svg([^>]*)>/, `<svg$1 style="${styles}">`);
+		}
 	}
 	return modifiedSvg;
 };
@@ -488,7 +454,2041 @@ const createIcons = () => {
 * Použití: icons.folder.outline("my-class", "color: red")
 */
 const icons = createIcons();
-
+//#endregion
+//#region ../../node_modules/.pnpm/i18next@26.4.5_typescript@5.9.3/node_modules/i18next/dist/esm/i18next.js
+const isString = (obj) => typeof obj === "string";
+const defer = () => {
+	let res;
+	let rej;
+	const promise = new Promise((resolve, reject) => {
+		res = resolve;
+		rej = reject;
+	});
+	promise.resolve = res;
+	promise.reject = rej;
+	return promise;
+};
+const makeString = (object) => {
+	if (object == null) return "";
+	return String(object);
+};
+const copy = (a, s, t) => {
+	a.forEach((m) => {
+		if (s[m]) t[m] = s[m];
+	});
+};
+const lastOfPathSeparatorRegExp = /###/g;
+const cleanKey = (key) => key && key.includes("###") ? key.replace(lastOfPathSeparatorRegExp, ".") : key;
+const canNotTraverseDeeper = (object) => !object || isString(object);
+const getLastOfPath = (object, path, Empty) => {
+	const stack = !isString(path) ? path : path.split(".");
+	let stackIndex = 0;
+	while (stackIndex < stack.length - 1) {
+		if (canNotTraverseDeeper(object)) return {};
+		const key = cleanKey(stack[stackIndex]);
+		if (!object[key] && Empty) object[key] = new Empty();
+		if (Object.prototype.hasOwnProperty.call(object, key)) object = object[key];
+		else object = {};
+		++stackIndex;
+	}
+	if (canNotTraverseDeeper(object)) return {};
+	return {
+		obj: object,
+		k: cleanKey(stack[stackIndex])
+	};
+};
+const setPath = (object, path, newValue) => {
+	const { obj, k } = getLastOfPath(object, path, Object);
+	if (obj !== void 0 || path.length === 1) {
+		obj[k] = newValue;
+		return;
+	}
+	let e = path[path.length - 1];
+	let p = path.slice(0, path.length - 1);
+	let last = getLastOfPath(object, p, Object);
+	while (last.obj === void 0 && p.length) {
+		e = `${p[p.length - 1]}.${e}`;
+		p = p.slice(0, p.length - 1);
+		last = getLastOfPath(object, p, Object);
+		if (last?.obj && typeof last.obj[`${last.k}.${e}`] !== "undefined") last.obj = void 0;
+	}
+	last.obj[`${last.k}.${e}`] = newValue;
+};
+const pushPath = (object, path, newValue, concat) => {
+	const { obj, k } = getLastOfPath(object, path, Object);
+	obj[k] = obj[k] || [];
+	obj[k].push(newValue);
+};
+const getPath = (object, path) => {
+	const { obj, k } = getLastOfPath(object, path);
+	if (!obj) return void 0;
+	if (!Object.prototype.hasOwnProperty.call(obj, k)) return void 0;
+	return obj[k];
+};
+const getPathWithDefaults = (data, defaultData, key) => {
+	const value = getPath(data, key);
+	if (value !== void 0) return value;
+	return getPath(defaultData, key);
+};
+const deepExtend = (target, source, overwrite) => {
+	for (const prop in source) if (prop !== "__proto__" && prop !== "constructor") {
+		if (Object.prototype.hasOwnProperty.call(target, prop)) {
+			if (isString(target[prop]) || target[prop] instanceof String || isString(source[prop]) || source[prop] instanceof String) {
+				if (overwrite) target[prop] = source[prop];
+			} else deepExtend(target[prop], source[prop], overwrite);
+		} else target[prop] = source[prop];
+	}
+	return target;
+};
+const regexEscape = (str) => str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+const _entityMap = {
+	"&": "&amp;",
+	"<": "&lt;",
+	">": "&gt;",
+	"\"": "&quot;",
+	"'": "&#39;",
+	"/": "&#x2F;"
+};
+const escape = (data) => {
+	if (isString(data)) return data.replace(/[&<>"'\/]/g, (s) => _entityMap[s]);
+	return data;
+};
+var RegExpCache = class {
+	constructor(capacity) {
+		this.capacity = capacity;
+		this.regExpMap = /* @__PURE__ */ new Map();
+		this.regExpQueue = [];
+	}
+	getRegExp(pattern) {
+		const regExpFromCache = this.regExpMap.get(pattern);
+		if (regExpFromCache !== void 0) return regExpFromCache;
+		const regExpNew = new RegExp(pattern);
+		if (this.regExpQueue.length === this.capacity) this.regExpMap.delete(this.regExpQueue.shift());
+		this.regExpMap.set(pattern, regExpNew);
+		this.regExpQueue.push(pattern);
+		return regExpNew;
+	}
+};
+const chars = [
+	" ",
+	",",
+	"?",
+	"!",
+	";"
+];
+const looksLikeObjectPathRegExpCache = new RegExpCache(20);
+const looksLikeObjectPath = (key, nsSeparator, keySeparator) => {
+	nsSeparator = nsSeparator || "";
+	keySeparator = keySeparator || "";
+	const possibleChars = chars.filter((c) => !nsSeparator.includes(c) && !keySeparator.includes(c));
+	if (possibleChars.length === 0) return true;
+	const r = looksLikeObjectPathRegExpCache.getRegExp(`(${possibleChars.map((c) => c === "?" ? "\\?" : c).join("|")})`);
+	let matched = !r.test(key);
+	if (!matched) {
+		const ki = key.indexOf(keySeparator);
+		if (ki > 0 && !r.test(key.substring(0, ki))) matched = true;
+	}
+	return matched;
+};
+const deepFind = (obj, path, keySeparator = ".") => {
+	if (!obj) return void 0;
+	if (obj[path]) {
+		if (!Object.prototype.hasOwnProperty.call(obj, path)) return void 0;
+		return obj[path];
+	}
+	const tokens = path.split(keySeparator);
+	let current = obj;
+	for (let i = 0; i < tokens.length;) {
+		if (!current || typeof current !== "object") return;
+		let next;
+		let nextPath = "";
+		for (let j = i; j < tokens.length; ++j) {
+			if (j !== i) nextPath += keySeparator;
+			nextPath += tokens[j];
+			next = current[nextPath];
+			if (next !== void 0) {
+				if ([
+					"string",
+					"number",
+					"boolean"
+				].includes(typeof next) && j < tokens.length - 1) continue;
+				i += j - i + 1;
+				break;
+			}
+		}
+		current = next;
+	}
+	return current;
+};
+const getCleanedCode = (code) => code?.replace(/_/g, "-");
+const consoleLogger = {
+	type: "logger",
+	log(args) {
+		this.output("log", args);
+	},
+	warn(args) {
+		this.output("warn", args);
+	},
+	error(args) {
+		this.output("error", args);
+	},
+	output(type, args) {
+		console?.[type]?.apply?.(console, args);
+	}
+};
+var baseLogger = new class Logger {
+	constructor(concreteLogger, options = {}) {
+		this.init(concreteLogger, options);
+	}
+	init(concreteLogger, options = {}) {
+		this.prefix = options.prefix || "i18next:";
+		this.logger = concreteLogger || consoleLogger;
+		this.options = options;
+		this.debug = options.debug;
+	}
+	log(...args) {
+		return this.forward(args, "log", "", true);
+	}
+	warn(...args) {
+		return this.forward(args, "warn", "", true);
+	}
+	error(...args) {
+		return this.forward(args, "error", "");
+	}
+	deprecate(...args) {
+		return this.forward(args, "warn", "WARNING DEPRECATED: ", true);
+	}
+	forward(args, lvl, prefix, debugOnly) {
+		if (debugOnly && !this.debug) return null;
+		args = args.map((a) => isString(a) ? a.replace(/[\r\n\x00-\x1F\x7F]/g, " ") : a);
+		if (isString(args[0])) args[0] = `${prefix}${this.prefix} ${args[0]}`;
+		return this.logger[lvl](args);
+	}
+	create(moduleName) {
+		return new Logger(this.logger, {
+			prefix: `${this.prefix}:${moduleName}:`,
+			...this.options
+		});
+	}
+	clone(options) {
+		options = options || this.options;
+		options.prefix = options.prefix || this.prefix;
+		return new Logger(this.logger, options);
+	}
+}();
+var EventEmitter = class {
+	constructor() {
+		this.observers = {};
+	}
+	on(events, listener) {
+		events.split(" ").forEach((event) => {
+			if (!this.observers[event]) this.observers[event] = /* @__PURE__ */ new Map();
+			const numListeners = this.observers[event].get(listener) || 0;
+			this.observers[event].set(listener, numListeners + 1);
+		});
+		return this;
+	}
+	off(event, listener) {
+		if (!this.observers[event]) return;
+		if (!listener) {
+			delete this.observers[event];
+			return;
+		}
+		this.observers[event].delete(listener);
+	}
+	once(event, listener) {
+		const wrapper = (...args) => {
+			listener(...args);
+			this.off(event, wrapper);
+		};
+		this.on(event, wrapper);
+		return this;
+	}
+	emit(event, ...args) {
+		if (this.observers[event]) Array.from(this.observers[event].entries()).forEach(([observer, numTimesAdded]) => {
+			for (let i = 0; i < numTimesAdded; i++) observer(...args);
+		});
+		if (this.observers["*"]) Array.from(this.observers["*"].entries()).forEach(([observer, numTimesAdded]) => {
+			for (let i = 0; i < numTimesAdded; i++) observer(event, ...args);
+		});
+	}
+};
+const nonEmptyBundles = /* @__PURE__ */ new WeakSet();
+var ResourceStore = class extends EventEmitter {
+	constructor(data, options = {
+		ns: ["translation"],
+		defaultNS: "translation"
+	}) {
+		super();
+		this.data = data || {};
+		this.options = options;
+		if (this.options.keySeparator === void 0) this.options.keySeparator = ".";
+		if (this.options.ignoreJSONStructure === void 0) this.options.ignoreJSONStructure = true;
+	}
+	addNamespaces(ns) {
+		if (!this.options.ns.includes(ns)) this.options.ns.push(ns);
+	}
+	removeNamespaces(ns) {
+		const index = this.options.ns.indexOf(ns);
+		if (index > -1) this.options.ns.splice(index, 1);
+	}
+	getResource(lng, ns, key, options = {}) {
+		const keySeparator = options.keySeparator !== void 0 ? options.keySeparator : this.options.keySeparator;
+		const ignoreJSONStructure = options.ignoreJSONStructure !== void 0 ? options.ignoreJSONStructure : this.options.ignoreJSONStructure;
+		let path;
+		if (lng.includes(".")) path = lng.split(".");
+		else {
+			path = [lng, ns];
+			if (key) {
+				if (Array.isArray(key)) path.push(...key);
+				else if (isString(key) && keySeparator) path.push(...key.split(keySeparator));
+				else path.push(key);
+			}
+		}
+		const result = getPath(this.data, path);
+		if (!result && !ns && !key && lng.includes(".")) {
+			lng = path[0];
+			ns = path[1];
+			key = path.slice(2).join(".");
+		}
+		if (result || !ignoreJSONStructure || !isString(key)) return result;
+		return deepFind(this.data?.[lng]?.[ns], key, keySeparator);
+	}
+	addResource(lng, ns, key, value, options = { silent: false }) {
+		const keySeparator = options.keySeparator !== void 0 ? options.keySeparator : this.options.keySeparator;
+		let path = [lng, ns];
+		if (key) path = path.concat(keySeparator ? key.split(keySeparator) : key);
+		if (lng.includes(".")) {
+			path = lng.split(".");
+			value = ns;
+			ns = path[1];
+		}
+		this.addNamespaces(ns);
+		setPath(this.data, path, value);
+		if (!options.silent) this.emit("added", lng, ns, key, value);
+	}
+	addResources(lng, ns, resources, options = { silent: false }) {
+		for (const m in resources) if (isString(resources[m]) || Array.isArray(resources[m])) this.addResource(lng, ns, m, resources[m], { silent: true });
+		if (!options.silent) this.emit("added", lng, ns, resources);
+	}
+	addResourceBundle(lng, ns, resources, deep, overwrite, options = {
+		silent: false,
+		skipCopy: false
+	}) {
+		let path = [lng, ns];
+		if (lng.includes(".")) {
+			path = lng.split(".");
+			deep = resources;
+			resources = ns;
+			ns = path[1];
+		}
+		this.addNamespaces(ns);
+		let pack = getPath(this.data, path) || {};
+		if (!options.skipCopy) resources = JSON.parse(JSON.stringify(resources));
+		if (deep) deepExtend(pack, resources, overwrite);
+		else pack = {
+			...pack,
+			...resources
+		};
+		setPath(this.data, path, pack);
+		if (!options.silent) this.emit("added", lng, ns, resources);
+	}
+	removeResourceBundle(lng, ns) {
+		if (this.hasResourceBundle(lng, ns)) delete this.data[lng][ns];
+		this.removeNamespaces(ns);
+		this.emit("removed", lng, ns);
+	}
+	hasResourceBundle(lng, ns) {
+		return this.getResource(lng, ns) !== void 0;
+	}
+	getResourceBundle(lng, ns) {
+		if (!ns) ns = this.options.defaultNS;
+		return this.getResource(lng, ns);
+	}
+	getDataByLanguage(lng) {
+		return this.data[lng];
+	}
+	hasLanguageSomeTranslations(lng) {
+		const data = this.getDataByLanguage(lng);
+		return !!(data && Object.keys(data) || []).find((v) => {
+			const bundle = data[v];
+			if (nonEmptyBundles.has(bundle)) return true;
+			if (!bundle || Object.keys(bundle).length === 0) return false;
+			if (typeof bundle === "object") nonEmptyBundles.add(bundle);
+			return true;
+		});
+	}
+	toJSON() {
+		return this.data;
+	}
+};
+var postProcessor = {
+	processors: {},
+	addPostProcessor(module) {
+		this.processors[module.name] = module;
+	},
+	handle(processors, value, key, options, translator) {
+		processors.forEach((processor) => {
+			value = this.processors[processor]?.process(value, key, options, translator) ?? value;
+		});
+		return value;
+	}
+};
+const PATH_KEY = Symbol("i18next/PATH_KEY");
+function createProxy() {
+	const state = [];
+	const handler = Object.create(null);
+	let proxy;
+	handler.get = (target, key) => {
+		proxy?.revoke?.();
+		if (key === PATH_KEY) return state;
+		state.push(key);
+		proxy = Proxy.revocable(target, handler);
+		return proxy.proxy;
+	};
+	return Proxy.revocable(Object.create(null), handler).proxy;
+}
+function keysFromSelector(selector, opts) {
+	const { [PATH_KEY]: path } = selector(createProxy());
+	const keySeparator = opts?.keySeparator ?? ".";
+	const nsSeparator = opts?.nsSeparator ?? ":";
+	const strict = opts?.enableSelector === "strict";
+	if (path.length > 1 && nsSeparator) {
+		const ns = opts?.ns;
+		const nsList = strict ? Array.isArray(ns) ? ns : ns ? [ns] : null : Array.isArray(ns) ? ns : null;
+		if (nsList) {
+			if ((strict ? nsList : nsList.length > 1 ? nsList.slice(1) : []).includes(path[0])) return `${path[0]}${nsSeparator}${path.slice(1).join(keySeparator)}`;
+		}
+	}
+	return path.join(keySeparator);
+}
+const shouldHandleAsObject = (res) => !isString(res) && typeof res !== "boolean" && typeof res !== "number";
+var Translator = class Translator extends EventEmitter {
+	constructor(services, options = {}) {
+		super();
+		copy([
+			"resourceStore",
+			"languageUtils",
+			"pluralResolver",
+			"interpolator",
+			"backendConnector",
+			"i18nFormat",
+			"utils"
+		], services, this);
+		this.options = options;
+		if (this.options.keySeparator === void 0) this.options.keySeparator = ".";
+		this.logger = baseLogger.create("translator");
+		this.checkedLoadedFor = {};
+	}
+	changeLanguage(lng) {
+		if (lng) this.language = lng;
+	}
+	exists(key, o = { interpolation: {} }) {
+		const opt = { ...o };
+		if (key == null) return false;
+		const resolved = this.resolve(key, opt);
+		if (resolved?.res === void 0) return false;
+		const isObject = shouldHandleAsObject(resolved.res);
+		if (opt.returnObjects === false && isObject) return false;
+		return true;
+	}
+	extractFromKey(key, opt) {
+		let nsSeparator = opt.nsSeparator !== void 0 ? opt.nsSeparator : this.options.nsSeparator;
+		if (nsSeparator === void 0) nsSeparator = ":";
+		const keySeparator = opt.keySeparator !== void 0 ? opt.keySeparator : this.options.keySeparator;
+		let namespaces = opt.ns || this.options.defaultNS || [];
+		const wouldCheckForNsInKey = nsSeparator && key.includes(nsSeparator);
+		const seemsNaturalLanguage = !this.options.userDefinedKeySeparator && !opt.keySeparator && !this.options.userDefinedNsSeparator && !opt.nsSeparator && !looksLikeObjectPath(key, nsSeparator, keySeparator);
+		if (wouldCheckForNsInKey && !seemsNaturalLanguage) {
+			const m = key.match(this.interpolator.nestingRegexp);
+			if (m && m.length > 0) return {
+				key,
+				namespaces: isString(namespaces) ? [namespaces] : namespaces
+			};
+			const parts = key.split(nsSeparator);
+			if (nsSeparator !== keySeparator || nsSeparator === keySeparator && this.options.ns.includes(parts[0])) namespaces = parts.shift();
+			key = parts.join(keySeparator);
+		}
+		return {
+			key,
+			namespaces: isString(namespaces) ? [namespaces] : namespaces
+		};
+	}
+	translate(keys, o, lastKey) {
+		let opt = typeof o === "object" ? { ...o } : o;
+		if (typeof opt !== "object" && this.options.overloadTranslationOptionHandler) opt = this.options.overloadTranslationOptionHandler(arguments);
+		if (typeof opt === "object") opt = { ...opt };
+		if (!opt) opt = {};
+		if (keys == null) return "";
+		if (typeof keys === "function") keys = keysFromSelector(keys, {
+			...this.options,
+			...opt
+		});
+		if (!Array.isArray(keys)) keys = [String(keys)];
+		keys = keys.map((k) => typeof k === "function" ? keysFromSelector(k, {
+			...this.options,
+			...opt
+		}) : String(k));
+		const returnDetails = opt.returnDetails !== void 0 ? opt.returnDetails : this.options.returnDetails;
+		const keySeparator = opt.keySeparator !== void 0 ? opt.keySeparator : this.options.keySeparator;
+		const { key, namespaces } = this.extractFromKey(keys[keys.length - 1], opt);
+		const namespace = namespaces[namespaces.length - 1];
+		let nsSeparator = opt.nsSeparator !== void 0 ? opt.nsSeparator : this.options.nsSeparator;
+		if (nsSeparator === void 0) nsSeparator = ":";
+		const lng = opt.lng || this.language;
+		const appendNamespaceToCIMode = opt.appendNamespaceToCIMode || this.options.appendNamespaceToCIMode;
+		if (lng?.toLowerCase() === "cimode") {
+			if (appendNamespaceToCIMode) {
+				if (returnDetails) return {
+					res: `${namespace}${nsSeparator}${key}`,
+					usedKey: key,
+					exactUsedKey: key,
+					usedLng: lng,
+					usedNS: namespace,
+					usedParams: this.getUsedParamsDetails(opt)
+				};
+				return `${namespace}${nsSeparator}${key}`;
+			}
+			if (returnDetails) return {
+				res: key,
+				usedKey: key,
+				exactUsedKey: key,
+				usedLng: lng,
+				usedNS: namespace,
+				usedParams: this.getUsedParamsDetails(opt)
+			};
+			return key;
+		}
+		const resolved = this.resolve(keys, opt);
+		let res = resolved?.res;
+		const resUsedKey = resolved?.usedKey || key;
+		const resExactUsedKey = resolved?.exactUsedKey || key;
+		const noObject = [
+			"[object Number]",
+			"[object Function]",
+			"[object RegExp]"
+		];
+		const joinArrays = opt.joinArrays !== void 0 ? opt.joinArrays : this.options.joinArrays;
+		const handleAsObjectInI18nFormat = !this.i18nFormat || this.i18nFormat.handleAsObject;
+		const needsPluralHandling = opt.count !== void 0 && !isString(opt.count);
+		const hasDefaultValue = Translator.hasDefaultValue(opt);
+		const defaultValueSuffix = needsPluralHandling ? this.pluralResolver.getSuffix(lng, opt.count, opt) : "";
+		const defaultValueSuffixOrdinalFallback = opt.ordinal && needsPluralHandling ? this.pluralResolver.getSuffix(lng, opt.count, { ordinal: false }) : "";
+		const needsZeroSuffixLookup = needsPluralHandling && !opt.ordinal && opt.count === 0;
+		const defaultValue = needsZeroSuffixLookup && opt[`defaultValue${this.options.pluralSeparator}zero`] || opt[`defaultValue${defaultValueSuffix}`] || opt[`defaultValue${defaultValueSuffixOrdinalFallback}`] || opt.defaultValue;
+		let resForObjHndl = res;
+		if (handleAsObjectInI18nFormat && !res && hasDefaultValue) resForObjHndl = defaultValue;
+		const handleAsObject = shouldHandleAsObject(resForObjHndl);
+		const resType = Object.prototype.toString.apply(resForObjHndl);
+		if (handleAsObjectInI18nFormat && resForObjHndl && handleAsObject && !noObject.includes(resType) && !(isString(joinArrays) && Array.isArray(resForObjHndl))) {
+			if (!opt.returnObjects && !this.options.returnObjects) {
+				if (!this.options.returnedObjectHandler) this.logger.warn("accessing an object - but returnObjects options is not enabled!");
+				const r = this.options.returnedObjectHandler ? this.options.returnedObjectHandler(resUsedKey, resForObjHndl, {
+					...opt,
+					ns: namespaces
+				}) : `key '${key} (${this.language})' returned an object instead of string.`;
+				if (returnDetails) {
+					resolved.res = r;
+					resolved.usedParams = this.getUsedParamsDetails(opt);
+					return resolved;
+				}
+				return r;
+			}
+			if (keySeparator) {
+				const resTypeIsArray = Array.isArray(resForObjHndl);
+				const copy = resTypeIsArray ? [] : {};
+				const newKeyToUse = resTypeIsArray ? resExactUsedKey : resUsedKey;
+				for (const m in resForObjHndl) if (Object.prototype.hasOwnProperty.call(resForObjHndl, m)) {
+					const deepKey = `${newKeyToUse}${keySeparator}${m}`;
+					if (hasDefaultValue && !res) copy[m] = this.translate(deepKey, {
+						...opt,
+						defaultValue: shouldHandleAsObject(defaultValue) ? defaultValue[m] : void 0,
+						joinArrays: false,
+						ns: namespaces
+					});
+					else copy[m] = this.translate(deepKey, {
+						...opt,
+						joinArrays: false,
+						ns: namespaces
+					});
+					if (copy[m] === deepKey) copy[m] = resForObjHndl[m];
+				}
+				res = copy;
+			}
+		} else if (handleAsObjectInI18nFormat && isString(joinArrays) && Array.isArray(res)) {
+			res = res.join(joinArrays);
+			if (res) res = this.extendTranslation(res, keys, opt, lastKey);
+		} else {
+			let usedDefault = false;
+			let usedKey = false;
+			if (!this.isValidLookup(res) && hasDefaultValue) {
+				usedDefault = true;
+				res = defaultValue;
+			}
+			if (!this.isValidLookup(res)) {
+				usedKey = true;
+				res = key;
+			}
+			const resForMissing = (opt.missingKeyNoValueFallbackToKey || this.options.missingKeyNoValueFallbackToKey) && usedKey ? void 0 : res;
+			const updateMissing = hasDefaultValue && defaultValue !== res && this.options.updateMissing;
+			if (usedKey || usedDefault || updateMissing) {
+				this.logger.log(updateMissing ? "updateKey" : "missingKey", lng, namespace, needsPluralHandling && !updateMissing ? `${key}${this.pluralResolver.getSuffix(lng, opt.count, opt)}` : key, updateMissing ? defaultValue : res);
+				if (keySeparator) {
+					const fk = this.resolve(key, {
+						...opt,
+						keySeparator: false
+					});
+					if (fk && fk.res) this.logger.warn("Seems the loaded translations were in flat JSON format instead of nested. Either set keySeparator: false on init or make sure your translations are published in nested format.");
+				}
+				let lngs = [];
+				const fallbackLngs = this.languageUtils.getFallbackCodes(this.options.fallbackLng, opt.lng || this.language);
+				if (this.options.saveMissingTo === "fallback" && fallbackLngs && fallbackLngs[0]) for (let i = 0; i < fallbackLngs.length; i++) lngs.push(fallbackLngs[i]);
+				else if (this.options.saveMissingTo === "all") lngs = this.languageUtils.toResolveHierarchy(opt.lng || this.language);
+				else lngs.push(opt.lng || this.language);
+				const send = (l, k, specificDefaultValue) => {
+					const defaultForMissing = hasDefaultValue && specificDefaultValue !== res ? specificDefaultValue : resForMissing;
+					if (this.options.missingKeyHandler) this.options.missingKeyHandler(l, namespace, k, defaultForMissing, updateMissing, opt);
+					else if (this.backendConnector?.saveMissing) this.backendConnector.saveMissing(l, namespace, k, defaultForMissing, updateMissing, opt);
+					this.emit("missingKey", l, namespace, k, res);
+				};
+				if (this.options.saveMissing) {
+					if (this.options.saveMissingPlurals && needsPluralHandling) lngs.forEach((language) => {
+						const suffixes = this.pluralResolver.getSuffixes(language, opt);
+						if (needsZeroSuffixLookup && opt[`defaultValue${this.options.pluralSeparator}zero`] && !suffixes.includes(`${this.options.pluralSeparator}zero`)) suffixes.push(`${this.options.pluralSeparator}zero`);
+						suffixes.forEach((suffix) => {
+							send([language], key + suffix, opt[`defaultValue${suffix}`] || defaultValue);
+						});
+					});
+					else send(lngs, key, defaultValue);
+				}
+			}
+			res = this.extendTranslation(res, keys, opt, resolved, lastKey);
+			if (usedKey && res === key && this.options.appendNamespaceToMissingKey) res = `${namespace}${nsSeparator}${key}`;
+			if ((usedKey || usedDefault) && this.options.parseMissingKeyHandler) res = this.options.parseMissingKeyHandler(this.options.appendNamespaceToMissingKey ? `${namespace}${nsSeparator}${key}` : key, usedDefault ? res : void 0, opt);
+		}
+		if (returnDetails) {
+			resolved.res = res;
+			resolved.usedParams = this.getUsedParamsDetails(opt);
+			return resolved;
+		}
+		return res;
+	}
+	extendTranslation(res, key, opt, resolved, lastKey) {
+		if (this.i18nFormat?.parse) res = this.i18nFormat.parse(res, {
+			...this.options.interpolation.defaultVariables,
+			...opt
+		}, opt.lng || this.language || resolved.usedLng, resolved.usedNS, resolved.usedKey, { resolved });
+		else if (!opt.skipInterpolation) {
+			if (opt.interpolation) this.interpolator.init({
+				...opt,
+				interpolation: {
+					...this.options.interpolation,
+					...opt.interpolation
+				}
+			});
+			const skipOnVariables = isString(res) && (opt?.interpolation?.skipOnVariables !== void 0 ? opt.interpolation.skipOnVariables : this.options.interpolation.skipOnVariables);
+			let nestBef;
+			if (skipOnVariables) {
+				const nb = res.match(this.interpolator.nestingRegexp);
+				nestBef = nb && nb.length;
+			}
+			let data = opt.replace && !isString(opt.replace) ? opt.replace : opt;
+			if (this.options.interpolation.defaultVariables) data = {
+				...this.options.interpolation.defaultVariables,
+				...data
+			};
+			res = this.interpolator.interpolate(res, data, opt.lng || this.language || resolved.usedLng, opt);
+			if (skipOnVariables) {
+				const na = res.match(this.interpolator.nestingRegexp);
+				const nestAft = na && na.length;
+				if (nestBef < nestAft) opt.nest = false;
+			}
+			if (!opt.lng && resolved && resolved.res) opt.lng = this.language || resolved.usedLng;
+			if (opt.nest !== false) res = this.interpolator.nest(res, (...args) => {
+				if (lastKey?.[0] === args[0] && !opt.context) {
+					this.logger.warn(`It seems you are nesting recursively key: ${args[0]} in key: ${key[0]}`);
+					return null;
+				}
+				return this.translate(...args, key);
+			}, opt);
+			if (opt.interpolation) this.interpolator.reset();
+		}
+		const postProcess = opt.postProcess || this.options.postProcess;
+		const postProcessorNames = isString(postProcess) ? [postProcess] : postProcess;
+		if (res != null && postProcessorNames?.length && opt.applyPostProcessor !== false) res = postProcessor.handle(postProcessorNames, res, key, this.options && this.options.postProcessPassResolved ? {
+			i18nResolved: {
+				...resolved,
+				usedParams: this.getUsedParamsDetails(opt)
+			},
+			...opt
+		} : opt, this);
+		return res;
+	}
+	resolve(keys, opt = {}) {
+		let found;
+		let usedKey;
+		let exactUsedKey;
+		let usedLng;
+		let usedNS;
+		if (isString(keys)) keys = [keys];
+		if (Array.isArray(keys)) keys = keys.map((k) => typeof k === "function" ? keysFromSelector(k, {
+			...this.options,
+			...opt
+		}) : k);
+		keys.forEach((k) => {
+			if (this.isValidLookup(found)) return;
+			const extracted = this.extractFromKey(k, opt);
+			const key = extracted.key;
+			usedKey = key;
+			let namespaces = extracted.namespaces;
+			if (this.options.fallbackNS) namespaces = namespaces.concat(this.options.fallbackNS);
+			const needsPluralHandling = opt.count !== void 0 && !isString(opt.count);
+			const needsZeroSuffixLookup = needsPluralHandling && !opt.ordinal && opt.count === 0;
+			const needsContextHandling = opt.context !== void 0 && (isString(opt.context) || typeof opt.context === "number") && opt.context !== "";
+			const codes = opt.lngs ? opt.lngs : this.languageUtils.toResolveHierarchy(opt.lng || this.language, opt.fallbackLng);
+			namespaces.forEach((ns) => {
+				if (this.isValidLookup(found)) return;
+				usedNS = ns;
+				if (!this.checkedLoadedFor[`${codes[0]}-${ns}`] && this.utils?.hasLoadedNamespace && !this.utils?.hasLoadedNamespace(usedNS)) {
+					this.checkedLoadedFor[`${codes[0]}-${ns}`] = true;
+					this.logger.warn(`key "${usedKey}" for languages "${codes.join(", ")}" won't get resolved as namespace "${usedNS}" was not yet loaded`, "This means something IS WRONG in your setup. You access the t function before i18next.init / i18next.loadNamespace / i18next.changeLanguage was done. Wait for the callback or Promise to resolve before accessing it!!!");
+				}
+				codes.forEach((code) => {
+					if (this.isValidLookup(found)) return;
+					usedLng = code;
+					const finalKeys = [key];
+					if (this.i18nFormat?.addLookupKeys) this.i18nFormat.addLookupKeys(finalKeys, key, code, ns, opt);
+					else {
+						let pluralSuffix;
+						if (needsPluralHandling) pluralSuffix = this.pluralResolver.getSuffix(code, opt.count, opt);
+						const zeroSuffix = `${this.options.pluralSeparator}zero`;
+						const ordinalPrefix = `${this.options.pluralSeparator}ordinal${this.options.pluralSeparator}`;
+						if (needsPluralHandling) {
+							if (opt.ordinal && pluralSuffix.startsWith(ordinalPrefix)) finalKeys.push(key + pluralSuffix.replace(ordinalPrefix, this.options.pluralSeparator));
+							finalKeys.push(key + pluralSuffix);
+							if (needsZeroSuffixLookup) finalKeys.push(key + zeroSuffix);
+						}
+						if (needsContextHandling) {
+							const contextKey = `${key}${this.options.contextSeparator || "_"}${opt.context}`;
+							finalKeys.push(contextKey);
+							if (needsPluralHandling) {
+								if (opt.ordinal && pluralSuffix.startsWith(ordinalPrefix)) finalKeys.push(contextKey + pluralSuffix.replace(ordinalPrefix, this.options.pluralSeparator));
+								finalKeys.push(contextKey + pluralSuffix);
+								if (needsZeroSuffixLookup) finalKeys.push(contextKey + zeroSuffix);
+							}
+						}
+					}
+					let possibleKey;
+					while (possibleKey = finalKeys.pop()) if (!this.isValidLookup(found)) {
+						exactUsedKey = possibleKey;
+						found = this.getResource(code, ns, possibleKey, opt);
+					}
+				});
+			});
+		});
+		return {
+			res: found,
+			usedKey,
+			exactUsedKey,
+			usedLng,
+			usedNS
+		};
+	}
+	isValidLookup(res) {
+		return res !== void 0 && !(!this.options.returnNull && res === null) && !(!this.options.returnEmptyString && res === "");
+	}
+	getResource(code, ns, key, options = {}) {
+		if (this.i18nFormat?.getResource) return this.i18nFormat.getResource(code, ns, key, options);
+		return this.resourceStore.getResource(code, ns, key, options);
+	}
+	getUsedParamsDetails(options = {}) {
+		const optionsKeys = [
+			"defaultValue",
+			"ordinal",
+			"context",
+			"replace",
+			"lng",
+			"lngs",
+			"fallbackLng",
+			"ns",
+			"keySeparator",
+			"nsSeparator",
+			"returnObjects",
+			"returnDetails",
+			"joinArrays",
+			"postProcess",
+			"interpolation"
+		];
+		const useOptionsReplaceForData = options.replace && !isString(options.replace);
+		let data = useOptionsReplaceForData ? options.replace : options;
+		if (useOptionsReplaceForData && typeof options.count !== "undefined") data = {
+			...data,
+			count: options.count
+		};
+		if (this.options.interpolation.defaultVariables) data = {
+			...this.options.interpolation.defaultVariables,
+			...data
+		};
+		if (!useOptionsReplaceForData) {
+			data = { ...data };
+			for (const key of optionsKeys) delete data[key];
+		}
+		return data;
+	}
+	static hasDefaultValue(options) {
+		const prefix = "defaultValue";
+		for (const option in options) if (Object.prototype.hasOwnProperty.call(options, option) && option.startsWith(prefix) && void 0 !== options[option]) return true;
+		return false;
+	}
+};
+var LanguageUtil = class {
+	constructor(options) {
+		this.options = options;
+		this.supportedLngs = this.options.supportedLngs || false;
+		this.logger = baseLogger.create("languageUtils");
+		this.resolveHierarchyCache = {};
+	}
+	clearCache() {
+		this.resolveHierarchyCache = {};
+	}
+	getScriptPartFromCode(code) {
+		code = getCleanedCode(code);
+		if (!code || !code.includes("-")) return null;
+		const p = code.split("-");
+		if (p.length === 2) return null;
+		p.pop();
+		if (p[p.length - 1].toLowerCase() === "x") return null;
+		return this.formatLanguageCode(p.join("-"));
+	}
+	getLanguagePartFromCode(code) {
+		code = getCleanedCode(code);
+		if (!code || !code.includes("-")) return code;
+		const p = code.split("-");
+		return this.formatLanguageCode(p[0]);
+	}
+	formatLanguageCode(code) {
+		if (isString(code) && code.includes("-")) {
+			let formattedCode;
+			try {
+				formattedCode = Intl.getCanonicalLocales(code)[0];
+			} catch (e) {}
+			if (formattedCode && this.options.lowerCaseLng) formattedCode = formattedCode.toLowerCase();
+			if (formattedCode) return formattedCode;
+			if (this.options.lowerCaseLng) return code.toLowerCase();
+			return code;
+		}
+		return this.options.cleanCode || this.options.lowerCaseLng ? code.toLowerCase() : code;
+	}
+	isSupportedCode(code) {
+		if (this.options.load === "languageOnly" || this.options.nonExplicitSupportedLngs) code = this.getLanguagePartFromCode(code);
+		return !this.supportedLngs || !this.supportedLngs.length || this.supportedLngs.includes(code);
+	}
+	getBestMatchFromCodes(codes) {
+		if (!codes) return null;
+		let found;
+		codes.forEach((code) => {
+			if (found) return;
+			const cleanedLng = this.formatLanguageCode(code);
+			if (!this.options.supportedLngs || this.isSupportedCode(cleanedLng)) found = cleanedLng;
+		});
+		if (!found && this.options.supportedLngs) codes.forEach((code) => {
+			if (found) return;
+			const lngScOnly = this.getScriptPartFromCode(code);
+			if (this.isSupportedCode(lngScOnly)) return found = lngScOnly;
+			const lngOnly = this.getLanguagePartFromCode(code);
+			if (this.isSupportedCode(lngOnly)) return found = lngOnly;
+			found = this.options.supportedLngs.find((supportedLng) => {
+				if (supportedLng === lngOnly) return true;
+				if (!supportedLng.includes("-") && !lngOnly.includes("-")) return false;
+				if (supportedLng.includes("-") && !lngOnly.includes("-") && supportedLng.slice(0, supportedLng.indexOf("-")) === lngOnly) return true;
+				if (supportedLng.startsWith(lngOnly) && lngOnly.length > 1) return true;
+				return false;
+			});
+		});
+		if (!found) found = this.getFallbackCodes(this.options.fallbackLng)[0];
+		return found;
+	}
+	getFallbackCodes(fallbacks, code) {
+		if (!fallbacks) return [];
+		if (typeof fallbacks === "function") fallbacks = fallbacks(code);
+		if (isString(fallbacks)) fallbacks = [fallbacks];
+		if (Array.isArray(fallbacks)) return fallbacks;
+		if (!code) return fallbacks.default || [];
+		let found = fallbacks[code];
+		if (!found) found = fallbacks[this.getScriptPartFromCode(code)];
+		if (!found) found = fallbacks[this.formatLanguageCode(code)];
+		if (!found) found = fallbacks[this.getLanguagePartFromCode(code)];
+		if (!found) found = fallbacks.default;
+		return found || [];
+	}
+	toResolveHierarchy(code, fallbackCode) {
+		const fallbackLng = this.options.fallbackLng;
+		const fallbackLngKey = Array.isArray(fallbackLng) ? fallbackLng.join("|") : fallbackLng;
+		if (fallbackLngKey !== this._cachedFallbackLng) {
+			this.resolveHierarchyCache = {};
+			this._cachedFallbackLng = fallbackLngKey;
+		}
+		const hasCacheableFallback = fallbackCode === void 0 || fallbackCode === false || isString(fallbackCode);
+		const usesUncacheableOptionsFallback = fallbackCode === void 0 && typeof this.options.fallbackLng === "function";
+		const cacheable = isString(code) && hasCacheableFallback && !usesUncacheableOptionsFallback;
+		let cacheKey = null;
+		if (cacheable) {
+			let fallbackCacheKey;
+			if (fallbackCode === void 0) fallbackCacheKey = "undefined";
+			else if (fallbackCode === false) fallbackCacheKey = "boolean:false";
+			else fallbackCacheKey = `string:${fallbackCode}`;
+			cacheKey = `${code.length}:${code}|${fallbackCacheKey}`;
+		}
+		if (cacheKey !== null) {
+			const cached = this.resolveHierarchyCache[cacheKey];
+			if (cached !== void 0) return cached.slice();
+		}
+		const fallbackCodes = this.getFallbackCodes((fallbackCode === false ? [] : fallbackCode) || this.options.fallbackLng || [], code);
+		const codes = [];
+		const addCode = (c) => {
+			if (!c) return;
+			if (this.isSupportedCode(c)) codes.push(c);
+			else this.logger.warn(`rejecting language code not found in supportedLngs: ${c}`);
+		};
+		if (isString(code) && (code.includes("-") || code.includes("_"))) {
+			if (this.options.load !== "languageOnly") addCode(this.formatLanguageCode(code));
+			if (this.options.load !== "languageOnly" && this.options.load !== "currentOnly") addCode(this.getScriptPartFromCode(code));
+			if (this.options.load !== "currentOnly") addCode(this.getLanguagePartFromCode(code));
+		} else if (isString(code)) addCode(this.formatLanguageCode(code));
+		fallbackCodes.forEach((fc) => {
+			if (!codes.includes(fc)) addCode(this.formatLanguageCode(fc));
+		});
+		if (cacheKey !== null) {
+			this.resolveHierarchyCache[cacheKey] = codes;
+			return codes.slice();
+		}
+		return codes;
+	}
+};
+const suffixesOrder = {
+	zero: 0,
+	one: 1,
+	two: 2,
+	few: 3,
+	many: 4,
+	other: 5
+};
+const dummyRule = {
+	select: (count) => count === 1 ? "one" : "other",
+	resolvedOptions: () => ({ pluralCategories: ["one", "other"] })
+};
+var PluralResolver = class {
+	constructor(languageUtils, options = {}) {
+		this.languageUtils = languageUtils;
+		this.options = options;
+		this.logger = baseLogger.create("pluralResolver");
+		this.pluralRulesCache = {};
+	}
+	clearCache() {
+		this.pluralRulesCache = {};
+	}
+	getRule(code, options = {}) {
+		const cleanedCode = getCleanedCode(code === "dev" ? "en" : code);
+		const type = options.ordinal ? "ordinal" : "cardinal";
+		const cacheKey = JSON.stringify({
+			cleanedCode,
+			type
+		});
+		if (cacheKey in this.pluralRulesCache) return this.pluralRulesCache[cacheKey];
+		let rule;
+		try {
+			rule = new Intl.PluralRules(cleanedCode, { type });
+		} catch (err) {
+			if (typeof Intl === "undefined") {
+				this.logger.error("No Intl support, please use an Intl polyfill!");
+				return dummyRule;
+			}
+			if (!code.match(/-|_/)) return dummyRule;
+			const lngPart = this.languageUtils.getLanguagePartFromCode(code);
+			rule = this.getRule(lngPart, options);
+		}
+		this.pluralRulesCache[cacheKey] = rule;
+		return rule;
+	}
+	needsPlural(code, options = {}) {
+		let rule = this.getRule(code, options);
+		if (!rule) rule = this.getRule("dev", options);
+		return rule?.resolvedOptions().pluralCategories.length > 1;
+	}
+	getPluralFormsOfKey(code, key, options = {}) {
+		return this.getSuffixes(code, options).map((suffix) => `${key}${suffix}`);
+	}
+	getSuffixes(code, options = {}) {
+		let rule = this.getRule(code, options);
+		if (!rule) rule = this.getRule("dev", options);
+		if (!rule) return [];
+		return rule.resolvedOptions().pluralCategories.sort((pluralCategory1, pluralCategory2) => suffixesOrder[pluralCategory1] - suffixesOrder[pluralCategory2]).map((pluralCategory) => `${this.options.prepend}${options.ordinal ? `ordinal${this.options.prepend}` : ""}${pluralCategory}`);
+	}
+	getSuffix(code, count, options = {}) {
+		const rule = this.getRule(code, options);
+		if (rule) return `${this.options.prepend}${options.ordinal ? `ordinal${this.options.prepend}` : ""}${rule.select(count)}`;
+		this.logger.warn(`no plural rule found for: ${code}`);
+		return this.getSuffix("dev", count, options);
+	}
+};
+const deepFindWithDefaults = (data, defaultData, key, keySeparator = ".", ignoreJSONStructure = true) => {
+	let path = getPathWithDefaults(data, defaultData, key);
+	if (!path && ignoreJSONStructure && isString(key)) {
+		path = deepFind(data, key, keySeparator);
+		if (path === void 0) path = deepFind(defaultData, key, keySeparator);
+	}
+	return path;
+};
+const regexSafe = (val) => val.replace(/\$/g, "$$$$");
+var Interpolator = class {
+	constructor(options = {}) {
+		this.logger = baseLogger.create("interpolator");
+		this.options = options;
+		this.format = options?.interpolation?.format || ((value) => value);
+		this.init(options);
+	}
+	init(options = {}) {
+		if (!options.interpolation) options.interpolation = { escapeValue: true };
+		const { escape: escape$1, escapeValue, useRawValueToEscape, prefix, prefixEscaped, suffix, suffixEscaped, formatSeparator, unescapeSuffix, unescapePrefix, nestingPrefix, nestingPrefixEscaped, nestingSuffix, nestingSuffixEscaped, nestingOptionsSeparator, maxReplaces, alwaysFormat } = options.interpolation;
+		this.escape = escape$1 !== void 0 ? escape$1 : escape;
+		this.escapeValue = escapeValue !== void 0 ? escapeValue : true;
+		this.useRawValueToEscape = useRawValueToEscape !== void 0 ? useRawValueToEscape : false;
+		this.prefix = prefix ? regexEscape(prefix) : prefixEscaped || "{{";
+		this.suffix = suffix ? regexEscape(suffix) : suffixEscaped || "}}";
+		this.formatSeparator = formatSeparator || ",";
+		this.unescapePrefix = unescapeSuffix ? "" : unescapePrefix ? regexEscape(unescapePrefix) : "-";
+		this.unescapeSuffix = this.unescapePrefix ? "" : unescapeSuffix ? regexEscape(unescapeSuffix) : "";
+		this.nestingPrefix = nestingPrefix ? regexEscape(nestingPrefix) : nestingPrefixEscaped || regexEscape("$t(");
+		this.nestingSuffix = nestingSuffix ? regexEscape(nestingSuffix) : nestingSuffixEscaped || regexEscape(")");
+		this.nestingOptionsSeparator = nestingOptionsSeparator || ",";
+		this.maxReplaces = maxReplaces || 1e3;
+		this.alwaysFormat = alwaysFormat !== void 0 ? alwaysFormat : false;
+		this.resetRegExp();
+	}
+	reset() {
+		if (this.options) this.init(this.options);
+	}
+	resetRegExp() {
+		const getOrResetRegExp = (existingRegExp, pattern) => {
+			if (existingRegExp?.source === pattern) {
+				existingRegExp.lastIndex = 0;
+				return existingRegExp;
+			}
+			return new RegExp(pattern, "g");
+		};
+		this.regexp = getOrResetRegExp(this.regexp, `${this.prefix}(.+?)${this.suffix}`);
+		this.regexpUnescape = getOrResetRegExp(this.regexpUnescape, `${this.prefix}${this.unescapePrefix}(.+?)${this.unescapeSuffix}${this.suffix}`);
+		this.nestingRegexp = getOrResetRegExp(this.nestingRegexp, `${this.nestingPrefix}((?:[^()"']|"[^"]*"|'[^']*'|\\((?:[^()"']|"[^"]*"|'[^']*')*\\))*?)${this.nestingSuffix}`);
+	}
+	interpolate(str, data, lng, options) {
+		let match;
+		let value;
+		let replaces;
+		const defaultData = this.options && this.options.interpolation && this.options.interpolation.defaultVariables || {};
+		const handleFormat = (key) => {
+			if (!key.includes(this.formatSeparator)) {
+				const path = deepFindWithDefaults(data, defaultData, key, this.options.keySeparator, this.options.ignoreJSONStructure);
+				return this.alwaysFormat ? this.format(path, void 0, lng, {
+					...options,
+					...data,
+					interpolationkey: key
+				}) : path;
+			}
+			const p = key.split(this.formatSeparator);
+			const k = p.shift().trim();
+			const f = p.join(this.formatSeparator).trim();
+			return this.format(deepFindWithDefaults(data, defaultData, k, this.options.keySeparator, this.options.ignoreJSONStructure), f, lng, {
+				...options,
+				...data,
+				interpolationkey: k
+			});
+		};
+		this.resetRegExp();
+		if (!this.escapeValue && typeof str === "string" && /\$t\([^)]*\{[^}]*\{\{/.test(str)) this.logger.warn("nesting options string contains interpolated variables with escapeValue: false — if any of those values are attacker-controlled they can inject additional nesting options (e.g. redirect lng/ns). Sanitise untrusted input before passing it to t(), or keep escapeValue: true.");
+		const missingInterpolationHandler = options?.missingInterpolationHandler || this.options.missingInterpolationHandler;
+		const skipOnVariables = options?.interpolation?.skipOnVariables !== void 0 ? options.interpolation.skipOnVariables : this.options.interpolation.skipOnVariables;
+		[{
+			regex: this.regexpUnescape,
+			safeValue: (val) => val
+		}, {
+			regex: this.regexp,
+			safeValue: (val) => this.escapeValue ? this.escape(val) : val
+		}].forEach((todo) => {
+			replaces = 0;
+			while (match = todo.regex.exec(str)) {
+				const matchedVar = match[1].trim();
+				value = handleFormat(matchedVar);
+				if (value === void 0) {
+					if (typeof missingInterpolationHandler === "function") {
+						const temp = missingInterpolationHandler(str, match, options);
+						value = isString(temp) ? temp : "";
+					} else if (options && Object.prototype.hasOwnProperty.call(options, matchedVar)) value = "";
+					else if (skipOnVariables) {
+						value = match[0];
+						continue;
+					} else {
+						this.logger.warn(`missed to pass in variable ${matchedVar} for interpolating ${str}`);
+						value = "";
+					}
+				} else if (!isString(value) && !this.useRawValueToEscape) value = makeString(value);
+				const safeValue = todo.safeValue(value);
+				str = str.replace(match[0], regexSafe(safeValue));
+				if (skipOnVariables) {
+					todo.regex.lastIndex += safeValue.length;
+					todo.regex.lastIndex -= match[0].length;
+				} else todo.regex.lastIndex = 0;
+				replaces++;
+				if (replaces >= this.maxReplaces) break;
+			}
+		});
+		return str;
+	}
+	nest(str, fc, options = {}) {
+		let match;
+		let value;
+		let clonedOptions;
+		const handleHasOptions = (key, inheritedOptions) => {
+			const sep = this.nestingOptionsSeparator;
+			if (!key.includes(sep)) return key;
+			const c = key.split(new RegExp(`${regexEscape(sep)}[ ]*{`));
+			let optionsString = `{${c[1]}`;
+			key = c[0];
+			optionsString = this.interpolate(optionsString, clonedOptions);
+			const matchedSingleQuotes = optionsString.match(/'/g);
+			const matchedDoubleQuotes = optionsString.match(/"/g);
+			if ((matchedSingleQuotes?.length ?? 0) % 2 === 0 && !matchedDoubleQuotes || (matchedDoubleQuotes?.length ?? 0) % 2 !== 0) optionsString = optionsString.replace(/'/g, "\"");
+			try {
+				clonedOptions = JSON.parse(optionsString);
+				if (inheritedOptions) clonedOptions = {
+					...inheritedOptions,
+					...clonedOptions
+				};
+			} catch (e) {
+				this.logger.warn(`failed parsing options string in nesting for key ${key}`, e);
+				return `${key}${sep}${optionsString}`;
+			}
+			if (clonedOptions.defaultValue && clonedOptions.defaultValue.includes(this.prefix)) delete clonedOptions.defaultValue;
+			return key;
+		};
+		const nestingRegexp = new RegExp(this.nestingRegexp);
+		let out = "";
+		let lastEnd = 0;
+		while (match = nestingRegexp.exec(str)) {
+			let formatters = [];
+			clonedOptions = { ...options };
+			clonedOptions = clonedOptions.replace && !isString(clonedOptions.replace) ? clonedOptions.replace : clonedOptions;
+			clonedOptions.applyPostProcessor = false;
+			delete clonedOptions.defaultValue;
+			const keyEndIndex = /{.*}/s.test(match[1]) ? match[1].lastIndexOf("}") + 1 : match[1].indexOf(this.formatSeparator);
+			if (keyEndIndex !== -1) {
+				formatters = match[1].slice(keyEndIndex).split(this.formatSeparator).map((elem) => elem.trim()).filter(Boolean);
+				match[1] = match[1].slice(0, keyEndIndex);
+			}
+			value = fc(handleHasOptions.call(this, match[1].trim(), clonedOptions), clonedOptions);
+			if (value && match[0] === str && !isString(value)) return value;
+			if (!isString(value)) value = makeString(value);
+			if (!value) {
+				this.logger.warn(`missed to resolve ${match[1]} for nesting ${str}`);
+				value = "";
+			}
+			if (formatters.length) value = formatters.reduce((v, f) => this.format(v, f, options.lng, {
+				...options,
+				interpolationkey: match[1].trim()
+			}), value.trim());
+			out += str.slice(lastEnd, match.index) + makeString(value);
+			lastEnd = nestingRegexp.lastIndex;
+			this.regexp.lastIndex = 0;
+		}
+		return lastEnd ? out + str.slice(lastEnd) : str;
+	}
+};
+const parseFormatStr = (formatStr) => {
+	let formatName = formatStr.toLowerCase().trim();
+	const formatOptions = {};
+	if (formatStr.includes("(")) {
+		const p = formatStr.split("(");
+		formatName = p[0].toLowerCase().trim();
+		const optStr = p[1].slice(0, -1);
+		if (formatName === "currency" && !optStr.includes(":")) {
+			if (!formatOptions.currency) formatOptions.currency = optStr.trim();
+		} else if (formatName === "relativetime" && !optStr.includes(":")) {
+			if (!formatOptions.range) formatOptions.range = optStr.trim();
+		} else optStr.split(";").forEach((opt) => {
+			if (opt) {
+				const [key, ...rest] = opt.split(":");
+				const val = rest.join(":").trim().replace(/^'+|'+$/g, "");
+				const trimmedKey = key.trim();
+				if (!formatOptions[trimmedKey]) formatOptions[trimmedKey] = val;
+				if (val === "false") formatOptions[trimmedKey] = false;
+				if (val === "true") formatOptions[trimmedKey] = true;
+				if (!isNaN(val)) formatOptions[trimmedKey] = parseInt(val, 10);
+			}
+		});
+	}
+	return {
+		formatName,
+		formatOptions
+	};
+};
+const createCachedFormatter = (fn) => {
+	const cache = {};
+	return (v, l, o) => {
+		let optForCache = o;
+		if (o && o.interpolationkey && o.formatParams && o.formatParams[o.interpolationkey] && o[o.interpolationkey]) optForCache = {
+			...optForCache,
+			[o.interpolationkey]: void 0
+		};
+		const key = l + JSON.stringify(optForCache);
+		let frm = cache[key];
+		if (!frm) {
+			frm = fn(getCleanedCode(l), o);
+			cache[key] = frm;
+		}
+		return frm(v);
+	};
+};
+const createNonCachedFormatter = (fn) => (v, l, o) => fn(getCleanedCode(l), o)(v);
+var Formatter = class {
+	constructor(options = {}) {
+		this.logger = baseLogger.create("formatter");
+		this.options = options;
+		this.init(options);
+	}
+	init(services, options = { interpolation: {} }) {
+		this.formatSeparator = options.interpolation.formatSeparator || ",";
+		const cf = options.cacheInBuiltFormats ? createCachedFormatter : createNonCachedFormatter;
+		this.formats = {
+			number: cf((lng, opt) => {
+				const formatter = new Intl.NumberFormat(lng, { ...opt });
+				return (val) => formatter.format(val);
+			}),
+			currency: cf((lng, opt) => {
+				const formatter = new Intl.NumberFormat(lng, {
+					...opt,
+					style: "currency"
+				});
+				return (val) => formatter.format(val);
+			}),
+			datetime: cf((lng, opt) => {
+				const formatter = new Intl.DateTimeFormat(lng, { ...opt });
+				return (val) => formatter.format(val);
+			}),
+			relativetime: cf((lng, opt) => {
+				const formatter = new Intl.RelativeTimeFormat(lng, { ...opt });
+				return (val) => formatter.format(val, opt.range || "day");
+			}),
+			list: cf((lng, opt) => {
+				const formatter = new Intl.ListFormat(lng, { ...opt });
+				return (val) => formatter.format(val);
+			})
+		};
+	}
+	add(name, fc) {
+		this.formats[name.toLowerCase().trim()] = fc;
+	}
+	addCached(name, fc) {
+		this.formats[name.toLowerCase().trim()] = createCachedFormatter(fc);
+	}
+	format(value, format, lng, options = {}) {
+		if (!format) return value;
+		if (value == null) return value;
+		const rawFormats = format.split(this.formatSeparator);
+		const formats = [];
+		for (let i = 0; i < rawFormats.length; i++) {
+			let f = rawFormats[i];
+			while (f.indexOf("(") > -1 && !f.includes(")") && i + 1 < rawFormats.length) f = `${f}${this.formatSeparator}${rawFormats[++i]}`;
+			formats.push(f);
+		}
+		return formats.reduce((mem, f) => {
+			const { formatName, formatOptions } = parseFormatStr(f);
+			if (this.formats[formatName]) {
+				let formatted = mem;
+				try {
+					const valOptions = options?.formatParams?.[options.interpolationkey] || {};
+					const l = valOptions.locale || valOptions.lng || options.locale || options.lng || lng;
+					formatted = this.formats[formatName](mem, l, {
+						...formatOptions,
+						...options,
+						...valOptions
+					});
+				} catch (error) {
+					this.logger.warn(error);
+				}
+				return formatted;
+			} else this.logger.warn(`there was no format function for ${formatName}`);
+			return mem;
+		}, value);
+	}
+};
+const removePending = (q, name) => {
+	if (q.pending[name] !== void 0) {
+		delete q.pending[name];
+		q.pendingCount--;
+	}
+};
+var Connector = class extends EventEmitter {
+	constructor(backend, store, services, options = {}) {
+		super();
+		this.backend = backend;
+		this.store = store;
+		this.services = services;
+		this.languageUtils = services.languageUtils;
+		this.options = options;
+		this.logger = baseLogger.create("backendConnector");
+		this.waitingReads = [];
+		this.maxParallelReads = options.maxParallelReads || 10;
+		this.readingCalls = 0;
+		this.maxRetries = options.maxRetries >= 0 ? options.maxRetries : 5;
+		this.retryTimeout = options.retryTimeout >= 1 ? options.retryTimeout : 350;
+		this.state = {};
+		this.queue = [];
+		this.backend?.init?.(services, options.backend, options);
+	}
+	queueLoad(languages, namespaces, options, callback) {
+		const toLoad = {};
+		const pending = {};
+		const toLoadLanguages = {};
+		const toLoadNamespaces = {};
+		languages.forEach((lng) => {
+			let hasAllNamespaces = true;
+			namespaces.forEach((ns) => {
+				const name = `${lng}|${ns}`;
+				if (!options.reload && this.store.hasResourceBundle(lng, ns)) this.state[name] = 2;
+				else if (this.state[name] < 0);
+				else if (this.state[name] === 1) {
+					if (pending[name] === void 0) pending[name] = true;
+				} else {
+					this.state[name] = 1;
+					hasAllNamespaces = false;
+					if (pending[name] === void 0) pending[name] = true;
+					if (toLoad[name] === void 0) toLoad[name] = true;
+					if (toLoadNamespaces[ns] === void 0) toLoadNamespaces[ns] = true;
+				}
+			});
+			if (!hasAllNamespaces) toLoadLanguages[lng] = true;
+		});
+		if (Object.keys(toLoad).length || Object.keys(pending).length) this.queue.push({
+			pending,
+			pendingCount: Object.keys(pending).length,
+			loaded: {},
+			errors: [],
+			callback
+		});
+		return {
+			toLoad: Object.keys(toLoad),
+			pending: Object.keys(pending),
+			toLoadLanguages: Object.keys(toLoadLanguages),
+			toLoadNamespaces: Object.keys(toLoadNamespaces)
+		};
+	}
+	loaded(name, err, data) {
+		const s = name.split("|");
+		const lng = s[0];
+		const ns = s[1];
+		if (err) this.emit("failedLoading", lng, ns, err);
+		if (!err && data) this.store.addResourceBundle(lng, ns, data, void 0, void 0, { skipCopy: true });
+		this.state[name] = err ? -1 : 2;
+		if (err && data) this.state[name] = 0;
+		const loaded = {};
+		this.queue.forEach((q) => {
+			pushPath(q.loaded, [lng], ns);
+			removePending(q, name);
+			if (err) q.errors.push(err);
+			if (q.pendingCount === 0 && !q.done) {
+				Object.keys(q.loaded).forEach((l) => {
+					if (!loaded[l]) loaded[l] = {};
+					const loadedKeys = q.loaded[l];
+					if (loadedKeys.length) loadedKeys.forEach((n) => {
+						if (loaded[l][n] === void 0) loaded[l][n] = true;
+					});
+				});
+				q.done = true;
+				if (q.errors.length) q.callback(q.errors);
+				else q.callback();
+			}
+		});
+		this.emit("loaded", loaded);
+		this.queue = this.queue.filter((q) => !q.done);
+	}
+	read(lng, ns, fcName, tried = 0, wait = this.retryTimeout, callback) {
+		if (!lng.length) return callback(null, {});
+		if (this.readingCalls >= this.maxParallelReads) {
+			this.waitingReads.push({
+				lng,
+				ns,
+				fcName,
+				tried,
+				wait,
+				callback
+			});
+			return;
+		}
+		this.readingCalls++;
+		const resolver = (err, data) => {
+			this.readingCalls--;
+			if (this.waitingReads.length > 0) {
+				const next = this.waitingReads.shift();
+				this.read(next.lng, next.ns, next.fcName, next.tried, next.wait, next.callback);
+			}
+			if (err && data && tried < this.maxRetries) {
+				setTimeout(() => {
+					this.read(lng, ns, fcName, tried + 1, wait * 2, callback);
+				}, wait);
+				return;
+			}
+			callback(err, data);
+		};
+		const fc = this.backend[fcName].bind(this.backend);
+		if (fc.length === 2) {
+			try {
+				const r = fc(lng, ns);
+				if (r && typeof r.then === "function") r.then((data) => resolver(null, data)).catch(resolver);
+				else resolver(null, r);
+			} catch (err) {
+				resolver(err);
+			}
+			return;
+		}
+		return fc(lng, ns, resolver);
+	}
+	prepareLoading(languages, namespaces, options = {}, callback) {
+		if (!this.backend) {
+			this.logger.warn("No backend was added via i18next.use. Will not load resources.");
+			return callback && callback();
+		}
+		if (isString(languages)) languages = this.languageUtils.toResolveHierarchy(languages);
+		if (isString(namespaces)) namespaces = [namespaces];
+		const toLoad = this.queueLoad(languages, namespaces, options, callback);
+		if (!toLoad.toLoad.length) {
+			if (!toLoad.pending.length) callback();
+			return null;
+		}
+		toLoad.toLoad.forEach((name) => {
+			this.loadOne(name);
+		});
+	}
+	load(languages, namespaces, callback) {
+		this.prepareLoading(languages, namespaces, {}, callback);
+	}
+	reload(languages, namespaces, callback) {
+		this.prepareLoading(languages, namespaces, { reload: true }, callback);
+	}
+	loadOne(name, prefix = "") {
+		const s = name.split("|");
+		const lng = s[0];
+		const ns = s[1];
+		this.read(lng, ns, "read", void 0, void 0, (err, data) => {
+			if (err) this.logger.warn(`${prefix}loading namespace ${ns} for language ${lng} failed`, err);
+			if (!err && data) this.logger.log(`${prefix}loaded namespace ${ns} for language ${lng}`, data);
+			this.loaded(name, err, data);
+		});
+	}
+	saveMissing(languages, namespace, key, fallbackValue, isUpdate, options = {}, clb = () => {}) {
+		if (this.services?.utils?.hasLoadedNamespace && !this.services?.utils?.hasLoadedNamespace(namespace)) {
+			this.logger.warn(`did not save key "${key}" as the namespace "${namespace}" was not yet loaded`, "This means something IS WRONG in your setup. You access the t function before i18next.init / i18next.loadNamespace / i18next.changeLanguage was done. Wait for the callback or Promise to resolve before accessing it!!!");
+			return;
+		}
+		if (key === void 0 || key === null || key === "") return;
+		if (this.backend?.create) {
+			const opts = {
+				...options,
+				isUpdate
+			};
+			const fc = this.backend.create.bind(this.backend);
+			if (fc.length < 6) try {
+				let r;
+				if (fc.length === 5) r = fc(languages, namespace, key, fallbackValue, opts);
+				else r = fc(languages, namespace, key, fallbackValue);
+				if (r && typeof r.then === "function") r.then((data) => clb(null, data)).catch(clb);
+				else clb(null, r);
+			} catch (err) {
+				clb(err);
+			}
+			else fc(languages, namespace, key, fallbackValue, clb, opts);
+		}
+		if (!languages || !languages[0]) return;
+		this.store.addResource(languages[0], namespace, key, fallbackValue);
+	}
+};
+const get = () => ({
+	debug: false,
+	initAsync: true,
+	ns: ["translation"],
+	defaultNS: ["translation"],
+	fallbackLng: ["dev"],
+	fallbackNS: false,
+	supportedLngs: false,
+	nonExplicitSupportedLngs: false,
+	load: "all",
+	preload: false,
+	keySeparator: ".",
+	nsSeparator: ":",
+	pluralSeparator: "_",
+	contextSeparator: "_",
+	enableSelector: false,
+	partialBundledLanguages: false,
+	saveMissing: false,
+	updateMissing: false,
+	saveMissingTo: "fallback",
+	saveMissingPlurals: true,
+	missingKeyHandler: false,
+	missingInterpolationHandler: false,
+	postProcess: false,
+	postProcessPassResolved: false,
+	returnNull: false,
+	returnEmptyString: true,
+	returnObjects: false,
+	joinArrays: false,
+	returnedObjectHandler: false,
+	parseMissingKeyHandler: false,
+	appendNamespaceToMissingKey: false,
+	appendNamespaceToCIMode: false,
+	overloadTranslationOptionHandler: (args) => {
+		let ret = {};
+		if (typeof args[1] === "object") ret = args[1];
+		if (isString(args[1])) ret.defaultValue = args[1];
+		if (isString(args[2])) ret.tDescription = args[2];
+		if (typeof args[2] === "object" || typeof args[3] === "object") {
+			const options = args[3] || args[2];
+			Object.keys(options).forEach((key) => {
+				ret[key] = options[key];
+			});
+		}
+		return ret;
+	},
+	interpolation: {
+		escapeValue: true,
+		prefix: "{{",
+		suffix: "}}",
+		formatSeparator: ",",
+		unescapePrefix: "-",
+		nestingPrefix: "$t(",
+		nestingSuffix: ")",
+		nestingOptionsSeparator: ",",
+		maxReplaces: 1e3,
+		skipOnVariables: true
+	},
+	cacheInBuiltFormats: true
+});
+const transformOptions = (options) => {
+	if (isString(options.ns)) options.ns = [options.ns];
+	if (isString(options.fallbackLng)) options.fallbackLng = [options.fallbackLng];
+	if (isString(options.fallbackNS)) options.fallbackNS = [options.fallbackNS];
+	if (options.supportedLngs && !options.supportedLngs.includes("cimode")) options.supportedLngs = options.supportedLngs.concat(["cimode"]);
+	return options;
+};
+const noop = () => {};
+const bindMemberFunctions = (inst) => {
+	Object.getOwnPropertyNames(Object.getPrototypeOf(inst)).forEach((mem) => {
+		if (typeof inst[mem] === "function") inst[mem] = inst[mem].bind(inst);
+	});
+};
+const instance = class I18n extends EventEmitter {
+	constructor(options = {}, callback) {
+		super();
+		this.options = transformOptions(options);
+		this.services = {};
+		this.logger = baseLogger;
+		this.modules = { external: [] };
+		bindMemberFunctions(this);
+		if (callback && !this.isInitialized && !options.isClone) {
+			if (!this.options.initAsync) {
+				this.init(options, callback);
+				return this;
+			}
+			setTimeout(() => {
+				this.init(options, callback);
+			}, 0);
+		}
+	}
+	init(options = {}, callback) {
+		this.isInitializing = true;
+		if (typeof options === "function") {
+			callback = options;
+			options = {};
+		}
+		if (options.defaultNS == null && options.ns) {
+			if (isString(options.ns)) options.defaultNS = options.ns;
+			else if (!options.ns.includes("translation")) options.defaultNS = options.ns[0];
+		}
+		const defOpts = get();
+		this.options = {
+			...defOpts,
+			...this.options,
+			...transformOptions(options)
+		};
+		this.options.interpolation = {
+			...defOpts.interpolation,
+			...this.options.interpolation
+		};
+		if (options.keySeparator !== void 0) this.options.userDefinedKeySeparator = options.keySeparator;
+		if (options.nsSeparator !== void 0) this.options.userDefinedNsSeparator = options.nsSeparator;
+		if (typeof this.options.overloadTranslationOptionHandler !== "function") this.options.overloadTranslationOptionHandler = defOpts.overloadTranslationOptionHandler;
+		const createClassOnDemand = (ClassOrObject) => {
+			if (!ClassOrObject) return null;
+			if (typeof ClassOrObject === "function") return new ClassOrObject();
+			return ClassOrObject;
+		};
+		if (!this.options.isClone) {
+			if (this.modules.logger) baseLogger.init(createClassOnDemand(this.modules.logger), this.options);
+			else baseLogger.init(null, this.options);
+			let formatter;
+			if (this.modules.formatter) formatter = this.modules.formatter;
+			else formatter = Formatter;
+			const lu = new LanguageUtil(this.options);
+			this.store = new ResourceStore(this.options.resources, this.options);
+			const s = this.services;
+			s.logger = baseLogger;
+			s.resourceStore = this.store;
+			s.languageUtils = lu;
+			s.pluralResolver = new PluralResolver(lu, { prepend: this.options.pluralSeparator });
+			if (formatter) {
+				s.formatter = createClassOnDemand(formatter);
+				if (s.formatter.init) s.formatter.init(s, this.options);
+				this.options.interpolation.format = s.formatter.format.bind(s.formatter);
+			}
+			s.interpolator = new Interpolator(this.options);
+			s.utils = { hasLoadedNamespace: this.hasLoadedNamespace.bind(this) };
+			s.backendConnector = new Connector(createClassOnDemand(this.modules.backend), s.resourceStore, s, this.options);
+			s.backendConnector.on("*", (event, ...args) => {
+				this.emit(event, ...args);
+			});
+			if (this.modules.languageDetector) {
+				s.languageDetector = createClassOnDemand(this.modules.languageDetector);
+				if (s.languageDetector.init) s.languageDetector.init(s, this.options.detection, this.options);
+			}
+			if (this.modules.i18nFormat) {
+				s.i18nFormat = createClassOnDemand(this.modules.i18nFormat);
+				if (s.i18nFormat.init) s.i18nFormat.init(this);
+			}
+			this.translator = new Translator(this.services, this.options);
+			this.translator.on("*", (event, ...args) => {
+				this.emit(event, ...args);
+			});
+			this.modules.external.forEach((m) => {
+				if (m.init) m.init(this);
+			});
+		}
+		this.format = this.options.interpolation.format;
+		if (!callback) callback = noop;
+		if (this.options.fallbackLng && !this.services.languageDetector && !this.options.lng) {
+			const codes = this.services.languageUtils.getFallbackCodes(this.options.fallbackLng);
+			if (codes.length > 0 && codes[0] !== "dev") this.options.lng = codes[0];
+		}
+		if (!this.services.languageDetector && !this.options.lng) this.logger.warn("init: no languageDetector is used and no lng is defined");
+		[
+			"getResource",
+			"hasResourceBundle",
+			"getResourceBundle",
+			"getDataByLanguage"
+		].forEach((fcName) => {
+			this[fcName] = (...args) => this.store[fcName](...args);
+		});
+		[
+			"addResource",
+			"addResources",
+			"addResourceBundle",
+			"removeResourceBundle"
+		].forEach((fcName) => {
+			this[fcName] = (...args) => {
+				this.store[fcName](...args);
+				return this;
+			};
+		});
+		const deferred = defer();
+		const load = () => {
+			const finish = (err, t) => {
+				this.isInitializing = false;
+				if (this.isInitialized && !this.initializedStoreOnce) this.logger.warn("init: i18next is already initialized. You should call init just once!");
+				this.isInitialized = true;
+				if (!this.options.isClone) this.logger.log("initialized", this.options);
+				this.emit("initialized", this.options);
+				deferred.resolve(t);
+				callback(err, t);
+			};
+			if ((this.languages || this.isLanguageChangingTo) && !this.isInitialized) return finish(null, this.t.bind(this));
+			this.changeLanguage(this.options.lng, finish);
+		};
+		if (this.options.resources || !this.options.initAsync) load();
+		else setTimeout(load, 0);
+		return deferred;
+	}
+	loadResources(language, callback = noop) {
+		let usedCallback = callback;
+		const usedLng = isString(language) ? language : this.language;
+		if (typeof language === "function") usedCallback = language;
+		if (!this.options.resources || this.options.partialBundledLanguages) {
+			if (usedLng?.toLowerCase() === "cimode" && (!this.options.preload || this.options.preload.length === 0)) return usedCallback();
+			const toLoad = [];
+			const append = (lng) => {
+				if (!lng) return;
+				if (lng === "cimode") return;
+				this.services.languageUtils.toResolveHierarchy(lng).forEach((l) => {
+					if (l === "cimode") return;
+					if (!toLoad.includes(l)) toLoad.push(l);
+				});
+			};
+			if (!usedLng) this.services.languageUtils.getFallbackCodes(this.options.fallbackLng).forEach((l) => append(l));
+			else append(usedLng);
+			this.options.preload?.forEach?.((l) => append(l));
+			this.services.backendConnector.load(toLoad, this.options.ns, (e) => {
+				if (!e && !this.resolvedLanguage && this.language) this.setResolvedLanguage(this.language);
+				usedCallback(e);
+			});
+		} else usedCallback(null);
+	}
+	reloadResources(lngs, ns, callback) {
+		const deferred = defer();
+		if (typeof lngs === "function") {
+			callback = lngs;
+			lngs = void 0;
+		}
+		if (typeof ns === "function") {
+			callback = ns;
+			ns = void 0;
+		}
+		if (!lngs) lngs = this.languages;
+		if (!ns) ns = this.options.ns;
+		if (!callback) callback = noop;
+		this.services.backendConnector.reload(lngs, ns, (err) => {
+			deferred.resolve();
+			callback(err);
+		});
+		return deferred;
+	}
+	use(module) {
+		if (!module) throw new Error("You are passing an undefined module! Please check the object you are passing to i18next.use()");
+		if (!module.type) throw new Error("You are passing a wrong module! Please check the object you are passing to i18next.use()");
+		if (module.type === "backend") this.modules.backend = module;
+		if (module.type === "logger" || module.log && module.warn && module.error) this.modules.logger = module;
+		if (module.type === "languageDetector") this.modules.languageDetector = module;
+		if (module.type === "i18nFormat") this.modules.i18nFormat = module;
+		if (module.type === "postProcessor") postProcessor.addPostProcessor(module);
+		if (module.type === "formatter") this.modules.formatter = module;
+		if (module.type === "3rdParty") this.modules.external.push(module);
+		return this;
+	}
+	setResolvedLanguage(l) {
+		if (!l || !this.languages) return;
+		if (["cimode", "dev"].includes(l)) return;
+		for (let li = 0; li < this.languages.length; li++) {
+			const lngInLngs = this.languages[li];
+			if (["cimode", "dev"].includes(lngInLngs)) continue;
+			if (this.store.hasLanguageSomeTranslations(lngInLngs)) {
+				this.resolvedLanguage = lngInLngs;
+				break;
+			}
+		}
+		if (!this.resolvedLanguage && !this.languages.includes(l) && this.store.hasLanguageSomeTranslations(l)) {
+			this.resolvedLanguage = l;
+			this.languages.unshift(l);
+		}
+	}
+	changeLanguage(lng, callback) {
+		this.isLanguageChangingTo = lng;
+		const deferred = defer();
+		this.emit("languageChanging", lng);
+		const setLngProps = (l) => {
+			this.language = l;
+			this.languages = this.services.languageUtils.toResolveHierarchy(l);
+			this.resolvedLanguage = void 0;
+			this.setResolvedLanguage(l);
+		};
+		const done = (err, l) => {
+			if (l) {
+				if (this.isLanguageChangingTo === lng) {
+					setLngProps(l);
+					this.translator.changeLanguage(l);
+					this.isLanguageChangingTo = void 0;
+					this.emit("languageChanged", l);
+					this.logger.log("languageChanged", l);
+				}
+			} else this.isLanguageChangingTo = void 0;
+			deferred.resolve((...args) => this.t(...args));
+			if (callback) callback(err, (...args) => this.t(...args));
+		};
+		const setLng = (lngs) => {
+			if (!lng && !lngs && this.services.languageDetector) lngs = [];
+			const fl = isString(lngs) ? lngs : lngs && lngs[0];
+			const l = this.store.hasLanguageSomeTranslations(fl) ? fl : this.services.languageUtils.getBestMatchFromCodes(isString(lngs) ? [lngs] : lngs);
+			if (l) {
+				if (!this.language) setLngProps(l);
+				if (!this.translator.language) this.translator.changeLanguage(l);
+				this.services.languageDetector?.cacheUserLanguage?.(l);
+			}
+			this.loadResources(l, (err) => {
+				done(err, l);
+			});
+		};
+		if (!lng && this.services.languageDetector && !this.services.languageDetector.async) setLng(this.services.languageDetector.detect());
+		else if (!lng && this.services.languageDetector && this.services.languageDetector.async) {
+			if (this.services.languageDetector.detect.length === 0) this.services.languageDetector.detect().then(setLng);
+			else this.services.languageDetector.detect(setLng);
+		} else setLng(lng);
+		return deferred;
+	}
+	getFixedT(lng, ns, keyPrefix, fixedOpts) {
+		const scopeNs = fixedOpts?.scopeNs;
+		const fixedT = (key, opts, ...rest) => {
+			let o;
+			if (typeof opts !== "object") o = this.options.overloadTranslationOptionHandler([key, opts].concat(rest));
+			else o = { ...opts };
+			o.lng = o.lng || fixedT.lng;
+			o.lngs = o.lngs || fixedT.lngs;
+			const explicitCallNs = o.ns !== void 0 && o.ns !== null;
+			o.ns = o.ns || fixedT.ns;
+			if (o.keyPrefix !== "") o.keyPrefix = o.keyPrefix || keyPrefix || fixedT.keyPrefix;
+			const selectorOpts = {
+				...this.options,
+				...o
+			};
+			if (Array.isArray(scopeNs) && !explicitCallNs) selectorOpts.ns = scopeNs;
+			if (typeof o.keyPrefix === "function") o.keyPrefix = keysFromSelector(o.keyPrefix, selectorOpts);
+			const keySeparator = this.options.keySeparator || ".";
+			let resultKey;
+			if (o.keyPrefix && Array.isArray(key)) resultKey = key.map((k) => {
+				if (typeof k === "function") k = keysFromSelector(k, selectorOpts);
+				return `${o.keyPrefix}${keySeparator}${k}`;
+			});
+			else {
+				if (typeof key === "function") key = keysFromSelector(key, selectorOpts);
+				resultKey = o.keyPrefix ? `${o.keyPrefix}${keySeparator}${key}` : key;
+			}
+			return this.t(resultKey, o);
+		};
+		if (isString(lng)) fixedT.lng = lng;
+		else fixedT.lngs = lng;
+		fixedT.ns = ns;
+		fixedT.keyPrefix = keyPrefix;
+		return fixedT;
+	}
+	t(...args) {
+		return this.translator?.translate(...args);
+	}
+	exists(...args) {
+		return this.translator?.exists(...args);
+	}
+	setDefaultNamespace(ns) {
+		this.options.defaultNS = ns;
+	}
+	hasLoadedNamespace(ns, options = {}) {
+		if (!this.isInitialized) {
+			this.logger.warn("hasLoadedNamespace: i18next was not initialized", this.languages);
+			return false;
+		}
+		if (!this.languages || !this.languages.length) {
+			this.logger.warn("hasLoadedNamespace: i18n.languages were undefined or empty", this.languages);
+			return false;
+		}
+		const lng = options.lng || this.resolvedLanguage || this.languages[0];
+		const fallbackLng = this.options ? this.options.fallbackLng : false;
+		const lastLng = this.languages[this.languages.length - 1];
+		if (lng.toLowerCase() === "cimode") return true;
+		const loadNotPending = (l, n) => {
+			const loadState = this.services.backendConnector.state[`${l}|${n}`];
+			return loadState === -1 || loadState === 0 || loadState === 2;
+		};
+		if (options.precheck) {
+			const preResult = options.precheck(this, loadNotPending);
+			if (preResult !== void 0) return preResult;
+		}
+		if (this.hasResourceBundle(lng, ns)) return true;
+		if (!this.services.backendConnector.backend || this.options.resources && !this.options.partialBundledLanguages) return true;
+		const { languageUtils } = this.services;
+		const loadLng = !options.lng ? lng : languageUtils.isSupportedCode(lng) && languageUtils.toResolveHierarchy(lng, false)[0];
+		if ((!loadLng || loadNotPending(loadLng, ns)) && (!fallbackLng || loadNotPending(lastLng, ns))) return true;
+		return false;
+	}
+	loadNamespaces(ns, callback) {
+		const deferred = defer();
+		if (!this.options.ns) {
+			if (callback) callback();
+			return Promise.resolve();
+		}
+		if (isString(ns)) ns = [ns];
+		ns.forEach((n) => {
+			if (!this.options.ns.includes(n)) this.options.ns.push(n);
+		});
+		this.loadResources((err) => {
+			deferred.resolve();
+			if (callback) callback(err);
+		});
+		return deferred;
+	}
+	loadLanguages(lngs, callback) {
+		const deferred = defer();
+		if (isString(lngs)) lngs = [lngs];
+		const preloaded = this.options.preload || [];
+		const newLngs = lngs.filter((lng) => !preloaded.includes(lng) && this.services.languageUtils.isSupportedCode(lng));
+		if (!newLngs.length) {
+			if (callback) callback();
+			return Promise.resolve();
+		}
+		this.options.preload = preloaded.concat(newLngs);
+		this.loadResources((err) => {
+			deferred.resolve();
+			if (callback) callback(err);
+		});
+		return deferred;
+	}
+	dir(lng) {
+		if (!lng) lng = this.resolvedLanguage || (this.languages?.length > 0 ? this.languages[0] : this.language);
+		if (!lng) return "rtl";
+		try {
+			const l = new Intl.Locale(lng);
+			if (l && l.getTextInfo) {
+				const ti = l.getTextInfo();
+				if (ti && ti.direction) return ti.direction;
+			}
+		} catch (e) {}
+		const rtlLngs = [
+			"ar",
+			"shu",
+			"sqr",
+			"ssh",
+			"xaa",
+			"yhd",
+			"yud",
+			"aao",
+			"abh",
+			"abv",
+			"acm",
+			"acq",
+			"acw",
+			"acx",
+			"acy",
+			"adf",
+			"ads",
+			"aeb",
+			"aec",
+			"afb",
+			"ajp",
+			"apc",
+			"apd",
+			"arb",
+			"arq",
+			"ars",
+			"ary",
+			"arz",
+			"auz",
+			"avl",
+			"ayh",
+			"ayl",
+			"ayn",
+			"ayp",
+			"bbz",
+			"pga",
+			"he",
+			"iw",
+			"ps",
+			"pbt",
+			"pbu",
+			"pst",
+			"prp",
+			"prd",
+			"ug",
+			"ur",
+			"ydd",
+			"yds",
+			"yih",
+			"ji",
+			"yi",
+			"hbo",
+			"men",
+			"xmn",
+			"fa",
+			"jpr",
+			"peo",
+			"pes",
+			"prs",
+			"dv",
+			"sam",
+			"ckb"
+		];
+		const languageUtils = this.services?.languageUtils || new LanguageUtil(get());
+		if (lng.toLowerCase().indexOf("-latn") > 1) return "ltr";
+		return rtlLngs.includes(languageUtils.getLanguagePartFromCode(lng)) || lng.toLowerCase().indexOf("-arab") > 1 ? "rtl" : "ltr";
+	}
+	static createInstance(options = {}, callback) {
+		const instance = new I18n(options, callback);
+		instance.createInstance = I18n.createInstance;
+		return instance;
+	}
+	cloneInstance(options = {}, callback = noop) {
+		const forkResourceStore = options.forkResourceStore;
+		if (forkResourceStore) delete options.forkResourceStore;
+		const mergedOptions = {
+			...this.options,
+			...options,
+			isClone: true
+		};
+		const clone = new I18n(mergedOptions);
+		if (options.debug !== void 0 || options.prefix !== void 0) clone.logger = clone.logger.clone(options);
+		[
+			"store",
+			"services",
+			"language"
+		].forEach((m) => {
+			clone[m] = this[m];
+		});
+		clone.services = { ...this.services };
+		clone.services.utils = { hasLoadedNamespace: clone.hasLoadedNamespace.bind(clone) };
+		if (forkResourceStore) {
+			clone.store = new ResourceStore(Object.keys(this.store.data).reduce((prev, l) => {
+				prev[l] = { ...this.store.data[l] };
+				prev[l] = Object.keys(prev[l]).reduce((acc, n) => {
+					acc[n] = { ...prev[l][n] };
+					return acc;
+				}, prev[l]);
+				return prev;
+			}, {}), mergedOptions);
+			clone.services.resourceStore = clone.store;
+		}
+		if (options.interpolation) {
+			const mergedInterpolation = {
+				...get().interpolation,
+				...this.options.interpolation,
+				...options.interpolation
+			};
+			const mergedForInterpolator = {
+				...mergedOptions,
+				interpolation: mergedInterpolation
+			};
+			clone.services.interpolator = new Interpolator(mergedForInterpolator);
+		}
+		clone.translator = new Translator(clone.services, mergedOptions);
+		clone.translator.on("*", (event, ...args) => {
+			clone.emit(event, ...args);
+		});
+		clone.init(mergedOptions, callback);
+		clone.translator.options = mergedOptions;
+		clone.translator.backendConnector.services.utils = { hasLoadedNamespace: clone.hasLoadedNamespace.bind(clone) };
+		return clone;
+	}
+	toJSON() {
+		return {
+			options: this.options,
+			store: this.store,
+			language: this.language,
+			languages: this.languages,
+			resolvedLanguage: this.resolvedLanguage
+		};
+	}
+}.createInstance();
+instance.createInstance;
+instance.dir;
+instance.init;
+instance.loadResources;
+instance.reloadResources;
+instance.use;
+instance.changeLanguage;
+instance.getFixedT;
+const t = instance.t;
+instance.exists;
+instance.setDefaultNamespace;
+instance.hasLoadedNamespace;
+instance.loadNamespaces;
+instance.loadLanguages;
 //#endregion
 //#region src/translations/Languages.ts
 /**
@@ -771,7 +2771,7 @@ let T = /* @__PURE__ */ function(T) {
 	T["foldermayhavesubfolders"] = "foldermayhavesubfolders";
 	return T;
 }({});
-const languages = [
+const languagesObject = Object.fromEntries([
 	{
 		code: "cs",
 		name: "Čeština",
@@ -798,18 +2798,16 @@ const languages = [
 		name: "Français",
 		flag: "🇫🇷"
 	}
-];
-const languagesObject = Object.fromEntries(languages.map((l) => [l.code, l]));
-
+].map((l) => [l.code, l]));
 //#endregion
 //#region src/translations/localeContext.ts
 const localeContext = (0, _lit_context.createContext)("localeContext");
 const initLocalesInTopLevelElement = (element) => {
-	i18next.default.on("languageChanged", (locale) => {
+	instance.on("languageChanged", (locale) => {
 		element.locale = locale;
 	});
-	if (element.locale === void 0) element.locale = i18next.default.language;
-	else i18next.default.changeLanguage(element.locale);
+	if (element.locale === void 0) element.locale = instance.language;
+	else instance.changeLanguage(element.locale);
 };
 const localeMap = {
 	cs: [
@@ -860,7 +2858,6 @@ const localeConverter = {
 		return value;
 	}
 };
-
 //#endregion
 //#region src/utils/shortId.ts
 /**
@@ -920,7 +2917,6 @@ const generateShortId = (length = DEFAULT_LENGTH) => {
 		if (attempts % 5 === 0) currentLength++;
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/HierarchyUpdatesHub.ts
 /** Perform updates in the hierarchy for all registered controllers */
@@ -942,22 +2938,19 @@ var HierarchyUpdatesHub = class {
 		for (const controller of this._controllers) controller.hostUpdatedWatcher?.(changedProperties);
 	}
 };
-
 //#endregion
-//#region \0@oxc-project+runtime@0.114.0/helpers/decorateMetadata.js
+//#region \0@oxc-project+runtime@0.154.0/helpers/esm/decorateMetadata.js
 function __decorateMetadata(k, v) {
 	if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 }
-
 //#endregion
-//#region \0@oxc-project+runtime@0.114.0/helpers/decorate.js
+//#region \0@oxc-project+runtime@0.154.0/helpers/esm/decorate.js
 function __decorate(decorators, target, key, desc) {
 	var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
 	if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
 	else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	return c > 3 && r && Object.defineProperty(target, key, r), r;
 }
-
 //#endregion
 //#region src/hierarchy/AbstractThermalElement.ts
 /** 
@@ -1018,11 +3011,11 @@ var AbstractThermalElement = class extends lit.LitElement {
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		this._locale = i18next.default.language;
-		i18next.default.on("languageChanged", this.languageChanged);
+		this._locale = instance.language;
+		instance.on("languageChanged", this.languageChanged);
 	}
 	disconnectedCallback() {
-		i18next.default.off("languageChanged", this.languageChanged);
+		instance.off("languageChanged", this.languageChanged);
 		super.disconnectedCallback();
 	}
 	/** 
@@ -1037,7 +3030,7 @@ var AbstractThermalElement = class extends lit.LitElement {
 	* @see {@link T}
 	*/
 	t(key) {
-		return (0, i18next.t)(T[key]);
+		return t(T[key]);
 	}
 	willUpdate(changedProperties) {
 		super.willUpdate?.(changedProperties);
@@ -1052,7 +3045,6 @@ __decorate([(0, _lit_context.consume)({
 	context: localeContext,
 	subscribe: true
 }), __decorateMetadata("design:type", String)], AbstractThermalElement.prototype, "_locale", void 0);
-
 //#endregion
 //#region src/controllers/AbstractReactiveController.ts
 /** 
@@ -1069,7 +3061,6 @@ var AbstractReactiveController = class {
 		this.host.log(this.constructor.name, ...args);
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/AbstractHierarchyController.ts
 /** 
@@ -1104,7 +3095,6 @@ var AbstractHierarchyController = class extends AbstractReactiveController {
 		return this.host.getAttribute(primaryAttributeName) ?? this.host.getAttribute("slug") ?? this.UUID;
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/FileAnalysisSynchronisator.ts
 var FileAnalysisSynchronisator = class FileAnalysisSynchronisator {
@@ -1177,7 +3167,6 @@ var FileAnalysisSynchronisator = class FileAnalysisSynchronisator {
 		} else file.slots.createAnalysisFromSerialized(value, this._slotNumber)?.setSelected();
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/FileAnalysisSynchronisators.ts
 var FileAnalysisSynchronisators = class {
@@ -1202,7 +3191,6 @@ var FileAnalysisSynchronisators = class {
 		this._forEach((synchronisator) => synchronisator.fileUnassigned());
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/FileController.ts
 /** A crucial context for exporting the `FileController` object. */
@@ -1602,7 +3590,6 @@ var FileController = class extends AbstractHierarchyController {
 		this.readyContextProvider.setValue(true);
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/FileLoadController.ts
 /** 
@@ -1662,7 +3649,6 @@ var FileLoadController = class extends AbstractHierarchyController {
 		});
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/GroupController.ts
 /**
@@ -1737,7 +3723,6 @@ var GroupController = class extends AbstractHierarchyController {
 	hostWillUpdateWatcher() {}
 	hostUpdatedWatcher() {}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/GroupLoadController.ts
 /**
@@ -1877,9 +3862,7 @@ var GroupLoadController = class GroupLoadController extends AbstractHierarchyCon
 					case GroupLoadController.FILE_VISIBLE_KEY:
 						visible = value;
 						break;
-					case GroupLoadController.FILE_LABEL_KEY:
-						label = value;
-						break;
+					case GroupLoadController.FILE_LABEL_KEY: label = value;
 				}
 			});
 			if (!thermal) return;
@@ -1938,7 +3921,6 @@ var GroupLoadController = class GroupLoadController extends AbstractHierarchyCon
 		}
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/GroupListingController.ts
 /**
@@ -2190,14 +4172,12 @@ var GroupListingController = class extends AbstractHierarchyController {
 	_orderFiles() {
 		const files = Array.from(this.group.files.value);
 		switch (this.host.orderby) {
-			case GroupOrderby.LABEL:
-				if (this.host.ordering === GroupOrdering.ASC) files.sort((a, b) => (a.label ?? "").localeCompare(b.label ?? ""));
+			case "label":
+				if (this.host.ordering === "asc") files.sort((a, b) => (a.label ?? "").localeCompare(b.label ?? ""));
 				else files.sort((a, b) => (b.label ?? "").localeCompare(a.label ?? ""));
 				break;
-			case GroupOrderby.DATE:
-				if (this.host.ordering === GroupOrdering.ASC) files.sort((a, b) => a.timestamp - b.timestamp);
-				else files.sort((a, b) => b.timestamp - a.timestamp);
-				break;
+			case "date": if (this.host.ordering === "asc") files.sort((a, b) => a.timestamp - b.timestamp);
+			else files.sort((a, b) => b.timestamp - a.timestamp);
 		}
 		return files;
 	}
@@ -2426,7 +4406,6 @@ var GroupListingController = class extends AbstractHierarchyController {
         </div>`;
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/GroupAnalysisSyncController.ts
 const SLOT_NUMBERS = [
@@ -2696,7 +4675,6 @@ var GroupAnalysisSyncController = class GroupAnalysisSyncController extends Abst
 		}
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/RegistryController.ts
 /** Exposes the current `RegistryController`. This is very important. */
@@ -2846,8 +4824,10 @@ var RegistryController = class extends AbstractHierarchyController {
 	}
 	hostWillUpdateWatcher(value) {
 		if (value.has("opacity")) this.setOpacity(this.host.opacity ?? 1);
-		if (value.has("from") || value.has("to")) if (this.host.from === void 0 || this.host.to === void 0) this._clearRange();
-		else this.setRange(this.host.from, this.host.to);
+		if (value.has("from") || value.has("to")) {
+			if (this.host.from === void 0 || this.host.to === void 0) this._clearRange();
+			else this.setRange(this.host.from, this.host.to);
+		}
 	}
 	hostUpdatedWatcher() {}
 	addOrGetGroup(slug) {
@@ -2903,7 +4883,6 @@ var RegistryController = class extends AbstractHierarchyController {
 		if (this.highlightContextProvider.value !== value) this.highlightContextProvider.setValue(value);
 	}
 };
-
 //#endregion
 //#region src/hierarchy/providers/getters.ts
 const defaultManager = new _labirthermal_core.ThermalManager();
@@ -2935,7 +4914,6 @@ const removeManager = (manager) => {
 		}
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/ManagerController.ts
 /** Exposes the main manager controller with all its setters and direct access to the host element values. */
@@ -3125,7 +5103,6 @@ var ManagerController = class extends AbstractHierarchyController {
 		if (this.managerObject.graphSmooth.value !== value) this.managerObject.graphSmooth.setGraphSmooth(value);
 	}
 };
-
 //#endregion
 //#region src/hierarchy/controllers/ConfigController.ts
 /** Exposes the general configuration context for the application. Setters are here. */
@@ -3236,13 +5213,12 @@ var ConfigController = class extends AbstractReactiveController {
 		this.contextProvider.setValue(this, true);
 	}
 };
-
 //#endregion
 //#region src/ui/App.ts
 var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
-		this.language = i18next.default.language;
+		this.language = instance.language;
 		this._overflowCount = 0;
 		this._overflowOpen = false;
 		this._hasPre = false;
@@ -3288,13 +5264,13 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	connectedCallback() {
 		super.connectedCallback();
 		document.addEventListener("fullscreenchange", this._handleFullscreenChange);
-		if (i18next.default.language !== void 0) this.language = i18next.default.language;
-		i18next.default.on("languageChanged", this._handleLanguageChange);
+		if (instance.language !== void 0) this.language = instance.language;
+		instance.on("languageChanged", this._handleLanguageChange);
 		this.requestUpdate();
 	}
 	disconnectedCallback() {
 		document.removeEventListener("fullscreenchange", this._handleFullscreenChange);
-		i18next.default.off("languageChanged", this._handleLanguageChange);
+		instance.off("languageChanged", this._handleLanguageChange);
 		this.observer?.disconnect();
 		this.observer = void 0;
 		if (this._overflowObserver) {
@@ -3322,9 +5298,7 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 			case "pre-bar":
 				this._hasPreBar = has;
 				break;
-			case "bar-header":
-				this._hasBarHeader = has;
-				break;
+			case "bar-header": this._hasBarHeader = has;
 		}
 	}
 	_syncSlotFlags() {
@@ -3638,16 +5612,17 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	}
 	renderLabel() {
 		const interactiveProp = this.onlabel !== void 0 ? "true" : "false";
-		return lit.html`
-    <slot name="label">
-        ${this.label ? lit.html`<thermal-btn
+		const slotInner = this.label ? lit.html`<thermal-btn
     variant="${this.labelVariant}"
     interactive=${interactiveProp}
     icon=${(0, lit_directives_if_defined_js.ifDefined)(this.labelIcon)}
     iconStyle=${(0, lit_directives_if_defined_js.ifDefined)(this.labelIconStyle)}
     tooltip=${(0, lit_directives_if_defined_js.ifDefined)(this.labelTooltip)}
     @click=${(0, lit_directives_if_defined_js.ifDefined)(this.onlabel)}
->${this.label}</thermal-btn>` : lit.nothing}
+>${this.label}</thermal-btn>` : lit.nothing;
+		return lit.html`
+    <slot name="label">
+        ${slotInner}
     </slot>`;
 	}
 	renderCreditField(label, value) {
@@ -3659,9 +5634,9 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	}
 	renderCredits() {
 		if (this.author || this.license || this.recorded) return lit.html`<div class="credits">
-    ${this.renderCreditField((0, i18next.t)(T.recordedat), this.recorded)}
-    ${this.renderCreditField((0, i18next.t)(T.author), this.author)}
-    ${this.renderCreditField((0, i18next.t)(T.license), this.license)}
+    ${this.renderCreditField(t("recordedat"), this.recorded)}
+    ${this.renderCreditField(t("author"), this.author)}
+    ${this.renderCreditField(t("license"), this.license)}
 </div>`;
 		return lit.nothing;
 	}
@@ -3680,7 +5655,7 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
     ${(0, lit_directives_cache_js.cache)((0, lit_directives_map_js.map)(ThermalAppElement.languages, (lang) => lit.html`<div slot="option">
         <thermal-btn
             @click=${() => {
-			i18next.default.changeLanguage(lang);
+			instance.changeLanguage(lang);
 			this.language = lang;
 		}}
         >${languagesObject[lang].flag} ${languagesObject[lang].name}</thermal-btn>
@@ -3694,7 +5669,7 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
     @click=${this.toggleFullscreen.bind(this)}
     icon=${this.fullscreen === "on" ? "smaller" : "bigger"}
     iconStyle="mini"
-    tooltip=${this.fullscreen === "on" ? (0, i18next.t)(T.close) : "Fullscreen"}
+    tooltip=${this.fullscreen === "on" ? t("close") : "Fullscreen"}
 ></thermal-btn>`;
 	}
 	renderOverflowToggle() {
@@ -3808,7 +5783,6 @@ __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type",
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "labelVariant", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalAppElement.prototype, "onlabel", void 0);
 __decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "chromiumwarning", void 0);
-
 //#endregion
 //#region src/ui/Bar.ts
 var ThermalBarElement = class extends lit.LitElement {
@@ -3890,7 +5864,10 @@ var ThermalBarElement = class extends lit.LitElement {
 	hydrateObserver() {
 		if (this.drawerRef.value && this.observer === void 0) {
 			this.observer = new ResizeObserver((entries) => {
-				if (this.collapsed === false) this.lastContentWidth = this.contentRef.value.clientWidth;
+				if (this.collapsed === false) {
+					const contentWidth = this.contentRef.value.clientWidth;
+					this.lastContentWidth = contentWidth;
+				}
 				const entry = entries[0];
 				if (this.lastContentWidth < entry.contentRect.width) {
 					if (this.collapsed) this.collapsed = false;
@@ -3940,7 +5917,6 @@ var ThermalBarElement = class extends lit.LitElement {
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalBarElement.prototype, "collapsed", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ThermalBarElement.prototype, "lastContentWidth", void 0);
-
 //#endregion
 //#region src/ui/Btn.ts
 var ThermalBtnElement = class extends AbstractThermalElement {
@@ -4025,16 +6001,18 @@ var ThermalBtnElement = class extends AbstractThermalElement {
 		}
 	}
 	updated(changedProperties) {
-		if (changedProperties.has("tooltip")) if (this.tooltip) {
-			this.addEventListener("mouseenter", this.showTooltip);
-			this.addEventListener("mouseleave", this.hideTooltip);
-			this.addEventListener("focus", this.showTooltip);
-			this.addEventListener("blur", this.hideTooltip);
-		} else {
-			this.removeEventListener("mouseenter", this.showTooltip);
-			this.removeEventListener("mouseleave", this.hideTooltip);
-			this.removeEventListener("focus", this.showTooltip);
-			this.removeEventListener("blur", this.hideTooltip);
+		if (changedProperties.has("tooltip")) {
+			if (this.tooltip) {
+				this.addEventListener("mouseenter", this.showTooltip);
+				this.addEventListener("mouseleave", this.hideTooltip);
+				this.addEventListener("focus", this.showTooltip);
+				this.addEventListener("blur", this.hideTooltip);
+			} else {
+				this.removeEventListener("mouseenter", this.showTooltip);
+				this.removeEventListener("mouseleave", this.hideTooltip);
+				this.removeEventListener("focus", this.showTooltip);
+				this.removeEventListener("blur", this.hideTooltip);
+			}
 		}
 	}
 	removeTooltip() {
@@ -4471,13 +6449,12 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], ThermalBtnElement.prototype, "align", void 0);
-
 //#endregion
 //#region src/ui/Dialog.ts
 var ThermalDialogElement = class extends lit.LitElement {
 	constructor(..._args) {
 		super(..._args);
-		this.button = (0, i18next.t)(T.close);
+		this.button = t("close");
 		this.dialogRef = (0, lit_directives_ref_js.createRef)();
 		this.closeButtonRef = (0, lit_directives_ref_js.createRef)();
 		this.invokerRef = (0, lit_directives_ref_js.createRef)();
@@ -4510,8 +6487,10 @@ var ThermalDialogElement = class extends lit.LitElement {
 	}
 	attributeChangedCallback(name, _old, value) {
 		super.attributeChangedCallback(name, _old, value);
-		if (name === "open") if (value === "true") this.setOpen();
-		else this.setClose();
+		if (name === "open") {
+			if (value === "true") this.setOpen();
+			else this.setClose();
+		}
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -4674,10 +6653,8 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalDialogElement.prototype, "beforeClose", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalDialogElement.prototype, "_open", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalDialogElement.prototype, "onCloseEveryTime", void 0);
-
 //#endregion
 //#region src/ui/Dropdown.ts
-var _ref$4;
 var ThermalDropdownElement = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
@@ -4739,12 +6716,14 @@ var ThermalDropdownElement = class extends AbstractThermalElement {
 	}
 	attributeChangedCallback(name, _old, value) {
 		super.attributeChangedCallback(name, _old, value);
-		if (name === "isopen") if (value === "open") {
-			this.optionsRef.value?.classList.add("dropdown-options__show");
-			this.dropdownRef.value?.classList.add("dropdown__open");
-		} else {
-			this.optionsRef.value?.classList.remove("dropdown-options__show");
-			this.dropdownRef.value?.classList.remove("dropdown__open");
+		if (name === "isopen") {
+			if (value === "open") {
+				this.optionsRef.value?.classList.add("dropdown-options__show");
+				this.dropdownRef.value?.classList.add("dropdown__open");
+			} else {
+				this.optionsRef.value?.classList.remove("dropdown-options__show");
+				this.dropdownRef.value?.classList.remove("dropdown__open");
+			}
 		}
 	}
 	static {
@@ -4882,7 +6861,7 @@ var ThermalDropdownElement = class extends AbstractThermalElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$4 = typeof Array !== "undefined" && Array) === "function" ? _ref$4 : Object)], ThermalDropdownElement.prototype, "_options", void 0);
+__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof Array === "undefined" ? Object : Array)], ThermalDropdownElement.prototype, "_options", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -4914,7 +6893,6 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], ThermalDropdownElement.prototype, "iconStyle", void 0);
-
 //#endregion
 //#region src/ui/Dropin.ts
 var ThermalDropinElement = class extends AbstractThermalElement {
@@ -5001,7 +6979,6 @@ var ThermalDropinElement = class extends AbstractThermalElement {
 	}
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalDropinElement.prototype, "prompt", void 0);
-
 //#endregion
 //#region src/ui/Expandable.ts
 var ThermalExpandableElement = class extends AbstractThermalElement {
@@ -5060,8 +7037,9 @@ thermal-icon {
 `;
 	}
 	render() {
+		const variant = this.expanded && this.variantExpanded ? this.variantExpanded : this.variant;
 		return lit.html`<thermal-btn
-    .variant=${(0, lit_directives_if_defined_js.ifDefined)(this.expanded && this.variantExpanded ? this.variantExpanded : this.variant)}
+    .variant=${(0, lit_directives_if_defined_js.ifDefined)(variant)}
     .size=${(0, lit_directives_if_defined_js.ifDefined)(this.size)}
     .icon=${(0, lit_directives_if_defined_js.ifDefined)(this.icon)}
     .iconStyle=${this.iconStyle}
@@ -5120,7 +7098,6 @@ __decorate([(0, lit_decorators_js.property)({
 	converter: booleanConverter(false),
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], ThermalExpandableElement.prototype, "expanded", void 0);
-
 //#endregion
 //#region src/ui/Field.ts
 var ThermalFieldElement = class extends lit.LitElement {
@@ -5182,7 +7159,6 @@ var ThermalFieldElement = class extends lit.LitElement {
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalFieldElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalFieldElement.prototype, "hint", void 0);
-
 //#endregion
 //#region src/ui/Icon.ts
 var ThermalIconElement = class extends AbstractThermalElement {
@@ -5199,7 +7175,8 @@ var ThermalIconElement = class extends AbstractThermalElement {
 			this.element = void 0;
 			return;
 		} else {
-			const factory = icons[this.icon && this.icon.trim() !== "" ? this.icon : false];
+			const icon = this.icon && this.icon.trim() !== "" ? this.icon : false;
+			const factory = icons[icon];
 			if (factory) {
 				if (this.variant in factory) {
 					const fn = factory[this.variant];
@@ -5229,7 +7206,6 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], ThermalIconElement.prototype, "css", void 0);
-
 //#endregion
 //#region src/ui/Loading.ts
 var ThermalPosterElement = class extends AbstractThermalElement {
@@ -5294,7 +7270,6 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "bordercolor", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "bgcolor", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalPosterElement.prototype, "textcolor", void 0);
-
 //#endregion
 //#region src/ui/Radio.ts
 var ThermalRadioElement = class extends AbstractThermalElement {
@@ -5304,7 +7279,8 @@ var ThermalRadioElement = class extends AbstractThermalElement {
 		this.checked = false;
 	}
 	handleChange(event) {
-		this.checked = event.target.checked;
+		const input = event.target;
+		this.checked = input.checked;
 		if (this.onChange) this.onChange(this.checked);
 		this.requestUpdate();
 	}
@@ -5382,7 +7358,6 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], ThermalRadioElement.prototype, "checked", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ThermalRadioElement.prototype, "onChange", void 0);
-
 //#endregion
 //#region src/ui/Slot.ts
 var ThermalSlotElement = class extends AbstractThermalElement {
@@ -5394,7 +7369,8 @@ var ThermalSlotElement = class extends AbstractThermalElement {
 		return Array.from(this.children);
 	}
 	handleSlotChange(e) {
-		this._slottedElements = e.target.assignedElements();
+		const slot = e.target;
+		this._slottedElements = slot.assignedElements();
 		this.requestUpdate();
 	}
 	static {
@@ -5461,7 +7437,6 @@ var ThermalSlotElement = class extends AbstractThermalElement {
 };
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalSlotElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ThermalSlotElement.prototype, "_slottedElements", void 0);
-
 //#endregion
 //#region src/ui/Spinner.ts
 var ThermalSpinnerElement = class extends AbstractThermalElement {
@@ -5516,7 +7491,6 @@ var ThermalSpinnerElement = class extends AbstractThermalElement {
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalSpinnerElement.prototype, "message", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalSpinnerElement.prototype, "color", void 0);
-
 //#endregion
 //#region src/ui/Tip.ts
 var ThermalTipElement = class extends AbstractThermalElement {
@@ -5588,7 +7562,6 @@ thermal-icon {
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalTipElement.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalTipElement.prototype, "iconStyle", void 0);
-
 //#endregion
 //#region src/hierarchy/consumers/AbstractManagerConsumer.ts
 /**
@@ -5648,7 +7621,6 @@ __decorate([(0, _lit_context.consume)({
 	context: managerControllerContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Object)], AbstractManagerConsumer.prototype, "managerController", void 0);
-
 //#endregion
 //#region src/hierarchy/consumers/AbstractRegistryConsumer.ts
 /**
@@ -5708,7 +7680,6 @@ __decorate([(0, _lit_context.consume)({
 	context: registryControllerContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Object)], AbstractRegistryConsumer.prototype, "registryController", void 0);
-
 //#endregion
 //#region src/hierarchy/consumers/AbstractGroupConsumer.ts
 /**
@@ -5745,7 +7716,6 @@ __decorate([(0, _lit_context.consume)({
 	context: groupControllerContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Object)], AbstractGroupConsumer.prototype, "groupController", void 0);
-
 //#endregion
 //#region src/hierarchy/abstraction/AbstractFileProvider.ts
 var AbstractFileProvider = class extends AbstractGroupConsumer {
@@ -5783,7 +7753,6 @@ var AbstractFileProvider = class extends AbstractGroupConsumer {
         `;
 	}
 };
-
 //#endregion
 //#region src/hierarchy/abstraction/AbstractGroupProvider.ts
 var AbstractGroupProvider = class extends AbstractRegistryConsumer {
@@ -5799,7 +7768,6 @@ var AbstractGroupProvider = class extends AbstractRegistryConsumer {
 		return lit.html`<slot></slot>`;
 	}
 };
-
 //#endregion
 //#region src/hierarchy/abstraction/AbstractManagerProvider.ts
 var AbstractManagerProvider = class extends AbstractThermalElement {
@@ -5842,7 +7810,6 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], AbstractManagerProvider.prototype, "smoothGraph", void 0);
-
 //#endregion
 //#region src/hierarchy/abstraction/AbstractRegistryProvider.ts
 var AbstractRegistryProvider = class extends AbstractManagerConsumer {
@@ -5864,7 +7831,6 @@ var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 		return lit.html`<slot></slot>`;
 	}
 };
-
 //#endregion
 //#region src/hierarchy/consumers/AbstractFileConsumer.ts
 /**
@@ -5976,12 +7942,10 @@ __decorate([
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Boolean)
 ], AbstractFileConsumer.prototype, "fileIsRecording", void 0);
-
 //#endregion
 //#region package.json
 var name = "@labirthermal/webcomponents";
 var version = "1.3.4";
-
 //#endregion
 //#region src/controls/independent/AppInfoButton.ts
 var AppInfoButton = class extends AbstractThermalElement {
@@ -6110,7 +8074,6 @@ var AppInfoButton = class extends AbstractThermalElement {
         `;
 	}
 };
-
 //#endregion
 //#region src/controls/independent/DisplayPanel.ts
 var DisplayPanel = class extends AbstractThermalElement {
@@ -6129,7 +8092,7 @@ var DisplayPanel = class extends AbstractThermalElement {
 	}
 	render() {
 		return lit.html`
-        <thermal-field label="${(0, i18next.t)(T.colourpalette)}" hint="Zvolte, jaké chcete používat palety.">
+        <thermal-field label="${t("colourpalette")}" hint="Zvolte, jaké chcete používat palety.">
             <thermal-btn-group>
                 <thermal-btn 
                     variant="${!this.advancedPalettes ? "foreground" : "default"}"
@@ -6143,10 +8106,10 @@ var DisplayPanel = class extends AbstractThermalElement {
                 >Pokročilé</thermal-btn>
             </thermal-btn-group>
         </thermal-field>
-        <thermal-field label="${(0, i18next.t)(T.filerendering)}" hint="${(0, i18next.t)(T.filerenderinghint)}">
+        <thermal-field label="${t("filerendering")}" hint="${t("filerenderinghint")}">
             <manager-image-smooth-switch></manager-image-smooth-switch>
         </thermal-field>
-        <thermal-field label="${(0, i18next.t)(T.graphlines)}" hint="${(0, i18next.t)(T.graphlineshint)}">
+        <thermal-field label="${t("graphlines")}" hint="${t("graphlineshint")}">
             <manager-graph-smooth-switch></manager-graph-smooth-switch>
         </thermal-field>
         `;
@@ -6168,7 +8131,6 @@ __decorate([
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Object)
 ], DisplayPanel.prototype, "managerController", void 0);
-
 //#endregion
 //#region src/controls/independent/ConfigDialog.ts
 var ConfigDialog = class extends AbstractThermalElement {
@@ -6190,7 +8152,6 @@ var ConfigDialog = class extends AbstractThermalElement {
         </thermal-dialog>`;
 	}
 };
-
 //#endregion
 //#region src/hierarchy/providers/FileCopy.ts
 /** 
@@ -6259,7 +8220,8 @@ var FileCopyElement = class extends AbstractThermalElement {
 	}
 	connectedCallback() {
 		const originalFile = this.originalFile;
-		this._slugBase = originalFile.thermalUrl + "__" + this.UUID;
+		const slugBase = originalFile.thermalUrl + "__" + this.UUID;
+		this._slugBase = slugBase;
 		this.setAttribute("manager-slug", this.getSlugManager());
 		this.setAttribute("group-slug", this.getSlugGroup());
 		this.setAttribute("registry-slug", this.getSlugRegistry());
@@ -6308,8 +8270,10 @@ var FileCopyElement = class extends AbstractThermalElement {
 	}
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
-		if (_changedProperties.has("withAnalyses") && _changedProperties.get("withAnalyses") !== void 0) if (this.withAnalyses) this.copyAnalysesFromParent();
-		else this.clearAnalyses();
+		if (_changedProperties.has("withAnalyses") && _changedProperties.get("withAnalyses") !== void 0) {
+			if (this.withAnalyses) this.copyAnalysesFromParent();
+			else this.clearAnalyses();
+		}
 	}
 	static {
 		this.styles = lit.css`
@@ -6335,7 +8299,6 @@ __decorate([(0, lit_decorators_js.property)({
 	attribute: false
 }), __decorateMetadata("design:type", Boolean)], FileCopyElement.prototype, "withAnalyses", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileCopyElement.prototype, "_canRenderChildren", void 0);
-
 //#endregion
 //#region src/hierarchy/providers/FileProvider.ts
 /** 
@@ -6367,11 +8330,9 @@ var FileProviderElement = class extends AbstractFileProvider {
 		this.fileLoadController = new FileLoadController(this);
 	}
 };
-
 //#endregion
 //#region src/hierarchy/providers/GroupProvider.ts
 var GroupProviderElement = class extends AbstractGroupProvider {};
-
 //#endregion
 //#region src/hierarchy/providers/ManagerProvider.ts
 var ManagerProviderElement = class extends AbstractManagerProvider {};
@@ -6380,11 +8341,9 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], ManagerProviderElement.prototype, "slug", void 0);
-
 //#endregion
 //#region src/hierarchy/providers/RegistryProvider.ts
 var RegistryProviderElement = class extends AbstractRegistryProvider {};
-
 //#endregion
 //#region src/controls/manager/ManagerExportPanel.ts
 var ManagerExportPanel = class extends AbstractThermalElement {
@@ -6404,10 +8363,11 @@ var ManagerExportPanel = class extends AbstractThermalElement {
 		return value ? lit.html`<div class="hint">${value}</div>` : "";
 	}
 	renderCheckbox(key, label, value, onChange) {
-		return lit.html`<div>${lit.html`<input name="${key}" type="checkbox" ?checked="${value}" @input=${(event) => {
+		const content = lit.html`<input name="${key}" type="checkbox" ?checked="${value}" @input=${(event) => {
 			const value = event.target.checked;
 			onChange(value);
-		}}>`}<label for="${key}">${label}</label></div>`;
+		}}>`;
+		return lit.html`<div>${content}<label for="${key}">${label}</label></div>`;
 	}
 	renderSlider(key, label, value, unit, min, max, step, onChange, hint) {
 		const content = lit.html`<input 
@@ -6469,22 +8429,22 @@ var ManagerExportPanel = class extends AbstractThermalElement {
 		const { png, group } = this.configController.settings.export;
 		return lit.html`
 
-        ${this.renderGroup((0, i18next.t)(T.exportcontent), lit.html`
-            ${this.renderCheckbox("pngExportAnalyses", (0, i18next.t)(T.analyses), png.analyses, (value) => this.configController.setPngAnalyses(value))}
-            ${this.renderCheckbox("pngExportScale", (0, i18next.t)(T.thermalscale), png.thermalScale, (value) => this.configController.setPngThermalScale(value))}
-            ${this.renderCheckbox("pngExportFileName", (0, i18next.t)(T.exportfilenames), png.fileName, (value) => this.configController.setPngFileName(value))}
-            ${this.renderCheckbox("pngExportFileDate", (0, i18next.t)(T.filedate), png.fileDate, (value) => this.configController.setPngFileDate(value))}
+        ${this.renderGroup(t("exportcontent"), lit.html`
+            ${this.renderCheckbox("pngExportAnalyses", t("analyses"), png.analyses, (value) => this.configController.setPngAnalyses(value))}
+            ${this.renderCheckbox("pngExportScale", t("thermalscale"), png.thermalScale, (value) => this.configController.setPngThermalScale(value))}
+            ${this.renderCheckbox("pngExportFileName", t("exportfilenames"), png.fileName, (value) => this.configController.setPngFileName(value))}
+            ${this.renderCheckbox("pngExportFileDate", t("filedate"), png.fileDate, (value) => this.configController.setPngFileDate(value))}
         `)}
 
-        ${this.renderGroup((0, i18next.t)(T.exportdimensions), lit.html`
-            ${this.renderSlider("pngWidth", (0, i18next.t)(T.exportimagewidth), png.width, "px", 500, 2e3, 50, (value) => this.configController.setPngWidth(value))}
+        ${this.renderGroup(t("exportdimensions"), lit.html`
+            ${this.renderSlider("pngWidth", t("exportimagewidth"), png.width, "px", 500, 2e3, 50, (value) => this.configController.setPngWidth(value))}
 
-            ${this.renderSlider("pngFs", (0, i18next.t)(T.exportimagefontsize), png.fontSize, "px", 10, 50, 1, (value) => this.configController.setPngFontSize(value))}
+            ${this.renderSlider("pngFs", t("exportimagefontsize"), png.fontSize, "px", 10, 50, 1, (value) => this.configController.setPngFontSize(value))}
         `)}
 
-        ${this.renderGroup((0, i18next.t)(T.exportgroup), lit.html`
-            ${this.renderCheckbox("pngExportGroupName", (0, i18next.t)(T.exportgroupname), group.groupName, (value) => this.configController.setGroupGroupName(value))}
-            ${this.renderSlider("pngColumns", (0, i18next.t)(T.exportfilenames), group.columns, "sloupců", 1, 5, 1, (value) => this.configController.setGroupColumns(value))}
+        ${this.renderGroup(t("exportgroup"), lit.html`
+            ${this.renderCheckbox("pngExportGroupName", t("exportgroupname"), group.groupName, (value) => this.configController.setGroupGroupName(value))}
+            ${this.renderSlider("pngColumns", t("exportfilenames"), group.columns, "sloupců", 1, 5, 1, (value) => this.configController.setGroupColumns(value))}
         `)}
 
         `;
@@ -6498,7 +8458,6 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Object)
 ], ManagerExportPanel.prototype, "configController", void 0);
-
 //#endregion
 //#region src/controls/manager/ManagerGraphSmoothSwitch.ts
 var ManagerGraphSmoothSwitch = class extends AbstractManagerConsumer {
@@ -6517,11 +8476,11 @@ var ManagerGraphSmoothSwitch = class extends AbstractManagerConsumer {
                 <thermal-btn
                     variant=${this.smooth ? "default" : "foreground"}
                     @click=${() => this.managerObject.graphSmooth.setGraphSmooth(false)}
-                >${(0, i18next.t)(T.straightlines)}</thermal-btn>
+                >${t("straightlines")}</thermal-btn>
                 <thermal-btn
                     variant=${this.smooth ? "foreground" : "default"}
                     @click=${() => this.managerObject.graphSmooth.setGraphSmooth(true)}
-                >${(0, i18next.t)(T.smoothlines)}</thermal-btn>
+                >${t("smoothlines")}</thermal-btn>
             </thermal-btn-group>
         `;
 	}
@@ -6530,7 +8489,6 @@ __decorate([(0, _lit_context.consume)({
 	context: managerGraphFunctionContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Boolean)], ManagerGraphSmoothSwitch.prototype, "smooth", void 0);
-
 //#endregion
 //#region src/controls/manager/ManagerImageSmoothSwitch.ts
 var ManagerImageSmoothSwitch = class extends AbstractManagerConsumer {
@@ -6548,12 +8506,12 @@ var ManagerImageSmoothSwitch = class extends AbstractManagerConsumer {
             <thermal-btn
     variant=${this.smooth ? "default" : "foreground"}
     @click=${() => this.managerObject.smooth.setSmooth(false)}
->${(0, i18next.t)(T.pixelated)}</thermal-btn>
+>${t("pixelated")}</thermal-btn>
 
 <thermal-btn
     variant=${this.smooth ? "foreground" : "default"}
     @click=${() => this.managerObject.smooth.setSmooth(true)}
->${(0, i18next.t)(T.smooth)}</thermal-btn>
+>${t("smooth")}</thermal-btn>
         </thermal-btn-group>`;
 	}
 };
@@ -6561,7 +8519,6 @@ __decorate([(0, _lit_context.consume)({
 	context: managerSmoothContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Boolean)], ManagerImageSmoothSwitch.prototype, "smooth", void 0);
-
 //#endregion
 //#region src/controls/manager/AbstractPaletteSwitch.ts
 var AbstractPaletteSwitch = class AbstractPaletteSwitch extends AbstractManagerConsumer {
@@ -6583,8 +8540,10 @@ var AbstractPaletteSwitch = class AbstractPaletteSwitch extends AbstractManagerC
 		const showAdvancedPalettes = this.advancedPalettesProperty ?? this.advancedPalettesContext;
 		const basicPalettes = AbstractPaletteSwitch.BASIC_PALETTES;
 		const optionsChanged = changedProperties.has("advancedPalettesContext") || changedProperties.has("advancedPalettesProperty");
-		if (optionsChanged) if (showAdvancedPalettes) this.palettes = Object.values(_labirthermal_core.ThermalPalettes);
-		else this.palettes = Object.entries(_labirthermal_core.ThermalPalettes).filter(([key]) => AbstractPaletteSwitch.BASIC_PALETTES.includes(key)).map(([, palette]) => palette);
+		if (optionsChanged) {
+			if (showAdvancedPalettes) this.palettes = Object.values(_labirthermal_core.ThermalPalettes);
+			else this.palettes = Object.entries(_labirthermal_core.ThermalPalettes).filter(([key]) => AbstractPaletteSwitch.BASIC_PALETTES.includes(key)).map(([, palette]) => palette);
+		}
 		if ((optionsChanged || changedProperties.has("value")) && this.value !== void 0 && !showAdvancedPalettes && !basicPalettes.includes(this.value.key)) this.onSelect("iron");
 	}
 	/** Handle user input events */
@@ -6613,7 +8572,6 @@ __decorate([
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Object)
 ], AbstractPaletteSwitch.prototype, "value", void 0);
-
 //#endregion
 //#region src/controls/manager/ManagerPaletteButtons.ts
 var ManagerPaletteButtons = class extends AbstractPaletteSwitch {
@@ -6638,13 +8596,12 @@ var ManagerPaletteButtons = class extends AbstractPaletteSwitch {
 		return this.palettes.map(((palette) => lit.html`<thermal-btn 
     @click=${() => this.onSelect(palette.slug)} 
     variant="${palette.name === this.managerObject.palette.currentPalette.name ? "background" : "default"}"
-    tooltip="${(0, i18next.t)(T.palettename, { name: palette.name })}"
+    tooltip="${t("palettename", { name: palette.name })}"
 >
     ${this.paletteTemplate(palette)}
 </thermal-btn>`));
 	}
 };
-
 //#endregion
 //#region src/controls/manager/ManagerPaletteDropdown.ts
 var ManagerPaletteDropdown = class extends AbstractPaletteSwitch {
@@ -6671,7 +8628,7 @@ var ManagerPaletteDropdown = class extends AbstractPaletteSwitch {
 	render() {
 		return lit.html`
 
-            <thermal-dropdown .tooltip=${(0, i18next.t)(T.colourpalette)}>
+            <thermal-dropdown .tooltip=${t("colourpalette")}>
                     <span slot="invoker" class="palette" style="background:${this.managerObject.palette.currentPalette.gradient}"></span>
 
                 ${this.palettes.map((palette) => lit.html`
@@ -6687,7 +8644,6 @@ var ManagerPaletteDropdown = class extends AbstractPaletteSwitch {
         `;
 	}
 };
-
 //#endregion
 //#region src/controls/manager/ManagerToolsBar.ts
 /**
@@ -6730,7 +8686,7 @@ thermal-btn {
 			active: tool.key === this.value.key
 		};
 		return lit.html`<thermal-btn 
-    tooltip=${(0, i18next.t)(T[tool.name])}
+    tooltip=${t(T[tool.name])}
     tooltip-placement="right"
     class=${(0, lit_directives_class_map_js.classMap)(classes)} 
     @click=${() => {
@@ -6756,7 +8712,6 @@ __decorate([
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Object)
 ], ManagerToolBar.prototype, "value", void 0);
-
 //#endregion
 //#region src/controls/registry/RegistryRangeForm.ts
 /**
@@ -7064,12 +9019,14 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 		let safeValue = rounded;
 		if (type === "from" && rounded < this.min) safeValue = Math.ceil(currentValue);
 		if (type === "to" && rounded > this.max) safeValue = Math.floor(currentValue);
-		if (type === "from" ? this.isValidFromValue(safeValue) : this.isValidToValue(safeValue)) if (type === "from") {
-			this.inputValues.from = safeValue.toFixed(2);
-			this.updateFrom(safeValue);
-		} else {
-			this.inputValues.to = safeValue.toFixed(2);
-			this.updateTo(safeValue);
+		if (type === "from" ? this.isValidFromValue(safeValue) : this.isValidToValue(safeValue)) {
+			if (type === "from") {
+				this.inputValues.from = safeValue.toFixed(2);
+				this.updateFrom(safeValue);
+			} else {
+				this.inputValues.to = safeValue.toFixed(2);
+				this.updateTo(safeValue);
+			}
 		}
 	}
 	/**
@@ -7427,8 +9384,9 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 		const canStepDown = type === "from" ? this.canStepFrom("down") : this.canStepTo("down");
 		const canStepUp = type === "from" ? this.canStepFrom("up") : this.canStepTo("up");
 		const availableSteps = this.getAvailableSteps();
+		const isWhole = this.isWholeNumber(value);
 		return lit.html`
-        <div class="input-group ${this.isWholeNumber(value) ? "is-whole-number" : ""}">
+        <div class="input-group ${isWhole ? "is-whole-number" : ""}">
             <div class="input-group-outer input-group-outer__top">
                 ${availableSteps.map((stepValue) => lit.html`
                     <button 
@@ -7527,7 +9485,7 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
 
         <div class="fields fields__separated fields__buttons">
             <thermal-btn
-                tooltip=${(0, i18next.t)(T.fullrange)}
+                tooltip=${t("fullrange")}
                 @click=${this.handleFullRangeClick}
                 @mouseenter=${this.handleFullRangeMouseEnter}
                 @mouseleave=${this.handleHighlightMouseLeave}
@@ -7551,7 +9509,7 @@ var RegistryRangeForm = class extends AbstractRegistryConsumer {
             </thermal-btn>
             
             <thermal-btn
-                tooltip=${(0, i18next.t)(T.automaticrange)}
+                tooltip=${t("automaticrange")}
                 @click=${this.handleAutoRangeClick}
                 @mouseenter=${this.handleAutoRangeMouseEnter}
                 @mouseleave=${this.handleHighlightMouseLeave}
@@ -7617,7 +9575,6 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Ar
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "inputValues", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeForm.prototype, "isUpdatingFromRegistry", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "autoValue", void 0);
-
 //#endregion
 //#region src/controls/registry/RegistryTicksBar.ts
 var RegistryTicksBar = class RegistryTicksBar extends AbstractRegistryConsumer {
@@ -7838,7 +9795,6 @@ __decorate([(0, lit_decorators_js.property)({
 }), __decorateMetadata("design:type", String)], RegistryTicksBar.prototype, "placement", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryTicksBar.prototype, "minmax", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], RegistryTicksBar.prototype, "ticks", void 0);
-
 //#endregion
 //#region src/controls/registry/RegistryRangeSlider.ts
 var RegistryRangeSlider = class extends AbstractRegistryConsumer {
@@ -8181,7 +10137,6 @@ __decorate([
 ], RegistryRangeSlider.prototype, "loading", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeSlider.prototype, "draft", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeSlider.prototype, "activeHandle", void 0);
-
 //#endregion
 //#region src/controls/registry/RegistryHistogram.ts
 var RegistryHistogram = class extends AbstractRegistryConsumer {
@@ -8341,9 +10296,10 @@ var RegistryHistogram = class extends AbstractRegistryConsumer {
     `;
 	}
 	render() {
+		const isLoading = this.histogram.length > 0 && this.loading === false;
 		return lit.html`
 
-            <div class="container ${this.histogram.length > 0 && this.loading === false ? "ready" : "loading"} ${this.error ? "has-error" : "is-ok"}">
+            <div class="container ${isLoading ? "ready" : "loading"} ${this.error ? "has-error" : "is-ok"}">
 
                 <div class="histogram ${this.expandable === true ? "expandable" : ""}" style="height: ${this.expanded ? this.heightExpanded : this.height}" part="bg" @click=${() => {
 			if (this.expandable === true) this.expanded = !this.expanded;
@@ -8387,7 +10343,6 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryHistogram.prototype, "expanded", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryHistogram.prototype, "loading", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryHistogram.prototype, "error", void 0);
-
 //#endregion
 //#region src/controls/registry/RegistryRangeFullButton.ts
 var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
@@ -8415,10 +10370,9 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
     @mouseleave="${this.mouseleave}"
     @focus="${this.mouseenter}"
     @blur="${this.mouseleave}"
->${(0, i18next.t)(T.fullrange)}</thermal-btn>`;
+>${t("fullrange")}</thermal-btn>`;
 	}
 };
-
 //#endregion
 //#region src/controls/registry/RegistryRangeAutoButton.ts
 var RegistryRangeAutoButton = class extends AbstractRegistryConsumer {
@@ -8426,10 +10380,9 @@ var RegistryRangeAutoButton = class extends AbstractRegistryConsumer {
 		this.registryObject.range.applyAuto();
 	}
 	render() {
-		return lit.html`<thermal-btn @click=${this.doAction}>${(0, i18next.t)(T.automaticrange)}</thermal-btn>`;
+		return lit.html`<thermal-btn @click=${this.doAction}>${t("automaticrange")}</thermal-btn>`;
 	}
 };
-
 //#endregion
 //#region src/controls/registry/RegistryRangeDisplay.ts
 var RegistryRangeDisplay = class extends AbstractRegistryConsumer {
@@ -8475,7 +10428,6 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], RegistryRangeDisplay.prototype, "separator", void 0);
-
 //#endregion
 //#region src/controls/registry/RegistryOpacitySlider.ts
 var RegistryOpacitySlider = class extends AbstractRegistryConsumer {
@@ -8544,10 +10496,24 @@ __decorate([(0, _lit_context.consume)({
 	context: registryOpacityContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Number)], RegistryOpacitySlider.prototype, "value", void 0);
-
 //#endregion
 //#region src/controls/group/GroupChartElement.ts
-var _ref$3;
+/**
+* @license
+* Copyright 2014-2020 Google LLC
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 var GroupChartElement = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -8620,11 +10586,10 @@ var GroupChartElement = class extends AbstractGroupConsumer {
 	}
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChartElement.prototype, "instances", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$3 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$3 : Object)], GroupChartElement.prototype, "timeout", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof NodeJS === "undefined" || typeof NodeJS.Timeout === "undefined" ? Object : NodeJS.Timeout)], GroupChartElement.prototype, "timeout", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupChartElement.prototype, "data", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChartElement.prototype, "colors", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupChartElement.prototype, "on", void 0);
-
 //#endregion
 //#region src/controls/group/GroupAnalysisSyncButton.ts
 var GroupAnalysisSyncButton = class extends AbstractGroupConsumer {
@@ -8720,7 +10685,7 @@ var GroupAnalysisSyncButton = class extends AbstractGroupConsumer {
 	render() {
 		return lit.html`  
         <span><i></i></span>      
-        <div>${(0, i18next.t)(T.analysissync)}</div>
+        <div>${t("analysissync")}</div>
         `;
 	}
 };
@@ -8729,7 +10694,6 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	converter: booleanConverter(false)
 }), __decorateMetadata("design:type", Boolean)], GroupAnalysisSyncButton.prototype, "on", void 0);
-
 //#endregion
 //#region src/controls/group/GroupDownloadDropdown.ts
 var GroupDownloadDropdown = class extends AbstractGroupConsumer {
@@ -8743,30 +10707,31 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
 	render() {
 		const png = this.configController?.settings.export.png;
 		const groupSettings = this.configController?.settings.export.group;
+		const dropdownClass = this.classList.contains("small") ? "small" : "";
 		return lit.html`
         
-            <thermal-dropdown class="download ${this.classList.contains("small") ? "small" : ""}" .variant=${this.variant} .icon=${this.icon} .iconStyle=${this.iconStyle}>
+            <thermal-dropdown class="download ${dropdownClass}" .variant=${this.variant} .icon=${this.icon} .iconStyle=${this.iconStyle}>
             
-                <span slot="invoker">${(0, i18next.t)(T.download)}</span>
+                <span slot="invoker">${t("download")}</span>
             
                 <thermal-btn 
                     slot="option" 
                     pre="LRC" 
                     @click=${() => this.groupObject.files.downloadAllFiles()}
-                    tooltip=${(0, i18next.t)(T.downloadoriginalfileshint)}
+                    tooltip=${t("downloadoriginalfileshint")}
                     tooltip-placement="right"
                 >
-                    ${(0, i18next.t)(T.downloadoriginalfiles)}
+                    ${t("downloadoriginalfiles")}
                 </thermal-btn>
 
                 <thermal-btn 
                     slot="option" 
                     pre="PNG" 
                     @click=${() => this.groupObject.forEveryInstance((instance) => instance.export.downloadPng())}
-                    tooltip=${(0, i18next.t)(T.pngofindividualimageshint)}
+                    tooltip=${t("pngofindividualimageshint")}
                     tooltip-placement="right"
                 >
-                    ${(0, i18next.t)(T.pngofindividualimages)}
+                    ${t("pngofindividualimages")}
                 </thermal-btn>
 
                 <thermal-btn 
@@ -8782,10 +10747,10 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
 			showThermalScale: png?.thermalScale ?? true,
 			width: png?.width ?? 800
 		})}
-                    tooltip="${(0, i18next.t)(T.pngofentiregrouphint)}"
+                    tooltip="${t("pngofentiregrouphint")}"
                     tooltip-placement="right"
                 >
-                    ${(0, i18next.t)(T.pngofentiregroup)}
+                    ${t("pngofentiregroup")}
                 </thermal-btn>
 
                 <thermal-btn 
@@ -8794,10 +10759,10 @@ var GroupDownloadDropdown = class extends AbstractGroupConsumer {
                     @click=${() => {
 			this.groupObject.analysisSync.csv.downloadAsCsv();
 		}}
-                    tooltip=${(0, i18next.t)(T.csvofanalysisdatahint)}
+                    tooltip=${t("csvofanalysisdatahint")}
                     tooltip-placement="right"
                 >
-                    ${(0, i18next.t)(T.csvofanalysisdata)}
+                    ${t("csvofanalysisdata")}
                 </thermal-btn>
             
             </thermal-dropdown>
@@ -8825,7 +10790,6 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], GroupDownloadDropdown.prototype, "variant", void 0);
-
 //#endregion
 //#region src/controls/group/GroupDownloadButtons.ts
 var GroupDownloadButtons = class extends AbstractGroupConsumer {
@@ -8862,9 +10826,9 @@ var GroupDownloadButtons = class extends AbstractGroupConsumer {
 		const group = this.configController?.settings.export.group;
 		return lit.html`
         
-                <button class="default" @click=${() => this.groupObject.files.downloadAllFiles()}>${(0, i18next.t)(T.downloadoriginalfiles)}</button>
+                <button class="default" @click=${() => this.groupObject.files.downloadAllFiles()}>${t("downloadoriginalfiles")}</button>
             
-                <button class="default" @click=${() => this.groupObject.forEveryInstance((instance) => instance.export.downloadPng())}>${(0, i18next.t)(T.pngofindividualimages)}</button>
+                <button class="default" @click=${() => this.groupObject.forEveryInstance((instance) => instance.export.downloadPng())}>${t("pngofindividualimages")}</button>
             
             
                 <button class="default" @click=${() => this.groupObject.analysisSync.png.downloadPng({
@@ -8876,11 +10840,11 @@ var GroupDownloadButtons = class extends AbstractGroupConsumer {
 			showGroupName: group?.groupName,
 			label: this.label,
 			fontSize: png?.fontSize
-		})}>${(0, i18next.t)(T.pngofentiregroup)}</button>
+		})}>${t("pngofentiregroup")}</button>
             
                 <button class="default" @click=${() => {
 			this.groupObject.analysisSync.csv.downloadAsCsv();
-		}}>${(0, i18next.t)(T.csvofanalysisdata)}</button>
+		}}>${t("csvofanalysisdata")}</button>
         
         `;
 	}
@@ -8894,7 +10858,6 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Object)
 ], GroupDownloadButtons.prototype, "configController", void 0);
-
 //#endregion
 //#region src/controls/group/AbstractGroupDropin.ts
 var AbstractGroupDropin = class extends AbstractGroupConsumer {
@@ -8937,7 +10900,6 @@ var AbstractGroupDropin = class extends AbstractGroupConsumer {
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractGroupDropin.prototype, "ip", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AbstractGroupDropin.prototype, "onDrop", void 0);
-
 //#endregion
 //#region src/controls/group/GroupDropinElement.ts
 var GroupDropinElement = class extends AbstractGroupDropin {
@@ -9083,12 +11045,12 @@ var GroupDropinElement = class extends AbstractGroupDropin {
                     <div class="dropin-gradient"></div>
 
                     <div class="dropin-content">
-                        <div>${(0, i18next.t)(T.dragorselectfile)}</div>
+                        <div>${t("dragorselectfile")}</div>
                         <thermal-btn 
                             variant="foreground"
                             icon="upload"
                             iconStyle="micro"
-                        >${(0, i18next.t)(T.selectfile)}</thermal-btn>
+                        >${t("selectfile")}</thermal-btn>
                     </div>
 
                     <div class="dropin-uploading">
@@ -9107,7 +11069,6 @@ var GroupDropinElement = class extends AbstractGroupDropin {
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupDropinElement.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinElement.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinElement.prototype, "uploading", void 0);
-
 //#endregion
 //#region src/controls/group/GroupDropinInput.ts
 var GroupDropinInputElement = class extends AbstractGroupDropin {
@@ -9229,7 +11190,7 @@ var GroupDropinInputElement = class extends AbstractGroupDropin {
 		}
 	}
 	render() {
-		const title = this.uploading === false ? (0, i18next.t)(T.uploadafile) : lit.html`<div class="lds-ellipsis">
+		const title = this.uploading === false ? t("uploadafile") : lit.html`<div class="lds-ellipsis">
                 <div></div>
                 <div></div>
                 <div></div>
@@ -9273,7 +11234,6 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupDropinInputElement.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInputElement.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropinInputElement.prototype, "uploading", void 0);
-
 //#endregion
 //#region src/controls/file/buttons/AbstractFileButton.ts
 var AbstractFileButton = class extends AbstractFileConsumer {
@@ -9337,7 +11297,6 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileButton.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileButton.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], AbstractFileButton.prototype, "plain", void 0);
-
 //#endregion
 //#region src/controls/group/GroupRangePropagator.ts
 var GroupRangePropagatorElement = class extends AbstractGroupConsumer {
@@ -9365,20 +11324,13 @@ var GroupRangePropagatorElement = class extends AbstractGroupConsumer {
 	render() {
 		return lit.html`
             <slot>
-                <button class="default">${(0, i18next.t)(T.range).toLowerCase()}</button>
+                <button class="default">${t("range").toLowerCase()}</button>
             </slot>
         `;
 	}
 };
-
 //#endregion
 //#region src/utils/timelineTicks.ts
-var TICK = /* @__PURE__ */ function(TICK) {
-	TICK["MINOR"] = "minor";
-	TICK["MAJOR"] = "major";
-	TICK["BOUND"] = "bound";
-	return TICK;
-}(TICK || {});
 /**
 * Format data into a tick value
 */
@@ -9400,17 +11352,17 @@ const processTickMinute = (from, to, count, duration) => {
 	const partial = (to - from) / count;
 	while (i < count) {
 		const value = from + i * partial;
-		if (value < duration) ticks.push(tick(value, duration, TICK.MINOR));
+		if (value < duration) ticks.push(tick(value, duration, "minor"));
 		i += 1;
 	}
-	if (to < duration) ticks.push(tick(to, duration, TICK.MAJOR));
+	if (to < duration) ticks.push(tick(to, duration, "major"));
 	return ticks;
 };
-const minute = 60 * 1e3;
+const minute = 6e4;
 const tickWidth = 50;
 const tickPointerHeight = 3;
 const calculateTicks = (width, duration) => {
-	const ticksPerMinuteRaw = Math.floor(width / tickWidth) / Math.floor(duration / (60 * 1e3));
+	const ticksPerMinuteRaw = Math.floor(width / tickWidth) / Math.floor(duration / 6e4);
 	let ticksPerMinute = 2;
 	if (ticksPerMinuteRaw >= 2) ticksPerMinute = 4;
 	if (ticksPerMinuteRaw >= 6) ticksPerMinute = 6;
@@ -9424,8 +11376,8 @@ const calculateTicks = (width, duration) => {
 		from += minute;
 		to += minute;
 	}
-	ticks.push(tick(0, duration, TICK.BOUND));
-	ticks.push(tick(duration, duration, TICK.BOUND));
+	ticks.push(tick(0, duration, "bound"));
+	ticks.push(tick(duration, duration, "bound"));
 	return ticks;
 };
 const renderTick = (tick) => {
@@ -9556,8 +11508,8 @@ const ticksCss = lit.css`
             }
 
             .tick-pointer {
-                width: ${tickPointerHeight * 2}px;
-                height: ${tickPointerHeight * 2}px;
+                width: ${6}px;
+                height: ${6}px;
                 background: var( --thermal-slate-dark );
                 position: relative;
                 left: -${tickPointerHeight}px;
@@ -9593,10 +11545,8 @@ const ticksCss = lit.css`
     
 
 `;
-
 //#endregion
 //#region src/controls/group/GroupTimeline.ts
-var _ref$2;
 var GroupTimelineElement = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -9782,8 +11732,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimelineElement.prototype, "instances", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimelineElement.prototype, "has", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimelineElement.prototype, "ticks", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$2 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref$2 : Object)], GroupTimelineElement.prototype, "listener", void 0);
-
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof ReturnType === "undefined" ? Object : ReturnType)], GroupTimelineElement.prototype, "listener", void 0);
 //#endregion
 //#region src/controls/file/FileCanvas.ts
 /**
@@ -9932,7 +11881,7 @@ var FileCanvasElement = class extends AbstractFileConsumer {
     ></thermal-icon>
 
     <div class="error-title">
-        ${(0, i18next.t)(T.fileloadingerror)}
+        ${t("fileloadingerror")}
     </div>
     <div class="error-url">
         ${this.failure?.thermalUrl}
@@ -9945,13 +11894,14 @@ var FileCanvasElement = class extends AbstractFileConsumer {
 	render() {
 		const isError = this.fileIsLoading === false && this.failure !== void 0;
 		const isSuccess = this.fileIsLoading === false && this.file !== void 0;
-		return lit.html`<div class=${(0, lit_directives_class_map_js.classMap)({
+		const classes = {
 			"canvas-container": true,
 			"is-loading": this.fileIsLoading,
 			"is-loaded": this.fileIsLoading === false,
 			"is-success": isSuccess,
 			"is-error": isError
-		})} part="file-canvas-container">
+		};
+		return lit.html`<div class=${(0, lit_directives_class_map_js.classMap)(classes)} part="file-canvas-container">
     <div ${(0, lit_directives_ref_js.ref)(this.container)}></div>
     ${this.renderPlaceholder()}
     ${this.renderError()}
@@ -9962,7 +11912,6 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: "prefers-gpu"
 }), __decorateMetadata("design:type", Boolean)], FileCanvasElement.prototype, "prefersGpu", void 0);
-
 //#endregion
 //#region src/controls/file/FileVideoExportButton.ts
 var FileVideoExportButton = class extends AbstractFileConsumer {
@@ -10009,10 +11958,11 @@ var FileVideoExportButton = class extends AbstractFileConsumer {
                 @click=${() => {
 			if (this.panelRef?.value) (this.panelRef?.value).record();
 		}}
-            >${this.t(T.exportvideo)} (MP4)</thermal-btn>`;
+            >${this.t("exportvideo")} (MP4)</thermal-btn>`;
 	}
 	renderCurrentFrameExportButton() {
 		if (!this.file) return lit.nothing;
+		const label = this.file.timeline.isSequence ? "Současný snímek" : this.t("exportpng");
 		return lit.html`<thermal-btn
                 variant="primary"
                 slot="button"
@@ -10021,7 +11971,7 @@ var FileVideoExportButton = class extends AbstractFileConsumer {
                 @click=${() => {
 			if (this.panelRef?.value) (this.panelRef?.value).currentFrame();
 		}}
-            >${this.file.timeline.isSequence ? "Současný snímek" : this.t(T.exportpng)} (PNG)</thermal-btn>`;
+            >${label} (PNG)</thermal-btn>`;
 	}
 	renderTriggerButton() {
 		return lit.html`<thermal-btn
@@ -10072,7 +12022,6 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true
 }), __decorateMetadata("design:type", String)], FileVideoExportButton.prototype, "pre", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileVideoExportButton.prototype, "isOpen", void 0);
-
 //#endregion
 //#region src/controls/file/FilePlaybackSpeedDropdown.ts
 var FilePlaybackSpeedDropdown = class extends AbstractFileConsumer {
@@ -10102,7 +12051,7 @@ var FilePlaybackSpeedDropdown = class extends AbstractFileConsumer {
 		if (this.file === void 0) return lit.nothing;
 		return lit.html`<thermal-dropdown 
             interactive="${this.enabled}" 
-            .tooltip=${(0, i18next.t)(T.playbackspeed)}
+            .tooltip=${t("playbackspeed")}
         >
 
             <div slot="invoker" class="button">
@@ -10128,7 +12077,6 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Object)
 ], FilePlaybackSpeedDropdown.prototype, "playbackSpeed", void 0);
-
 //#endregion
 //#region src/controls/file/FileDownloadDropdown.ts
 var FileDownloadButton = class extends AbstractFileConsumer {
@@ -10157,7 +12105,7 @@ var FileDownloadButton = class extends AbstractFileConsumer {
 
                 <slot name="invoker" slot="invoker">
                     <div class="button">
-                        ${this.file ? (0, i18next.t)(T.download) : "..."}
+                        ${this.file ? t("download") : "..."}
                     </div>
                 </slot>
 
@@ -10167,7 +12115,7 @@ var FileDownloadButton = class extends AbstractFileConsumer {
                     pre="LRC"
                     align="left"
                 >
-                    ${(0, i18next.t)(T.downloadoriginalfile, { type: this.file.reader.parser.extensions[0].extension.toUpperCase() })}
+                    ${t("downloadoriginalfile", { type: this.file.reader.parser.extensions[0].extension.toUpperCase() })}
                 </thermal-btn>
 
                 <thermal-btn 
@@ -10183,7 +12131,7 @@ var FileDownloadButton = class extends AbstractFileConsumer {
                     pre="PNG"
                     align="left"
                 >
-                    ${(0, i18next.t)(T.exportcurrentframeaspng)}
+                    ${t("exportcurrentframeaspng")}
                 </thermal-btn>
 
                 <file-video-export-button 
@@ -10201,7 +12149,7 @@ var FileDownloadButton = class extends AbstractFileConsumer {
                             pre="CSV"
                             align="left"
                     >
-                        ${(0, i18next.t)(T.csvofanalysisdata)}
+                        ${t("csvofanalysisdata")}
                     </thermal-btn>` : lit.nothing}
             
             </thermal-dropdown>
@@ -10285,7 +12233,6 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], FileDownloadButton.prototype, "iconStyle", void 0);
-
 //#endregion
 //#region src/controls/file/buttons/FileButton.ts
 /** @deprecated Who knows what that is? */
@@ -10311,7 +12258,6 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButtonElement.prototype, "onEnter", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButtonElement.prototype, "onLeave", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButtonElement.prototype, "onAction", void 0);
-
 //#endregion
 //#region src/controls/file/buttons/FileDropdown.ts
 var FileDropdown = class extends AbstractThermalElement {
@@ -10330,8 +12276,10 @@ var FileDropdown = class extends AbstractThermalElement {
 	}
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
-		if (_changedProperties.has("expanded")) if (this.expanded === true) this.classList.add("expanded");
-		else this.classList.remove("expanded");
+		if (_changedProperties.has("expanded")) {
+			if (this.expanded === true) this.classList.add("expanded");
+			else this.classList.remove("expanded");
+		}
 	}
 	static {
 		this.styles = lit.css`
@@ -10437,7 +12385,6 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true
 }), __decorateMetadata("design:type", String)], FileDropdown.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDropdown.prototype, "expanded", void 0);
-
 //#endregion
 //#region src/controls/file/buttons/FileLrcButton.ts
 var FileLrcButton = class extends AbstractFileButton {
@@ -10459,7 +12406,6 @@ var FileLrcButton = class extends AbstractFileButton {
 		return "lrc";
 	}
 };
-
 //#endregion
 //#region src/controls/file/buttons/FilePngButton.ts
 var FilePngButton = class extends AbstractFileButton {
@@ -10494,13 +12440,12 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Object)
 ], FilePngButton.prototype, "configController", void 0);
-
 //#endregion
 //#region src/controls/file/buttons/FileRangePropagator.ts
 var FileRangePropagator = class extends AbstractFileButton {
 	constructor(..._args) {
 		super(..._args);
-		this.tooltip = (0, i18next.t)(T.range);
+		this.tooltip = t("range");
 		this.hideLabel = false;
 	}
 	onInstanceCreated(file) {
@@ -10528,14 +12473,13 @@ var FileRangePropagator = class extends AbstractFileButton {
 	}
 	getDefaultLabel() {
 		if (this.hideLabel) return "";
-		return (0, i18next.t)(T.range).toLowerCase();
+		return t("range").toLowerCase();
 	}
 };
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
 }), __decorateMetadata("design:type", Boolean)], FileRangePropagator.prototype, "hideLabel", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisComplex.ts
 var FileAnalysisComplexElement = class extends AbstractFileConsumer {
@@ -10662,9 +12606,10 @@ var FileAnalysisComplexElement = class extends AbstractFileConsumer {
 		this.observedGraph = void 0;
 	}
 	renderButtons() {
+		const addTools = this.file !== void 0 ? Object.values(this.file.group.tool.tools).filter((tool) => tool instanceof _labirthermal_core.AbstractAddTool) : [];
 		return lit.html`
             <div class="buttons">
-                ${(this.file !== void 0 ? Object.values(this.file.group.tool.tools).filter((tool) => tool instanceof _labirthermal_core.AbstractAddTool) : []).map((tool) => {
+                ${addTools.map((tool) => {
 			return lit.html`<thermal-btn @click=${() => {
 				this.isDrawingAnalysis = true;
 				this.file?.group.tool.selectTool(tool);
@@ -10674,7 +12619,7 @@ var FileAnalysisComplexElement = class extends AbstractFileConsumer {
                             ${(0, lit_directives_unsafe_html_js.unsafeHTML)(tool.icon)}
                         </div>
                         <div>
-                            ${(0, i18next.t)(T[tool.name])}
+                            ${t(T[tool.name])}
                         </div>
                     </div>
                 </thermal-btn>`;
@@ -10686,16 +12631,16 @@ var FileAnalysisComplexElement = class extends AbstractFileConsumer {
         `;
 	}
 	renderCurrentTooltip() {
-		return lit.html`${(0, i18next.t)(T[this.managerObject.tool.value.description])}`;
+		return lit.html`${t(T[this.managerObject.tool.value.description])}`;
 	}
 	renderAddAnalysis() {
 		return lit.html`<div class="addanalysis">
 
             ${this.showhint ? lit.html`<div>
-                    <strong>${(0, i18next.t)(T.analysis)}</strong>
+                    <strong>${t("analysis")}</strong>
                 </div>
 
-                <div>${(0, i18next.t)(T.analysishint)}</div>` : lit.nothing}
+                <div>${t("analysishint")}</div>` : lit.nothing}
 
 
             ${this.isDrawingAnalysis === true ? this.renderCurrentTooltip() : this.renderButtons()}
@@ -10710,15 +12655,15 @@ var FileAnalysisComplexElement = class extends AbstractFileConsumer {
             </div>`;
 		else if (this.hasAnalysis === true) return lit.html`<div class="graph graph-prompt">
                     <div>
-                        <strong>${(0, i18next.t)(T.graph)}</strong>
+                        <strong>${t("graph")}</strong>
                     </div>
-                    <div class="hint">${(0, lit_directives_unsafe_html_js.unsafeHTML)((0, i18next.t)(T.graphhint2))}</div>
+                    <div class="hint">${(0, lit_directives_unsafe_html_js.unsafeHTML)(t("graphhint2"))}</div>
                 </div>`;
 		else return lit.html`<div class="graph graph-prompt">
                     <div>
-                        <strong>${(0, i18next.t)(T.graph)}</strong>
+                        <strong>${t("graph")}</strong>
                     </div>
-                    <div class="hint">${(0, i18next.t)(T.graphhint1)}</div>
+                    <div class="hint">${t("graphhint1")}</div>
                 </div>`;
 	}
 	static {
@@ -10847,7 +12792,6 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	converter: booleanConverter(true)
 }), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "showhint", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisDisplay.ts
 /** Display the analysis state for the purpose of exporting. */
@@ -11024,10 +12968,10 @@ var FileAnalysisDisplayElement = class extends AbstractFileConsumer {
 
                     <tr>
                         <th></th>
-                        <th>${(0, i18next.t)(T.avg)}</th>
-                        <th>${(0, i18next.t)(T.min)}</th>
-                        <th>${(0, i18next.t)(T.max)}</th>
-                        <th>${(0, i18next.t)(T.size)}</th>
+                        <th>${t("avg")}</th>
+                        <th>${t("min")}</th>
+                        <th>${t("max")}</th>
+                        <th>${t("size")}</th>
                     </tr>
                 
                 </thead>
@@ -11077,7 +13021,6 @@ var FileAnalysisDisplayElement = class extends AbstractFileConsumer {
 	}
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FileAnalysisDisplayElement.prototype, "analysis", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisEdit.ts
 /** Trigger the edit dialog for an analysis */
@@ -11113,13 +13056,13 @@ var FileAnalisisEditDialog = class extends AbstractThermalElement {
 	render() {
 		return lit.html`
 
-            <thermal-dialog label="${(0, i18next.t)(T.editsth, { what: (0, i18next.t)(T[this.type]) })}">
+            <thermal-dialog label="${t("editsth", { what: t(T[this.type]) })}">
                 <slot name="invoker" slot="invoker">
                     <thermal-btn 
                         icon="settings" 
                         iconStyle="solid" 
                         size="md" 
-                        tooltip="${(0, i18next.t)(T.editsth, { what: this.analysis.name })}"
+                        tooltip="${t("editsth", { what: this.analysis.name })}"
                     >
                     </thermal-btn>
                 </slot>
@@ -11136,7 +13079,6 @@ var FileAnalisisEditDialog = class extends AbstractThermalElement {
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], FileAnalisisEditDialog.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEditDialog.prototype, "name", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEditDialog.prototype, "type", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisGraph.ts
 /** High level component around `thermal-chart` that provides the functionality of a file analysis graph */
@@ -11299,14 +13241,14 @@ var FileAnalysisGraphElement = class extends AbstractFileConsumer {
 			p: { html: true }
 		}])], ...rows.map((row) => {
 			const relativeTime = row[0].getTime();
-			return [relativeTime, ...row.slice(1).flatMap((value, index) => [value, `<div style="padding: 6px 8px"><div>${this.escapeHtml((0, i18next.t)(T.time))}: <strong>${_labirthermal_core.TimeFormat.duration(relativeTime)}</strong></div><div>${this.escapeHtml(headers[index + 1])}: <strong>${this.escapeHtml(String(value))} °C</strong></div></div>`])];
+			return [relativeTime, ...row.slice(1).flatMap((value, index) => [value, `<div style="padding: 6px 8px"><div>${this.escapeHtml(t("time"))}: <strong>${_labirthermal_core.TimeFormat.duration(relativeTime)}</strong></div><div>${this.escapeHtml(headers[index + 1])}: <strong>${this.escapeHtml(String(value))} °C</strong></div></div>`])];
 		})];
 		return this.chartDataCache;
 	}
 	getChartOptions() {
 		const duration = this.file?.duration ?? 0;
-		const timeLabel = (0, i18next.t)(T.time);
-		const temperatureLabel = `${(0, i18next.t)(T.temperature)} °C`;
+		const timeLabel = t("time");
+		const temperatureLabel = `${t("temperature")} °C`;
 		const key = JSON.stringify([
 			this.graphs.colors,
 			this.graphSmooth,
@@ -11443,8 +13385,8 @@ var FileAnalysisGraphElement = class extends AbstractFileConsumer {
 			this.graphWidth,
 			this.graphHeight,
 			this.file?.duration,
-			(0, i18next.t)(T.time),
-			(0, i18next.t)(T.temperature)
+			t("time"),
+			t("temperature")
 		], () => this.getChartOptions())}
                         ></thermal-chart>` : lit.nothing}
             </div>
@@ -11491,7 +13433,7 @@ var FileAnalysisGraphElement = class extends AbstractFileConsumer {
                     @click=${() => this.file?.analysisData.downloadData()}
                     variant="background"
                     plain="true"
-                    tooltip="${(0, i18next.t)(T.downloadgraphdataascsv)}"
+                    tooltip="${t("downloadgraphdataascsv")}"
                 >CSV</thermal-btn>
             </div>`;
 	}
@@ -11524,11 +13466,9 @@ __decorate([(0, _lit_context.consume)({
 	context: managerGraphFunctionContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Boolean)], FileAnalysisGraphElement.prototype, "graphSmooth", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/AnalysisTableOptions.ts
 const optionalBooleanConverter = { fromAttribute: (value) => value === null ? void 0 : booleanConverter(true).fromAttribute(value) };
-
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisRow.ts
 var FileAnalysisRowElement = class extends AbstractThermalElement {
@@ -11729,14 +13669,14 @@ var FileAnalysisRowElement = class extends AbstractThermalElement {
                         size=${size}
                         icon="settings"
                         iconStyle="solid"
-                        tooltip=${(0, i18next.t)(T.editsth, { what: analysis.name })}
+                        tooltip=${t("editsth", { what: analysis.name })}
                     ></thermal-btn>
                 </file-analysis-edit>
                 <thermal-btn
                     size=${size}
                     icon="trash"
                     iconStyle="micro"
-                    tooltip="${(0, i18next.t)(T.delete)} ${analysis.name}"
+                    tooltip="${t("delete")} ${analysis.name}"
                     @click=${() => analysis.file.analysis.layers.removeAnalysis(analysis.key)}
                 ></thermal-btn>
             ` : lit.nothing}
@@ -11745,7 +13685,7 @@ var FileAnalysisRowElement = class extends AbstractThermalElement {
                     size=${size}
                     icon="range"
                     iconStyle="outline"
-                    tooltip="${(0, i18next.t)(T.range)}: ${analysis.name}"
+                    tooltip="${t("range")}: ${analysis.name}"
                     disabled=${this.range === void 0}
                     @click=${() => {
 			const range = this.range;
@@ -11791,7 +13731,7 @@ var FileAnalysisRowElement = class extends AbstractThermalElement {
                 <thermal-btn
                     size=${this.tableMode === "compact" ? "sm" : "md"}
                     aria-pressed=${active}
-                    tooltip="${(0, i18next.t)(T.graph)}: ${(0, i18next.t)(T[statistic])}"
+                    tooltip="${t("graph")}: ${t(T[statistic])}"
                     style="background-color: ${background}; color: ${foreground}; --bg: ${background}; --bg-hover: ${background}; --color: ${foreground}; --color-hover: ${foreground};"
                     @click=${() => {
 			if (statistic === "avg") analysis.graph.setAvgActivation(!active);
@@ -11846,7 +13786,6 @@ __decorate([(0, _lit_context.consume)({
 	context: registryControllerContext,
 	subscribe: true
 }), __decorateMetadata("design:type", Object)], FileAnalysisRowElement.prototype, "registryController", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisTable.ts
 var FileAnalysisTableElement = class extends AbstractFileConsumer {
@@ -11988,8 +13927,8 @@ var FileAnalysisTableElement = class extends AbstractFileConsumer {
 		if (this.file === void 0 || this.analysis.length === 0) return lit.nothing;
 		const compact = this.tableMode === "compact";
 		return lit.html`
-            <div class="overflow" tabindex="0" role="region" aria-label=${(0, i18next.t)(T.analysis)}>
-                <table class=${compact ? "compact" : "full"} aria-label=${(0, i18next.t)(T.analysis)}>
+            <div class="overflow" tabindex="0" role="region" aria-label=${t("analysis")}>
+                <table class=${compact ? "compact" : "full"} aria-label=${t("analysis")}>
                     <thead>
                         <tr>
                             <th scope="col">
@@ -12004,14 +13943,14 @@ var FileAnalysisTableElement = class extends AbstractFileConsumer {
 		}}
                                     >
                                         <span class="selection-indicator" aria-hidden="true"></span>
-                                        ${(0, i18next.t)(T.analysis)}
+                                        ${t("analysis")}
                                     </button>
-                                ` : (0, i18next.t)(T.analysis)}
+                                ` : t("analysis")}
                             </th>
-                            <th scope="col">${(0, i18next.t)(T.avg)}</th>
-                            <th scope="col">${(0, i18next.t)(T.min)}</th>
-                            <th scope="col">${(0, i18next.t)(T.max)}</th>
-                            ${compact ? lit.nothing : lit.html`<th scope="col">${(0, i18next.t)(T.size)}</th>`}
+                            <th scope="col">${t("avg")}</th>
+                            <th scope="col">${t("min")}</th>
+                            <th scope="col">${t("max")}</th>
+                            ${compact ? lit.nothing : lit.html`<th scope="col">${t("size")}</th>`}
                             ${!compact && (this.allowsEdit || this.showsRangePropagator) ? lit.html`<th scope="col"></th>` : lit.nothing}
                         </tr>
                     </thead>
@@ -12066,7 +14005,6 @@ __decorate([
 	(0, lit_decorators_js.state)(),
 	__decorateMetadata("design:type", Array)
 ], FileAnalysisTableElement.prototype, "analysis", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/edit/analysisColorDropdown.ts
 /** 
@@ -12144,7 +14082,6 @@ var AnalysisColorDropdown = class extends AbstractThermalElement {
 };
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], AnalysisColorDropdown.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisColorDropdown.prototype, "color", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/edit/analysisNameInput.ts
 /** 
@@ -12190,7 +14127,6 @@ var AnalysisNameInput = class extends AbstractThermalElement {
 };
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], AnalysisNameInput.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisNameInput.prototype, "name", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/edit/editAreaTable.ts
 /** 
@@ -12253,15 +14189,15 @@ var AreaEditTable = class extends AbstractThermalElement {
 
             <div class="table">
 
-                <thermal-field label=${(0, i18next.t)(T.name)}>
+                <thermal-field label=${t("name")}>
                     <analysis-name .analysis=${this.analysis}></analysis-name>
                 </thermal-field>
 
-                <thermal-field label=${(0, i18next.t)(T.color)}>
+                <thermal-field label=${t("color")}>
                     <analysis-color .analysis=${this.analysis}></analysis-color>
                 </thermal-field>
 
-                <thermal-field label=${(0, i18next.t)(T.left)}>
+                <thermal-field label=${t("left")}>
                     <input 
                         name="left" 
                         value=${this.left} 
@@ -12275,7 +14211,7 @@ var AreaEditTable = class extends AbstractThermalElement {
                     />
                 </thermal-field>
 
-                <thermal-field label=${(0, i18next.t)(T.right)}>
+                <thermal-field label=${t("right")}>
                     <input 
                         name="right" 
                         value=${this.right} 
@@ -12289,7 +14225,7 @@ var AreaEditTable = class extends AbstractThermalElement {
                     />
                 </thermal-field>
 
-                <thermal-field label=${(0, i18next.t)(T.top)}>
+                <thermal-field label=${t("top")}>
                     <input 
                         name="top" 
                         value=${this.top} 
@@ -12303,7 +14239,7 @@ var AreaEditTable = class extends AbstractThermalElement {
                     />
                 </thermal-field>
 
-                <thermal-field label=${(0, i18next.t)(T.bottom)}>
+                <thermal-field label=${t("bottom")}>
                     <input 
                         name="bottom" 
                         value=${this.bottom} 
@@ -12335,7 +14271,6 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Nu
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "bottom", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "maxX", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEditTable.prototype, "maxY", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/edit/editPointTable.ts
 /** 
@@ -12395,15 +14330,15 @@ var EditpointTable = class extends AbstractThermalElement {
 
             <div class="table">
 
-                <thermal-field label=${(0, i18next.t)(T.name)}>
+                <thermal-field label=${t("name")}>
                     <analysis-name .analysis=${this.analysis}></analysis-name>
                 </thermal-field>
 
-                <thermal-field label=${(0, i18next.t)(T.color)}>
+                <thermal-field label=${t("color")}>
                     <analysis-color .analysis=${this.analysis}></analysis-color>
                 </thermal-field>
 
-                <thermal-field label=${(0, i18next.t)(T.top)} hint=${(0, i18next.t)(T.fromto, {
+                <thermal-field label=${t("top")} hint=${t("fromto", {
 			from: 0,
 			to: this.maxX
 		})}>
@@ -12420,7 +14355,7 @@ var EditpointTable = class extends AbstractThermalElement {
                     />
                 </thermal-field>
 
-                <thermal-field label=${(0, i18next.t)(T.left)} hint=${(0, i18next.t)(T.fromto, {
+                <thermal-field label=${t("left")} hint=${t("fromto", {
 			from: 0,
 			to: this.maxX
 		})}>
@@ -12447,7 +14382,6 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Nu
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditpointTable.prototype, "left", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditpointTable.prototype, "maxX", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditpointTable.prototype, "maxY", void 0);
-
 //#endregion
 //#region src/controls/file/analysis/chart/loader.ts
 /**
@@ -12549,7 +14483,6 @@ async function createChartWrapper(container) {
 	await load();
 	return new google.visualization.ChartWrapper({ "container": container });
 }
-
 //#endregion
 //#region src/controls/file/analysis/chart/chart.ts
 /**
@@ -12785,7 +14718,8 @@ var ThermalChartElement = class extends lit.LitElement {
 				if (this.selection) this.selectionChanged();
 			});
 			google.visualization.events.addListener(chartWrapper, "select", () => {
-				this.selection = chartWrapper.getChart()?.getSelection() ?? [];
+				const selection = chartWrapper.getChart()?.getSelection() ?? [];
+				this.selection = selection;
 			});
 			this.propagateEvents(DEFAULT_EVENTS, chartWrapper);
 		});
@@ -12954,7 +14888,6 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
 }), __decorateMetadata("design:type", Number)], ThermalChartElement.prototype, "h", void 0);
-
 //#endregion
 //#region src/utils/iife.ts
 /**
@@ -12983,21 +14916,15 @@ const tagNameMaxLength = 30;
 const tagline = ".....................................";
 const debugclsName = (tag, cls) => {
 	const tagLength = tag.length;
-	if (tagLength > tagNameMaxLength) tag = tag.substring(0, tagNameMaxLength - 3) + "...";
+	if (tagLength > tagNameMaxLength) tag = tag.substring(0, 27) + "...";
 	return [
 		tag,
 		tagline.substring(0, tagNameMaxLength - tagLength),
 		cls.name
 	];
 };
-
 //#endregion
 //#region src/apps/AustralianApparentTemperature.ts
-var VUNIT = /* @__PURE__ */ function(VUNIT) {
-	VUNIT["mps"] = "mps";
-	VUNIT["kph"] = "kph";
-	return VUNIT;
-}(VUNIT || {});
 const converters = {
 	fromAttribute(value) {
 		if (typeof value === "string") {
@@ -13018,7 +14945,7 @@ var AatAppElement = class extends AbstractThermalElement {
 		this.vRef = (0, lit_directives_ref_js.createRef)();
 		this.vunitsRef = (0, lit_directives_ref_js.createRef)();
 		this.haRef = (0, lit_directives_ref_js.createRef)();
-		this.vunits = VUNIT.mps;
+		this.vunits = "mps";
 	}
 	kphToMps(kph) {
 		return kph * .2778;
@@ -13052,16 +14979,19 @@ var AatAppElement = class extends AbstractThermalElement {
 		if (_changedProperties.has(key)) {
 			const newValue = this[key];
 			const inputRef = this[`${key}Ref`];
-			if (inputRef.value) if (newValue !== void 0 && newValue !== null) inputRef.value.value = newValue.toString();
-			else inputRef.value.value = "";
+			if (inputRef.value) {
+				if (newValue !== void 0 && newValue !== null) inputRef.value.value = newValue.toString();
+				else inputRef.value.value = "";
+			}
 			this.recalculateVa();
 		}
 	}
 	recalculateVa() {
 		if (this.temperature !== void 0 && this.ha !== void 0 && this.v !== void 0) {
-			const v = this.vunits === VUNIT.mps ? this.v : this.kphToMps(this.v);
+			const v = this.vunits === "mps" ? this.v : this.kphToMps(this.v);
 			const e = this.calculateE(this.ha, this.temperature);
-			this.ta = this.calculateTa(this.temperature, e, v);
+			const ta = this.calculateTa(this.temperature, e, v);
+			this.ta = ta;
 		} else this.ta = void 0;
 	}
 	shouldUpdate(_changedProperties) {
@@ -13243,12 +15173,12 @@ var AatAppElement = class extends AbstractThermalElement {
 			app: apparentTemperature.toFixed(2),
 			t: temperature
 		};
-		const summary = (0, i18next.t)(T.apparenttemperatureverbose, prop);
-		const comment = diff < 0 ? (0, i18next.t)(T.youfeelcolder, prop) : (0, i18next.t)(T.youfeelwarmer, prop);
+		const summary = t("apparenttemperatureverbose", prop);
+		const comment = diff < 0 ? t("youfeelcolder", prop) : t("youfeelwarmer", prop);
 		const result = apparentTemperature.toFixed(2);
 		return lit.html`<div class="result">
 
-            <p class="result_label">${(0, i18next.t)(T.apparenttemperature)}</p>
+            <p class="result_label">${t("apparenttemperature")}</p>
 
             <p class="result_value">
                 ${result} °C
@@ -13263,15 +15193,15 @@ var AatAppElement = class extends AbstractThermalElement {
 	render() {
 		return lit.html`
             <thermal-app 
-                label=${(0, i18next.t)(T.apparenttemperature)} 
+                label=${t("apparenttemperature")} 
                 author="LabIR Edu" 
                 license="CC BY-SA 4.0"
             >
 
-                <thermal-dialog label=${(0, i18next.t)(T.info)} slot="bar-pre">
-                    <thermal-btn slot="invoker">${(0, i18next.t)(T.info)}</thermal-btn>
+                <thermal-dialog label=${t("info")} slot="bar-pre">
+                    <thermal-btn slot="invoker">${t("info")}</thermal-btn>
                     <div slot="content">
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)((0, i18next.t)(T.apparenttemperaturehint, { href: "https://en.wikipedia.org/wiki/Wind_chill#Australian_apparent_temperature" }))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(t("apparenttemperaturehint", { href: "https://en.wikipedia.org/wiki/Wind_chill#Australian_apparent_temperature" }))}
                     </div>
                 </thermal-dialog>
 
@@ -13287,11 +15217,12 @@ var AatAppElement = class extends AbstractThermalElement {
 
                 <section class="table">
 
-                ${this.renderNumberField(this.tRef, "temperature", (0, i18next.t)(T.airtemperature), "°C", this.temperature, -273.15, 100, .1)}
+                ${this.renderNumberField(this.tRef, "temperature", t("airtemperature"), "°C", this.temperature, -273.15, 100, .1)}
 
-                ${this.renderNumberField(this.vRef, "v", (0, i18next.t)(T.windspeed), lit.html`<select 
+                ${this.renderNumberField(this.vRef, "v", t("windspeed"), lit.html`<select 
                     @change=${(event) => {
-			this.vunits = event.target.value;
+			const value = event.target.value;
+			this.vunits = value;
 		}} 
                     value=${this.vunits}
                     ${(0, lit_directives_ref_js.ref)(this.vunitsRef)}
@@ -13300,7 +15231,7 @@ var AatAppElement = class extends AbstractThermalElement {
                     <option value="kph">km/h</option>
                 </select>`, this.v, 0, void 0, .1)}
 
-                ${this.renderNumberField(this.haRef, "ha", (0, i18next.t)(T.relativeairhumidity), "%", this.ha, 0, 100, .1)}
+                ${this.renderNumberField(this.haRef, "ha", t("relativeairhumidity"), "%", this.ha, 0, 100, .1)}
 
                 </section>
                 <div  class="tabindex" tabindex="0">
@@ -13344,7 +15275,6 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Object)
 ], AatAppElement.prototype, "locale", void 0);
-
 //#endregion
 //#region src/apps/AbstractApp.ts
 var AbstractApp = class extends AbstractThermalElement {
@@ -13386,15 +15316,8 @@ __decorate([(0, lit_decorators_js.property)({
 	converter: booleanConverter(false),
 	attribute: "show-fullscreen"
 }), __decorateMetadata("design:type", Boolean)], AbstractApp.prototype, "showFullscreen", void 0);
-
 //#endregion
 //#region src/apps/ThermalDropinApp.ts
-var Mode = /* @__PURE__ */ function(Mode) {
-	Mode["INPUT"] = "input";
-	Mode["LIST"] = "list";
-	Mode["DETAIL"] = "detail";
-	return Mode;
-}(Mode || {});
 var DropinAppElement = class extends AbstractApp {
 	constructor(..._args) {
 		super(..._args);
@@ -13413,10 +15336,10 @@ var DropinAppElement = class extends AbstractApp {
 		this.playbackSpeed = 1;
 		this.autoHighlight = false;
 		this.fileController = new FileController(this);
-		this.orderby = GroupOrderby.DATE;
-		this.ordering = GroupOrdering.ASC;
+		this.orderby = "date";
+		this.ordering = "asc";
 		this.groupListingController = new GroupListingController(this);
-		this.displayMode = Mode.INPUT;
+		this.displayMode = "input";
 		this.toDisplay = [];
 	}
 	static {
@@ -13437,13 +15360,13 @@ var DropinAppElement = class extends AbstractApp {
 	willUpdate(_changedProperties) {
 		super.willUpdate(_changedProperties);
 		if (_changedProperties.has("toDisplay")) {
-			if (this.toDisplay.length === 0) this.displayMode = Mode.INPUT;
+			if (this.toDisplay.length === 0) this.displayMode = "input";
 			else if (this.toDisplay.length === 1) {
-				this.displayMode = Mode.DETAIL;
+				this.displayMode = "detail";
 				this.fileController.receiveInstance(this.toDisplay[0]);
 				this.postLoadedProcessingAndApplyMinmax();
 			} else if (this.toDisplay.length > 1) {
-				this.displayMode = Mode.LIST;
+				this.displayMode = "list";
 				this.postLoadedProcessingAndApplyMinmax();
 			}
 		}
@@ -13523,7 +15446,7 @@ var DropinAppElement = class extends AbstractApp {
 	}
 	renderHeader() {
 		const elements = [];
-		if (this.displayMode === Mode.INPUT) elements.push(lit.html`<group-dropin-input 
+		if (this.displayMode === "input") elements.push(lit.html`<group-dropin-input 
                 slot="bar-pre"
                 variant="background"
                 icon="upload"
@@ -13531,17 +15454,17 @@ var DropinAppElement = class extends AbstractApp {
                 tooltip="Vyberte soubory z disku"
                 .onDrop=${this.handleDropAndClear.bind(this)}
             ></group-dropin-input>`);
-		if (this.displayMode !== Mode.INPUT) elements.push(lit.html`
+		if (this.displayMode !== "input") elements.push(lit.html`
             <manager-tool-bar slot="pre-bar"></manager-tool-bar>
             <manager-palette-dropdown slot="pre-bar"></manager-palette-dropdown>
             <registry-range-form slot="pre-bar"></registry-range-form>
             
             `);
-		if (this.displayMode === Mode.LIST) elements.push(lit.html`${this.groupListingController.renderListHeader("bar-header")}`);
-		if (this.displayMode === Mode.DETAIL) elements.push(lit.html`${this.groupListingController.renderDetailHeader(this.groupObject.files.value[0], "bar-pre")}`);
-		if (this.displayMode !== Mode.INPUT) {
-			elements.push(lit.html`<thermal-dialog label="${(0, i18next.t)(T.config)}" slot="bar-pre">
-                <thermal-btn slot="invoker" tooltip="${(0, i18next.t)(T.config)}" icon="settings" iconStyle="solid"></thermal-btn>
+		if (this.displayMode === "list") elements.push(lit.html`${this.groupListingController.renderListHeader("bar-header")}`);
+		if (this.displayMode === "detail") elements.push(lit.html`${this.groupListingController.renderDetailHeader(this.groupObject.files.value[0], "bar-pre")}`);
+		if (this.displayMode !== "input") {
+			elements.push(lit.html`<thermal-dialog label="${t("config")}" slot="bar-pre">
+                <thermal-btn slot="invoker" tooltip="${t("config")}" icon="settings" iconStyle="solid"></thermal-btn>
                 <div slot="content">
                     <table>
                         <manager-export-panel></manager-export-panel>
@@ -13569,15 +15492,16 @@ var DropinAppElement = class extends AbstractApp {
 	}
 	renderAuto() {
 		switch (this.displayMode) {
-			case Mode.INPUT: return this.renderIntroScene();
-			case Mode.LIST: return this.renderList();
-			case Mode.DETAIL: return this.renderDetail();
+			case "input": return this.renderIntroScene();
+			case "list": return this.renderList();
+			case "detail": return this.renderDetail();
 		}
 	}
 	render() {
 		try {
+			const label = this.label ?? "LabIR Web Analyser";
 			return lit.html`<thermal-app 
-                label="${this.label ?? "LabIR Web Analyser"}"
+                label="${label}"
                 show-fullscreen="true"
             >
 
@@ -13609,7 +15533,6 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Object)
 ], DropinAppElement.prototype, "locale", void 0);
-
 //#endregion
 //#region src/apps/ThermalFileApp.ts
 var ThermalFileAppElement = class extends AbstractApp {
@@ -13696,7 +15619,6 @@ __decorate([
 	}),
 	__decorateMetadata("design:type", Boolean)
 ], ThermalFileAppElement.prototype, "interactiveanalysis", void 0);
-
 //#endregion
 //#region src/apps/ThermalGroupApp.ts
 var ThermalGroupAppElement = class extends AbstractApp {
@@ -13718,8 +15640,8 @@ var ThermalGroupAppElement = class extends AbstractApp {
 		this.playbackSpeed = 1;
 		this.autoHighlight = false;
 		this.groupListingController = new GroupListingController(this);
-		this.orderby = GroupOrderby.DATE;
-		this.ordering = GroupOrdering.ASC;
+		this.orderby = "date";
+		this.ordering = "asc";
 		this.groupLoadController = new GroupLoadController(this);
 	}
 	static {
@@ -13829,7 +15751,6 @@ var ThermalGroupAppElement = class extends AbstractApp {
         </thermal-app>`;
 	}
 };
-
 //#endregion
 //#region src/controls/file/FileInfoButton.ts
 var FileInfoButton = class extends AbstractFileConsumer {
@@ -13921,10 +15842,10 @@ var FileInfoButton = class extends AbstractFileConsumer {
 	render() {
 		if (!this.file) return lit.nothing;
 		return lit.html`
-            <thermal-dialog label=${(0, i18next.t)(T.fileinfo)}>
+            <thermal-dialog label=${t("fileinfo")}>
                 <slot name="invoker" slot="invoker">
                     <thermal-btn
-                        tooltip=${(0, i18next.t)(T.fileinfo)}
+                        tooltip=${t("fileinfo")}
                         icon="info"
                         iconStyle="mini"
                     >
@@ -13934,35 +15855,35 @@ var FileInfoButton = class extends AbstractFileConsumer {
 
                     <table>
 
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.thermalfilename), this.file.fileName))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow(t("thermalfilename"), this.file.fileName))}
 
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderDownloadRow((0, i18next.t)(T.thermalfileurl), this.file.thermalUrl, this.file.thermalUrl, (0, i18next.t)(T.thermalfiledownload)))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderDownloadRow(t("thermalfileurl"), this.file.thermalUrl, this.file.thermalUrl, t("thermalfiledownload")))}
 
-                        ${this.file.visibleUrl ? (0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderDownloadRow((0, i18next.t)(T.visiblefileurl), this.file.visibleUrl, this.file.visibleUrl, (0, i18next.t)(T.visiblefiledownload))) : lit.nothing}
+                        ${this.file.visibleUrl ? (0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderDownloadRow(t("visiblefileurl"), this.file.visibleUrl, this.file.visibleUrl, t("visiblefiledownload"))) : lit.nothing}
 
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.time), _labirthermal_core.TimeFormat.human(this.file.timestamp)))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow(t("time"), _labirthermal_core.TimeFormat.human(this.file.timestamp)))}
 
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow((0, i18next.t)(T.duration), this.file.duration, 0, "ms"))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow(t("duration"), this.file.duration, 0, "ms"))}
 
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.resolution), `${this.file.width} x ${this.file.height}<small class="opaque">${this.file.pixels.length} pixels</small>`))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow(t("resolution"), `${this.file.width} x ${this.file.height}<small class="opaque">${this.file.pixels.length} pixels</small>`))}
 
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow((0, i18next.t)(T.bytesize), this.file.bytesize, 0))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow(t("bytesize"), this.file.bytesize, 0))}
                         
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow((0, i18next.t)(T.minimaltemperature), this.file.min, 10, "°C"))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow(t("minimaltemperature"), this.file.min, 10, "°C"))}
 
-                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow((0, i18next.t)(T.maximaltemperature), this.file.max, 10, "°C"))}
+                        ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderNumericalRow(t("maximaltemperature"), this.file.max, 10, "°C"))}
 
                         
 
                     </table>
 
-                    <h2>${(0, i18next.t)(T.filetype)}</h2>
+                    <h2>${t("filetype")}</h2>
                     <table>
-                    ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.type), this.file.reader.parser.name))}
-                    ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow((0, i18next.t)(T.description), this.file.reader.parser.description))}
+                    ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow(t("type"), this.file.reader.parser.name))}
+                    ${(0, lit_directives_unsafe_html_js.unsafeHTML)(this.renderRow(t("description"), this.file.reader.parser.description))}
 
                     <tr>
-                        <td>${(0, i18next.t)(T.supporteddevices)}</td>
+                        <td>${t("supporteddevices")}</td>
                         <td><ul>${this.file.reader.parser.devices.map((device) => lit.html`<li>
                             <h3><a href="${device.deviceUrl}" target="_blank">${device.deviceName}</a></h3>
                             <div class="small">${device.deviceDescription}</div>
@@ -13975,10 +15896,8 @@ var FileInfoButton = class extends AbstractFileConsumer {
         `;
 	}
 };
-
 //#endregion
 //#region src/controls/file/fileLabel.ts
-var _ref$1;
 var FileLabelElement = class extends AbstractFileConsumer {
 	onInstanceCreated() {}
 	onFailure() {}
@@ -14004,9 +15923,8 @@ var FileLabelElement = class extends AbstractFileConsumer {
 		return this.file.fileName;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$1 = typeof _labirthermal_client.GridGrouping !== "undefined" && _labirthermal_client.GridGrouping) === "function" ? _ref$1 : Object)], FileLabelElement.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof _labirthermal_client.GridGrouping === "undefined" ? Object : _labirthermal_client.GridGrouping)], FileLabelElement.prototype, "grouping", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileLabelElement.prototype, "label", void 0);
-
 //#endregion
 //#region src/controls/file/FileTimelineElement.ts
 var FileTimelineElement = class FileTimelineElement extends AbstractFileConsumer {
@@ -14213,7 +16131,7 @@ var FileTimelineElement = class FileTimelineElement extends AbstractFileConsumer
         @click=${() => {
 			file.timeline.prev();
 		}}
-    >${(0, i18next.t)(T.prev)}</thermal-btn>
+    >${t("prev")}</thermal-btn>
 
 
     <thermal-btn 
@@ -14227,12 +16145,12 @@ var FileTimelineElement = class FileTimelineElement extends AbstractFileConsumer
     <thermal-btn 
         @click=${() => file.timeline.next()}
         disabled="${disabled}"
-    >${(0, i18next.t)(T.next)}</thermal-btn>
+    >${t("next")}</thermal-btn>
 
     <thermal-btn 
         @click=${() => file.timeline.setRelativeTime(0)}
         disabled="${disabled}"
-    >${(0, i18next.t)(T.back)}</thermal-btn>
+    >${t("back")}</thermal-btn>
 
     <file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>
 
@@ -14300,15 +16218,15 @@ ${this.hasPlayButton === true ? this.renderControls(file, disabled, playButtonCl
 
 ${this.currentFrame !== void 0 && this.hasInfo === true ? lit.html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
         <div>
-            <span class="label">${(0, i18next.t)(T.date)}:</span> 
+            <span class="label">${t("date")}:</span> 
             <span class="inline" data-video-dynamic>${(0, date_fns.format)(this.currentFrame.absolute, "d. L. y")}</span>
         </div>
         <div>
-            <span class="label">${(0, i18next.t)(T.time)}:</span> 
+            <span class="label">${t("time")}:</span> 
             <span class="inline" data-video-dynamic>${(0, date_fns.format)(this.currentFrame.absolute, "H'h' mm'm' ss:SSS")}</span>
         </div>
         <div>
-            <span class="label">${(0, i18next.t)(T.frame)}:</span> 
+            <span class="label">${t("frame")}:</span> 
             <span class="inline" data-video-dynamic>${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
         </div>
     </div>` : lit.nothing}
@@ -14366,15 +16284,8 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileTimelineElement.prototype, "collapsed", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FileTimelineElement.prototype, "ticks", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileTimelineElement.prototype, "pointerMs", void 0);
-
 //#endregion
 //#region src/controls/file/video/ISingleVideoExportElement.ts
-let VideoExportSkin = /* @__PURE__ */ function(VideoExportSkin) {
-	VideoExportSkin["LIGHT"] = "light";
-	VideoExportSkin["DARK"] = "dark";
-	VideoExportSkin["SOLARIZED"] = "solarized";
-	return VideoExportSkin;
-}({});
 let RecordingPhase = /* @__PURE__ */ function(RecordingPhase) {
 	RecordingPhase[RecordingPhase["IDLE"] = 0] = "IDLE";
 	RecordingPhase[RecordingPhase["RECORDING"] = 1] = "RECORDING";
@@ -14382,7 +16293,6 @@ let RecordingPhase = /* @__PURE__ */ function(RecordingPhase) {
 	RecordingPhase[RecordingPhase["CLEANUP"] = 3] = "CLEANUP";
 	return RecordingPhase;
 }({});
-
 //#endregion
 //#region src/controls/file/video/internals/VideoRecorder.ts
 /**
@@ -14427,7 +16337,8 @@ var VideoRecorder = class {
 	getMuxingCanvas() {
 		if (this.muxingCanvas) return this.muxingCanvas;
 		const bounds = this.exportedElement.getBoundingClientRect();
-		this.muxingCanvas = new OffscreenCanvas(bounds.width, bounds.height);
+		const canvas = new OffscreenCanvas(bounds.width, bounds.height);
+		this.muxingCanvas = canvas;
 		return this.muxingCanvas;
 	}
 	getMuxingContext() {
@@ -14959,7 +16870,7 @@ var VideoRecorder = class {
 	* Framy se posílají přímo do encoderu bez mezitřídy do IndexedDB.
 	*/
 	async recordAndEncode() {
-		this.app.setRecordingPhase(RecordingPhase.RECORDING);
+		this.app.setRecordingPhase(1);
 		await this.prepareExport();
 		const output = new mediabunny.Output({
 			target: new mediabunny.BufferTarget(),
@@ -14993,11 +16904,11 @@ var VideoRecorder = class {
 			const percent = frameCount / totalFrames * 100;
 			this.app.setRecordingPhaseProgress(percent);
 		}
-		this.app.setRecordingPhase(RecordingPhase.ENCODING);
+		this.app.setRecordingPhase(2);
 		console.log("[VideoRecorder] Recording & encoding complete.");
 		source.close();
 		await output.finalize();
-		this.app.setRecordingPhase(RecordingPhase.IDLE);
+		this.app.setRecordingPhase(0);
 		return new Blob([output.target.buffer], { type: "video/mp4" });
 	}
 	/**
@@ -15119,17 +17030,15 @@ var VideoRecorder = class {
 		}
 	}
 };
-
 //#endregion
 //#region src/controls/file/video/AbstractSingleVideoExport.ts
-var _ref;
 var AbstractSingleVideoExport = class extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.fileCopyElementRef = (0, lit_directives_ref_js.createRef)();
 		this.exportedDivRef = (0, lit_directives_ref_js.createRef)();
 		this.parentHasAnalyses = false;
-		this.recordingPhase = RecordingPhase.IDLE;
+		this.recordingPhase = 0;
 		this.recordingPhaseProgress = 0;
 		this.renderProps = {
 			hasHistogram: true,
@@ -15143,7 +17052,7 @@ var AbstractSingleVideoExport = class extends AbstractFileConsumer {
 			exportGraphHeight: 300,
 			fileName: "exported-video",
 			mp4Quality: mediabunny.QUALITY_VERY_HIGH,
-			skin: VideoExportSkin.LIGHT,
+			skin: "light",
 			previewScale: .45,
 			autoScale: true
 		};
@@ -15261,10 +17170,9 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], AbstractSingleVideoExport.prototype, "parentHasAnalyses", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref = typeof RecordingPhase !== "undefined" && RecordingPhase) === "function" ? _ref : Object)], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof RecordingPhase === "undefined" ? Object : RecordingPhase)], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AbstractSingleVideoExport.prototype, "recordingPhaseProgress", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], AbstractSingleVideoExport.prototype, "renderProps", void 0);
-
 //#endregion
 //#region src/connection/controllers/apps/directives/DirectiveHelpers.ts
 /** Utilities for rendering */
@@ -15308,12 +17216,11 @@ var DirectiveHelpers = class {
 		return client.isLoggedIn;
 	}
 };
-
 //#endregion
 //#region src/connection/controllers/apps/directives/AbstractConnectedDirective.ts
 var AbstractConnectedDirective = class extends lit_directive_js.Directive {
 	t(key) {
-		return (0, i18next.t)(T[key]);
+		return t(T[key]);
 	}
 	update(_part, props) {
 		return this.render(...props);
@@ -15338,19 +17245,17 @@ var AbstractConnectedDirective = class extends lit_directive_js.Directive {
 		return content;
 	}
 };
-
 //#endregion
 //#region src/connection/controllers/apps/directives/SlotOrNothing.ts
 var SlotOrNothing = class extends AbstractConnectedDirective {
 	render(label, content) {
 		if (!this.unknownContainsSomething(content)) return lit.nothing;
 		return lit.html`<thermal-slot
-            label=${(0, i18next.t)(T[label])}
+            label=${t(T[label])}
         >${content}</thermal-slot>`;
 	}
 };
 const slotOrNothing = (0, lit_directive_js.directive)(SlotOrNothing);
-
 //#endregion
 //#region src/controls/file/video/directives/SingleVideoExportConfigDirective.ts
 var SingleVideoExportConfigDirective = class extends lit_directive_js.Directive {
@@ -15386,12 +17291,13 @@ var SingleVideoExportConfigDirective = class extends lit_directive_js.Directive 
         </div>`;
 	}
 	renderDropdown(value, options, onChange) {
-		return lit.html`<thermal-dropdown>
-            <span slot="invoker">${value}</span>
-            ${options.map((option) => lit.html`<thermal-btn
+		const elements = options.map((option) => lit.html`<thermal-btn
             slot="option"
             @click=${() => onChange(option)}
-        >${option}</thermal-btn>`)}
+        >${option}</thermal-btn>`);
+		return lit.html`<thermal-dropdown>
+            <span slot="invoker">${value}</span>
+            ${elements}
         </thermal-dropdown>`;
 	}
 	renderNumber(label, unit, value, onChange, min, max, step) {
@@ -15435,9 +17341,9 @@ var SingleVideoExportConfigDirective = class extends lit_directive_js.Directive 
 		const slots = [];
 		const thermalScale = [lit.html`<manager-palette-dropdown ></manager-palette-dropdown>`, lit.html`<registry-range-form></registry-range-form>`];
 		slots.push(slotOrNothing("thermalscale", thermalScale));
-		const components = [this.renderRadio(element.t(T.histogram), element.renderProps.hasHistogram, element.setHasHistogram.bind(element)), this.renderRadio(element.t(T.thermalscale), element.renderProps.hasThermalScale, element.setHasThermalScale.bind(element))];
-		if (hasAnalyses) components.push(this.renderRadio(element.t(T.analysis), element.renderProps.hasAnalysis, element.setHasAnalysis.bind(element)));
-		if (isSequence) components.push(this.renderRadio(element.t(T.timeline), element.renderProps.hasTimeline, element.setHasTimeline.bind(element)));
+		const components = [this.renderRadio(element.t("histogram"), element.renderProps.hasHistogram, element.setHasHistogram.bind(element)), this.renderRadio(element.t("thermalscale"), element.renderProps.hasThermalScale, element.setHasThermalScale.bind(element))];
+		if (hasAnalyses) components.push(this.renderRadio(element.t("analysis"), element.renderProps.hasAnalysis, element.setHasAnalysis.bind(element)));
+		if (isSequence) components.push(this.renderRadio(element.t("timeline"), element.renderProps.hasTimeline, element.setHasTimeline.bind(element)));
 		slots.push(slotOrNothing("exportcontent", components));
 		const appearance = [];
 		if (hasAnalyses && element.renderProps.hasAnalysis) appearance.push(this.renderRadio("Is Vertical", element.renderProps.isVertical, element.setIsVertical.bind(element)));
@@ -15447,14 +17353,14 @@ var SingleVideoExportConfigDirective = class extends lit_directive_js.Directive 
 			"solarized"
 		], (value) => element.setSkin(value)));
 		slots.push(slotOrNothing("display", appearance));
-		slots.push(this.renderNumber(element.t(T.exportwidth), "px", element.renderProps.exportFrameWidth, element.setExportFrameWidth.bind(element), 500, 1920, 10));
-		slots.push(this.renderNumber(element.t(T.exportmargin), "px", element.renderProps.exportFramePadding, element.setExportFramePadding.bind(element), 0, 100, 1));
+		slots.push(this.renderNumber(element.t("exportwidth"), "px", element.renderProps.exportFrameWidth, element.setExportFrameWidth.bind(element), 500, 1920, 10));
+		slots.push(this.renderNumber(element.t("exportmargin"), "px", element.renderProps.exportFramePadding, element.setExportFramePadding.bind(element), 0, 100, 1));
 		if (hasAnalyses && element.renderProps.hasAnalysis) {
-			slots.push(this.renderNumber(element.t(T.exportgap), "px", element.renderProps.exportFrameGap, element.setExportFrameGap.bind(element), 0, 100, 1));
-			slots.push(this.renderNumber(element.t(T.exportgrahpheight), "px", element.renderProps.exportGraphHeight, element.setExportGraphHeight.bind(element), 200, 700, 1));
+			slots.push(this.renderNumber(element.t("exportgap"), "px", element.renderProps.exportFrameGap, element.setExportFrameGap.bind(element), 0, 100, 1));
+			slots.push(this.renderNumber(element.t("exportgrahpheight"), "px", element.renderProps.exportGraphHeight, element.setExportGraphHeight.bind(element), 200, 700, 1));
 		}
 		const ext = isSequence ? ".mp4 / .png" : ".png";
-		slots.push(this.renderText(element.t(T.name), ext, element.renderProps.fileName, element.setFileName.bind(element)));
+		slots.push(this.renderText(element.t("name"), ext, element.renderProps.fileName, element.setFileName.bind(element)));
 		if (isSequence) {
 			const options = [
 				{
@@ -15488,7 +17394,7 @@ var SingleVideoExportConfigDirective = class extends lit_directive_js.Directive 
 			};
 			const value = options.find((o) => o.value === element.renderProps.mp4Quality)?.label ?? "UNKNOWN";
 			const output = [this.renderDropdown(value, choices, setter.bind(this))];
-			slots.push(slotOrNothing(T.videoquality, output));
+			slots.push(slotOrNothing("videoquality", output));
 		}
 		return slots;
 	}
@@ -15596,7 +17502,6 @@ var SingleVideoExportConfigDirective = class extends lit_directive_js.Directive 
 	}
 };
 const exportConfigDirective = (0, lit_directive_js.directive)(SingleVideoExportConfigDirective);
-
 //#endregion
 //#region src/controls/file/video/directives/SingleVideoExportLayoutDirective.ts
 var SingleVideoExportLayoutDirective = class extends lit_directive_js.Directive {
@@ -15869,7 +17774,7 @@ var SingleVideoExportLayoutDirective = class extends lit_directive_js.Directive 
 			hasThermalScale: props.hasThermalScale,
 			["skin-" + props.skin]: true
 		};
-		const effectiveScale = app.recordingPhase !== RecordingPhase.IDLE ? 1 : props.previewScale;
+		const effectiveScale = app.recordingPhase !== 0 ? 1 : props.previewScale;
 		const containerStyle = {
 			width: `calc( ${props.exportFrameWidth}px + var( --thermal-crop ) * 2 )`,
 			scale: String(effectiveScale)
@@ -15921,7 +17826,6 @@ var SingleVideoExportLayoutDirective = class extends lit_directive_js.Directive 
 	}
 };
 const exportLayoutDirective = (0, lit_directive_js.directive)(SingleVideoExportLayoutDirective);
-
 //#endregion
 //#region src/controls/file/video/directives/SingleVideoExportProvidersDirective.ts
 var SingleVideoExportDirective = class extends lit_directive_js.Directive {
@@ -15952,7 +17856,6 @@ var SingleVideoExportDirective = class extends lit_directive_js.Directive {
 	}
 };
 const singleVideoProviders = (0, lit_directive_js.directive)(SingleVideoExportDirective);
-
 //#endregion
 //#region src/controls/file/video/FileVideoExportPanel.ts
 var FileVideoExportPanel = class extends AbstractSingleVideoExport {
@@ -16163,7 +18066,7 @@ var FileVideoExportPanel = class extends AbstractSingleVideoExport {
         </header>`;
 	}
 	renderPreview() {
-		const isExporting = this.recordingPhase !== RecordingPhase.IDLE;
+		const isExporting = this.recordingPhase !== 0;
 		return lit.html`<section class="preview" ${(0, lit_directives_ref_js.ref)(this.previewSectionRef)}>
             ${exportLayoutDirective(this)}
 
@@ -16208,9 +18111,9 @@ var FileVideoExportPanel = class extends AbstractSingleVideoExport {
         </section>`;
 	}
 	renderOverview() {
-		if (this.recordingPhase === RecordingPhase.IDLE) return lit.nothing;
-		let message = this.t(T.exportencodingfile);
-		if (this.recordingPhase === RecordingPhase.RECORDING) message = `${this.t(T.exportrecordingframes)} ${this.recordingPhaseProgress.toFixed(2)}%`;
+		if (this.recordingPhase === 0) return lit.nothing;
+		let message = this.t("exportencodingfile");
+		if (this.recordingPhase === 1) message = `${this.t("exportrecordingframes")} ${this.recordingPhaseProgress.toFixed(2)}%`;
 		return lit.html`<div
             class="progress-overlay"
         >
@@ -16221,7 +18124,7 @@ var FileVideoExportPanel = class extends AbstractSingleVideoExport {
                     .message=${message}
                 ></thermal-spinner>
 
-                <div>${this.t(T.exportdonotclosewindowhint)}</div>
+                <div>${this.t("exportdonotclosewindowhint")}</div>
 
             </div>
             
@@ -16243,7 +18146,6 @@ var FileVideoExportPanel = class extends AbstractSingleVideoExport {
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealWidth", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealHeight", void 0);
-
 //#endregion
 //#region src/renderers/FileDetail.ts
 var FileDetailElement = class extends AbstractFileConsumer {
@@ -16291,7 +18193,7 @@ var FileDetailElement = class extends AbstractFileConsumer {
         @click=${() => {
 			if (this.onback) this.onback();
 		}}
-        tooltip=${(0, i18next.t)(T.back)}
+        tooltip=${t("back")}
         icon="close"
         iconStyle="micro"
     ></thermal-btn>
@@ -16322,7 +18224,6 @@ __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileDetailElement.prototype, "norender", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileDetailElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Object)], FileDetailElement.prototype, "grouping", void 0);
-
 //#endregion
 //#region src/renderers/FileThumbnail.ts
 var FileThumbnailElement = class extends AbstractFileConsumer {
@@ -16391,11 +18292,11 @@ var FileThumbnailElement = class extends AbstractFileConsumer {
                     <file-label label="${(0, lit_directives_if_defined_js.ifDefined)(this.label)}" grouping="${(0, lit_directives_if_defined_js.ifDefined)(this.grouping)}"></file-label>
                 </h2>
                 <div>
-                    <thermal-btn size="sm" variant="background" @click=${() => this.ondetail?.(this.file)}>${(0, i18next.t)(T.detail).toLocaleLowerCase()}</thermal-btn>
+                    <thermal-btn size="sm" variant="background" @click=${() => this.ondetail?.(this.file)}>${t("detail").toLocaleLowerCase()}</thermal-btn>
                     <file-range-propagator></file-range-propagator>
                     <file-dropdown>
                         <file-info-button>
-                            <file-button slot="invoker" label=${(0, i18next.t)(T.info).toLowerCase()}></file-button>
+                            <file-button slot="invoker" label=${t("info").toLowerCase()}></file-button>
                         </file-info-button>
                         <file-download-lrc></file-download-lrc>
                         <file-download-png></file-download-png>
@@ -16416,7 +18317,6 @@ __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileThumbnailElement.prototype, "norender", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileThumbnailElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Object)], FileThumbnailElement.prototype, "grouping", void 0);
-
 //#endregion
 //#region src/ui/BtnGroup.ts
 var BtnGroupElement = class extends AbstractThermalElement {
@@ -16454,7 +18354,6 @@ var BtnGroupElement = class extends AbstractThermalElement {
 		return lit.html`<div class="btn-group"><slot></slot></div>`;
 	}
 };
-
 //#endregion
 //#region src/iifeCatalog.ts
 /**
@@ -16494,6 +18393,7 @@ const elementsManagerControls = {
 	"manager-palette-dropdown": ManagerPaletteDropdown,
 	"manager-palette-buttons": ManagerPaletteButtons,
 	"manager-tool-bar": ManagerToolBar,
+	/** @deprecated This sort of export should never be used. Please, do export thermal images only through the LIT components instead of the `@labirthermal/core` export. */
 	"manager-export-panel": ManagerExportPanel
 };
 const elementsRegistryControls = {
@@ -16563,7 +18463,6 @@ const elementsAll = {
 	...elementsFileControls,
 	...elementsApplications
 };
-
 //#endregion
 exports.AbstractFileConsumer = AbstractFileConsumer;
 exports.AbstractFileProvider = AbstractFileProvider;
@@ -16699,4 +18598,5 @@ exports.registryOpacityContext = registryOpacityContext;
 exports.registryRangeFromContext = registryRangeFromContext;
 exports.registryRangeToContext = registryRangeToContext;
 exports.stringOrUndefinedConverter = stringOrUndefinedConverter;
+
 //# sourceMappingURL=index.export.cjs.map
