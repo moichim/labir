@@ -1,11 +1,11 @@
-import { AbstractFile } from "../file/AbstractFile";
+import { AbstractThermalFile } from "../file/AbstractThermalFile";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalManager } from "../hierarchy/ThermalManager";
 import { ThermalRegistry } from "../hierarchy/ThermalRegistry";
 import { CallbacksManager } from "../properties/callbacksManager";
 import { AbstractFilter } from "./AbstractFilter";
 
-type FilterParent = ThermalManager|ThermalRegistry|ThermalGroup|AbstractFile;
+type FilterParent = ThermalManager|ThermalRegistry|ThermalGroup|AbstractThermalFile;
 
 
 

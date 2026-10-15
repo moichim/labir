@@ -1,4 +1,4 @@
-import { AbstractFile } from "../AbstractFile";
+import { AbstractThermalFile } from "../AbstractThermalFile";
 import { ThermalCanvasLayer } from "./layers/thermalCanvasLayer";
 import ThermalCursorLayer from "./layers/thermalCursorLayer";
 import { ThermalListenerLayer } from "./layers/thermalListenerLayer";
@@ -95,7 +95,7 @@ export class InstanceDOM {
 
 
     public constructor(
-        public readonly parent: AbstractFile,
+        public readonly parent: AbstractThermalFile,
         public readonly root: HTMLDivElement
     ) {
 
@@ -117,10 +117,10 @@ export class InstanceDOM {
 
 
         // Build the DOM
-        this._canvasLayer = new ThermalCanvasLayer(this.parent);
-        this._visibleLayer = new VisibleLayer(this.parent, this.parent.visibleUrl);
-        this._cursorLayer = new ThermalCursorLayer(this.parent);
-        this._listenerLayer = new ThermalListenerLayer(this.parent);
+        this._canvasLayer = new ThermalCanvasLayer(this);
+        this._visibleLayer = new VisibleLayer(this, this.parent.visibleUrl);
+        this._cursorLayer = new ThermalCursorLayer(this);
+        this._listenerLayer = new ThermalListenerLayer(this);
         
 
         // Mounting layers internals

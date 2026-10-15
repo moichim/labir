@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../AbstractFile";
+import { InstanceDOM } from "../InstanceDom";
 import ThermalDomFactory from "../domFactories";
 import { AbstractLayer } from "./AbstractLayer";
 
@@ -8,9 +8,9 @@ export class ThermalListenerLayer extends AbstractLayer {
     protected container: HTMLDivElement;
 
     public constructor(
-        instance: AbstractFile
+        dom: InstanceDOM
     ) {
-        super( instance );
+        super( dom );
 
         this.container = ThermalDomFactory.createListener();
     }

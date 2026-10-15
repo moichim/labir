@@ -19,7 +19,7 @@ import { FileMeta } from "./utils/FileMeta";
  * 
  * Most drivers are set in individual implementations, not here.
  */
-export abstract class AbstractFile extends BaseStructureObject {
+export abstract class AbstractThermalFile extends BaseStructureObject {
 
     private _label?: string;
     public get label(): string | undefined {
@@ -45,12 +45,21 @@ export abstract class AbstractFile extends BaseStructureObject {
     /** Internal limit for cursor label position */
     public readonly verticalLimit: number;
 
+    /** Every file instance belongs to a group */
     public readonly group: ThermalGroup;
 
+    /** Alias to the file group's registry */
+    public get registry() { return this.group.registry; }
+
+    /** Alias to the file group's registry's manager */
+    public get manager() { return this.group.registry.manager; }
+
+    /** Alias to the manager's pool object */
     public get pool() {
-        return this.group.registry.manager.pool;
+        return this.manager.pool;
     }
 
+    /** The full URL of the thermal file */
     public readonly thermalUrl: string;
 
     private _visibleUrl?: string;
@@ -87,8 +96,6 @@ export abstract class AbstractFile extends BaseStructureObject {
     /** @deprecated Use meta instead */
     public get averageReflectedKelvins(): number { return this.meta.current.averageReflectedKelvins; }
     /** @deprecated Use meta instead */
-    public get timelineData() { return this.meta.current.timeline; }
-    /** @deprecated Use meta instead */
     public get fps(): number { return this.meta.current.fps; }
     /** @deprecated Use meta instead */
     public get frameCount(): number { return this.meta.current.frameCount; }
@@ -110,49 +117,12 @@ export abstract class AbstractFile extends BaseStructureObject {
         return false;
     }
 
-
-    // DOM root
-    /** @deprecated use DOM object instead */
-    public get root(): HTMLDivElement | null {
-        if (this.dom) {
-            return this.dom.root;
-        }
-        return null;
-    };
-
-    // DOM layers
-    /** @deprecated use DOM object instead */
-    public get canvasLayer() { return this.dom!.canvasLayer!; }
-    /** @deprecated use DOM object instead */
-    public get visibleLayer() { return this.dom!.visibleLayer! }
-    /** @deprecated use DOM object instead */
-    public get cursorLayer() { return this.dom!.cursorLayer! };
-    /** @deprecated use DOM object instead */
-    public get listenerLayer() { return this.dom!.listenerLayer! };
-
     // Drives
     public timeline!: TimelineDrive;
     public cursorValue!: CursorValueDrive;
     public analysis!: AnalysisDrive;
-
-
-    // Recording is lazyloaded
-
     public recording!: RecordingDrive;
 
-    /** @deprecated use DOM object instead */
-    private _mounted: boolean = false;
-    /** @deprecated use DOM object instead */
-    public get mounted() { return this._mounted; }
-    /** @deprecated use DOM object instead */
-    protected set mounted(value: boolean) { this._mounted = value; }
-
-    /** @deprecated use DOM object instead */
-    private _built: boolean = false;
-    /** @deprecated use DOM object instead */
-    public get built() { return this._built; }
-    /** @deprecated use DOM object instead */
-    protected set built(value: boolean) { this._built = value; }
 
     private _preferWebGl: boolean = true;
     public get preferWebGl() { return this._preferWebGl; }
@@ -187,7 +157,6 @@ export abstract class AbstractFile extends BaseStructureObject {
         this._pixels = value;
         this._pixelsVersion++;
         this.onSetPixels(value);
-
     }
 
     public abstract getPixelsForHistogram(): number[];
@@ -242,8 +211,8 @@ export abstract class AbstractFile extends BaseStructureObject {
     }
 
 
-
-    public abstract buildServices(): ThisType<AbstractFile>;
+    /** Build properties for the thermal file */
+    public abstract buildInternalProperties(): ThisType<AbstractThermalFile>;
 
 
     protected abstract onSetPixels(value: number[]): void;
@@ -298,8 +267,6 @@ export abstract class AbstractFile extends BaseStructureObject {
         this._dom = new InstanceDOM(this, container);
 
         this._dom.build();
-
-
 
         this.renderer = this.rendererFactory(this._dom.canvasLayer!.canvas);
         this.renderer.init();

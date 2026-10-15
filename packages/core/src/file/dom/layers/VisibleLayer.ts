@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../AbstractFile";
+import { InstanceDOM } from "../InstanceDom";
 import ThermalDomFactory from "../domFactories";
 import { AbstractLayer } from "./AbstractLayer";
 
@@ -23,10 +23,10 @@ export class VisibleLayer extends AbstractLayer {
     }
 
     public constructor(
-        instance: AbstractFile,
+        dom: InstanceDOM,
         public _url?: string
     ) {
-        super(instance);
+        super(dom);
         this.container = ThermalDomFactory.createVisibleLayer();
         if (this._url) {
             this.image = ThermalDomFactory.createVisibleImage();

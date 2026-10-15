@@ -10,7 +10,7 @@ import { ThermalCursorPositionOrUndefined } from "../properties/cursor/CursorPos
 import { CursorValueDrive } from "../properties/cursor/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
-import { AbstractFile } from "./AbstractFile";
+import { AbstractThermalFile } from "./AbstractThermalFile";
 import { InstanceDOM } from "./dom/InstanceDom";
 import { FilePngExport } from "./utils/FilePngExport";
 
@@ -24,12 +24,14 @@ import { FilePngExport } from "./utils/FilePngExport";
  * handles playback and do all important 
  * stuff.
  */
-export class Instance extends AbstractFile {
+export class Instance extends AbstractThermalFile {
 
     declare public timeline: TimelineDrive;
     declare public analysis: AnalysisDrive;
     declare public analysisData: AnalysisDataState;
     public slots!: AnalysisSlotsState;
+
+    public readonly filters = new FilterContainer(this);
 
     /**
      * Exports
@@ -126,10 +128,12 @@ export class Instance extends AbstractFile {
 
 
 
-    public buildServices() {
+    public buildInternalProperties() {
+
+
 
         this.cursorValue = new CursorValueDrive(this, undefined);
-        this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
+        this.timeline = new TimelineDrive(this, 0, this.meta.current.timeline, this.firstFrame);
         this.timeline.init();
         this.recording = new RecordingDrive(this, false);
         this.analysis = new AnalysisDrive(this, []);
@@ -191,7 +195,7 @@ export class Instance extends AbstractFile {
             firstFrame
         );
 
-        return instance.buildServices();
+        return instance.buildInternalProperties();
 
     }
 
@@ -233,7 +237,7 @@ export class Instance extends AbstractFile {
     }
 
 
-    public readonly filters = new FilterContainer(this);
+    
 
     public getInstances() {
         return [this];
@@ -262,9 +266,9 @@ export class Instance extends AbstractFile {
         const frameData = await this.reader.frameData(this.timeline.currentStep.index);
 
         // If the dimensions change, unmount from DOM and mount again to create new canvas
-        if (this.root) {
+        if (this.dom?.root) {
 
-            const container = this.root;
+            const container = this.dom.root;
             this.unmountFromDom();
             this.mountToDom(container);
 

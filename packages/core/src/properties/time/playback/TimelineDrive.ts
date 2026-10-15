@@ -116,7 +116,7 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
         this.startTimestampRelative = 0;
         this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
 
-        this.isSequence = this.parent.timelineData.length > 1;
+        this.isSequence = this.parent.meta.current.timeline.length > 1;
 
         this.steps.forEach(step => {
             this.stepsByIndex.set(step.index, step);

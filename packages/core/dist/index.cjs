@@ -3411,7 +3411,7 @@ var TimelineDrive = class extends AbstractProperty {
 		this._currentStep = this.steps[this.valueInitial];
 		this.startTimestampRelative = 0;
 		this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
-		this.isSequence = this.parent.timelineData.length > 1;
+		this.isSequence = this.parent.meta.current.timeline.length > 1;
 		this.steps.forEach((step) => {
 			this.stepsByIndex.set(step.index, step);
 			this.stepsByAbsolute.set(step.absolute, step);
@@ -3650,7 +3650,9 @@ var RecordingDrive = class extends AbstractProperty {
 	}
 	initRecording() {
 		if (this.stream || this.recorder) throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
-		const stream = this.parent.canvasLayer.canvas.captureStream(25);
+		const canvasLayer = this.parent.dom?.canvasLayer;
+		if (!canvasLayer) throw new Error("Canvas layer not found - can not initialise recording.");
+		const stream = canvasLayer.canvas.captureStream(25);
 		const output = this.getOutputMimeType();
 		if (output === void 0) throw new Error("No supported mime type found for MediaRecorder!");
 		this.mimeType = output.mime;
@@ -3851,9 +3853,12 @@ var ThermalDomFactory = class ThermalDomFactory {
 //#endregion
 //#region src/file/dom/layers/AbstractLayer.ts
 var AbstractLayer = class {
-	instance;
-	constructor(instance) {
-		this.instance = instance;
+	dom;
+	get instance() {
+		return this.dom.parent;
+	}
+	constructor(dom) {
+		this.dom = dom;
 	}
 	_mounted = false;
 	get mounted() {
@@ -3861,17 +3866,17 @@ var AbstractLayer = class {
 	}
 	mount() {
 		if (!this._mounted) {
-			if (this.instance.root !== null) {
+			if (this.dom.root !== null) {
 				this._mounted = true;
-				this.instance.root.appendChild(this.getLayerRoot());
+				this.dom.root.appendChild(this.getLayerRoot());
 			}
 		}
 	}
 	unmount() {
 		if (this._mounted) {
-			if (this.instance.dom?.root !== null) {
+			if (this.dom.root !== null) {
 				this._mounted = false;
-				this.instance.dom?.root.removeChild(this.getLayerRoot());
+				this.dom.root.removeChild(this.getLayerRoot());
 			}
 		}
 	}
@@ -3895,8 +3900,8 @@ var ThermalCanvasLayer = class extends AbstractLayer {
 		if (this._opacity !== 1) this.canvas.style.opacity = this._opacity.toString();
 		else this.canvas.style.removeProperty("opacity");
 	}
-	constructor(instance) {
-		super(instance);
+	constructor(dom) {
+		super(dom);
 		this.container = ThermalDomFactory.createCanvasContainer();
 		this.canvas = ThermalDomFactory.createCanvas();
 		this.canvas.width = this.instance.width;
@@ -3924,8 +3929,8 @@ var ThermalCursorLayer = class extends AbstractLayer {
 	axisX;
 	axisY;
 	label;
-	constructor(instance) {
-		super(instance);
+	constructor(dom) {
+		super(dom);
 		this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
 		this.center = ThermalDomFactory.createCursorLayerCenter();
 		this.axisX = ThermalDomFactory.createCursorLayerX();
@@ -3953,8 +3958,8 @@ var ThermalCursorLayer = class extends AbstractLayer {
 		this.label.style.backgroundColor = this._hover ? "black" : "rgba( 0,0,0,0.5 )";
 	}
 	recalculateLabelPosition(x, y) {
-		if (this.instance.root === null) {} else {
-			const aspect = this.instance.root.offsetWidth / this.instance.width;
+		if (this.dom.root === null) {} else {
+			const aspect = this.dom.root.offsetWidth / this.instance.width;
 			const centerX = Math.round(x * aspect);
 			const centerY = Math.round(y * aspect);
 			const wPx = 100 / this.instance.width / 2;
@@ -3979,15 +3984,8 @@ var ThermalCursorLayer = class extends AbstractLayer {
 			}
 		}
 	}
-	/** @deprecated */
-	setCursor(x, y, value) {
-		if (this.instance.root === null) {} else {
-			this.recalculateLabelPosition(x, y);
-			this.label.innerHTML = `${value.toFixed(3)} °C`;
-		}
-	}
 	setLabel(x, y, value) {
-		if (this.instance.root === null) {} else {
+		if (this.dom.root === null) {} else {
 			this.recalculateLabelPosition(x, y);
 			this.label.innerHTML = value;
 		}
@@ -4023,8 +4021,8 @@ var ThermalCursorLayer = class extends AbstractLayer {
 /** Listens for the mouse events. Needs to be placed on top. */
 var ThermalListenerLayer = class extends AbstractLayer {
 	container;
-	constructor(instance) {
-		super(instance);
+	constructor(dom) {
+		super(dom);
 		this.container = ThermalDomFactory.createListener();
 	}
 	getLayerRoot() {
@@ -4051,8 +4049,8 @@ var VisibleLayer = class extends AbstractLayer {
 	get exists() {
 		return this._url !== void 0;
 	}
-	constructor(instance, _url) {
-		super(instance);
+	constructor(dom, _url) {
+		super(dom);
 		this._url = _url;
 		this.container = ThermalDomFactory.createVisibleLayer();
 		if (this._url) {
@@ -4165,10 +4163,10 @@ var InstanceDOM = class InstanceDOM {
 			console.info(`Building instance ${this.parent.id} which is already built. Destroying any previous DOM and creating a new one in a new container ${this.root.nodeName}`);
 			this.destroy();
 		}
-		this._canvasLayer = new ThermalCanvasLayer(this.parent);
-		this._visibleLayer = new VisibleLayer(this.parent, this.parent.visibleUrl);
-		this._cursorLayer = new ThermalCursorLayer(this.parent);
-		this._listenerLayer = new ThermalListenerLayer(this.parent);
+		this._canvasLayer = new ThermalCanvasLayer(this);
+		this._visibleLayer = new VisibleLayer(this, this.parent.visibleUrl);
+		this._cursorLayer = new ThermalCursorLayer(this);
+		this._listenerLayer = new ThermalListenerLayer(this);
 		this._canvasLayer.mount();
 		this._visibleLayer.mount();
 		this._cursorLayer.mount();
@@ -4547,7 +4545,7 @@ var FileMeta = class {
 	}
 };
 //#endregion
-//#region src/file/AbstractFile.ts
+//#region src/file/AbstractThermalFile.ts
 /** 
 * Displayable object for every file type.
 * 
@@ -4555,7 +4553,7 @@ var FileMeta = class {
 * 
 * Most drivers are set in individual implementations, not here.
 */
-var AbstractFile = class extends BaseStructureObject {
+var AbstractThermalFile = class extends BaseStructureObject {
 	_label;
 	get label() {
 		return this._label;
@@ -4571,10 +4569,21 @@ var AbstractFile = class extends BaseStructureObject {
 	horizontalLimit;
 	/** Internal limit for cursor label position */
 	verticalLimit;
+	/** Every file instance belongs to a group */
 	group;
-	get pool() {
-		return this.group.registry.manager.pool;
+	/** Alias to the file group's registry */
+	get registry() {
+		return this.group.registry;
 	}
+	/** Alias to the file group's registry's manager */
+	get manager() {
+		return this.group.registry.manager;
+	}
+	/** Alias to the manager's pool object */
+	get pool() {
+		return this.manager.pool;
+	}
+	/** The full URL of the thermal file */
 	thermalUrl;
 	_visibleUrl;
 	get visibleUrl() {
@@ -4625,10 +4634,6 @@ var AbstractFile = class extends BaseStructureObject {
 		return this.meta.current.averageReflectedKelvins;
 	}
 	/** @deprecated Use meta instead */
-	get timelineData() {
-		return this.meta.current.timeline;
-	}
-	/** @deprecated Use meta instead */
 	get fps() {
 		return this.meta.current.fps;
 	}
@@ -4648,51 +4653,10 @@ var AbstractFile = class extends BaseStructureObject {
 		if (this.dom) return this.dom.hover;
 		return false;
 	}
-	/** @deprecated use DOM object instead */
-	get root() {
-		if (this.dom) return this.dom.root;
-		return null;
-	}
-	/** @deprecated use DOM object instead */
-	get canvasLayer() {
-		return this.dom.canvasLayer;
-	}
-	/** @deprecated use DOM object instead */
-	get visibleLayer() {
-		return this.dom.visibleLayer;
-	}
-	/** @deprecated use DOM object instead */
-	get cursorLayer() {
-		return this.dom.cursorLayer;
-	}
-	/** @deprecated use DOM object instead */
-	get listenerLayer() {
-		return this.dom.listenerLayer;
-	}
 	timeline;
 	cursorValue;
 	analysis;
 	recording;
-	/** @deprecated use DOM object instead */
-	_mounted = false;
-	/** @deprecated use DOM object instead */
-	get mounted() {
-		return this._mounted;
-	}
-	/** @deprecated use DOM object instead */
-	set mounted(value) {
-		this._mounted = value;
-	}
-	/** @deprecated use DOM object instead */
-	_built = false;
-	/** @deprecated use DOM object instead */
-	get built() {
-		return this._built;
-	}
-	/** @deprecated use DOM object instead */
-	set built(value) {
-		this._built = value;
-	}
 	_preferWebGl = true;
 	get preferWebGl() {
 		return this._preferWebGl;
@@ -5095,9 +5059,6 @@ var FilePngExport = class FilePngExport extends AbstractPngExport {
 		showThermalScale: true
 	};
 	localInstance;
-	get canvas() {
-		return this.file.canvasLayer.canvas;
-	}
 	constructor(file) {
 		super();
 		this.file = file;
@@ -5230,11 +5191,12 @@ var FilePngExport = class FilePngExport extends AbstractPngExport {
 * handles playback and do all important 
 * stuff.
 */
-var Instance = class Instance extends AbstractFile {
+var Instance = class Instance extends AbstractThermalFile {
 	group;
 	reader;
 	firstFrame;
 	slots;
+	filters = new FilterContainer(this);
 	/**
 	* Exports
 	*/
@@ -5282,9 +5244,9 @@ var Instance = class Instance extends AbstractFile {
 	dehydrateListener(dom) {
 		dom.parent.analysis.deactivateListeners();
 	}
-	buildServices() {
+	buildInternalProperties() {
 		this.cursorValue = new CursorValueDrive(this, void 0);
-		this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
+		this.timeline = new TimelineDrive(this, 0, this.meta.current.timeline, this.firstFrame);
 		this.timeline.init();
 		this.recording = new RecordingDrive(this, false);
 		this.analysis = new AnalysisDrive(this, []);
@@ -5310,7 +5272,7 @@ var Instance = class Instance extends AbstractFile {
 		return [];
 	}
 	static fromService(group, service, baseInfo, firstFrame) {
-		return new Instance(group, service, baseInfo, firstFrame).buildServices();
+		return new Instance(group, service, baseInfo, firstFrame).buildInternalProperties();
 	}
 	recieveCursorPosition(position) {
 		if (position !== void 0) {
@@ -5327,7 +5289,6 @@ var Instance = class Instance extends AbstractFile {
 		}
 		this.cursorValue.recalculateFromCursor(position);
 	}
-	filters = new FilterContainer(this);
 	getInstances() {
 		return [this];
 	}
@@ -5346,8 +5307,8 @@ var Instance = class Instance extends AbstractFile {
 	async applyAllAvailableFilters() {
 		const baseInfo = await this.reader.baseInfo();
 		const frameData = await this.reader.frameData(this.timeline.currentStep.index);
-		if (this.root) {
-			const container = this.root;
+		if (this.dom?.root) {
+			const container = this.dom.root;
 			this.unmountFromDom();
 			this.mountToDom(container);
 		}
@@ -6133,7 +6094,9 @@ var SmoothDrive = class extends AbstractProperty {
 	}
 	afterSetEffect(value) {
 		this.parent.forEveryRegistry((registry) => registry.forEveryInstance((instance) => {
-			instance.canvasLayer.canvas.style.imageRendering = value === true ? "auto" : "pixelated";
+			const canvasLayer = instance.dom?.canvasLayer;
+			if (canvasLayer) canvasLayer.canvas.style.imageRendering = value === true ? "auto" : "pixelated";
+			else console.warn("Canvas layer not found when trying to set image smooth rendering", instance);
 		}));
 	}
 	setSmooth(value) {

@@ -1,5 +1,5 @@
 import { ThermalRegistry } from "../../hierarchy/ThermalRegistry";
-import { AbstractFile } from "../AbstractFile";
+import { AbstractThermalFile } from "../AbstractThermalFile";
 
 export abstract class AbstractRenderer {
 
@@ -44,7 +44,7 @@ export abstract class AbstractRenderer {
     }
 
     constructor(
-        protected readonly file: AbstractFile,
+        protected readonly file: AbstractThermalFile,
         /** Canvas musí být vytvořený před inicializací rendereru */
         protected readonly canvas: HTMLCanvasElement
     ) {}

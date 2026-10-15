@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import { AbstractFile } from "../AbstractFile";
+import { AbstractThermalFile } from "../AbstractThermalFile";
 import { GlRenderer } from "./GlRenderer";
 
 function createFixture() {
     const onSetPixels = vi.fn();
     // Keep the real pixel setter without constructing unrelated file services.
-    const file: AbstractFile = Object.create(AbstractFile.prototype);
+    const file: AbstractThermalFile = Object.create(AbstractThermalFile.prototype);
     Object.defineProperties(file, {
         _pixelsVersion: { value: 0, writable: true },
         onSetPixels: { value: onSetPixels },

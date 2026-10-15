@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../AbstractFile";
+import { InstanceDOM } from "../InstanceDom";
 import ThermalDomFactory from "../domFactories";
 import { AbstractLayer } from "./AbstractLayer";
 
@@ -12,10 +12,10 @@ export default class ThermalCursorLayer extends AbstractLayer {
     protected label: HTMLDivElement;
 
     public constructor(
-        instance: AbstractFile
-    ){
+        dom: InstanceDOM
+    ) {
 
-        super( instance );
+        super(dom);
 
         // Create the elements
         this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
@@ -25,24 +25,24 @@ export default class ThermalCursorLayer extends AbstractLayer {
         this.label = ThermalDomFactory.createCursorLayerLabel();
 
         // bind the elements together
-        this.layerRoot.appendChild( this.center );
-        this.center.appendChild( this.axisX );
-        this.center.appendChild( this.axisY );
-        this.center.appendChild( this.label );
+        this.layerRoot.appendChild(this.center);
+        this.center.appendChild(this.axisX);
+        this.center.appendChild(this.axisY);
+        this.center.appendChild(this.label);
 
     }
 
     // Set visible / invisible
     protected _show: boolean = false;
-    public get show() {return this._show};
-    public setShow( value: boolean ) {
+    public get show() { return this._show };
+    public setShow(value: boolean) {
         this._show = value;
         this.layerRoot.style.opacity = this._show ? "1" : "0";
     }
 
     protected _hover: boolean = false;
-    public get hover() {return this._hover}
-    public set hover( value: boolean ) {
+    public get hover() { return this._hover }
+    public set hover(value: boolean) {
         this._hover = value;
         this.label.style.backgroundColor = this._hover
             ? "black"
@@ -53,15 +53,15 @@ export default class ThermalCursorLayer extends AbstractLayer {
         x: number,
         y: number
     ) {
-        if ( this.instance.root === null ) {
+        if (this.dom.root === null) {
             // Do nothing
         } else {
             // Get the aspect
-            const aspect = this.instance.root.offsetWidth / this.instance.width;
+            const aspect = this.dom.root.offsetWidth / this.instance.width;
 
             // Calculate the center coordinate
-            const centerX = Math.round( x * aspect );
-            const centerY = Math.round( y * aspect );
+            const centerX = Math.round(x * aspect);
+            const centerY = Math.round(y * aspect);
 
             // Move the axes
             // this.axisX.style.left = this.px( centerX );
@@ -73,106 +73,45 @@ export default class ThermalCursorLayer extends AbstractLayer {
 
 
             // Update the value center
-            this.center.style.left = `calc( ${this.px( centerX )} + ${wPx}%)`;
+            this.center.style.left = `calc( ${this.px(centerX)} + ${wPx}%)`;
             this.center.style.top = `calc( ${this.px(centerY)} + ${hPx}%)`;
 
 
 
             // Update the label X position
-            if ( x > ( this.instance.width / 3 ) ) {
+            if (x > (this.instance.width / 3)) {
                 this.label.style.right = "3px";
-                this.label.style.removeProperty( "left" );
+                this.label.style.removeProperty("left");
             } else {
                 this.label.style.left = "3px";
-                this.label.style.removeProperty( "right" );
+                this.label.style.removeProperty("right");
             }
 
             // Update the label Y position
-            if ( y > ( this.instance.height / 4 ) ) {
-                if ( this.label.style.bottom !== "3px" ) {
+            if (y > (this.instance.height / 4)) {
+                if (this.label.style.bottom !== "3px") {
                     this.label.style.bottom = "3px";
-                    this.label.style.removeProperty( "top" );
+                    this.label.style.removeProperty("top");
                 }
             } else {
-                if ( this.label.style.top !== "3px" ) {
+                if (this.label.style.top !== "3px") {
                     this.label.style.top = "3px";
-                    this.label.style.removeProperty( "bottom" );
+                    this.label.style.removeProperty("bottom");
                 }
             }
         }
     }
 
-    /** @deprecated */
-    public setCursor(
-        x: number,
-        y: number,
-        value: number
-    ): void {
-
-        if ( this.instance.root === null ) {
-            // Do nothing
-        } else {
-
-            this.recalculateLabelPosition( x, y );
-
-            /*
-            
-            // Get the aspect
-            const aspect = this.instance.root.offsetWidth / this.instance.width;
-
-            // Calculate the center coordinate
-            const centerX = Math.round( x * aspect );
-            const centerY = Math.round( y * aspect );
-
-            // Move the axes
-            // this.axisX.style.left = this.px( centerX );
-            // this.axisY.style.top = this.px( centerY );
-
-            // Update the value center
-            this.center.style.left = this.px( centerX );
-            this.center.style.top = this.px( centerY );
-
-            // Update the label X position
-            if ( x > ( this.instance.width / 3 ) ) {
-                this.label.style.right = "3px";
-                this.label.style.removeProperty( "left" );
-            } else {
-                this.label.style.left = "3px";
-                this.label.style.removeProperty( "right" );
-            }
-
-            // Update the label Y position
-            if ( y > ( this.instance.height / 4 ) ) {
-                if ( this.label.style.bottom !== "3px" ) {
-                    this.label.style.bottom = "3px";
-                    this.label.style.removeProperty( "top" );
-                }
-            } else {
-                if ( this.label.style.top !== "3px" ) {
-                    this.label.style.top = "3px";
-                    this.label.style.removeProperty( "bottom" );
-                }
-            }
-
-            */
-
-            // Update the label content
-            this.label.innerHTML = `${value.toFixed(3)} °C`;
-
-        }
-
-    }
-
-    setLabel(
+    public setLabel(
         x: number,
         y: number,
         value: string
     ) {
 
-        if ( this.instance.root === null ) {
+        if (this.dom.root === null) {
             // Do nothing
         } else {
-            this.recalculateLabelPosition( x, y );
+            this.recalculateLabelPosition(x, y);
             this.label.innerHTML = value;
         }
     }
@@ -180,7 +119,7 @@ export default class ThermalCursorLayer extends AbstractLayer {
     public setValue(
         value?: number
     ) {
-        if ( value )
+        if (value)
             this.label.innerHTML = `${value.toFixed(3)} °C`;
     }
 
@@ -189,14 +128,14 @@ export default class ThermalCursorLayer extends AbstractLayer {
         // this.axisY.style.top = "0px";
         this.center.style.top = "0px";
         this.center.style.left = "0px";
-        this.label.style.removeProperty( "right" );
-        this.label.style.removeProperty( "bottom" );
+        this.label.style.removeProperty("right");
+        this.label.style.removeProperty("bottom");
         this.label.style.top = "3px";
         this.label.style.left = "3px";
         this.label.innerHTML = "";
     }
 
-    protected px( number:number ): string {
+    protected px(number: number): string {
         return `${number}px`;
     }
 

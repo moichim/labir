@@ -25,10 +25,6 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
 
     protected localInstance?: Instance;
 
-    public get canvas() {
-        return this.file.canvasLayer.canvas;
-    }
-
     public constructor(
         public readonly file: Instance
     ) {

@@ -56,7 +56,7 @@ describe("ReTimelineDrive", async () => {
         // Setting negative time
         const result_after_negative = await timeline.setRelativeTime( -100 );
         expect( timeline.value ).toEqual( 0 );
-        expect( buffer.currentFrame.timestamp ).toEqual(instance.timelineData[0].absolute );
+        expect( buffer.currentFrame.timestamp ).toEqual(instance.meta.current.timeline[0].absolute );
         expect( result_after_negative.preloaded ).toEqual( false );
         expect( result_after_negative.buffer.length ).toEqual( 0 );
 
