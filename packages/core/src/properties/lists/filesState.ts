@@ -3,7 +3,7 @@ import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
 import { AbstractProperty } from "../abstractProperty";
 
-import { zip } from "zip-slim"
+import { downloadZip } from "client-zip";
 
 export type InstanceFetchCallback = (
     instance?: ThermalFileInstance,
@@ -97,15 +97,14 @@ export class FilesState extends AbstractProperty<ThermalFileInstance[], ThermalG
 
         } );
 
+        downloadZip(files).blob().then( blob => {
 
-        zip( files, true ).then( (result) => {
-
-            const link = document.createElement( "a" );
+            const link = document.createElement("a");
             link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
-            link.href = URL.createObjectURL( result );
-            document.body.appendChild( link );
+            link.href = URL.createObjectURL(blob);
+            document.body.appendChild(link);
             link.click();
-            document.body.removeChild( link );
+            document.body.removeChild(link);
             link.remove();
 
         } );

@@ -27,7 +27,7 @@ let export_to_csv = require("export-to-csv");
 let date_fns = require("date-fns");
 let dom_to_image = require("dom-to-image");
 dom_to_image = __toESM(dom_to_image, 1);
-let zip_slim = require("zip-slim");
+let client_zip = require("client-zip");
 //#region package.json
 var version = "1.3.4";
 //#endregion
@@ -6925,10 +6925,10 @@ var FilesState = class extends AbstractProperty {
 			const file = new File([blob], instance.fileName, { type: "application/octet-stream" });
 			files.push(file);
 		});
-		(0, zip_slim.zip)(files, true).then((result) => {
+		(0, client_zip.downloadZip)(files).blob().then((blob) => {
 			const link = document.createElement("a");
 			link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
-			link.href = URL.createObjectURL(result);
+			link.href = URL.createObjectURL(blob);
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);

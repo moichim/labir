@@ -2,7 +2,7 @@ import * as workerpool from "workerpool";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { addDays, addHours, addMonths, addYears, endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, formatISO9075, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import domtoimage from "dom-to-image";
-import { zip } from "zip-slim";
+import { downloadZip } from "client-zip";
 //#region package.json
 var version = "1.3.4";
 //#endregion
@@ -6900,10 +6900,10 @@ var FilesState = class extends AbstractProperty {
 			const file = new File([blob], instance.fileName, { type: "application/octet-stream" });
 			files.push(file);
 		});
-		zip(files, true).then((result) => {
+		downloadZip(files).blob().then((blob) => {
 			const link = document.createElement("a");
 			link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
-			link.href = URL.createObjectURL(result);
+			link.href = URL.createObjectURL(blob);
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
