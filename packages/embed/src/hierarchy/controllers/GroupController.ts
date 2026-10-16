@@ -1,4 +1,5 @@
 import type { ThermalGroup } from "@labirthermal/core";
+import { CallbacksManager } from "@labirthermal/core";
 import { ContextProvider, createContext } from "@lit/context";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import type { IBaseElement } from "../AbstractThermalElement";
@@ -82,6 +83,8 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
 
     private groupObjectContextProvider: ContextProvider<typeof groupObjectContext, IElementWithGroupController>;
 
+    public readonly onInternalObject = new CallbacksManager< (manager: ThermalGroup) => void >();
+
 
     constructor(
         host: IElementWithGroupController
@@ -108,6 +111,7 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
         this.host.groupSlug = slug;
 
         this.host.groupObject = this.host.registryController.addOrGetGroup(slug);
+        this.onInternalObject.call(this.host.groupObject);
         
         this.groupObjectContextProvider.setValue(this.host.groupObject);
 

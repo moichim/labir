@@ -10,6 +10,7 @@ import type { ThermalTool } from "@labirthermal/core";
 import type { ThermalRegistry } from "@labirthermal/core";
 import { paletteConverter } from "../../utils/converters/paletteConverter";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
+import { CallbacksManager } from "@labirthermal/core";
 
 interface IHostProperties {
 
@@ -119,6 +120,9 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
 
     private readonly smoothGraphContextProvider: ContextProvider<typeof managerGraphFunctionContext, IElementWithManagerController>;
 
+    /** Callbacks called upon the internal registry object creation */
+    public readonly onInternalObject = new CallbacksManager< (manager: ThermalManager) => void >();
+
     constructor(host: IElementWithManagerController) {
 
         super(host);
@@ -182,6 +186,8 @@ export class ManagerController extends AbstractHierarchyController<IElementWithM
         // Create or get the manager object and set it in the context provider
         this.host.managerObject = createOrGetManager(slug);
         this.managerObjectContextPtovider.setValue(this.host.managerObject);
+
+        this.onInternalObject.call(this.host.managerObject);
 
 
         // Palette

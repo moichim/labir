@@ -12,11 +12,9 @@ export abstract class AbstractManagerProvider extends AbstractThermalElement imp
         ...ManagerController.HOST_PROPERTIES
     };
 
-    public managerController: ManagerController = new ManagerController(this);
-
     public managerSlug!: string;
-
     public managerObject!: ThermalManager;
+    public managerController: ManagerController = new ManagerController(this);
 
     @property({
         type: String,

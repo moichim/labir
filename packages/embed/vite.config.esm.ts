@@ -19,7 +19,7 @@ export default defineConfig({
         rollupOptions: {
 
             input: {
-                embed: path.resolve("./src/index.ts"),
+                embed: path.resolve("./src/index.export.ts"),
             },
             output: {
                 entryFileNames: '[name].esm.js',
@@ -30,12 +30,8 @@ export default defineConfig({
                 name: "closeBundle",
                 closeBundle() {
                     fs.copyFileSync(
-                        path.resolve("./dist/embed.esm.js"),
+                        path.resolve("./dist/lib/index.export.cjs"),
                         path.resolve("../thermal-display/assets/embed.esm.js")
-                    );
-                    fs.copyFileSync(
-                        path.resolve("./dist/embed.css"),
-                        path.resolve("../thermal-display/assets/embed.css")
                     );
 
                     console.log("@labirthermal/webcomponents build:esm copied into @labir/wordpress");

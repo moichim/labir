@@ -5,6 +5,7 @@ import type { IBaseElement } from "../AbstractThermalElement";
 import type { HostReactiveProperties} from "./AbstractHierarchyController";
 import { AbstractHierarchyController, INTERNAL_STATE_DECLARATION } from "./AbstractHierarchyController";
 import type { ManagerController } from "./ManagerController";
+import { CallbacksManager } from "@labirthermal/core";
 
 type IHostProperties = {
 
@@ -97,6 +98,9 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
     public get registryObject(): ThermalRegistry {
         return this.host.registryObject;
     }
+
+    /** Callbacks called upon the internal registry object creation */
+    public readonly onInternalObject = new CallbacksManager< (manager: ThermalRegistry) => void >();
 
 
     // Accessors to the host attributes
@@ -212,6 +216,8 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
         // Create the registry object for this element and store it in the host's registryObject property
         this.host.registryObject = this.host.managerController.createRegistry(slug);
         this.registryObjectContextProvider.setValue(this.host.registryObject);
+
+        this.onInternalObject.call(this.host.registryObject);
 
 
         // Opacity
@@ -329,7 +335,7 @@ export class RegistryController extends AbstractHierarchyController<IElementWith
         }
 
         // Set the inner value if different from the currrent one
-        if (this.registryObject.opacity.value !== safeValue) {
+        if (this.registryObject && this.registryObject.opacity.value !== safeValue) {
             this.registryObject.opacity.imposeOpacity(safeValue);
         }
 

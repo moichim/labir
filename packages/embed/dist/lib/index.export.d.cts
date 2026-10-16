@@ -737,6 +737,8 @@ export declare class ManagerController extends AbstractHierarchyController<IElem
   /** Graph smoothing flag accessed from the host element */
   get smoothGraph(): boolean;
   private readonly smoothGraphContextProvider;
+  /** Callbacks called upon the internal registry object creation */
+  readonly onInternalObject: CallbacksManager<(manager: ThermalManager) => void>;
   constructor(host: IElementWithManagerController);
   hostConnected(): void;
   hostDisconnected(): void;
@@ -839,6 +841,8 @@ export declare class RegistryController extends AbstractHierarchyController<IEle
   get UUID(): string;
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$6>;
   get registryObject(): ThermalRegistry;
+  /** Callbacks called upon the internal registry object creation */
+  readonly onInternalObject: CallbacksManager<(manager: ThermalRegistry) => void>;
   get slug(): string;
   get opacity(): number;
   get min(): number | undefined;
@@ -855,6 +859,10 @@ export declare class RegistryController extends AbstractHierarchyController<IEle
   private readonly toContextProvider;
   private readonly loadingContextProvider;
   private readonly highlightContextProvider;
+  private readonly managerControllerConsumer;
+  private _managerController?;
+  private _activeRegistry?;
+  private readonly handleManagerCreated;
   constructor(host: IElementWithRegistryController);
   hostConnected(): void;
   hostDisconnected(): void;
@@ -862,6 +870,9 @@ export declare class RegistryController extends AbstractHierarchyController<IEle
   hostUpdatedWatcher(): void;
   addOrGetGroup(slug: string): ThermalGroup;
   removeGroup(group: ThermalGroup): void;
+  private _initialize;
+  private _subscribeToManager;
+  private _removeRegistryListeners;
   /**
    * This is the recommended way to set the opacity. Calling this method will
    * - update the context provider element's attribute `opacity`
@@ -923,11 +934,18 @@ export declare class GroupController extends AbstractHierarchyController<IElemen
   get autoclearGroup(): boolean;
   private groupControllerContextProvider;
   private groupObjectContextProvider;
+  readonly onInternalObject: CallbacksManager<(manager: ThermalGroup) => void>;
+  private readonly registryControllerConsumer;
+  private _registryController?;
+  private _activeRegistryController?;
+  private readonly handleRegistryCreated;
   constructor(host: IElementWithGroupController);
   hostConnected(): void;
   hostDisconnected(): void;
   hostWillUpdateWatcher(): void;
   hostUpdatedWatcher(): void;
+  private _initialize;
+  private _subscribeToRegistry;
 }
 //#endregion
 //#region src/hierarchy/controllers/FileController.d.ts
@@ -1118,6 +1136,7 @@ type IHostProperties$3 = {
 interface IElementWithFileLoadController extends IBaseElement, IHostProperties$3 {
   fileController: FileController;
   fileLoadController: FileLoadController;
+  groupController: GroupController;
 }
 /**
  * When appended to an element with `FileController`, takes care of loading the file from the host attributes such as `thermal` and `visible`.
@@ -1136,14 +1155,20 @@ interface IElementWithFileLoadController extends IBaseElement, IHostProperties$3
 export declare class FileLoadController extends AbstractHierarchyController<IElementWithFileLoadController> {
   private _UUID;
   get UUID(): string;
-  private get group();
-  private get registry();
+  private _groupController?;
+  private _requestedGroup?;
+  private _requestedThermal?;
+  private _requestedVisible?;
+  private readonly groupControllerConsumer;
+  private readonly handleGroupCreated;
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$3>;
   constructor(host: IElementWithFileLoadController);
   hostWillUpdateWatcher(value: PropertyValueMap<IElementWithFileLoadController>): void;
   hostUpdatedWatcher(): void;
   hostConnected(): void;
   hostDisconnected(): void;
+  private _subscribeToGroup;
+  private _loadCurrentThermal;
   private _load;
 }
 //#endregion
@@ -2029,6 +2054,14 @@ export declare abstract class AbstractGroupProvider extends AbstractRegistryCons
 //#region src/hierarchy/abstraction/AbstractManagerProvider.d.ts
 export declare abstract class AbstractManagerProvider extends AbstractThermalElement implements IElementWithManagerController {
   static properties: {
+    autoclear: {
+      type: BooleanConstructor;
+      reflect: boolean;
+      converter: {
+        fromAttribute: (value: string | null) => boolean;
+        toAttribute: (value: boolean) => "true" | "false";
+      };
+    };
     managerSlug: import("lit").PropertyDeclaration<unknown, unknown>;
     managerObject: import("lit").PropertyDeclaration<unknown, unknown>;
     managerController: import("lit").PropertyDeclaration<unknown, unknown>;
@@ -2038,9 +2071,9 @@ export declare abstract class AbstractManagerProvider extends AbstractThermalEle
     smoothGraph: import("lit").PropertyDeclaration<unknown, unknown>;
     tool: import("lit").PropertyDeclaration<unknown, unknown>;
   };
-  managerController: ManagerController;
   managerSlug: string;
   managerObject: ThermalManager;
+  managerController: ManagerController;
   palette: AvailableThermalPalette;
   advancedPalettes: boolean;
   smoothThermograms: boolean;
@@ -2056,6 +2089,14 @@ export declare abstract class AbstractManagerProvider extends AbstractThermalEle
 //#region src/hierarchy/abstraction/AbstractRegistryProvider.d.ts
 export declare abstract class AbstractRegistryProvider extends AbstractManagerConsumer implements IElementWithRegistryController {
   static properties: {
+    autoclear: {
+      type: BooleanConstructor;
+      reflect: boolean;
+      converter: {
+        fromAttribute: (value: string | null) => boolean;
+        toAttribute: (value: boolean) => "true" | "false";
+      };
+    };
     managerController: import("lit").PropertyDeclaration<unknown, unknown>;
     registrySlug: import("lit").PropertyDeclaration<unknown, unknown>;
     registryObject: import("lit").PropertyDeclaration<unknown, unknown>;
@@ -2325,6 +2366,27 @@ declare global {
  * @author Jan Jáchim <jachim@zcu.cz>
  */
 export declare class FileProviderElement extends AbstractFileProvider implements IElementWithFileLoadController {
+  static properties: {
+    thermal: import("lit").PropertyDeclaration<unknown, unknown>;
+    visible: import("lit").PropertyDeclaration<unknown, unknown>;
+    managerController: import("lit").PropertyDeclaration<unknown, unknown>;
+    registryController: import("lit").PropertyDeclaration<unknown, unknown>;
+    groupController: import("lit").PropertyDeclaration<unknown, unknown>;
+    fileController: import("lit").PropertyDeclaration<unknown, unknown>;
+    file?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    failure?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    loading: import("lit").PropertyDeclaration<unknown, unknown>;
+    ms: import("lit").PropertyDeclaration<unknown, unknown>;
+    playbackSpeed: import("lit").PropertyDeclaration<unknown, unknown>;
+    analysis1?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis2?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis3?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis4?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis5?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis6?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    analysis7?: import("lit").PropertyDeclaration<unknown, unknown> | undefined;
+    autoHighlight: import("lit").PropertyDeclaration<unknown, unknown>;
+  };
   fileLoadController: FileLoadController;
   thermal: string | undefined;
   visible: string | undefined;

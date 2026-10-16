@@ -27,6 +27,11 @@ import { FileLoadController } from "../controllers/FileLoadController";
  */
 export class FileProviderElement extends AbstractFileProvider implements IElementWithFileLoadController {
 
+    public static properties = {
+        ...AbstractFileProvider.properties,
+        ...FileLoadController.HOST_PROPERTIES
+    }
+
     public fileLoadController: FileLoadController = new FileLoadController(this);
 
     public thermal: string | undefined;

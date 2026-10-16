@@ -17,7 +17,7 @@ if ( !function_exists( "analysis_is_set" ) ) {
 
 		<thermal-file-app
 			locale="<?= get_locale(); ?>"
-			url="<?= $attributes["thermal"]?>" 
+			thermal="<?= $attributes["thermal"]?>" 
 			<?php if (analysis_is_set( $attributes["visible"] ) ) { echo 'visible="'.$attributes["visible"].'"'; } ?>
 			palette=<?= $attributes["palette"]; ?> 
 			author="<?= $attributes["author"] ?>" 
@@ -37,11 +37,6 @@ if ( !function_exists( "analysis_is_set" ) ) {
 			<?php if (analysis_is_set( $attributes["analysis5"] ) ) { echo 'analysis5="'.$attributes["analysis5"].'"'; } ?>
 			<?php if (analysis_is_set( $attributes["analysis6"] ) ) { echo 'analysis6="'.$attributes["analysis6"].'"'; } ?>
 			<?php if (analysis_is_set( $attributes["analysis7"] ) ) { echo 'analysis7="'.$attributes["analysis7"].'"'; } ?>
-			showhistogram="<?= $attributes["showhistogram"] ? "true": "false" ?>"
-			showlayout="<?= $attributes["showlayout"] ? "true": "false" ?>"
-			showshare="<?= $attributes["showshare"] ? "true": "false" ?>"
-			interactiveanalysis="<?= $attributes["interactiveanalysis"] ? "true": "false" ?>"
-			layout="<?= $attributes["variant"]; ?>"
 			advanced-palettes="<?= $attributes["advancedpalettes"] ? "true": "false" ?>"
 			skin="<?= $attributes["skin"]; ?>"
 			lines="<?= $attributes["lines"]; ?>"

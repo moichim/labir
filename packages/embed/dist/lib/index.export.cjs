@@ -3591,62 +3591,473 @@ var FileController = class extends AbstractHierarchyController {
 	}
 };
 //#endregion
-//#region src/hierarchy/controllers/FileLoadController.ts
-/** 
-* When appended to an element with `FileController`, takes care of loading the file from the host attributes such as `thermal` and `visible`.
-* 
-* The element using `FileLoadController` needs to implement `IElementWithFileLoadController`
-* 
-* Public reactive properties of the host:
-* - `thermal`: The thermal file to be loaded.
-* - `visible`: The visibility setting for the thermal file.
-* 
-* @see {@link FileLoadController.HOST_PROPERTIES}
-* 
-* @module @labirthermal/webcomponents
-* @author Jan Jáchim <jachim@gmail.com>
-* */
-var FileLoadController = class extends AbstractHierarchyController {
+//#region src/hierarchy/providers/getters.ts
+const defaultManager = new _labirthermal_core.ThermalManager();
+window.Thermal = { managers: /* @__PURE__ */ new Map() };
+window.Thermal.managers.set("default", defaultManager);
+/** Create or get a manager instance from the global window object. */
+const createOrGetManager = (slug, options) => {
+	if (slug === void 0) return window.Thermal.managers.get("default");
+	else if (window.Thermal.managers.has(slug)) return window.Thermal.managers.get(slug);
+	else {
+		const manager = new _labirthermal_core.ThermalManager(void 0, options);
+		window.Thermal.managers.set(slug, manager);
+		return manager;
+	}
+};
+/** Remove the manager along with all its contents. */
+const removeManager = (manager) => {
+	let slug = void 0;
+	window.Thermal.managers.forEach((m, key) => {
+		if (m.id === manager.id) slug = key;
+	});
+	console.log("removing", manager);
+	if (slug !== void 0) {
+		console.log("found and removing", slug);
+		const foundManager = window.Thermal.managers.get(slug);
+		if (foundManager) {
+			foundManager.forEveryRegistry((registry) => foundManager.removeRegistry(registry.id));
+			window.Thermal.managers.delete(slug);
+		}
+	}
+};
+//#endregion
+//#region src/hierarchy/controllers/ManagerController.ts
+/** Exposes the main manager controller with all its setters and direct access to the host element values. */
+const managerControllerContext = (0, _lit_context.createContext)("manager-controller-context");
+const managerContext = (0, _lit_context.createContext)("manager-instance");
+const managerPaletteContext = (0, _lit_context.createContext)("manager-palette-context");
+const managerAdvancedPalettesContext = (0, _lit_context.createContext)("manager-advanced-palettes-context");
+const managerSmoothContext = (0, _lit_context.createContext)("manager-smooth-context");
+const managerGraphFunctionContext = (0, _lit_context.createContext)("manager-graph-function-context");
+const managerToolContext = (0, _lit_context.createContext)("manager-tool-context");
+const managerInteractiveAnalysesContext = (0, _lit_context.createContext)("manager-interactive-analysis-context");
+var ManagerController = class extends AbstractHierarchyController {
 	get UUID() {
 		return this._UUID;
 	}
-	get group() {
-		return this.host.fileController.host.groupController.groupObject;
-	}
-	get registry() {
-		return this.group.registry;
-	}
 	static {
 		this.HOST_PROPERTIES = {
-			thermal: {
+			managerSlug: {
 				type: String,
-				reflect: true,
-				attribute: "thermal"
+				reflect: false,
+				attribute: "manager-slug"
 			},
-			visible: {
+			managerObject: INTERNAL_STATE_DECLARATION,
+			managerController: INTERNAL_STATE_DECLARATION,
+			palette: {
 				type: String,
 				reflect: true,
-				attribute: "visible"
+				attribute: "palette",
+				converter: paletteConverter
+			},
+			advancedPalettes: {
+				reflect: true,
+				attribute: "advanced-palettes",
+				converter: booleanConverter(false)
+			},
+			smoothThermograms: {
+				reflect: true,
+				attribute: "smooth-thermograms",
+				converter: booleanConverter(false)
+			},
+			smoothGraph: {
+				reflect: true,
+				attribute: "smooth-graph",
+				converter: booleanConverter(false)
+			},
+			tool: {
+				type: String,
+				reflect: true,
+				attribute: "tool"
 			}
 		};
 	}
+	/** Accessor to the manageer slug from the host */
+	get slug() {
+		return this.host.managerSlug;
+	}
+	/** Accessor to the manager object from the host */
+	get managerObject() {
+		return this.host.managerObject;
+	}
+	/** Palette property value accessed from the host element */
+	get palette() {
+		return this.host.palette;
+	}
+	/** Smooth thermograms flag accessed from the host element */
+	get smoothThermograms() {
+		return this.host.smoothThermograms;
+	}
+	/** Tool property accessed from the host element */
+	get tool() {
+		return this.host.tool;
+	}
+	get toolObject() {
+		return this.managerObject.tool.value;
+	}
+	/** Graph smoothing flag accessed from the host element */
+	get smoothGraph() {
+		return this.host.smoothGraph;
+	}
 	constructor(host) {
 		super(host);
-		this._UUID = host.UUID;
+		this.onInternalObject = new _labirthermal_core.CallbacksManager();
+		this._UUID = host.UUID + "_manager-controller";
+		this.managerControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: managerControllerContext,
+			initialValue: this
+		});
+		this.managerObjectContextPtovider = new _lit_context.ContextProvider(this.host, { context: managerContext });
+		this.paletteContextProvider = new _lit_context.ContextProvider(this.host, { context: managerPaletteContext });
+		this.advancedPalettesContextProvider = new _lit_context.ContextProvider(this.host, { context: managerAdvancedPalettesContext });
+		this.smoothThermogramsContextProvider = new _lit_context.ContextProvider(this.host, { context: managerSmoothContext });
+		this.toolContextProvider = new _lit_context.ContextProvider(this.host, { context: managerToolContext });
+		this.smoothGraphContextProvider = new _lit_context.ContextProvider(this.host, { context: managerGraphFunctionContext });
 	}
+	hostConnected() {
+		const slug = this._getDefaultSlugFromHost("manager-slug");
+		this.host.managerSlug = slug;
+		this.host.managerObject = createOrGetManager(slug);
+		this.managerObjectContextPtovider.setValue(this.host.managerObject);
+		const initialPaletteValue = paletteConverter.fromAttribute(this.host.palette);
+		this.setPalette(initialPaletteValue);
+		this.managerObject.palette.addListener(this.UUID, this.setPalette.bind(this));
+		this.setAdvancedPalettes(this.host.advancedPalettes);
+		this.setSmoothThermograms(this.host.smoothThermograms);
+		this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
+		this.setSmoothGraph(this.host.smoothGraph);
+		this.managerObject.graphSmooth.addListener(this.UUID, this.setSmoothGraph.bind(this));
+		this._setToolByKey(this.host.tool);
+		this.managerObject.tool.addListener(this.UUID, this.setTool.bind(this));
+		this.onInternalObject.call(this.host.managerObject);
+	}
+	hostDisconnected() {
+		this.managerObject.palette.removeListener(this.UUID);
+		this.managerObject.smooth.removeListener(this.UUID);
+		this.managerObject.graphSmooth.removeListener(this.UUID);
+		this.managerObject.tool.removeListener(this.UUID);
+	}
+	hostUpdate() {}
 	hostWillUpdateWatcher(value) {
-		if (value.has("thermal") && this.host.thermal) this._load(this.host.thermal, this.host.visible);
+		if (!value) return;
+		if (value.has("palette")) this.setPalette(this.host.palette);
+		if (value.has("advancedPalettes")) this.setAdvancedPalettes(this.host.advancedPalettes);
+		if (value.has("smoothThermograms")) this.setSmoothThermograms(this.host.smoothThermograms);
+		if (value.has("smoothGraph")) this.setSmoothGraph(this.host.smoothGraph);
+		if (value.has("tool")) this._setToolByKey(this.host.tool);
 	}
 	hostUpdatedWatcher() {}
-	hostConnected() {}
-	hostDisconnected() {}
-	async _load(lrc, visible) {
-		if (this.host.fileController.fileObject) this.group.files.removeFile(this.host.fileController.fileObject);
-		this.host.fileController.startLoading();
-		return this.registry.batch.request(lrc, visible, this.group, async (result) => {
-			if (result instanceof _labirthermal_core.ThermalFileInstance) this.host.fileController.receiveInstance(result);
-			else if (result instanceof _labirthermal_core.ThermalFileFailure) this.host.fileController.receiveFailure(result);
+	/** 
+	* Create or get a registry by its slug from the internal manager object. 
+	*/
+	createRegistry(slug) {
+		return this.managerObject.addOrGetRegistry(slug);
+	}
+	_paletteStringToContextValue(palette) {
+		return {
+			key: palette,
+			data: _labirthermal_core.ThermalPalettes[palette]
+		};
+	}
+	/** 
+	* This is the recommended way to set the advanced palettes flag - updates the value in the context provider and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setAdvancedPalettes(value) {
+		if (this.host.advancedPalettes !== value) this.host.advancedPalettes = value;
+		if (this.advancedPalettesContextProvider.value !== value) this.advancedPalettesContextProvider.setValue(value);
+	}
+	/** 
+	* This is the recommended way to set the palette - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setPalette(value) {
+		const sanitizedValue = paletteConverter.fromAttribute(value);
+		if (this.managerObject.palette.value !== sanitizedValue) this.managerObject.palette.setPalette(sanitizedValue);
+		if (!this.paletteContextProvider.value) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
+		else if (this.paletteContextProvider.value.key !== sanitizedValue) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
+		if (this.host.palette !== sanitizedValue) this.host.palette = sanitizedValue;
+	}
+	/** 
+	* This is the recommended way to set the smooth thermograms flag - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setSmoothThermograms(value) {
+		if (this.host.smoothThermograms !== value) this.host.smoothThermograms = value;
+		if (this.smoothThermogramsContextProvider.value !== value) this.smoothThermogramsContextProvider.setValue(value);
+		if (this.managerObject.smooth.value !== value) this.managerObject.smooth.setSmooth(value);
+	}
+	/** 
+	* This is the recommended way to set the tool - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
+	*/
+	setTool(value) {
+		value = this._toolStringToObject(value.key);
+		if (value && value.key !== this.host.tool) this.host.tool = value.key;
+		if (this.toolContextProvider.value !== value) this.toolContextProvider.setValue(value);
+		if (this.managerObject.tool.value !== value) this.managerObject.tool.selectTool(value);
+	}
+	_setToolByKey(value) {
+		const toolObject = this._toolStringToObject(value);
+		this.setTool(toolObject);
+	}
+	_toolStringToObject(value = "inspect") {
+		const selectedTool = this.managerObject.tool.tools[value];
+		if (!selectedTool) return this.managerObject.tool.tools["inspect"];
+		return selectedTool;
+	}
+	/**
+	* This is the recommended way to set the smooth graph option - updates the value and the context provider. All updates are performed only when the new value differs from the current one.
+	*/
+	setSmoothGraph(value) {
+		if (this.host.smoothGraph !== value) this.host.smoothGraph = value;
+		if (this.smoothGraphContextProvider.value !== value) this.smoothGraphContextProvider.setValue(value);
+		if (this.managerObject.graphSmooth.value !== value) this.managerObject.graphSmooth.setGraphSmooth(value);
+	}
+};
+//#endregion
+//#region src/hierarchy/controllers/RegistryController.ts
+/** Exposes the current `RegistryController`. This is very important. */
+const registryControllerContext = (0, _lit_context.createContext)("registry-controller-context");
+/** Exposes the current `ThermalRegistry` object from the `RegistryController`. */
+const registryObjectContext = (0, _lit_context.createContext)("registry-object-context");
+/** Exposes the current opacity value context from the `RegistryController`. */
+const registryOpacityContext = (0, _lit_context.createContext)("registry-opacity");
+/** Exposes the current range from value from the `RegistryController`. */
+const registryRangeFromContext = (0, _lit_context.createContext)("registry-range-from");
+/** Exposes the current range to value from the `RegistryController`. */
+const registryRangeToContext = (0, _lit_context.createContext)("registry-range-to");
+/** Exposes the current registry loading value from the `RegistryController`. */
+const registryLoadingContext = (0, _lit_context.createContext)("registry-loading");
+/** Exposes the current registry min context from the `RegistryController` */
+const registryMinContext = (0, _lit_context.createContext)("registry-min");
+/** Exposes the current registry max value from the `RegistryController` */
+const registryMaxContext = (0, _lit_context.createContext)("registry-max");
+/**
+* Highlight is an optional range of temperatures highlighted graphically on the thermal scale. It is used to indicate for example:
+* - what is the range of a file within min/max of the entire group
+* - what is the range of an analysis within the min/max of a file
+* - what is the min/max of a group of files within multiple groups of files
+*
+* This context is exposed by a registry provider. It need to be consumed manually.
+*/
+const registryHighlightContext = (0, _lit_context.createContext)("registry-highlight");
+var RegistryController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			managerController: INTERNAL_STATE_DECLARATION,
+			registrySlug: {
+				type: String,
+				reflect: false,
+				attribute: "registry-slug"
+			},
+			registryObject: INTERNAL_STATE_DECLARATION,
+			registryController: INTERNAL_STATE_DECLARATION,
+			opacity: {
+				type: Number,
+				reflect: true,
+				attribute: "opacity"
+			},
+			min: {
+				type: Number,
+				reflect: false,
+				state: true
+			},
+			max: {
+				type: Number,
+				reflect: false,
+				state: true
+			},
+			from: {
+				type: Number,
+				reflect: true,
+				attribute: "from"
+			},
+			to: {
+				type: Number,
+				reflect: true,
+				attribute: "to"
+			},
+			loading: {
+				type: Boolean,
+				attribute: "is-loading",
+				reflect: true
+			},
+			highlight: {
+				type: Object,
+				reflect: false,
+				state: true
+			}
+		};
+	}
+	get registryObject() {
+		return this.host.registryObject;
+	}
+	get slug() {
+		return this.host.registrySlug;
+	}
+	get opacity() {
+		return this.host.opacity;
+	}
+	get min() {
+		return this.host.min;
+	}
+	get max() {
+		return this.host.max;
+	}
+	get from() {
+		return this.host.from;
+	}
+	get to() {
+		return this.host.to;
+	}
+	get loading() {
+		return this.host.loading;
+	}
+	constructor(host) {
+		super(host);
+		this.onInternalObject = new _labirthermal_core.CallbacksManager();
+		this.handleManagerCreated = () => {
+			if (this._managerController) this._initialize(this._managerController);
+		};
+		this._UUID = host.UUID + "_registry-controller";
+		this.registryControllerContextProvider = new _lit_context.ContextProvider(this.host, {
+			context: registryControllerContext,
+			initialValue: this
 		});
+		this.registryObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: registryObjectContext });
+		this.opacityContextProvider = new _lit_context.ContextProvider(this.host, { context: registryOpacityContext });
+		this.minContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMinContext });
+		this.maxContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMaxContext });
+		this.fromContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeFromContext });
+		this.toContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeToContext });
+		this.loadingContextProvider = new _lit_context.ContextProvider(this.host, { context: registryLoadingContext });
+		this.highlightContextProvider = new _lit_context.ContextProvider(this.host, { context: registryHighlightContext });
+		this.managerControllerConsumer = new _lit_context.ContextConsumer(this.host, {
+			context: managerControllerContext,
+			callback: (managerController) => {
+				this._subscribeToManager(managerController);
+			}
+		});
+	}
+	hostConnected() {
+		if (this.host.managerController) this._subscribeToManager(this.host.managerController);
+	}
+	hostDisconnected() {
+		this._managerController?.onInternalObject.delete(this.UUID);
+		this._managerController = void 0;
+		this._removeRegistryListeners();
+	}
+	hostWillUpdateWatcher(value) {
+		if (value.has("managerController") && this.host.managerController) this._subscribeToManager(this.host.managerController);
+		if (!this._activeRegistry) return;
+		if (value.has("opacity")) this.setOpacity(this.host.opacity ?? 1);
+		if (value.has("from") || value.has("to")) {
+			if (this.host.from === void 0 || this.host.to === void 0) this._clearRange();
+			else this.setRange(this.host.from, this.host.to);
+		}
+	}
+	hostUpdatedWatcher() {}
+	addOrGetGroup(slug) {
+		if (!this._activeRegistry) throw new Error("Cannot create a group before the registry is initialized.");
+		return this._activeRegistry.groups.addOrGetGroup(slug);
+	}
+	removeGroup(group) {
+		(this._activeRegistry ?? this.host.registryObject)?.groups.removeGroup(group.id);
+	}
+	_initialize(managerController) {
+		if (!this.host.isConnected || !managerController.managerObject) return;
+		const slug = this._getDefaultSlugFromHost("registry-slug");
+		const registry = managerController.createRegistry(slug);
+		this.host.managerController = managerController;
+		this.host.registrySlug = slug;
+		this.host.registryObject = registry;
+		this.registryObjectContextProvider.setValue(registry);
+		if (this._activeRegistry === registry) return;
+		this._removeRegistryListeners();
+		this._activeRegistry = registry;
+		this.setOpacity(this.host.opacity ?? 1);
+		registry.opacity.addListener(this.UUID, this.setOpacity.bind(this));
+		registry.minmax.addListener(this.UUID, (value) => {
+			if (value === void 0) {
+				this.host.min = void 0;
+				this.host.max = void 0;
+				this.minContextProvider.setValue(void 0);
+				this.maxContextProvider.setValue(void 0);
+				return;
+			}
+			if (value.min !== this.host.min) this.host.min = value.min;
+			if (value.max !== this.host.max) this.host.max = value.max;
+			if (value.min !== this.minContextProvider.value) this.minContextProvider.setValue(value.min);
+			if (value.max !== this.maxContextProvider.value) this.maxContextProvider.setValue(value.max);
+		});
+		registry.range.addListener(this.UUID, this._rangeListener.bind(this));
+		registry.loading.addListener(this.UUID, this._loadingListener.bind(this));
+		if (this.host.from !== void 0 && this.host.to !== void 0) this.setRange(this.host.from, this.host.to);
+		this.onInternalObject.call(registry);
+	}
+	_subscribeToManager(managerController) {
+		if (this._managerController !== managerController) {
+			this._managerController?.onInternalObject.delete(this.UUID);
+			this._managerController = managerController;
+		}
+		this.host.managerController = managerController;
+		managerController.onInternalObject.set(this.UUID, this.handleManagerCreated);
+		if (managerController.managerObject) this._initialize(managerController);
+	}
+	_removeRegistryListeners() {
+		if (!this._activeRegistry) return;
+		this._activeRegistry.opacity.removeListener(this.UUID);
+		this._activeRegistry.minmax.removeListener(this.UUID);
+		this._activeRegistry.range.removeListener(this.UUID);
+		this._activeRegistry.loading.removeListener(this.UUID);
+		this._activeRegistry = void 0;
+	}
+	/**
+	* This is the recommended way to set the opacity. Calling this method will 
+	* - update the context provider element's attribute `opacity`
+	* - set the internal value to `@labirthermal/core`
+	* - update the context provider
+	*/
+	setOpacity(value) {
+		const safeValue = isNaN(value) ? 1 : Math.max(0, Math.min(1, value));
+		if (this.host.opacity !== safeValue) this.host.opacity = safeValue;
+		if (this.registryObject && this.registryObject.opacity.value !== safeValue) this.registryObject.opacity.imposeOpacity(safeValue);
+		if (this.opacityContextProvider.value !== safeValue) this.opacityContextProvider.setValue(safeValue);
+	}
+	setRange(from, to) {
+		if (this._activeRegistry?.range.value === void 0 || this._activeRegistry.range.value.from !== from || this._activeRegistry.range.value.to !== to) this._activeRegistry?.range.imposeRange({
+			from,
+			to
+		});
+		const currentInternalRange = this._activeRegistry?.range.value;
+		if (currentInternalRange === void 0) this._clearRange();
+		else {
+			this.host.from = currentInternalRange.from;
+			this.host.to = currentInternalRange.to;
+			this.fromContextProvider.setValue(currentInternalRange.from);
+			this.toContextProvider.setValue(currentInternalRange.to);
+		}
+	}
+	setRangeFull() {
+		if (this.host.min !== void 0 && this.host.max !== void 0) this.setRange(this.host.min, this.host.max);
+	}
+	_rangeListener(value) {
+		if (value !== void 0) this.setRange(value.from, value.to);
+		else this._clearRange();
+	}
+	_clearRange() {
+		this.host.from = void 0;
+		this.host.to = void 0;
+		this.fromContextProvider.setValue(void 0);
+		this.toContextProvider.setValue(void 0);
+	}
+	_loadingListener(value) {
+		if (value !== this.host.loading) this.host.loading = value;
+		if (value !== this.loadingContextProvider.value) this.loadingContextProvider.setValue(value);
+	}
+	setHighlight(value) {
+		if (this.highlightContextProvider.value !== value) this.highlightContextProvider.setValue(value);
 	}
 };
 //#endregion
@@ -3704,24 +4115,156 @@ var GroupController = class extends AbstractHierarchyController {
 	}
 	constructor(host) {
 		super(host);
+		this.onInternalObject = new _labirthermal_core.CallbacksManager();
+		this.handleRegistryCreated = () => {
+			if (this._registryController) this._initialize(this._registryController);
+		};
 		this._UUID = host.UUID + "_group-controller";
 		this.groupControllerContextProvider = new _lit_context.ContextProvider(this.host, {
 			context: groupControllerContext,
 			initialValue: this
 		});
 		this.groupObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: groupObjectContext });
+		this.registryControllerConsumer = new _lit_context.ContextConsumer(this.host, {
+			context: registryControllerContext,
+			callback: (registryController) => {
+				this._subscribeToRegistry(registryController);
+			}
+		});
 	}
 	hostConnected() {
-		const slug = this._getDefaultSlugFromHost("group-slug");
-		this.host.groupSlug = slug;
-		this.host.groupObject = this.host.registryController.addOrGetGroup(slug);
-		this.groupObjectContextProvider.setValue(this.host.groupObject);
+		if (this.host.registryController) this._subscribeToRegistry(this.host.registryController);
 	}
 	hostDisconnected() {
-		if (this.autoclearGroup && this.host.groupObject) this.host.registryController.removeGroup(this.host.groupObject);
+		if (this.autoclearGroup && this.host.groupObject && this._activeRegistryController) this._activeRegistryController.removeGroup(this.host.groupObject);
+		this._registryController?.onInternalObject.delete(this.UUID);
+		this._registryController = void 0;
+		this._activeRegistryController = void 0;
 	}
 	hostWillUpdateWatcher() {}
 	hostUpdatedWatcher() {}
+	_initialize(registryController) {
+		if (!this.host.isConnected || !registryController.registryObject) return;
+		const slug = this._getDefaultSlugFromHost("group-slug");
+		const group = registryController.addOrGetGroup(slug);
+		if (this._activeRegistryController && this._activeRegistryController !== registryController && this.autoclearGroup && this.host.groupObject) this._activeRegistryController.removeGroup(this.host.groupObject);
+		this.host.registryController = registryController;
+		this.host.groupSlug = slug;
+		this.host.groupObject = group;
+		this.groupObjectContextProvider.setValue(group);
+		if (this._activeRegistryController === registryController) return;
+		this._activeRegistryController = registryController;
+		this.onInternalObject.call(group);
+	}
+	_subscribeToRegistry(registryController) {
+		if (this._registryController !== registryController) {
+			this._registryController?.onInternalObject.delete(this.UUID);
+			this._registryController = registryController;
+		}
+		this.host.registryController = registryController;
+		registryController.onInternalObject.set(this.UUID, this.handleRegistryCreated);
+		if (registryController.registryObject) this._initialize(registryController);
+	}
+};
+//#endregion
+//#region src/hierarchy/controllers/FileLoadController.ts
+/** 
+* When appended to an element with `FileController`, takes care of loading the file from the host attributes such as `thermal` and `visible`.
+* 
+* The element using `FileLoadController` needs to implement `IElementWithFileLoadController`
+* 
+* Public reactive properties of the host:
+* - `thermal`: The thermal file to be loaded.
+* - `visible`: The visibility setting for the thermal file.
+* 
+* @see {@link FileLoadController.HOST_PROPERTIES}
+* 
+* @module @labirthermal/webcomponents
+* @author Jan Jáchim <jachim@gmail.com>
+* */
+var FileLoadController = class extends AbstractHierarchyController {
+	get UUID() {
+		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			thermal: {
+				type: String,
+				reflect: true,
+				attribute: "thermal"
+			},
+			visible: {
+				type: String,
+				reflect: true,
+				attribute: "visible"
+			}
+		};
+	}
+	constructor(host) {
+		super(host);
+		this.handleGroupCreated = () => this._loadCurrentThermal();
+		this._UUID = host.UUID;
+		this.groupControllerConsumer = new _lit_context.ContextConsumer(this.host, {
+			context: groupControllerContext,
+			callback: (groupController) => {
+				this.host.groupController = groupController;
+				this._subscribeToGroup(groupController);
+			}
+		});
+	}
+	hostWillUpdateWatcher(value) {
+		if (value.has("thermal") || value.has("visible")) {
+			this._requestedGroup = void 0;
+			this._requestedThermal = void 0;
+			this._requestedVisible = void 0;
+			this._loadCurrentThermal();
+		}
+	}
+	hostUpdatedWatcher() {}
+	hostConnected() {
+		if (this.host.groupController) this._subscribeToGroup(this.host.groupController);
+		this._loadCurrentThermal();
+	}
+	hostDisconnected() {
+		this._groupController?.onInternalObject.delete(this.UUID);
+		this._groupController = void 0;
+	}
+	_subscribeToGroup(groupController) {
+		if (this._groupController !== groupController) {
+			this._groupController?.onInternalObject.delete(this.UUID);
+			this._groupController = groupController;
+		}
+		groupController.onInternalObject.set(this.UUID, this.handleGroupCreated);
+		this._loadCurrentThermal();
+	}
+	_loadCurrentThermal() {
+		const thermal = this.host.thermal;
+		const group = this._groupController?.groupObject;
+		if (!thermal) {
+			this._requestedGroup = void 0;
+			this._requestedThermal = void 0;
+			this._requestedVisible = void 0;
+			const file = this.host.fileController.fileObject;
+			if (file && group) {
+				group.files.removeFile(file);
+				this.host.fileController.removeInstance();
+			}
+			return;
+		}
+		if (!group || this._requestedGroup === group && this._requestedThermal === thermal && this._requestedVisible === this.host.visible) return;
+		this._requestedGroup = group;
+		this._requestedThermal = thermal;
+		this._requestedVisible = this.host.visible;
+		this._load(thermal, this.host.visible, group);
+	}
+	async _load(lrc, visible, group) {
+		if (this.host.fileController.fileObject) group.files.removeFile(this.host.fileController.fileObject);
+		this.host.fileController.startLoading();
+		return group.registry.batch.request(lrc, visible, group, async (result) => {
+			if (result instanceof _labirthermal_core.ThermalFileInstance) this.host.fileController.receiveInstance(result);
+			else if (result instanceof _labirthermal_core.ThermalFileFailure) this.host.fileController.receiveFailure(result);
+		});
+	}
 };
 //#endregion
 //#region src/hierarchy/controllers/GroupLoadController.ts
@@ -4673,434 +5216,6 @@ var GroupAnalysisSyncController = class GroupAnalysisSyncController extends Abst
 		} finally {
 			this._changingCore = false;
 		}
-	}
-};
-//#endregion
-//#region src/hierarchy/controllers/RegistryController.ts
-/** Exposes the current `RegistryController`. This is very important. */
-const registryControllerContext = (0, _lit_context.createContext)("registry-controller-context");
-/** Exposes the current `ThermalRegistry` object from the `RegistryController`. */
-const registryObjectContext = (0, _lit_context.createContext)("registry-object-context");
-/** Exposes the current opacity value context from the `RegistryController`. */
-const registryOpacityContext = (0, _lit_context.createContext)("registry-opacity");
-/** Exposes the current range from value from the `RegistryController`. */
-const registryRangeFromContext = (0, _lit_context.createContext)("registry-range-from");
-/** Exposes the current range to value from the `RegistryController`. */
-const registryRangeToContext = (0, _lit_context.createContext)("registry-range-to");
-/** Exposes the current registry loading value from the `RegistryController`. */
-const registryLoadingContext = (0, _lit_context.createContext)("registry-loading");
-/** Exposes the current registry min context from the `RegistryController` */
-const registryMinContext = (0, _lit_context.createContext)("registry-min");
-/** Exposes the current registry max value from the `RegistryController` */
-const registryMaxContext = (0, _lit_context.createContext)("registry-max");
-/**
-* Highlight is an optional range of temperatures highlighted graphically on the thermal scale. It is used to indicate for example:
-* - what is the range of a file within min/max of the entire group
-* - what is the range of an analysis within the min/max of a file
-* - what is the min/max of a group of files within multiple groups of files
-*
-* This context is exposed by a registry provider. It need to be consumed manually.
-*/
-const registryHighlightContext = (0, _lit_context.createContext)("registry-highlight");
-var RegistryController = class extends AbstractHierarchyController {
-	get UUID() {
-		return this._UUID;
-	}
-	static {
-		this.HOST_PROPERTIES = {
-			managerController: INTERNAL_STATE_DECLARATION,
-			registrySlug: {
-				type: String,
-				reflect: false,
-				attribute: "registry-slug"
-			},
-			registryObject: INTERNAL_STATE_DECLARATION,
-			registryController: INTERNAL_STATE_DECLARATION,
-			opacity: {
-				type: Number,
-				reflect: true,
-				attribute: "opacity"
-			},
-			min: {
-				type: Number,
-				reflect: false,
-				state: true
-			},
-			max: {
-				type: Number,
-				reflect: false,
-				state: true
-			},
-			from: {
-				type: Number,
-				reflect: true,
-				attribute: "from"
-			},
-			to: {
-				type: Number,
-				reflect: true,
-				attribute: "to"
-			},
-			loading: {
-				type: Boolean,
-				attribute: "is-loading",
-				reflect: true
-			},
-			highlight: {
-				type: Object,
-				reflect: false,
-				state: true
-			}
-		};
-	}
-	get registryObject() {
-		return this.host.registryObject;
-	}
-	get slug() {
-		return this.host.registrySlug;
-	}
-	get opacity() {
-		return this.host.opacity;
-	}
-	get min() {
-		return this.host.min;
-	}
-	get max() {
-		return this.host.max;
-	}
-	get from() {
-		return this.host.from;
-	}
-	get to() {
-		return this.host.to;
-	}
-	get loading() {
-		return this.host.loading;
-	}
-	constructor(host) {
-		super(host);
-		this._UUID = host.UUID + "_registry-controller";
-		this.registryControllerContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: registryControllerContext,
-			initialValue: this
-		});
-		this.registryObjectContextProvider = new _lit_context.ContextProvider(this.host, { context: registryObjectContext });
-		this.opacityContextProvider = new _lit_context.ContextProvider(this.host, { context: registryOpacityContext });
-		this.minContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMinContext });
-		this.maxContextProvider = new _lit_context.ContextProvider(this.host, { context: registryMaxContext });
-		this.fromContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeFromContext });
-		this.toContextProvider = new _lit_context.ContextProvider(this.host, { context: registryRangeToContext });
-		this.loadingContextProvider = new _lit_context.ContextProvider(this.host, { context: registryLoadingContext });
-		this.highlightContextProvider = new _lit_context.ContextProvider(this.host, { context: registryHighlightContext });
-	}
-	hostConnected() {
-		const slug = this._getDefaultSlugFromHost("registry-slug");
-		this.host.registrySlug = slug;
-		this.host.registryObject = this.host.managerController.createRegistry(slug);
-		this.registryObjectContextProvider.setValue(this.host.registryObject);
-		this.setOpacity(this.host.opacity ?? 1);
-		this.registryObject.opacity.addListener(this.UUID, this.setOpacity.bind(this));
-		this.registryObject.minmax.addListener(this.UUID, (value) => {
-			if (value === void 0) {
-				this.host.min = void 0;
-				this.host.max = void 0;
-				this.minContextProvider.setValue(void 0);
-				this.maxContextProvider.setValue(void 0);
-			} else {
-				if (value.min !== this.host.min) this.host.min = value.min;
-				if (value.max !== this.host.max) this.host.max = value.max;
-				if (value.min !== this.minContextProvider.value) this.minContextProvider.setValue(value.min);
-				if (value.max !== this.maxContextProvider.value) this.maxContextProvider.setValue(value.max);
-			}
-		});
-		this.registryObject.range.addListener(this.UUID, this._rangeListener.bind(this));
-		this.registryObject.loading.addListener(this.UUID, this._loadingListener.bind(this));
-	}
-	hostDisconnected() {
-		this.registryObject.opacity.removeListener(this.UUID);
-		this.registryObject.minmax.removeListener(this.UUID);
-		this.registryObject.range.removeListener(this.UUID);
-		this.registryObject.loading.removeListener(this.UUID);
-	}
-	hostWillUpdateWatcher(value) {
-		if (value.has("opacity")) this.setOpacity(this.host.opacity ?? 1);
-		if (value.has("from") || value.has("to")) {
-			if (this.host.from === void 0 || this.host.to === void 0) this._clearRange();
-			else this.setRange(this.host.from, this.host.to);
-		}
-	}
-	hostUpdatedWatcher() {}
-	addOrGetGroup(slug) {
-		return this.registryObject.groups.addOrGetGroup(slug);
-	}
-	removeGroup(group) {
-		this.registryObject.groups.removeGroup(group.id);
-	}
-	/**
-	* This is the recommended way to set the opacity. Calling this method will 
-	* - update the context provider element's attribute `opacity`
-	* - set the internal value to `@labirthermal/core`
-	* - update the context provider
-	*/
-	setOpacity(value) {
-		const safeValue = isNaN(value) ? 1 : Math.max(0, Math.min(1, value));
-		if (this.host.opacity !== safeValue) this.host.opacity = safeValue;
-		if (this.registryObject.opacity.value !== safeValue) this.registryObject.opacity.imposeOpacity(safeValue);
-		if (this.opacityContextProvider.value !== safeValue) this.opacityContextProvider.setValue(safeValue);
-	}
-	setRange(from, to) {
-		if (this.registryObject.range.value === void 0 || this.registryObject.range.value.from !== from || this.registryObject.range.value.to !== to) this.registryObject.range.imposeRange({
-			from,
-			to
-		});
-		const currentInternalRange = this.registryObject.range.value;
-		if (currentInternalRange === void 0) this._clearRange();
-		else {
-			this.host.from = currentInternalRange.from;
-			this.host.to = currentInternalRange.to;
-			this.fromContextProvider.setValue(currentInternalRange.from);
-			this.toContextProvider.setValue(currentInternalRange.to);
-		}
-	}
-	setRangeFull() {
-		if (this.host.min !== void 0 && this.host.max !== void 0) this.setRange(this.host.min, this.host.max);
-	}
-	_rangeListener(value) {
-		if (value !== void 0) this.setRange(value.from, value.to);
-		else this._clearRange();
-	}
-	_clearRange() {
-		this.host.from = void 0;
-		this.host.to = void 0;
-		this.fromContextProvider.setValue(void 0);
-		this.toContextProvider.setValue(void 0);
-	}
-	_loadingListener(value) {
-		if (value !== this.host.loading) this.host.loading = value;
-		if (value !== this.loadingContextProvider.value) this.loadingContextProvider.setValue(value);
-	}
-	setHighlight(value) {
-		if (this.highlightContextProvider.value !== value) this.highlightContextProvider.setValue(value);
-	}
-};
-//#endregion
-//#region src/hierarchy/providers/getters.ts
-const defaultManager = new _labirthermal_core.ThermalManager();
-window.Thermal = { managers: /* @__PURE__ */ new Map() };
-window.Thermal.managers.set("default", defaultManager);
-/** Create or get a manager instance from the global window object. */
-const createOrGetManager = (slug, options) => {
-	if (slug === void 0) return window.Thermal.managers.get("default");
-	else if (window.Thermal.managers.has(slug)) return window.Thermal.managers.get(slug);
-	else {
-		const manager = new _labirthermal_core.ThermalManager(void 0, options);
-		window.Thermal.managers.set(slug, manager);
-		return manager;
-	}
-};
-/** Remove the manager along with all its contents. */
-const removeManager = (manager) => {
-	let slug = void 0;
-	window.Thermal.managers.forEach((m, key) => {
-		if (m.id === manager.id) slug = key;
-	});
-	console.log("removing", manager);
-	if (slug !== void 0) {
-		console.log("found and removing", slug);
-		const foundManager = window.Thermal.managers.get(slug);
-		if (foundManager) {
-			foundManager.forEveryRegistry((registry) => foundManager.removeRegistry(registry.id));
-			window.Thermal.managers.delete(slug);
-		}
-	}
-};
-//#endregion
-//#region src/hierarchy/controllers/ManagerController.ts
-/** Exposes the main manager controller with all its setters and direct access to the host element values. */
-const managerControllerContext = (0, _lit_context.createContext)("manager-controller-context");
-const managerContext = (0, _lit_context.createContext)("manager-instance");
-const managerPaletteContext = (0, _lit_context.createContext)("manager-palette-context");
-const managerAdvancedPalettesContext = (0, _lit_context.createContext)("manager-advanced-palettes-context");
-const managerSmoothContext = (0, _lit_context.createContext)("manager-smooth-context");
-const managerGraphFunctionContext = (0, _lit_context.createContext)("manager-graph-function-context");
-const managerToolContext = (0, _lit_context.createContext)("manager-tool-context");
-const managerInteractiveAnalysesContext = (0, _lit_context.createContext)("manager-interactive-analysis-context");
-var ManagerController = class extends AbstractHierarchyController {
-	get UUID() {
-		return this._UUID;
-	}
-	static {
-		this.HOST_PROPERTIES = {
-			managerSlug: {
-				type: String,
-				reflect: false,
-				attribute: "manager-slug"
-			},
-			managerObject: INTERNAL_STATE_DECLARATION,
-			managerController: INTERNAL_STATE_DECLARATION,
-			palette: {
-				type: String,
-				reflect: true,
-				attribute: "palette",
-				converter: paletteConverter
-			},
-			advancedPalettes: {
-				reflect: true,
-				attribute: "advanced-palettes",
-				converter: booleanConverter(false)
-			},
-			smoothThermograms: {
-				reflect: true,
-				attribute: "smooth-thermograms",
-				converter: booleanConverter(false)
-			},
-			smoothGraph: {
-				reflect: true,
-				attribute: "smooth-graph",
-				converter: booleanConverter(false)
-			},
-			tool: {
-				type: String,
-				reflect: true,
-				attribute: "tool"
-			}
-		};
-	}
-	/** Accessor to the manageer slug from the host */
-	get slug() {
-		return this.host.managerSlug;
-	}
-	/** Accessor to the manager object from the host */
-	get managerObject() {
-		return this.host.managerObject;
-	}
-	/** Palette property value accessed from the host element */
-	get palette() {
-		return this.host.palette;
-	}
-	/** Smooth thermograms flag accessed from the host element */
-	get smoothThermograms() {
-		return this.host.smoothThermograms;
-	}
-	/** Tool property accessed from the host element */
-	get tool() {
-		return this.host.tool;
-	}
-	get toolObject() {
-		return this.managerObject.tool.value;
-	}
-	/** Graph smoothing flag accessed from the host element */
-	get smoothGraph() {
-		return this.host.smoothGraph;
-	}
-	constructor(host) {
-		super(host);
-		this._UUID = host.UUID + "_manager-controller";
-		this.managerControllerContextProvider = new _lit_context.ContextProvider(this.host, {
-			context: managerControllerContext,
-			initialValue: this
-		});
-		this.managerObjectContextPtovider = new _lit_context.ContextProvider(this.host, { context: managerContext });
-		this.paletteContextProvider = new _lit_context.ContextProvider(this.host, { context: managerPaletteContext });
-		this.advancedPalettesContextProvider = new _lit_context.ContextProvider(this.host, { context: managerAdvancedPalettesContext });
-		this.smoothThermogramsContextProvider = new _lit_context.ContextProvider(this.host, { context: managerSmoothContext });
-		this.toolContextProvider = new _lit_context.ContextProvider(this.host, { context: managerToolContext });
-		this.smoothGraphContextProvider = new _lit_context.ContextProvider(this.host, { context: managerGraphFunctionContext });
-	}
-	hostConnected() {
-		const slug = this._getDefaultSlugFromHost("manager-slug");
-		this.host.managerSlug = slug;
-		this.host.managerObject = createOrGetManager(slug);
-		this.managerObjectContextPtovider.setValue(this.host.managerObject);
-		const initialPaletteValue = paletteConverter.fromAttribute(this.host.palette);
-		this.setPalette(initialPaletteValue);
-		this.managerObject.palette.addListener(this.UUID, this.setPalette.bind(this));
-		this.setAdvancedPalettes(this.host.advancedPalettes);
-		this.setSmoothThermograms(this.host.smoothThermograms);
-		this.managerObject.smooth.addListener(this.UUID, this.setSmoothThermograms.bind(this));
-		this.setSmoothGraph(this.host.smoothGraph);
-		this.managerObject.graphSmooth.addListener(this.UUID, this.setSmoothGraph.bind(this));
-		this._setToolByKey(this.host.tool);
-		this.managerObject.tool.addListener(this.UUID, this.setTool.bind(this));
-	}
-	hostDisconnected() {
-		this.managerObject.palette.removeListener(this.UUID);
-		this.managerObject.smooth.removeListener(this.UUID);
-		this.managerObject.graphSmooth.removeListener(this.UUID);
-		this.managerObject.tool.removeListener(this.UUID);
-	}
-	hostUpdate() {}
-	hostWillUpdateWatcher(value) {
-		if (!value) return;
-		if (value.has("palette")) this.setPalette(this.host.palette);
-		if (value.has("advancedPalettes")) this.setAdvancedPalettes(this.host.advancedPalettes);
-		if (value.has("smoothThermograms")) this.setSmoothThermograms(this.host.smoothThermograms);
-		if (value.has("smoothGraph")) this.setSmoothGraph(this.host.smoothGraph);
-		if (value.has("tool")) this._setToolByKey(this.host.tool);
-	}
-	hostUpdatedWatcher() {}
-	/** 
-	* Create or get a registry by its slug from the internal manager object. 
-	*/
-	createRegistry(slug) {
-		return this.managerObject.addOrGetRegistry(slug);
-	}
-	_paletteStringToContextValue(palette) {
-		return {
-			key: palette,
-			data: _labirthermal_core.ThermalPalettes[palette]
-		};
-	}
-	/** 
-	* This is the recommended way to set the advanced palettes flag - updates the value in the context provider and the host element. All updates are performed only when the new value differs from the current one. 
-	*/
-	setAdvancedPalettes(value) {
-		if (this.host.advancedPalettes !== value) this.host.advancedPalettes = value;
-		if (this.advancedPalettesContextProvider.value !== value) this.advancedPalettesContextProvider.setValue(value);
-	}
-	/** 
-	* This is the recommended way to set the palette - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
-	*/
-	setPalette(value) {
-		const sanitizedValue = paletteConverter.fromAttribute(value);
-		if (this.managerObject.palette.value !== sanitizedValue) this.managerObject.palette.setPalette(sanitizedValue);
-		if (!this.paletteContextProvider.value) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
-		else if (this.paletteContextProvider.value.key !== sanitizedValue) this.paletteContextProvider.setValue(this._paletteStringToContextValue(sanitizedValue));
-		if (this.host.palette !== sanitizedValue) this.host.palette = sanitizedValue;
-	}
-	/** 
-	* This is the recommended way to set the smooth thermograms flag - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
-	*/
-	setSmoothThermograms(value) {
-		if (this.host.smoothThermograms !== value) this.host.smoothThermograms = value;
-		if (this.smoothThermogramsContextProvider.value !== value) this.smoothThermogramsContextProvider.setValue(value);
-		if (this.managerObject.smooth.value !== value) this.managerObject.smooth.setSmooth(value);
-	}
-	/** 
-	* This is the recommended way to set the tool - updates the value in the core manager object, the context provider, and the host element. All updates are performed only when the new value differs from the current one. 
-	*/
-	setTool(value) {
-		value = this._toolStringToObject(value.key);
-		if (value && value.key !== this.host.tool) this.host.tool = value.key;
-		if (this.toolContextProvider.value !== value) this.toolContextProvider.setValue(value);
-		if (this.managerObject.tool.value !== value) this.managerObject.tool.selectTool(value);
-	}
-	_setToolByKey(value) {
-		const toolObject = this._toolStringToObject(value);
-		this.setTool(toolObject);
-	}
-	_toolStringToObject(value = "inspect") {
-		const selectedTool = this.managerObject.tool.tools[value];
-		if (!selectedTool) return this.managerObject.tool.tools["inspect"];
-		return selectedTool;
-	}
-	/**
-	* This is the recommended way to set the smooth graph option - updates the value and the context provider. All updates are performed only when the new value differs from the current one.
-	*/
-	setSmoothGraph(value) {
-		if (this.host.smoothGraph !== value) this.host.smoothGraph = value;
-		if (this.smoothGraphContextProvider.value !== value) this.smoothGraphContextProvider.setValue(value);
-		if (this.managerObject.graphSmooth.value !== value) this.managerObject.graphSmooth.setGraphSmooth(value);
 	}
 };
 //#endregion
@@ -7781,7 +7896,14 @@ var AbstractManagerProvider = class extends AbstractThermalElement {
 		this.autoclear = false;
 	}
 	static {
-		this.properties = { ...ManagerController.HOST_PROPERTIES };
+		this.properties = {
+			...ManagerController.HOST_PROPERTIES,
+			autoclear: {
+				type: Boolean,
+				reflect: true,
+				converter: booleanConverter(false)
+			}
+		};
 	}
 	connectedCallback() {
 		super.connectedCallback();
@@ -7821,11 +7943,18 @@ var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 		this.autoclear = false;
 	}
 	static {
-		this.properties = { ...RegistryController.HOST_PROPERTIES };
+		this.properties = {
+			...RegistryController.HOST_PROPERTIES,
+			autoclear: {
+				type: Boolean,
+				reflect: true,
+				converter: booleanConverter(false)
+			}
+		};
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		if (this.autoclear === true && this.registryObject !== void 0) this.managerObject.removeRegistry(this.registryObject.id);
+		if (this.autoclear === true && this.registryObject !== void 0 && this.managerController) this.managerObject.removeRegistry(this.registryObject.id);
 	}
 	render() {
 		return lit.html`<slot></slot>`;
@@ -8328,6 +8457,12 @@ var FileProviderElement = class extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
 		this.fileLoadController = new FileLoadController(this);
+	}
+	static {
+		this.properties = {
+			...AbstractFileProvider.properties,
+			...FileLoadController.HOST_PROPERTIES
+		};
 	}
 };
 //#endregion

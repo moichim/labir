@@ -38,7 +38,7 @@ import { AppearencePanel } from '../utils/appearence/AppearencePanel';
  */
 export default function Edit({ attributes, setAttributes }) {
 
-	const ID = useMemo(() => Math.random().toString());
+	const ID = useMemo(() => Math.random().toString(), []);
 
 	/** Register the webcomponents if not already */
 	useRegisterIframeScript();
@@ -111,27 +111,31 @@ export default function Edit({ attributes, setAttributes }) {
 
 		if (node) {
 
-			node.onInstanceCreated.set(ID + "___sth", instance => {
 
-				setPreviewFile(instance);
+			node.fileController.onSuccess.set(ID + "___sth", instance => {
 
-				if (instance.moutedBaseLayers) {
-					instance.unmountFromDom();
-				}
+					setPreviewFile(instance);
 
-				setDuration(instance.timeline.duration);
+					if (instance.moutedBaseLayers) {
+						instance.unmountFromDom();
+					}
 
-				instance.draw();
+					setDuration(instance.timeline.duration);
 
-			});
+					instance.draw();
 
-			node.registry.range.addListener(ID, value => {
+				});
 
-				if (value instanceof Object) {
-					setAttributes(value);
-				} else {
-					setAttributes({ from: undefined, to: undefined });
-				}
+			node.registryController.onInternalObject.set(ID + "___sth", registry => {
+				// Handle the internal registry object
+
+				registry.range.addListener( ID, value => {
+					if (value instanceof Object) {
+						setAttributes(value);
+					} else {
+						setAttributes({ from: undefined, to: undefined });
+					}
+				} );
 			});
 
 		}
@@ -142,14 +146,17 @@ export default function Edit({ attributes, setAttributes }) {
 
 		if (node) {
 
-			node.registry.range.addListener(ID, value => {
-
-				if (value instanceof Object) {
-					setAttributes(value);
-				} else {
-					setAttributes({ from: undefined, to: undefined });
-				}
+			node.registryController.onInternalObject.set(ID + "___sth", registry => {
+				// Handle the internal registry object
+				registry.range.addListener( ID, value => {
+					if (value instanceof Object) {
+						setAttributes(value);
+					} else {
+						setAttributes({ from: undefined, to: undefined });
+					}
+				} );
 			});
+
 
 		}
 
@@ -160,6 +167,41 @@ export default function Edit({ attributes, setAttributes }) {
 
 	return (
 		<>
+
+			<manager-provider
+				manager-slug={ID}
+				style={{ display: "contents" }}
+			>
+
+				<registry-provider
+					registry-slug={ID}
+					style={{ display: "contents" }}
+				>
+
+					<group-provider
+						group-slug={ID}
+						style={{ display: "contents" }}
+					>
+
+						<file-provider
+							thermal={thermal}
+						>
+
+							<file-canvas></file-canvas>
+							<manager-tool-bar></manager-tool-bar>
+
+						</file-provider>
+
+						{thermal}
+
+					</group-provider>
+
+				</registry-provider>
+
+
+
+			</manager-provider>
+
 
 			{hasEditor === true &&
 				<EditorModal
@@ -187,7 +229,7 @@ export default function Edit({ attributes, setAttributes }) {
 						{thermal &&
 
 							<manager-provider
-								slug={ID + "___preview"}
+								// manager-slug={ID}
 								palette={palette}
 								autoclear="true"
 							>
@@ -335,7 +377,7 @@ export default function Edit({ attributes, setAttributes }) {
 					<PanelBody title="Display settings" initialOpen={false}>
 
 						<manager-provider
-							slug={ID + "___display"}
+							// manager-slug={ID}
 							palette={palette}
 							autoclear="true"
 						>
@@ -519,7 +561,7 @@ export default function Edit({ attributes, setAttributes }) {
 								<div>
 
 									<thermal-file-app
-										url={thermal}
+										thermal={thermal}
 										visible={visible}
 										palette={palette}
 										author={author}
@@ -540,22 +582,17 @@ export default function Edit({ attributes, setAttributes }) {
 										}}
 										speed={speed}
 										opacity={opacity}
-										showhistogram={showhistogram}
-										showshare={showshare}
-										showlayout={showlayout}
-										interactiveanalysis={interactiveanalysis}
-										layout={variant}
 										advanced-palettes={advancedpalettes ? "true" : "false"}
 										skin={attributes.skin}
 										lines={attributes.lines}
 										corners={attributes.corners}
 									>
 
-										{Object.values(notations).length > 0 && Object.values(notations).map(notation => <notation-entry 
-											label={notation.label} 
-											slot="notation" 
-											from={notation.from} 
-											to={notation.to} 
+										{Object.values(notations).length > 0 && Object.values(notations).map(notation => <notation-entry
+											label={notation.label}
+											slot="notation"
+											from={notation.from}
+											to={notation.to}
 											image={notation.image}
 										/>)}
 
