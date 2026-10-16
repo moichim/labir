@@ -10,22 +10,20 @@ The simpliest possible thing you can do with <code>@labirthermal/core</code> is 
 
 import {
     ThermalManager,
-    ThermalRegistry,
-    ThermalGroup,
     ThermalFileInstance,
     ThermalFileFailure
-} from @labirthermal/core;
+} from "@labirthermal/core";
 
-// Create the necesary hierarchy
-const manager = new ThermalManager("demo-manager");
-const registry.addOrGetRegistry( "demo-registry" );
+// Create the necessary hierarchy
+const manager = new ThermalManager();
+const registry = manager.addOrGetRegistry( "demo-registry" );
 const group = registry.groups.addOrGetGroup( "demo-group" );
 
-// load the file asynchronously
+// Load the file asynchronously
 registry.batch.request(
     
     // The URL of the IR image
-    "/file/sequence.lrc", 
+    "/files/sequence.lrc",
 
     // An optional URL of the visible file
     undefined, 
@@ -34,7 +32,7 @@ registry.batch.request(
     group, 
 
     // What to do when the file is OK
-    ( result: ThermalFileInstance | ThermalFileFailure ) => {
+    async ( result: ThermalFileInstance | ThermalFileFailure ) => {
 
         const div = document.createElement( "div" );
         document.body.appendChild( div );
@@ -42,7 +40,7 @@ registry.batch.request(
         if ( result instanceof ThermalFileInstance ) {
             result.mountToDom( div );
         } else if ( result instanceof ThermalFileFailure ) {
-            dom.text( "The file was not loaded" );
+            console.error( "The file was not loaded", result.message );
         }
 
     }

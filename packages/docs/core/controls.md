@@ -10,24 +10,22 @@ If you want to create your own GUI, here is a simple showcase for building butto
 
 import {
     ThermalManager,
-    ThermalRegistry,
-    ThermalGroup,
     ThermalFileInstance,
     ThermalFileFailure,
     ThermalPalettes
-} from @labirthermal/core;
+} from "@labirthermal/core";
 
-// Create the necesary hierarchy
-const manager = new ThermalManager("demo-manager");
-const registry.addOrGetRegistry( "demo-registry" );
+// Create the necessary hierarchy
+const manager = new ThermalManager();
+const registry = manager.addOrGetRegistry( "demo-registry" );
 const group = registry.groups.addOrGetGroup( "demo-group" );
 
 // load the file asynchronously
 registry.batch.request(
-    "/file/sequence.lrc", 
+    "/files/sequence.lrc",
     undefined, 
     group, 
-    ( result: ThermalFileInstance | ThermalFileFailure ) => {
+    async ( result: ThermalFileInstance | ThermalFileFailure ) => {
 
         const div = document.createElement( "div" );
         document.body.appendChild( div );
@@ -35,20 +33,20 @@ registry.batch.request(
         if ( result instanceof ThermalFileInstance ) {
             result.mountToDom( div );
         } else if ( result instanceof ThermalFileFailure ) {
-            dom.text( "The file was not loaded" );
+            console.error( "The file was not loaded", result.message );
         }
 
     }
 );
 
 // Build the buttons to control the thermal palette
-for ( let palette of ThermalPalettes ) {
+for ( const palette of Object.values( ThermalPalettes ) ) {
     const button = document.createElement("button");
     document.body.appendChild( button );
-    button.innerHTML = palette.name;
-    button.mousedown = () => {
-        manager.palette.setPalette( palette.key );
-    }
+    button.textContent = palette.name;
+    button.addEventListener( "click", () => {
+        manager.palette.setPalette( palette.slug );
+    } );
 }
 
 ```
@@ -59,7 +57,7 @@ for ( let palette of ThermalPalettes ) {
 <manager-provider manager-slug="demo-manager">
     <registry-provider registry-slug="demo-registry">
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/file/sequence.lrc">
+            <file-provider thermal="/files/sequence.lrc">
                 <manager-palette-dropdown></manager-palette-dropdown>
                 <file-canvas></file-canvas>
             </file-provider>
@@ -85,7 +83,7 @@ See the result:
 
 The following webcomponents example shows more internal properties of <code>@labirthermal/core</code> controlled by <code>@labirthermal/webcomponents</code>.
 
-Before the example, here is the full table of available controls:
+Before the example, here are two commonly used controls:
 
 <table>
     <thead>
@@ -105,9 +103,9 @@ Before the example, here is the full table of available controls:
         </tr>
         <tr>
             <td>Opacity of IR images</td>
-            <td><code>ThermalManager</code></td>
-            <td><code>manager-provider opacity="0.2"</code></td>
-            <td><code>manager-olacity-slider</code></td>
+            <td><code>ThermalRegistry</code></td>
+            <td><code>registry-provider opacity="0.2"</code></td>
+            <td><code>registry-opacity-slider</code></td>
         </tr>
     </tbody>
 </table>
@@ -116,7 +114,7 @@ Before the example, here is the full table of available controls:
 <manager-provider manager-slug="demo-manager">
     <registry-provider registry-slug="demo-registry">
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/file/sequence.lrc">
+            <file-provider thermal="/files/sequence.lrc">
                 
                 <code>manager-palette-dropdown</code>
                 <manager-palette-dropdown></manager-palette-dropdown>

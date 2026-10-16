@@ -1,50 +1,53 @@
 # ThermalManager
 
-The <code>ThermalManager</code> should be the top-level context of your entire application. 
+The <code>ThermalManager</code> is the top-level context of an application. It owns shared services and settings, including the thermal palette, image smoothing and tools.
 
 ## Nested registries
 
-There can be multiple <code>ThermalRegistry</code> objects within one <code>ThermalManager</code>. Every registry is identified by their unique slug. To manage registries, see the following example:
+There can be multiple <code>ThermalRegistry</code> objects within one <code>ThermalManager</code>. Each registry is identified by its unique ID. To create or retrieve a registry, use <code>addOrGetRegistry</code>:
 
 ```ts
-import { ThermalManager } from @labirthermal/core;
+import { ThermalManager } from "@labirthermal/core";
 
 // Create the manager
-const manager = new ThermalManager( "A unique name" );
+const manager = new ThermalManager();
 
 // Create two registries
-const registryA = manager.createOrGetRegistry( "Registry A" );
-const registryB = manager.createOrGetRegistry( "Registry B" );
+const registryA = manager.addOrGetRegistry( "registry-a" );
+const registryB = manager.addOrGetRegistry( "registry-b" );
 
 // Get the reference on an existing registry
-const registryAForTheSecondTime = manager.createOrGetRegistry( "Registry A" );
+const registryAForTheSecondTime = manager.addOrGetRegistry( "registry-a" );
 
-// Both referencies refer to the identical object
-const referencesAreEqual = registryA === registryAForTheSecondTime;
+// Both references point to the same object
+const referencesAreEqual = registryA === registryAForTheSecondTime; // true
 
-// Remove the registry A
-manager.removeRegistry( registryA );
+// Remove a registry by its ID
+manager.removeRegistry( "registry-a" );
 ```
 
 ## Thermal palette property
 
 Palette is a property of <code>ThermalManager</code> and is shared across all registries, groups and instances within one manager.
 
-How to use the <code>PaletteDrive</code> class in TypeScript:
+The manager's <code>PaletteDrive</code> exposes the current key and palette definition:
 
 ```ts
 // Object containing all available pallettes and their data
-import { ThermalPalettes } from "@labirthermal/core";
+import { ThermalManager, ThermalPalettes } from "@labirthermal/core";
 
 // Type containing all available palette keys that can be used in setPalette
 import type { AvailableThermalPalette } from "@labirthermal/core";
 
+const manager = new ThermalManager();
+
 // Access the current value
 const keyOfTheCurrentPalette = manager.palette.value;
 const currentPaletteObject = manager.palette.currentPalette;
+const availablePaletteKeys = Object.keys( ThermalPalettes );
 
-// Set the palette and invoke rerender of all files
-manager.palette.setPalette( value );
+// Set a palette and redraw the files managed by this manager
+manager.palette.setPalette( "lava" );
 
 // Listen to palette value change
 manager.palette.addListener(
@@ -62,8 +65,8 @@ Available thermal palette keys:
 - <code>jet</code>
 - <code>white_hot</code>
 - <code>black_hot</code>
-- <code>amber</code>
 - <code>lava</code>
+- <code>arctic</code>
 - <code>rainbow</code>
 - <code>rainbow_hc</code>
 
@@ -100,18 +103,21 @@ Webcomponents example below shows how <code>@labirthermal/webcomponents</code> i
 
 ## IR image smoothing property
 
-This property of <code>ThermalManager</code> indicates whether the included IR images will be displayed using CSS smooth property or not.
+The <code>smooth</code> property controls whether IR images are rendered smoothly or with pixelated edges.
 
 ```ts
+import { ThermalManager } from "@labirthermal/core";
+
+const manager = new ThermalManager();
 
 // Access the current value
 const currentValue: boolean = manager.smooth.value;
 const newValue: boolean = false;
 
-// Set the palette and invoke rerender of all files
+// Set image smoothing
 manager.smooth.setSmooth( newValue );
 
-// Listen to palette value change
+// Listen for changes
 manager.smooth.addListener(
     "id-of-the-listener",
     ( value: boolean ) => {
@@ -125,7 +131,6 @@ Webcomponents example below shows how <code>@labirthermal/webcomponents</code> i
 
 :::tabs
 == Interactive demo
-<!-- See how the default palette is set in manager provider -->
 <manager-provider advanced-palettes="true" palette="lava" manager-slug="manager-demo">
     <!-- Display the buttons -->
     <manager-image-smooth-switch></manager-image-smooth-switch>
@@ -162,19 +167,21 @@ Webcomponents example below shows how <code>@labirthermal/webcomponents</code> i
 To work with thermal images, we need tools. The current tool setting is shared across the entire context.
 
 ```ts
+import { ThermalManager } from "@labirthermal/core";
 
-// Access the current value
-const currentValue: string = manager.smooth.value;
-const newValue: string = "add-rect";
+const manager = new ThermalManager();
 
-// Set the palette and invoke rerender of all files
-manager.tool.setTool( newValue );
+// The current tool is a tool object; select a tool by its key
+const currentTool = manager.tool.value;
+const newTool: keyof typeof manager.tool.tools = "inspect";
 
-// Listen to palette value change
+manager.tool.selectTool( newTool );
+
+// Listen for tool changes
 manager.tool.addListener(
     "id-of-the-listener",
-    ( value: string ) => {
-        console.log( "The tool has changed", value );
+    value => {
+        console.log( "The tool has changed", value.key );
     }
 );
 
@@ -219,15 +226,15 @@ manager.tool.addListener(
 
 ### pool
 
-A workerpool service for asynchronous reading of thermal files
+The worker pool used for asynchronous file processing.
 
 ### registries
 
-Map of registries.
+An ID-keyed object containing the manager's registries.
 
 ### service
 
-Handles file loading and caching.
+The service used to load and cache files.
 
 <table>
     <thead>
@@ -246,11 +253,16 @@ Handles file loading and caching.
             <td><code>manager-palette-dropdown</code> or <code>manager-palette-buttons</code></td>
         </tr>
         <tr>
-            <td>Opacity of IR images</td>
+            <td>IR image smoothing</td>
             <td><code>ThermalManager</code></td>
-            <td><code>manager-provider opacity="0.2"</code></td>
-            <td><code>manager-olacity-slider</code></td>
+            <td><code>manager-provider smooth-thermograms="true"</code></td>
+            <td><code>manager-image-smooth-switch</code></td>
+        </tr>
+        <tr>
+            <td>Active tool</td>
+            <td><code>ThermalManager</code></td>
+            <td><code>manager-provider tool="inspect"</code></td>
+            <td><code>manager-tool-bar</code></td>
         </tr>
     </tbody>
 </table>
-

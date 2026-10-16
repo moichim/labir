@@ -10,19 +10,17 @@ You can load multiple files at once into a single group. This page demonstrates,
 
 import {
     ThermalManager,
-    ThermalRegistry,
-    ThermalGroup,
     ThermalFileInstance,
     ThermalFileFailure
-} from @labirthermal/core;
+} from "@labirthermal/core";
 
-// Create the necesary hierarchy
-const manager = new ThermalManager("demo-manager");
-const registry.addOrGetRegistry( "demo-registry" );
+// Create the necessary hierarchy
+const manager = new ThermalManager();
+const registry = manager.addOrGetRegistry( "demo-registry" );
 const group = registry.groups.addOrGetGroup( "demo-group" );
 
 // Callback for all files - mount the instance into a div
-const loadCallback = ( 
+const loadCallback = async (
     result: ThermalFileInstance | ThermalFileFailure 
 ) => {
 
@@ -32,7 +30,7 @@ const loadCallback = (
     if ( result instanceof ThermalFileInstance ) {
         result.mountToDom( div );
     } else {
-        dom.text( `The file ${result.request.url} was not loaded` );
+        console.error( `The file was not loaded: ${result.message}` );
     }
 
 }
@@ -41,7 +39,7 @@ const loadCallback = (
 const files = [
     "/files/sequence.lrc",
     "/files/klokan.lrc",
-    "files/makak.lrc"
+    "/files/makak.lrc"
 ];
 
 // Create a batch object

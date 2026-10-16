@@ -27,7 +27,7 @@ hero:
 ```html
 
 <!-- Import the IIFE build of the library-->
- <script src="/lib/embed.ifee.js"></script>
+ <script src="/lib/embed.iife.js"></script>
 
 <!-- Use the webcomponents anywhere in your DOM -->
  <thermal-file-app

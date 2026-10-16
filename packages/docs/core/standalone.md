@@ -1,6 +1,6 @@
 # Standalone usage
 
-The package <code>@labirthermal/core</code> is not intended for standalone usage, since it is integrated into <code>@labirthermal/webcomponents</code>.
+The <code>@labirthermal/core</code> package can be used directly from TypeScript or through <code>@labirthermal/webcomponents</code>.
 
 ## Load a single file
 
@@ -12,22 +12,20 @@ The simpliest possible thing you can do with <code>@labirthermal/core</code> is 
 
 import {
     ThermalManager,
-    ThermalRegistry,
-    ThermalGroup,
     ThermalFileInstance,
     ThermalFileFailure
-} from @labirthermal/core;
+} from "@labirthermal/core";
 
-// Create the necesary hierarchy
-const manager = new ThermalManager("demo-manager");
-const registry.addOrGetRegistry( "demo-registry" );
+// Create the necessary hierarchy
+const manager = new ThermalManager();
+const registry = manager.addOrGetRegistry( "demo-registry" );
 const group = registry.groups.addOrGetGroup( "demo-group" );
 
 // load the file asynchronously
 registry.batch.request(
     
     // The URL of the IR image
-    "/file/sequence.lrc", 
+    "/files/sequence.lrc",
 
     // An optional URL of the visible file
     undefined, 
@@ -36,7 +34,7 @@ registry.batch.request(
     group, 
 
     // What to do when the file is OK
-    ( result: ThermalFileInstance | ThermalFileFailure ) => {
+    async ( result: ThermalFileInstance | ThermalFileFailure ) => {
 
         const div = document.createElement( "div" );
         document.body.appendChild( div );
@@ -44,7 +42,7 @@ registry.batch.request(
         if ( result instanceof ThermalFileInstance ) {
             result.mountToDom( div );
         } else if ( result instanceof ThermalFileFailure ) {
-            dom.text( "The file was not loaded" );
+            console.error( "The file was not loaded", result.message );
         }
 
     }
@@ -53,15 +51,15 @@ registry.batch.request(
 == using @labirthermal/webcomponents
 The same thing can be done using webcomponents directly in the client
 ```html
-<thermal-manager manager-slug="demo-manager">
-    <thermal-registry registry-slug="demo-registry">
-        <thermal-group group-slug="demo-group">
-            <file-provider thermal="/file/sequence.lrc">
+<manager-provider manager-slug="demo-manager">
+    <registry-provider registry-slug="demo-registry">
+        <group-provider group-slug="demo-group">
+            <file-provider thermal="/files/sequence.lrc">
                 <file-canvas></file-canvas>
             </file-provider>
-        </thermal-group>
-    </thermal-registry>
-</thermal-manager>
+        </group-provider>
+    </registry-provider>
+</manager-provider>
 ```
 :::
 
@@ -77,19 +75,17 @@ You can load multiple files at once into a single group.
 
 import {
     ThermalManager,
-    ThermalRegistry,
-    ThermalGroup,
     ThermalFileInstance,
     ThermalFileFailure
-} from @labirthermal/core;
+} from "@labirthermal/core";
 
-// Create the necesary hierarchy
-const manager = new ThermalManager("demo-manager");
-const registry.addOrGetRegistry( "demo-registry" );
+// Create the necessary hierarchy
+const manager = new ThermalManager();
+const registry = manager.addOrGetRegistry( "demo-registry" );
 const group = registry.groups.addOrGetGroup( "demo-group" );
 
 // Callback for all files - mount the instance into a div
-const loadCallback = ( 
+const loadCallback = async (
     result: ThermalFileInstance | ThermalFileFailure 
 ) => {
 
@@ -99,7 +95,7 @@ const loadCallback = (
     if ( result instanceof ThermalFileInstance ) {
         result.mountToDom( div );
     } else {
-        dom.text( `The file ${result.request.url} was not loaded` );
+        console.error( `The file was not loaded: ${result.message}` );
     }
 
 }
@@ -108,7 +104,7 @@ const loadCallback = (
 const files = [
     "/files/sequence.lrc",
     "/files/klokan.lrc",
-    "files/makak.lrc"
+    "/files/makak.lrc"
 ];
 
 // Create a batch object
@@ -135,9 +131,9 @@ for ( const file of files ) {
 == using @labirthermal/webcomponents
 The same thing can be done using webcomponents directly in the client
 ```html
-<thermal-manager manager-slug="demo-manager">
-    <thermal-registry registry-slug="demo-registry">
-        <thermal-group group-slug="demo-group">
+<manager-provider manager-slug="demo-manager">
+    <registry-provider registry-slug="demo-registry">
+        <group-provider group-slug="demo-group">
             <file-provider thermal="/files/sequence.lrc">
                 <file-canvas></file-canvas>
             </file-provider>
@@ -147,9 +143,9 @@ The same thing can be done using webcomponents directly in the client
             <file-provider thermal="/files/makak.lrc">
                 <file-canvas></file-canvas>
             </file-provider>
-        </thermal-group>
-    </thermal-registry>
-</thermal-manager>
+        </group-provider>
+    </registry-provider>
+</manager-provider>
 ```
 :::
 
@@ -163,24 +159,22 @@ You can create any sort of GUI for controlling internal properties of the <code>
 
 import {
     ThermalManager,
-    ThermalRegistry,
-    ThermalGroup,
     ThermalFileInstance,
     ThermalFileFailure,
     ThermalPalettes
-} from @labirthermal/core;
+} from "@labirthermal/core";
 
-// Create the necesary hierarchy
-const manager = new ThermalManager("demo-manager");
-const registry.addOrGetRegistry( "demo-registry" );
+// Create the necessary hierarchy
+const manager = new ThermalManager();
+const registry = manager.addOrGetRegistry( "demo-registry" );
 const group = registry.groups.addOrGetGroup( "demo-group" );
 
-// load the file asynchronously
+// Load the file asynchronously
 registry.batch.request(
-    "/file/sequence.lrc", 
+    "/files/sequence.lrc",
     undefined, 
     group, 
-    ( result: ThermalFileInstance | ThermalFileFailure ) => {
+    async ( result: ThermalFileInstance | ThermalFileFailure ) => {
 
         const div = document.createElement( "div" );
         document.body.appendChild( div );
@@ -188,19 +182,19 @@ registry.batch.request(
         if ( result instanceof ThermalFileInstance ) {
             result.mountToDom( div );
         } else if ( result instanceof ThermalFileFailure ) {
-            dom.text( "The file was not loaded" );
+            console.error( "The file was not loaded", result.message );
         }
 
     }
 );
 
-for ( let palette of ThermalPalettes ) {
+for ( const palette of Object.values( ThermalPalettes ) ) {
     const button = document.createElement("button");
     document.body.appendChild( button );
-    button.innerHTML = palette.name;
-    button.mousedown = () => {
-        manager.palette.setPalette( palette.key );
-    }
+    button.textContent = palette.name;
+    button.addEventListener( "click", () => {
+        manager.palette.setPalette( palette.slug );
+    } );
 }
 
 
@@ -211,7 +205,7 @@ The same thing can be done using webcomponents directly in the client
 <manager-provider manager-slug="demo-manager">
     <registry-provider registry-slug="demo-registry">
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/file/sequence.lrc">
+            <file-provider thermal="/files/sequence.lrc">
                 <manager-palette-dropdown></manager-palette-dropdown>
                 <file-canvas></file-canvas>
             </file-provider>
@@ -231,9 +225,4 @@ See the result:
     </registry-provider>
 </manager-provider>
 :::
-
-
-
-
-
 

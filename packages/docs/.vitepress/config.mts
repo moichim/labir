@@ -39,6 +39,7 @@ export default defineConfig({
           { text: 'Overview', link: '/core' },
           {
             text: 'Standalone usage',
+            collapsed: true,
             items: [
               { text: 'Load a single file', link: '/core/single-file' },
               { text: 'Load multiple files', link: '/core/multiple-files' },
@@ -46,8 +47,11 @@ export default defineConfig({
             ]
           },
           { text: "Core classes", 
+            collapsed: true,
             items: [
-              { text: 'ThermalManager', link: '/core/thermal-manager' }
+              { text: 'ThermalManager', link: '/core/thermal-manager' },
+              { text: 'ThermalRegistry', link: '/core/thermal-registry' },
+              { text: 'ThermalGroup', link: '/core/thermal-group' }
             ]
           }
         ]

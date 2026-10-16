@@ -39,11 +39,8 @@ One of main ambitions of the @labirthermal package is to work with multiple file
     </li>
 </ul>
 
-See the 
+Explore the core hierarchy:
 
-
-```html
-
-    <>
-
-````
+- [ThermalManager](./thermal-manager) provides the application-level context and shared settings.
+- [ThermalRegistry](./thermal-registry) groups related display state and contains groups.
+- [ThermalGroup](./thermal-group) organizes thermal file instances.
