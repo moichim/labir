@@ -46,6 +46,10 @@ export class BatchLoader {
         if ( found ) {
             return found;
         }
+        return this.createBatch( id );
+    }
+
+    public createBatch( id?: string ): Batch {
         const item = Batch.init( this, id );
         this.set.add( item );
         return item;
@@ -68,7 +72,7 @@ export class BatchLoader {
         group: ThermalGroup,
         callback: BatchLoadingCallback,
         id?: string
-    ) {
+    ): Batch {
 
         let openBatch = id 
             ? this.getBatchById( id ) 

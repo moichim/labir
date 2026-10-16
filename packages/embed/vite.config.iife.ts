@@ -80,6 +80,15 @@ export default defineConfig({
 
                         console.log("IIFE build: @labirthermal/webcomponents build copied into @labirthermal/server");
 
+                        /** Job 2: Copy IIFE into Server package */
+
+                        fs.copyFileSync(
+                            path.resolve("./dist/iife/embed.iife.js"),
+                            path.resolve("../docs/public/lib/embed.iife.js")
+                        );
+
+                        console.log("IIFE build: @labirthermal/webcomponents build copied into @labirthermal/docs");
+
                     }
                 },
 

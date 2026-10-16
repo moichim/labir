@@ -6216,6 +6216,9 @@ var BatchLoader = class {
 	getBatchById(id) {
 		const found = Array.from(this.set).find((batch) => batch.id === id);
 		if (found) return found;
+		return this.createBatch(id);
+	}
+	createBatch(id) {
 		const item = Batch.init(this, id);
 		this.set.add(item);
 		return item;

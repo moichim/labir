@@ -859,10 +859,6 @@ export declare class RegistryController extends AbstractHierarchyController<IEle
   private readonly toContextProvider;
   private readonly loadingContextProvider;
   private readonly highlightContextProvider;
-  private readonly managerControllerConsumer;
-  private _managerController?;
-  private _activeRegistry?;
-  private readonly handleManagerCreated;
   constructor(host: IElementWithRegistryController);
   hostConnected(): void;
   hostDisconnected(): void;
@@ -870,9 +866,6 @@ export declare class RegistryController extends AbstractHierarchyController<IEle
   hostUpdatedWatcher(): void;
   addOrGetGroup(slug: string): ThermalGroup;
   removeGroup(group: ThermalGroup): void;
-  private _initialize;
-  private _subscribeToManager;
-  private _removeRegistryListeners;
   /**
    * This is the recommended way to set the opacity. Calling this method will
    * - update the context provider element's attribute `opacity`
@@ -935,17 +928,11 @@ export declare class GroupController extends AbstractHierarchyController<IElemen
   private groupControllerContextProvider;
   private groupObjectContextProvider;
   readonly onInternalObject: CallbacksManager<(manager: ThermalGroup) => void>;
-  private readonly registryControllerConsumer;
-  private _registryController?;
-  private _activeRegistryController?;
-  private readonly handleRegistryCreated;
   constructor(host: IElementWithGroupController);
   hostConnected(): void;
   hostDisconnected(): void;
   hostWillUpdateWatcher(): void;
   hostUpdatedWatcher(): void;
-  private _initialize;
-  private _subscribeToRegistry;
 }
 //#endregion
 //#region src/hierarchy/controllers/FileController.d.ts
@@ -1136,7 +1123,6 @@ type IHostProperties$3 = {
 interface IElementWithFileLoadController extends IBaseElement, IHostProperties$3 {
   fileController: FileController;
   fileLoadController: FileLoadController;
-  groupController: GroupController;
 }
 /**
  * When appended to an element with `FileController`, takes care of loading the file from the host attributes such as `thermal` and `visible`.
@@ -1155,20 +1141,14 @@ interface IElementWithFileLoadController extends IBaseElement, IHostProperties$3
 export declare class FileLoadController extends AbstractHierarchyController<IElementWithFileLoadController> {
   private _UUID;
   get UUID(): string;
-  private _groupController?;
-  private _requestedGroup?;
-  private _requestedThermal?;
-  private _requestedVisible?;
-  private readonly groupControllerConsumer;
-  private readonly handleGroupCreated;
+  private get group();
+  private get registry();
   static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$3>;
   constructor(host: IElementWithFileLoadController);
   hostWillUpdateWatcher(value: PropertyValueMap<IElementWithFileLoadController>): void;
   hostUpdatedWatcher(): void;
   hostConnected(): void;
   hostDisconnected(): void;
-  private _subscribeToGroup;
-  private _loadCurrentThermal;
   private _load;
 }
 //#endregion
@@ -2054,14 +2034,6 @@ export declare abstract class AbstractGroupProvider extends AbstractRegistryCons
 //#region src/hierarchy/abstraction/AbstractManagerProvider.d.ts
 export declare abstract class AbstractManagerProvider extends AbstractThermalElement implements IElementWithManagerController {
   static properties: {
-    autoclear: {
-      type: BooleanConstructor;
-      reflect: boolean;
-      converter: {
-        fromAttribute: (value: string | null) => boolean;
-        toAttribute: (value: boolean) => "true" | "false";
-      };
-    };
     managerSlug: import("lit").PropertyDeclaration<unknown, unknown>;
     managerObject: import("lit").PropertyDeclaration<unknown, unknown>;
     managerController: import("lit").PropertyDeclaration<unknown, unknown>;
@@ -2089,14 +2061,6 @@ export declare abstract class AbstractManagerProvider extends AbstractThermalEle
 //#region src/hierarchy/abstraction/AbstractRegistryProvider.d.ts
 export declare abstract class AbstractRegistryProvider extends AbstractManagerConsumer implements IElementWithRegistryController {
   static properties: {
-    autoclear: {
-      type: BooleanConstructor;
-      reflect: boolean;
-      converter: {
-        fromAttribute: (value: string | null) => boolean;
-        toAttribute: (value: boolean) => "true" | "false";
-      };
-    };
     managerController: import("lit").PropertyDeclaration<unknown, unknown>;
     registrySlug: import("lit").PropertyDeclaration<unknown, unknown>;
     registryObject: import("lit").PropertyDeclaration<unknown, unknown>;

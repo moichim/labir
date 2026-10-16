@@ -1,0 +1,79 @@
+# Load a single file
+
+The simpliest possible thing you can do with <code>@labirthermal/core</code> is to load a single file. This page demonstrates, how to do it in two ways:
+- a) manually **in TypeScript**
+- b) **using webcomponents** who do the exact TypeScript work for you
+
+## In TypeScript
+
+```ts
+
+import {
+    ThermalManager,
+    ThermalRegistry,
+    ThermalGroup,
+    ThermalFileInstance,
+    ThermalFileFailure
+} from @labirthermal/core;
+
+// Create the necesary hierarchy
+const manager = new ThermalManager("demo-manager");
+const registry.addOrGetRegistry( "demo-registry" );
+const group = registry.groups.addOrGetGroup( "demo-group" );
+
+// load the file asynchronously
+registry.batch.request(
+    
+    // The URL of the IR image
+    "/file/sequence.lrc", 
+
+    // An optional URL of the visible file
+    undefined, 
+
+    // A group to which the file will be added
+    group, 
+
+    // What to do when the file is OK
+    ( result: ThermalFileInstance | ThermalFileFailure ) => {
+
+        const div = document.createElement( "div" );
+        document.body.appendChild( div );
+
+        if ( result instanceof ThermalFileInstance ) {
+            result.mountToDom( div );
+        } else if ( result instanceof ThermalFileFailure ) {
+            dom.text( "The file was not loaded" );
+        }
+
+    }
+);
+```
+
+## Using webcomponents
+
+The similar functionality can be achieved using <code>@labirthermal/webcomponents</code>.
+
+```html
+<manager-provider manager-slug="demo-manager">
+    <registry-provider registry-slug="demo-registry">
+        <group-provider group-slug="demo-group">
+            <file-provider thermal="/files/makak.lrc">
+                <file-canvas></file-canvas>
+            </file-provider>
+        </group-provider>
+    </registry-provider>
+</manager-provider>
+```
+
+The result:
+
+
+<manager-provider manager-slug="demo-manager">
+    <registry-provider registry-slug="demo-registry">
+        <group-provider group-slug="demo-group">
+            <file-provider thermal="/files/makak.lrc">
+                <file-canvas></file-canvas>
+            </file-provider>
+        </group-provider>
+    </registry-provider>
+</manager-provider>

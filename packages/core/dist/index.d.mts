@@ -1455,6 +1455,7 @@ declare class BatchLoader {
   get numLoadingBatches(): number;
   constructor(registry: ThermalRegistry);
   getBatchById(id: string): Batch;
+  createBatch(id?: string): Batch;
   /**
    * Request a file through a batch
    *
