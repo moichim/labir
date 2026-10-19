@@ -32,6 +32,14 @@ pnpm install
 
 Every `/package/*` has its own tests, build commands and devservers.
 
+### Documentation deployment
+
+The Pages workflow builds the VitePress documentation on pushes to `master` or via **Actions > Deploy VitePress site to Pages > Run workflow**.
+
+Before the first deployment, select **GitHub Actions** under **Settings > Pages > Build and deployment > Source**. Alternatively, add a repository Actions secret named `PAGES_TOKEN` containing a fine-grained personal access token for this repository with **Pages: Read and write** permission; the workflow can then enable Pages automatically.
+
+Once Pages is enabled, remove `PAGES_TOKEN` if it was used for setup. Subsequent deployments use the built-in `GITHUB_TOKEN` with the workflow's existing Pages permissions.
+
 ### Release
 
 The release needs to be done from **the package root**. Make sure you build & release all packages at once - not individually.
