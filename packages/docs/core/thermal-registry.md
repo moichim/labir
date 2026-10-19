@@ -1,5 +1,9 @@
 # ThermalRegistry
 
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 The <code>ThermalRegistry</code> is a display context within a <code>ThermalManager</code>. It groups related thermal files and controls registry-wide visualization settings, including temperature range, min/max limits, opacity, and the temperature distribution histogram.
 
 All registries within a single <code>ThermalManager</code> share the manager's thermal palette and services, but each registry maintains its own independent display range, opacity, and group hierarchy.
@@ -78,13 +82,13 @@ registry.groups.addListener( "groups-listener", groups => {
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <group-provider group-slug="group-1">
                 <strong>Group 1:</strong>
-                <file-provider thermal="/files/klokan.lrc">
+                <file-provider :thermal="withBase('/files/klokan.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
             </group-provider>
             <group-provider group-slug="group-2">
                 <strong>Group 2:</strong>
-                <file-provider thermal="/files/makak.lrc">
+                <file-provider :thermal="withBase('/files/makak.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
             </group-provider>
@@ -153,7 +157,7 @@ registry.minmax.addListener( "minmax-listener", value => {
         <registry-range-display></registry-range-display>
         <registry-range-full-button></registry-range-full-button>
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/files/klokan.lrc">
+            <file-provider :thermal="withBase('/files/klokan.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -229,7 +233,7 @@ registry.range.addListener( "range-listener", range => {
             <registry-range-full-button></registry-range-full-button>
         </div>
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/files/soustruh.lrc">
+            <file-provider :thermal="withBase('/files/soustruh.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -297,7 +301,7 @@ registry.histogram.addListener( "hist-listener", data => {
     <registry-provider registry-slug="demo-registry">
         <registry-histogram height="80px" expandable="true"></registry-histogram>
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/files/klokan.lrc">
+            <file-provider :thermal="withBase('/files/klokan.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -349,7 +353,7 @@ registry.opacity.addListener( "opacity-listener", ( value: number ) => {
     <registry-provider registry-slug="demo-registry" opacity="0.7">
         <registry-opacity-slider></registry-opacity-slider>
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/files/soustruh.lrc">
+            <file-provider :thermal="withBase('/files/soustruh.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>

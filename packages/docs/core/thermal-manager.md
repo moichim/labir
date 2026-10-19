@@ -1,5 +1,9 @@
 # ThermalManager
 
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 The <code>ThermalManager</code> is the top-level context of an application. It owns shared services and settings, including the thermal palette, image smoothing and tools.
 
 ## Nested registries
@@ -78,7 +82,7 @@ Webcomponents example below shows how <code>@labirthermal/webcomponents</code> i
     <manager-palette-buttons></manager-palette-buttons>
     <registry-provider>
         <group-provider>
-            <file-provider thermal="/files/klokan.lrc">
+            <file-provider :thermal="withBase('/files/klokan.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -137,7 +141,7 @@ Webcomponents example below shows how <code>@labirthermal/webcomponents</code> i
     <span>Use the buttons to change image smoothing</span>
     <registry-provider>
         <group-provider>
-            <file-provider thermal="/files/soustruh.lrc">
+            <file-provider :thermal="withBase('/files/soustruh.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -196,7 +200,7 @@ manager.tool.addListener(
     <span>Use the buttons to change the tool and interact with the image.</span>
     <registry-provider> 
         <group-provider>
-            <file-provider thermal="/files/soustruh.lrc">
+            <file-provider :thermal="withBase('/files/soustruh.lrc')">
                 <file-canvas></file-canvas>
                 <file-analysis-table></file-analysis-table>
             </file-provider>

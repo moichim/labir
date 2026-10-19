@@ -1,6 +1,7 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue'
 import type { Theme } from 'vitepress'
+import { withBase } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import './style.css'
 
@@ -28,7 +29,7 @@ export default {
     if ( !ifeeScriptObject ) {
         const script = document.createElement('script');
         script.id = ifeeScriptId;
-        script.src = '/lib/embed.iife.js';
+        script.src = withBase('/lib/embed.iife.js');
         document.body.appendChild(script);
     }
 
@@ -41,7 +42,7 @@ export default {
     if ( !cjsScriptObject ) {
         const script = document.createElement('script');
         script.id = cjsScriptId;
-        script.src = '/lib/core.esm.cjs';
+        script.src = withBase('/lib/core.esm.cjs');
         script.type = 'module';
         // document.body.appendChild(script);
     }

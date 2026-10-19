@@ -1,5 +1,9 @@
 # Creating controls
 
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 The <code>@labirthermal/core</code> package and its classes contain lots of various properties, that you can use to build complex interfaces. All of them are integrated as webcomponents in <code>@labirthermal/webcomponents</code>. 
 
 If you want to create your own GUI, here is a simple showcase for building buttons that switch the palette of displayed images.
@@ -71,7 +75,7 @@ See the result:
 <manager-provider manager-slug="demo-manager">
     <registry-provider registry-slug="demo-registry">
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/files/makak.lrc">
+            <file-provider :thermal="withBase('/files/makak.lrc')">
                 <manager-palette-buttons></manager-palette-buttons>
                 <file-canvas></file-canvas>
             </file-provider>
