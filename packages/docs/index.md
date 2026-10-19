@@ -26,6 +26,8 @@ import { withBase } from 'vitepress'
   analysis1="Rectangle 0;rectangle;color:Blue;top:22;left:25;width:80;height:53;min"
   analysis2="Rectangle 1;rectangle;color:Red;top:56;left:44;width:40;height:36;avg"
   class="full-width"
+  from="10"
+  to="100"
 ></thermal-file-app>
 
 ```html

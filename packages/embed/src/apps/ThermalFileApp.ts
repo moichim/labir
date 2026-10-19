@@ -16,6 +16,7 @@ import { booleanConverter } from "../utils/converters/booleanConverter";
 import { AbstractApp } from "./AbstractApp";
 import type { IElementWithFileController } from "../hierarchy/controllers/FileController";
 import type { IElementWithFileLoadController } from "../hierarchy/controllers/FileLoadController";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export class ThermalFileAppElement 
 extends AbstractApp 
@@ -111,13 +112,11 @@ implements
     
     render() {
         return html`<thermal-app 
-            label="${this.label}" 
-            author="${this.author}" 
-            license="${this.license}"
+            label="${ifDefined(this.label)}" 
+            author="${ifDefined(this.author)}" 
+            license="${ifDefined(this.license)}" 
             .showfullscreen=${this.showFullscreen}
         >
-
-            <manager-advanced-palette-switch slot="bar-pre"></manager-advanced-palette-switch>
 
             <file-download-dropdown slot="bar-pre"></file-download-dropdown>
             <file-info-button slot="bar-pre"></file-info-button>

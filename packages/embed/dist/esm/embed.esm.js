@@ -2832,14 +2832,22 @@ thermal-btn {
 
             </div>
         
-        `}};R([H()],cd.prototype,`histogram`,void 0),R([V({type:String,reflect:!0})],cd.prototype,`height`,void 0),R([V({type:String,reflect:!0})],cd.prototype,`heightExpanded`,void 0),R([V({type:Boolean,reflect:!0,converter:l(!1)})],cd.prototype,`expandable`,void 0),R([H()],cd.prototype,`expanded`,void 0),R([H()],cd.prototype,`loading`,void 0),R([H()],cd.prototype,`error`,void 0);var ld=class extends Ru{constructor(...e){super(...e),this.buttonRef=U()}doAction(){this.registryObject.range.applyMinmax()}mouseenter(){this.registryObject.minmax.value!==void 0&&this.registryController&&this.registryController.setHighlight({from:this.registryObject.minmax.value.min,to:this.registryObject.minmax.value.max})}mouseleave(){this.registryController&&this.registryController.setHighlight(void 0)}render(){return k`<thermal-btn 
+        `}};R([H()],cd.prototype,`histogram`,void 0),R([V({type:String,reflect:!0})],cd.prototype,`height`,void 0),R([V({type:String,reflect:!0})],cd.prototype,`heightExpanded`,void 0),R([V({type:Boolean,reflect:!0,converter:l(!1)})],cd.prototype,`expandable`,void 0),R([H()],cd.prototype,`expanded`,void 0),R([H()],cd.prototype,`loading`,void 0),R([H()],cd.prototype,`error`,void 0);var ld=class extends Ru{constructor(...e){super(...e),this.buttonRef=U()}connectedCallback(){super.connectedCallback(),this.registryObject.minmax.addListener(this.UUID,()=>this.setValue())}setValue(){let e=this.registryController.registryObject.minmax.value;this.value=e?`${e.min.toFixed(2)} — ${e.max.toFixed(2)} °C`:void 0}doAction(){this.registryObject.range.applyMinmax()}mouseenter(){this.registryObject.minmax.value!==void 0&&this.registryController&&this.registryController.setHighlight({from:this.registryObject.minmax.value.min,to:this.registryObject.minmax.value.max})}mouseleave(){this.registryController&&this.registryController.setHighlight(void 0)}render(){return k`<thermal-btn 
     ${W(this.buttonRef)} 
     @click=${this.doAction} 
     @mouseenter="${this.mouseenter}" 
     @mouseleave="${this.mouseleave}"
     @focus="${this.mouseenter}"
     @blur="${this.mouseleave}"
->${I(L.fullrange)}</thermal-btn>`}},ud=class extends Ru{doAction(){this.registryObject.range.applyAuto()}render(){return k`<thermal-btn @click=${this.doAction}>${I(L.automaticrange)}</thermal-btn>`}},dd=class extends Ru{constructor(...e){super(...e),this.fixed=2,this.separator=`-`}render(){return this.from===void 0||this.to===void 0?A:k`
+    tooltip="${B(this.value)}"
+>${I(L.fullrange)}</thermal-btn>`}};R([H()],ld.prototype,`value`,void 0);var ud=class extends Ru{connectedCallback(){super.connectedCallback(),this.registryObject.histogram.addListener(this.UUID,()=>this.setValue())}setValue(){let e=this.registryController.registryObject.range.autoValue;this.value=e?`${e.from.toFixed(2)} — ${e.to.toFixed(2)} °C`:void 0}doAction(){this.registryObject.range.applyAuto()}onHighlight(){this.registryController.registryObject.range.autoValue&&this.registryController.setHighlight(this.registryController.registryObject.range.autoValue)}onOut(){this.registryController.setHighlight(void 0)}render(){return k`<thermal-btn 
+            @click=${this.doAction}
+            @mouseenter=${this.onHighlight}
+            @mouseleave=${this.onOut}
+            @onfocus=${this.onHighlight}
+            @onblur=${this.onOut}
+            tooltip="${B(this.value)}"
+        >${I(L.automaticrange)}</thermal-btn>`}};R([H()],ud.prototype,`value`,void 0);var dd=class extends Ru{constructor(...e){super(...e),this.fixed=2,this.separator=`-`}render(){return this.from===void 0||this.to===void 0?A:k`
             <div>
                 <span>${this.from?.toFixed(this.fixed)} °C</span>
                 <span>${this.separator}</span>
@@ -3322,11 +3330,16 @@ slot {
         icon=${B(this.icon)}
         iconStyle=${B(this.iconStyle)}
     >${this.getDefaultLabel()}</thermal-btn>
-</slot>`}};R([V({type:String,reflect:!1})],Ad.prototype,`variant`,void 0),R([V({type:String,reflect:!0})],Ad.prototype,`size`,void 0),R([V({type:String})],Ad.prototype,`icon`,void 0),R([V({type:String})],Ad.prototype,`iconStyle`,void 0),R([V({type:Boolean})],Ad.prototype,`plain`,void 0);var jd=class extends zu{static{this.styles=Ad.styles}connectedCallback(){super.connectedCallback(),this.onmouseenter=()=>{this.groupObject&&this.groupObject.minmax.value&&this.registryController&&this.registryController.setHighlight({from:this.groupObject.minmax.value.min,to:this.groupObject.minmax.value.max})},this.onmouseleave=()=>{this.registryController&&this.registryController.setHighlight(void 0)},this.onclick=()=>{this.groupObject&&this.groupObject.minmax.value&&this.groupObject.registry.range.imposeRange({from:this.groupObject.minmax.value.min,to:this.groupObject.minmax.value.max})}}render(){return k`
+</slot>`}};R([V({type:String,reflect:!1})],Ad.prototype,`variant`,void 0),R([V({type:String,reflect:!0})],Ad.prototype,`size`,void 0),R([V({type:String})],Ad.prototype,`icon`,void 0),R([V({type:String})],Ad.prototype,`iconStyle`,void 0),R([V({type:Boolean})],Ad.prototype,`plain`,void 0);var jd=class extends zu{static{this.styles=Ad.styles}connectedCallback(){super.connectedCallback(),this.onmouseenter=()=>{this.groupObject&&this.groupObject.minmax.value&&this.registryController&&this.registryController.setHighlight({from:this.groupObject.minmax.value.min,to:this.groupObject.minmax.value.max})},this.onmouseleave=()=>{this.registryController&&this.registryController.setHighlight(void 0)},this.onclick=()=>{this.groupObject&&this.groupObject.minmax.value&&this.groupObject.registry.range.imposeRange({from:this.groupObject.minmax.value.min,to:this.groupObject.minmax.value.max})},this.groupObject.minmax.addListener(this.UUID,()=>this.setValue())}setValue(){let e=this.groupObject.minmax.value;this.value=e?`${e.min.toFixed(2)} — ${e.min.toFixed(2)} °C`:void 0}render(){return k`
             <slot>
-                <button class="default">${I(L.range).toLowerCase()}</button>
+                <thermal-btn 
+                    class="default"
+                    icon="range"
+                    iconStyle="solid"
+                    tooltip="${B(this.value)}"
+                >${I(L.range).toLowerCase()}</thermal-btn>
             </slot>
-        `}},Md=(e,t,n)=>({ms:e,percent:e/t*100,type:n,label:Dt(e,`m:ss`)}),Nd=(e,t,n,r)=>{let i=[],a=1,o=(t-e)/n;for(;a<n;){let t=e+a*o;t<r&&i.push(Md(t,r,`minor`)),a+=1}return t<r&&i.push(Md(t,r,`major`)),i},Pd=6e4,Fd=50,Id=3,Ld=(e,t)=>{let n=Math.floor(e/Fd)/Math.floor(t/6e4),r=2;n>=2&&(r=4),n>=6&&(r=6),n>=12&&(r=12),n>=30&&(r=30);let i=[],a=0,o=Pd;for(;a<t;)Nd(a,o,r,t).forEach(e=>i.push(e)),a+=Pd,o+=Pd;return i.push(Md(0,t,`bound`)),i.push(Md(t,t,`bound`)),i},Rd=e=>k`<div
+        `}};R([H()],jd.prototype,`value`,void 0);var Md=(e,t,n)=>({ms:e,percent:e/t*100,type:n,label:Dt(e,`m:ss`)}),Nd=(e,t,n,r)=>{let i=[],a=1,o=(t-e)/n;for(;a<n;){let t=e+a*o;t<r&&i.push(Md(t,r,`minor`)),a+=1}return t<r&&i.push(Md(t,r,`major`)),i},Pd=6e4,Fd=50,Id=3,Ld=(e,t)=>{let n=Math.floor(e/Fd)/Math.floor(t/6e4),r=2;n>=2&&(r=4),n>=6&&(r=6),n>=12&&(r=12),n>=30&&(r=30);let i=[],a=0,o=Pd;for(;a<t;)Nd(a,o,r,t).forEach(e=>i.push(e)),a+=Pd,o+=Pd;return i.push(Md(0,t,`bound`)),i.push(Md(t,t,`bound`)),i},Rd=e=>k`<div
         class="tick tick-${e.type}"
         style="left: ${e.percent}%;"
     >
@@ -5035,13 +5048,11 @@ slot {
         }
     
     `}render(){return k`<thermal-app 
-            label="${this.label}" 
-            author="${this.author}" 
-            license="${this.license}"
+            label="${B(this.label)}" 
+            author="${B(this.author)}" 
+            license="${B(this.license)}" 
             .showfullscreen=${this.showFullscreen}
         >
-
-            <manager-advanced-palette-switch slot="bar-pre"></manager-advanced-palette-switch>
 
             <file-download-dropdown slot="bar-pre"></file-download-dropdown>
             <file-info-button slot="bar-pre"></file-info-button>

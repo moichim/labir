@@ -12,6 +12,7 @@ let lit_directives_map_js = require("lit/directives/map.js");
 let lit_directives_ref_js = require("lit/directives/ref.js");
 let _floating_ui_dom = require("@floating-ui/dom");
 let lit_directives_class_map_js = require("lit/directives/class-map.js");
+let lit_decorators_state_js = require("lit/decorators/state.js");
 let lit_directives_live_js = require("lit/directives/live.js");
 let public_ip = require("public-ip");
 let date_fns = require("date-fns");
@@ -10375,6 +10376,15 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
 		super(..._args);
 		this.buttonRef = (0, lit_directives_ref_js.createRef)();
 	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.registryObject.minmax.addListener(this.UUID, () => this.setValue());
+	}
+	setValue() {
+		const value = this.registryController.registryObject.minmax.value;
+		if (value) this.value = `${value.min.toFixed(2)} — ${value.max.toFixed(2)} °C`;
+		else this.value = void 0;
+	}
 	doAction() {
 		this.registryObject.range.applyMinmax();
 	}
@@ -10395,19 +10405,44 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
     @mouseleave="${this.mouseleave}"
     @focus="${this.mouseenter}"
     @blur="${this.mouseleave}"
+    tooltip="${(0, lit_directives_if_defined_js.ifDefined)(this.value)}"
 >${t("fullrange")}</thermal-btn>`;
 	}
 };
+__decorate([(0, lit_decorators_state_js.state)(), __decorateMetadata("design:type", String)], RegistryRangeFullButton.prototype, "value", void 0);
 //#endregion
 //#region src/controls/registry/RegistryRangeAutoButton.ts
 var RegistryRangeAutoButton = class extends AbstractRegistryConsumer {
+	connectedCallback() {
+		super.connectedCallback();
+		this.registryObject.histogram.addListener(this.UUID, () => this.setValue());
+	}
+	setValue() {
+		const value = this.registryController.registryObject.range.autoValue;
+		if (value) this.value = `${value.from.toFixed(2)} — ${value.to.toFixed(2)} °C`;
+		else this.value = void 0;
+	}
 	doAction() {
 		this.registryObject.range.applyAuto();
 	}
+	onHighlight() {
+		if (this.registryController.registryObject.range.autoValue) this.registryController.setHighlight(this.registryController.registryObject.range.autoValue);
+	}
+	onOut() {
+		this.registryController.setHighlight(void 0);
+	}
 	render() {
-		return lit.html`<thermal-btn @click=${this.doAction}>${t("automaticrange")}</thermal-btn>`;
+		return lit.html`<thermal-btn 
+            @click=${this.doAction}
+            @mouseenter=${this.onHighlight}
+            @mouseleave=${this.onOut}
+            @onfocus=${this.onHighlight}
+            @onblur=${this.onOut}
+            tooltip="${(0, lit_directives_if_defined_js.ifDefined)(this.value)}"
+        >${t("automaticrange")}</thermal-btn>`;
 	}
 };
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], RegistryRangeAutoButton.prototype, "value", void 0);
 //#endregion
 //#region src/controls/registry/RegistryRangeDisplay.ts
 var RegistryRangeDisplay = class extends AbstractRegistryConsumer {
@@ -11345,15 +11380,27 @@ var GroupRangePropagatorElement = class extends AbstractGroupConsumer {
 				to: this.groupObject.minmax.value.max
 			});
 		};
+		this.groupObject.minmax.addListener(this.UUID, () => this.setValue());
+	}
+	setValue() {
+		const value = this.groupObject.minmax.value;
+		if (value) this.value = `${value.min.toFixed(2)} — ${value.min.toFixed(2)} °C`;
+		else this.value = void 0;
 	}
 	render() {
 		return lit.html`
             <slot>
-                <button class="default">${t("range").toLowerCase()}</button>
+                <thermal-btn 
+                    class="default"
+                    icon="range"
+                    iconStyle="solid"
+                    tooltip="${(0, lit_directives_if_defined_js.ifDefined)(this.value)}"
+                >${t("range").toLowerCase()}</thermal-btn>
             </slot>
         `;
 	}
 };
+__decorate([(0, lit_decorators_state_js.state)(), __decorateMetadata("design:type", String)], GroupRangePropagatorElement.prototype, "value", void 0);
 //#endregion
 //#region src/utils/timelineTicks.ts
 /**
@@ -15608,13 +15655,11 @@ var ThermalFileAppElement = class extends AbstractApp {
 	}
 	render() {
 		return lit.html`<thermal-app 
-            label="${this.label}" 
-            author="${this.author}" 
-            license="${this.license}"
+            label="${(0, lit_directives_if_defined_js.ifDefined)(this.label)}" 
+            author="${(0, lit_directives_if_defined_js.ifDefined)(this.author)}" 
+            license="${(0, lit_directives_if_defined_js.ifDefined)(this.license)}" 
             .showfullscreen=${this.showFullscreen}
         >
-
-            <manager-advanced-palette-switch slot="bar-pre"></manager-advanced-palette-switch>
 
             <file-download-dropdown slot="bar-pre"></file-download-dropdown>
             <file-info-button slot="bar-pre"></file-info-button>

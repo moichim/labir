@@ -11,6 +11,7 @@ import { map } from "lit/directives/map.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { arrow, autoUpdate, computePosition, flip, inline, offset, shift } from "@floating-ui/dom";
 import { classMap } from "lit/directives/class-map.js";
+import { state as state$1 } from "lit/decorators/state.js";
 import { live } from "lit/directives/live.js";
 import { publicIpv4 } from "public-ip";
 import { format } from "date-fns";
@@ -10374,6 +10375,15 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
 		super(..._args);
 		this.buttonRef = createRef();
 	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.registryObject.minmax.addListener(this.UUID, () => this.setValue());
+	}
+	setValue() {
+		const value = this.registryController.registryObject.minmax.value;
+		if (value) this.value = `${value.min.toFixed(2)} — ${value.max.toFixed(2)} °C`;
+		else this.value = void 0;
+	}
 	doAction() {
 		this.registryObject.range.applyMinmax();
 	}
@@ -10394,19 +10404,44 @@ var RegistryRangeFullButton = class extends AbstractRegistryConsumer {
     @mouseleave="${this.mouseleave}"
     @focus="${this.mouseenter}"
     @blur="${this.mouseleave}"
+    tooltip="${ifDefined(this.value)}"
 >${t("fullrange")}</thermal-btn>`;
 	}
 };
+__decorate([state$1(), __decorateMetadata("design:type", String)], RegistryRangeFullButton.prototype, "value", void 0);
 //#endregion
 //#region src/controls/registry/RegistryRangeAutoButton.ts
 var RegistryRangeAutoButton = class extends AbstractRegistryConsumer {
+	connectedCallback() {
+		super.connectedCallback();
+		this.registryObject.histogram.addListener(this.UUID, () => this.setValue());
+	}
+	setValue() {
+		const value = this.registryController.registryObject.range.autoValue;
+		if (value) this.value = `${value.from.toFixed(2)} — ${value.to.toFixed(2)} °C`;
+		else this.value = void 0;
+	}
 	doAction() {
 		this.registryObject.range.applyAuto();
 	}
+	onHighlight() {
+		if (this.registryController.registryObject.range.autoValue) this.registryController.setHighlight(this.registryController.registryObject.range.autoValue);
+	}
+	onOut() {
+		this.registryController.setHighlight(void 0);
+	}
 	render() {
-		return html`<thermal-btn @click=${this.doAction}>${t("automaticrange")}</thermal-btn>`;
+		return html`<thermal-btn 
+            @click=${this.doAction}
+            @mouseenter=${this.onHighlight}
+            @mouseleave=${this.onOut}
+            @onfocus=${this.onHighlight}
+            @onblur=${this.onOut}
+            tooltip="${ifDefined(this.value)}"
+        >${t("automaticrange")}</thermal-btn>`;
 	}
 };
+__decorate([state(), __decorateMetadata("design:type", String)], RegistryRangeAutoButton.prototype, "value", void 0);
 //#endregion
 //#region src/controls/registry/RegistryRangeDisplay.ts
 var RegistryRangeDisplay = class extends AbstractRegistryConsumer {
@@ -11344,15 +11379,27 @@ var GroupRangePropagatorElement = class extends AbstractGroupConsumer {
 				to: this.groupObject.minmax.value.max
 			});
 		};
+		this.groupObject.minmax.addListener(this.UUID, () => this.setValue());
+	}
+	setValue() {
+		const value = this.groupObject.minmax.value;
+		if (value) this.value = `${value.min.toFixed(2)} — ${value.min.toFixed(2)} °C`;
+		else this.value = void 0;
 	}
 	render() {
 		return html`
             <slot>
-                <button class="default">${t("range").toLowerCase()}</button>
+                <thermal-btn 
+                    class="default"
+                    icon="range"
+                    iconStyle="solid"
+                    tooltip="${ifDefined(this.value)}"
+                >${t("range").toLowerCase()}</thermal-btn>
             </slot>
         `;
 	}
 };
+__decorate([state$1(), __decorateMetadata("design:type", String)], GroupRangePropagatorElement.prototype, "value", void 0);
 //#endregion
 //#region src/utils/timelineTicks.ts
 /**
@@ -15607,13 +15654,11 @@ var ThermalFileAppElement = class extends AbstractApp {
 	}
 	render() {
 		return html`<thermal-app 
-            label="${this.label}" 
-            author="${this.author}" 
-            license="${this.license}"
+            label="${ifDefined(this.label)}" 
+            author="${ifDefined(this.author)}" 
+            license="${ifDefined(this.license)}" 
             .showfullscreen=${this.showFullscreen}
         >
-
-            <manager-advanced-palette-switch slot="bar-pre"></manager-advanced-palette-switch>
 
             <file-download-dropdown slot="bar-pre"></file-download-dropdown>
             <file-info-button slot="bar-pre"></file-info-button>

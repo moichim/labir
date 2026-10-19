@@ -2827,6 +2827,9 @@ declare global {
 //#region src/controls/registry/RegistryRangeFullButton.d.ts
 export declare class RegistryRangeFullButton extends AbstractRegistryConsumer {
   protected buttonRef: Ref<HTMLElement>;
+  private value?;
+  connectedCallback(): void;
+  private setValue;
   doAction(): void;
   mouseenter(): void;
   mouseleave(): void;
@@ -2840,7 +2843,12 @@ declare global {
 //#endregion
 //#region src/controls/registry/RegistryRangeAutoButton.d.ts
 export declare class RegistryRangeAutoButton extends AbstractRegistryConsumer {
+  private value?;
+  connectedCallback(): void;
+  private setValue;
   doAction(): void;
+  private onHighlight;
+  private onOut;
   protected render(): unknown;
 }
 declare global {
@@ -2992,7 +3000,9 @@ declare global {
 //#region src/controls/group/GroupRangePropagator.d.ts
 export declare class GroupRangePropagatorElement extends AbstractGroupConsumer {
   static styles: import("lit").CSSResultGroup | undefined;
+  private value?;
   connectedCallback(): void;
+  private setValue;
   protected render(): unknown;
 }
 declare global {
