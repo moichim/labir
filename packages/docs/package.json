@@ -8,6 +8,7 @@
     "@labirthermal/client": "workspace:*",
     "@labirthermal/core": "workspace:*",
     "@labirthermal/server": "workspace:*",
+    "@labirthermal/embed": "workspace:*",
     "@labirthermal/server-simple": "workspace:*"
   },
   "devDependencies": {

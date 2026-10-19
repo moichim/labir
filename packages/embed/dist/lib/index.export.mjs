@@ -12,7 +12,6 @@ import { createRef, ref } from "lit/directives/ref.js";
 import { arrow, autoUpdate, computePosition, flip, inline, offset, shift } from "@floating-ui/dom";
 import { classMap } from "lit/directives/class-map.js";
 import { live } from "lit/directives/live.js";
-import "@google-web-components/google-chart";
 import { publicIpv4 } from "public-ip";
 import { format } from "date-fns";
 import { when } from "lit/directives/when.js";
@@ -3676,7 +3675,7 @@ var GroupController = class extends AbstractHierarchyController {
 			registryController: INTERNAL_STATE_DECLARATION,
 			groupSlug: {
 				type: String,
-				reflect: true,
+				reflect: false,
 				attribute: "group-slug"
 			},
 			groupObject: INTERNAL_STATE_DECLARATION,
@@ -3948,6 +3947,20 @@ let GroupOrdering = /* @__PURE__ */ function(GroupOrdering) {
 var GroupListingController = class extends AbstractHierarchyController {
 	get UUID() {
 		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			orderby: {
+				type: String,
+				reflect: true,
+				attribute: "group-order-by"
+			},
+			ordering: {
+				type: String,
+				reflect: true,
+				attribute: "group-ordering"
+			}
+		};
 	}
 	get group() {
 		return this.host.groupController.groupObject;
@@ -7949,7 +7962,7 @@ __decorate([
 ], AbstractFileConsumer.prototype, "fileIsRecording", void 0);
 //#endregion
 //#region package.json
-var name = "@labirthermal/webcomponents";
+var name = "@labirthermal/embed";
 var version = "1.3.4";
 //#endregion
 //#region src/controls/independent/AppInfoButton.ts
@@ -15358,7 +15371,8 @@ var DropinAppElement = class extends AbstractApp {
 			...ManagerController.HOST_PROPERTIES,
 			...RegistryController.HOST_PROPERTIES,
 			...GroupController.HOST_PROPERTIES,
-			...FileController.HOST_PROPERTIES
+			...FileController.HOST_PROPERTIES,
+			...GroupListingController.HOST_PROPERTIES
 		};
 	}
 	get manager() {
@@ -15366,7 +15380,19 @@ var DropinAppElement = class extends AbstractApp {
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		publicIpv4().then((ip) => this.ip = ip);
+		try {
+			publicIpv4().then((ip) => this.ip = ip);
+		} catch (error) {
+			console.error("Failed to get public IPv4 address:", error);
+		}
+		this.groupController.onInternalObject.set(this.UUID, (group) => {
+			group.files.addListener(this.UUID, async (value) => {
+				if (this.onValueChangeTimeout !== void 0) clearTimeout(this.onValueChangeTimeout);
+				this.onValueChangeTimeout = setTimeout(async () => {
+					this.toDisplay = value;
+				}, 0);
+			});
+		});
 	}
 	willUpdate(_changedProperties) {
 		super.willUpdate(_changedProperties);
@@ -15388,16 +15414,6 @@ var DropinAppElement = class extends AbstractApp {
 	async postLoadedProcessingAndApplyMinmax() {
 		await this.registryObject.postLoadedProcessing();
 		this.registryObject.range.applyMinmax();
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		initLocalesInTopLevelElement(this);
-		if (this.groupObject !== void 0) this.groupObject.files.addListener(this.UUID, async (value) => {
-			if (this.onValueChangeTimeout !== void 0) clearTimeout(this.onValueChangeTimeout);
-			this.onValueChangeTimeout = setTimeout(async () => {
-				this.toDisplay = value;
-			}, 0);
-		});
 	}
 	handleClear() {
 		if (this.groupObject !== void 0) {
@@ -15596,6 +15612,8 @@ var ThermalFileAppElement = class extends AbstractApp {
             license="${this.license}"
             .showfullscreen=${this.showFullscreen}
         >
+
+            <manager-advanced-palette-switch slot="bar-pre"></manager-advanced-palette-switch>
 
             <file-download-dropdown slot="bar-pre"></file-download-dropdown>
             <file-info-button slot="bar-pre"></file-info-button>
@@ -18158,6 +18176,30 @@ var FileVideoExportPanel = class extends AbstractSingleVideoExport {
 __decorate([state(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealWidth", void 0);
 __decorate([state(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealHeight", void 0);
 //#endregion
+//#region src/controls/manager/ManagerAdvancedPaletteSwitch.ts
+var ManagerAdvancedPaletteSwitch = class extends AbstractManagerConsumer {
+	render() {
+		return html`<thermal-btn-group>
+            <thermal-btn
+                variant="${!this.advancedPalettes ? "foreground" : "default"}"
+                @click=${() => {
+			this.managerController.setAdvancedPalettes(false);
+		}}
+            >Základní palety</thermal-btn>
+            <thermal-btn
+                variant="${this.advancedPalettes ? "foreground" : "default"}"
+                @click=${() => {
+			this.managerController.setAdvancedPalettes(true);
+		}}
+            >Všechny palety</thermal-btn>
+        </thermal-btn-group>`;
+	}
+};
+__decorate([consume({
+	context: managerAdvancedPalettesContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Boolean)], ManagerAdvancedPaletteSwitch.prototype, "advancedPalettes", void 0);
+//#endregion
 //#region src/renderers/FileDetail.ts
 var FileDetailElement = class extends AbstractFileConsumer {
 	constructor(..._args) {
@@ -18401,6 +18443,7 @@ const elementsProviders = {
 const elementsManagerControls = {
 	"manager-image-smooth-switch": ManagerImageSmoothSwitch,
 	"manager-graph-smooth-switch": ManagerGraphSmoothSwitch,
+	"manager-advanced-palette-switch": ManagerAdvancedPaletteSwitch,
 	"manager-palette-dropdown": ManagerPaletteDropdown,
 	"manager-palette-buttons": ManagerPaletteButtons,
 	"manager-tool-bar": ManagerToolBar,
@@ -18474,7 +18517,10 @@ const elementsAll = {
 	...elementsFileControls,
 	...elementsApplications
 };
+const isLabirthermalWebcomponent = (tag) => {
+	return tag in elementsAll;
+};
 //#endregion
-export { AbstractFileConsumer, AbstractFileProvider, AbstractGroupConsumer, AbstractGroupProvider, AbstractHierarchyController, AbstractManagerConsumer, AbstractManagerProvider, AbstractReactiveController, AbstractRegistryConsumer, AbstractRegistryProvider, AbstractThermalElement, AnalysisColorDropdown, AnalysisNameInput, AppInfoButton, AreaEditTable, ConfigController, ConfigDialog, DisplayPanel, EditpointTable, FileAnalisisEditDialog, FileAnalysisComplexElement, FileAnalysisDisplayElement, FileAnalysisGraphElement, FileAnalysisRowElement, FileAnalysisTableElement, FileButtonElement, FileCanvasElement, FileController, FileCopyElement, FileDownloadButton, FileDropdown, FileLoadController, FileLrcButton, FilePlaybackSpeedDropdown, FilePngButton, FileProviderElement, FileRangePropagator, FileVideoExportButton, GroupAnalysisSyncButton, GroupAnalysisSyncController, GroupChartElement, GroupController, GroupDownloadButtons, GroupDownloadDropdown, GroupDropinElement, GroupDropinInputElement, GroupListingController, GroupLoadController, GroupOrderby, GroupOrdering, GroupProviderElement, GroupRangePropagatorElement, GroupTimelineElement, HierarchyUpdatesHub, INTERNAL_STATE_DECLARATION, ManagerController, ManagerExportPanel, ManagerGraphSmoothSwitch, ManagerImageSmoothSwitch, ManagerPaletteButtons, ManagerPaletteDropdown, ManagerProviderElement, ManagerToolBar, RegistryController, RegistryHistogram, RegistryOpacitySlider, RegistryProviderElement, RegistryRangeAutoButton, RegistryRangeDisplay, RegistryRangeForm, RegistryRangeFullButton, RegistryRangeSlider, RegistryTicksBar, ThermalAppElement, ThermalBarElement, ThermalBtnElement, ThermalChartElement, ThermalDialogElement, ThermalDropdownElement, ThermalDropinElement, ThermalExpandableElement, ThermalFieldElement, ThermalIconElement, ThermalPosterElement, ThermalRadioElement, ThermalSlotElement, ThermalSpinnerElement, ThermalTipElement, booleanConverter, configContext, defineAllWebcomponents, defineWebcomponent, durationConverter, elementsAll, elementsProviders, fileAnalysisListContext, fileContext, fileControllerContext, fileCurrentFrameContext, fileDurationContext, fileFailureContext, fileLoadingContext, fileMayStopContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, fileTimeCursorContext, getContrastColor, groupAnalysisSyncContext, groupControllerContext, groupObjectContext, icons, independentElements, managerAdvancedPalettesContext, managerContext, managerControllerContext, managerGraphFunctionContext, managerInteractiveAnalysesContext, managerPaletteContext, managerSmoothContext, managerToolContext, numberRangeConverter, paletteConverter, registryControllerContext, registryHighlightContext, registryLoadingContext, registryMaxContext, registryMinContext, registryObjectContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext, stringOrUndefinedConverter };
+export { AbstractFileConsumer, AbstractFileProvider, AbstractGroupConsumer, AbstractGroupProvider, AbstractHierarchyController, AbstractManagerConsumer, AbstractManagerProvider, AbstractReactiveController, AbstractRegistryConsumer, AbstractRegistryProvider, AbstractThermalElement, AnalysisColorDropdown, AnalysisNameInput, AppInfoButton, AreaEditTable, ConfigController, ConfigDialog, DisplayPanel, EditpointTable, FileAnalisisEditDialog, FileAnalysisComplexElement, FileAnalysisDisplayElement, FileAnalysisGraphElement, FileAnalysisRowElement, FileAnalysisTableElement, FileButtonElement, FileCanvasElement, FileController, FileCopyElement, FileDownloadButton, FileDropdown, FileLoadController, FileLrcButton, FilePlaybackSpeedDropdown, FilePngButton, FileProviderElement, FileRangePropagator, FileVideoExportButton, GroupAnalysisSyncButton, GroupAnalysisSyncController, GroupChartElement, GroupController, GroupDownloadButtons, GroupDownloadDropdown, GroupDropinElement, GroupDropinInputElement, GroupListingController, GroupLoadController, GroupOrderby, GroupOrdering, GroupProviderElement, GroupRangePropagatorElement, GroupTimelineElement, HierarchyUpdatesHub, INTERNAL_STATE_DECLARATION, ManagerController, ManagerExportPanel, ManagerGraphSmoothSwitch, ManagerImageSmoothSwitch, ManagerPaletteButtons, ManagerPaletteDropdown, ManagerProviderElement, ManagerToolBar, RegistryController, RegistryHistogram, RegistryOpacitySlider, RegistryProviderElement, RegistryRangeAutoButton, RegistryRangeDisplay, RegistryRangeForm, RegistryRangeFullButton, RegistryRangeSlider, RegistryTicksBar, ThermalAppElement, ThermalBarElement, ThermalBtnElement, ThermalChartElement, ThermalDialogElement, ThermalDropdownElement, ThermalDropinElement, ThermalExpandableElement, ThermalFieldElement, ThermalIconElement, ThermalPosterElement, ThermalRadioElement, ThermalSlotElement, ThermalSpinnerElement, ThermalTipElement, booleanConverter, configContext, defineAllWebcomponents, defineWebcomponent, durationConverter, elementsAll, elementsProviders, fileAnalysisListContext, fileContext, fileControllerContext, fileCurrentFrameContext, fileDurationContext, fileFailureContext, fileLoadingContext, fileMayStopContext, fileMsContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext, fileTimeCursorContext, getContrastColor, groupAnalysisSyncContext, groupControllerContext, groupObjectContext, icons, independentElements, isLabirthermalWebcomponent, managerAdvancedPalettesContext, managerContext, managerControllerContext, managerGraphFunctionContext, managerInteractiveAnalysesContext, managerPaletteContext, managerSmoothContext, managerToolContext, numberRangeConverter, paletteConverter, registryControllerContext, registryHighlightContext, registryLoadingContext, registryMaxContext, registryMinContext, registryObjectContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext, stringOrUndefinedConverter };
 
 //# sourceMappingURL=index.export.mjs.map

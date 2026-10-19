@@ -1,5 +1,5 @@
 {
-  "name": "@labirthermal/webcomponents",
+  "name": "@labirthermal/embed",
   "version": "1.3.4",
   "author": "Jan Jáchim <jachim@ntc.zcu.cz>",
   "description": "Foundation of webcomponents for the purpose of embedding thermal images in various contexts.",
@@ -45,7 +45,6 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
-    "@google-web-components/google-chart": "^5.1.0",
     "@labirthermal/client": "workspace:*",
     "@labirthermal/core": "workspace:*",
     "@labirthermal/server": "workspace:*",

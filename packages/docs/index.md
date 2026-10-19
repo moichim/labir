@@ -36,3 +36,4 @@ hero:
   analysis1="Rectangle 0;rectangle;color:Blue;top:22;left:25;width:80;height:53;min"
  ></thermal-file-app>
 ```
+<thermal-dropin-app label="Popiska" palette="iron" advanced-palettes="true"></thermal-dropin-app>

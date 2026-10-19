@@ -117,6 +117,8 @@ implements
             .showfullscreen=${this.showFullscreen}
         >
 
+            <manager-advanced-palette-switch slot="bar-pre"></manager-advanced-palette-switch>
+
             <file-download-dropdown slot="bar-pre"></file-download-dropdown>
             <file-info-button slot="bar-pre"></file-info-button>
 

@@ -34,6 +34,7 @@ import { GroupDropinElement } from "./controls/group/GroupDropinElement";
 import { GroupDropinInputElement } from "./controls/group/GroupDropinInput";
 import { GroupRangePropagatorElement } from "./controls/group/GroupRangePropagator";
 import { GroupTimelineElement } from "./controls/group/GroupTimeline";
+import { ManagerAdvancedPaletteSwitch } from "./controls/manager/ManagerAdvancedPaletteSwitch";
 import { ManagerExportPanel } from "./controls/manager/ManagerExportPanel";
 import { ManagerGraphSmoothSwitch } from "./controls/manager/ManagerGraphSmoothSwitch";
 import { ManagerImageSmoothSwitch } from "./controls/manager/ManagerImageSmoothSwitch";
@@ -113,6 +114,7 @@ export const elementsProviders = {
 const elementsManagerControls = {
     "manager-image-smooth-switch": ManagerImageSmoothSwitch,
     "manager-graph-smooth-switch": ManagerGraphSmoothSwitch,
+    "manager-advanced-palette-switch": ManagerAdvancedPaletteSwitch,
     "manager-palette-dropdown": ManagerPaletteDropdown,
     "manager-palette-buttons": ManagerPaletteButtons,
     "manager-tool-bar": ManagerToolBar,
@@ -196,3 +198,7 @@ export const elementsAll = {
     ...elementsFileControls,
     ...elementsApplications
 } as const;
+
+export const isLabirthermalWebcomponent = (tag: string): boolean => {
+    return tag in elementsAll;
+};

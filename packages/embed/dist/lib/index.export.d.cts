@@ -1,10 +1,9 @@
-import { AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, CallbacksManager, DropinElementListener, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalFileInstance, ThermalFileReader, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalPaletteType, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
+import { AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AnalysisDataStateValue, AvailableThermalPalette, CallbacksManager, DropinElementListener, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalFileInstance, ThermalFileReader, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalPaletteType, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
 import { CSSResultGroup, LitElement, PropertyDeclaration, PropertyValueMap, PropertyValues, ReactiveController, html, nothing } from "lit";
 import { ContextProvider } from "@lit/context";
 import { Ref } from "lit/directives/ref.js";
 import { Placement } from "@floating-ui/dom";
-import "@google-web-components/google-chart";
-import { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
+import { AbstractFileResult as AbstractFileResult$1 } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
 import { GridGrouping } from "@labirthermal/client";
 import { Quality } from "mediabunny";
 //#region src/utils/converters/numberRangeConverter.d.ts
@@ -1190,6 +1189,7 @@ interface IElementWithGroupListingController extends IBaseElement, IHostProperti
 export declare class GroupListingController extends AbstractHierarchyController<IElementWithGroupListingController> {
   private _UUID;
   get UUID(): string;
+  static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties$2>;
   private get group();
   private backup;
   get hasBackup(): boolean;
@@ -2947,7 +2947,7 @@ declare global {
 //#region src/controls/group/AbstractGroupDropin.d.ts
 declare abstract class AbstractGroupDropin extends AbstractGroupConsumer {
   ip?: string;
-  onDrop?: (instances: AbstractFileResult[]) => Promise<void>;
+  onDrop?: (instances: AbstractFileResult$1[]) => Promise<void>;
   connectedCallback(): void;
   private _getUserInfo;
   emitMultipleUpload(fileNames?: string[] | undefined): void;
@@ -3973,6 +3973,8 @@ declare enum Mode {
 }
 declare class DropinAppElement extends AbstractApp implements IWithlocale, IElementWithManagerController, IElementWithRegistryController, IElementWithGroupController, IElementWithFileController, IElementWithGroupListingController {
   static properties: {
+    orderby: import("lit").PropertyDeclaration<unknown, unknown>;
+    ordering: import("lit").PropertyDeclaration<unknown, unknown>;
     managerController: import("lit").PropertyDeclaration<unknown, unknown>;
     registryController: import("lit").PropertyDeclaration<unknown, unknown>;
     groupController: import("lit").PropertyDeclaration<unknown, unknown>;
@@ -4059,7 +4061,6 @@ declare class DropinAppElement extends AbstractApp implements IWithlocale, IElem
    */
   private postLoadedProcessingAndApplyMinmax;
   private onValueChangeTimeout;
-  firstUpdated(_changedProperties: PropertyValues): void;
   protected handleClear(): void;
   static styles: import("lit").CSSResult;
   handleDropAndClear(results: AbstractFileResult[]): Promise<void>;
@@ -4452,6 +4453,17 @@ declare global {
   }
 }
 //#endregion
+//#region src/controls/manager/ManagerAdvancedPaletteSwitch.d.ts
+declare class ManagerAdvancedPaletteSwitch extends AbstractManagerConsumer {
+  private advancedPalettes;
+  render(): import("lit").TemplateResult<1>;
+}
+declare global {
+  interface HTMLElementTagNameMap {
+    "manager-advanced-palette-switch": ManagerAdvancedPaletteSwitch;
+  }
+}
+//#endregion
 //#region src/renderers/FileDetail.d.ts
 declare class FileDetailElement extends AbstractFileConsumer {
   onback?: () => void;
@@ -4552,6 +4564,7 @@ export declare const elementsAll: {
   readonly "registry-ticks-bar": typeof RegistryTicksBar;
   readonly "manager-image-smooth-switch": typeof ManagerImageSmoothSwitch;
   readonly "manager-graph-smooth-switch": typeof ManagerGraphSmoothSwitch;
+  readonly "manager-advanced-palette-switch": typeof ManagerAdvancedPaletteSwitch;
   readonly "manager-palette-dropdown": typeof ManagerPaletteDropdown;
   readonly "manager-palette-buttons": typeof ManagerPaletteButtons;
   readonly "manager-tool-bar": typeof ManagerToolBar;
@@ -4578,6 +4591,7 @@ export declare const elementsAll: {
   readonly "thermal-spinner": typeof ThermalSpinnerElement;
   readonly "thermal-tip": typeof ThermalTipElement;
 };
+export declare const isLabirthermalWebcomponent: (tag: string) => boolean;
 //#endregion
 export { type BtnSizes, type BtnVariants, type ConfigSettings, type FileControllerCurrentFrameType, type FileControllerDurationContextType, type GroupExportSettings, type HostReactiveProperties, type IBaseElement, type IElementWithFileLoadController, type IElementWithGroupAnalysisSyncController, type IElementWithGroupController, type IElementWithGroupListingController, type IElementWithGroupLoadController, type IElementWithManagerController, type IElementWithRegistryController, type ManagerPaletteContextType, type PngExportSettings, icons };
 //# sourceMappingURL=index.export.d.cts.map

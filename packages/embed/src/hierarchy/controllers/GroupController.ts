@@ -61,7 +61,7 @@ export class GroupController extends AbstractHierarchyController<IElementWithGro
     public static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties> = {
         managerController: INTERNAL_STATE_DECLARATION,
         registryController: INTERNAL_STATE_DECLARATION,
-        groupSlug: { type: String, reflect: true, attribute: "group-slug" },
+        groupSlug: { type: String, reflect: false, attribute: "group-slug" },
         groupObject: INTERNAL_STATE_DECLARATION,
         autoclearGroup: { type: Boolean, reflect: true, attribute: "autoclear-group", converter: booleanConverter(true) },
         groupController: INTERNAL_STATE_DECLARATION

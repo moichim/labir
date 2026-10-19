@@ -13,7 +13,6 @@ let lit_directives_ref_js = require("lit/directives/ref.js");
 let _floating_ui_dom = require("@floating-ui/dom");
 let lit_directives_class_map_js = require("lit/directives/class-map.js");
 let lit_directives_live_js = require("lit/directives/live.js");
-require("@google-web-components/google-chart");
 let public_ip = require("public-ip");
 let date_fns = require("date-fns");
 let lit_directives_when_js = require("lit/directives/when.js");
@@ -3677,7 +3676,7 @@ var GroupController = class extends AbstractHierarchyController {
 			registryController: INTERNAL_STATE_DECLARATION,
 			groupSlug: {
 				type: String,
-				reflect: true,
+				reflect: false,
 				attribute: "group-slug"
 			},
 			groupObject: INTERNAL_STATE_DECLARATION,
@@ -3949,6 +3948,20 @@ let GroupOrdering = /* @__PURE__ */ function(GroupOrdering) {
 var GroupListingController = class extends AbstractHierarchyController {
 	get UUID() {
 		return this._UUID;
+	}
+	static {
+		this.HOST_PROPERTIES = {
+			orderby: {
+				type: String,
+				reflect: true,
+				attribute: "group-order-by"
+			},
+			ordering: {
+				type: String,
+				reflect: true,
+				attribute: "group-ordering"
+			}
+		};
 	}
 	get group() {
 		return this.host.groupController.groupObject;
@@ -7950,7 +7963,7 @@ __decorate([
 ], AbstractFileConsumer.prototype, "fileIsRecording", void 0);
 //#endregion
 //#region package.json
-var name = "@labirthermal/webcomponents";
+var name = "@labirthermal/embed";
 var version = "1.3.4";
 //#endregion
 //#region src/controls/independent/AppInfoButton.ts
@@ -15359,7 +15372,8 @@ var DropinAppElement = class extends AbstractApp {
 			...ManagerController.HOST_PROPERTIES,
 			...RegistryController.HOST_PROPERTIES,
 			...GroupController.HOST_PROPERTIES,
-			...FileController.HOST_PROPERTIES
+			...FileController.HOST_PROPERTIES,
+			...GroupListingController.HOST_PROPERTIES
 		};
 	}
 	get manager() {
@@ -15367,7 +15381,19 @@ var DropinAppElement = class extends AbstractApp {
 	}
 	connectedCallback() {
 		super.connectedCallback();
-		(0, public_ip.publicIpv4)().then((ip) => this.ip = ip);
+		try {
+			(0, public_ip.publicIpv4)().then((ip) => this.ip = ip);
+		} catch (error) {
+			console.error("Failed to get public IPv4 address:", error);
+		}
+		this.groupController.onInternalObject.set(this.UUID, (group) => {
+			group.files.addListener(this.UUID, async (value) => {
+				if (this.onValueChangeTimeout !== void 0) clearTimeout(this.onValueChangeTimeout);
+				this.onValueChangeTimeout = setTimeout(async () => {
+					this.toDisplay = value;
+				}, 0);
+			});
+		});
 	}
 	willUpdate(_changedProperties) {
 		super.willUpdate(_changedProperties);
@@ -15389,16 +15415,6 @@ var DropinAppElement = class extends AbstractApp {
 	async postLoadedProcessingAndApplyMinmax() {
 		await this.registryObject.postLoadedProcessing();
 		this.registryObject.range.applyMinmax();
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		initLocalesInTopLevelElement(this);
-		if (this.groupObject !== void 0) this.groupObject.files.addListener(this.UUID, async (value) => {
-			if (this.onValueChangeTimeout !== void 0) clearTimeout(this.onValueChangeTimeout);
-			this.onValueChangeTimeout = setTimeout(async () => {
-				this.toDisplay = value;
-			}, 0);
-		});
 	}
 	handleClear() {
 		if (this.groupObject !== void 0) {
@@ -15597,6 +15613,8 @@ var ThermalFileAppElement = class extends AbstractApp {
             license="${this.license}"
             .showfullscreen=${this.showFullscreen}
         >
+
+            <manager-advanced-palette-switch slot="bar-pre"></manager-advanced-palette-switch>
 
             <file-download-dropdown slot="bar-pre"></file-download-dropdown>
             <file-info-button slot="bar-pre"></file-info-button>
@@ -18159,6 +18177,30 @@ var FileVideoExportPanel = class extends AbstractSingleVideoExport {
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealWidth", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealHeight", void 0);
 //#endregion
+//#region src/controls/manager/ManagerAdvancedPaletteSwitch.ts
+var ManagerAdvancedPaletteSwitch = class extends AbstractManagerConsumer {
+	render() {
+		return lit.html`<thermal-btn-group>
+            <thermal-btn
+                variant="${!this.advancedPalettes ? "foreground" : "default"}"
+                @click=${() => {
+			this.managerController.setAdvancedPalettes(false);
+		}}
+            >Základní palety</thermal-btn>
+            <thermal-btn
+                variant="${this.advancedPalettes ? "foreground" : "default"}"
+                @click=${() => {
+			this.managerController.setAdvancedPalettes(true);
+		}}
+            >Všechny palety</thermal-btn>
+        </thermal-btn-group>`;
+	}
+};
+__decorate([(0, _lit_context.consume)({
+	context: managerAdvancedPalettesContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Boolean)], ManagerAdvancedPaletteSwitch.prototype, "advancedPalettes", void 0);
+//#endregion
 //#region src/renderers/FileDetail.ts
 var FileDetailElement = class extends AbstractFileConsumer {
 	constructor(..._args) {
@@ -18402,6 +18444,7 @@ const elementsProviders = {
 const elementsManagerControls = {
 	"manager-image-smooth-switch": ManagerImageSmoothSwitch,
 	"manager-graph-smooth-switch": ManagerGraphSmoothSwitch,
+	"manager-advanced-palette-switch": ManagerAdvancedPaletteSwitch,
 	"manager-palette-dropdown": ManagerPaletteDropdown,
 	"manager-palette-buttons": ManagerPaletteButtons,
 	"manager-tool-bar": ManagerToolBar,
@@ -18474,6 +18517,9 @@ const elementsAll = {
 	...elementsGroupControls,
 	...elementsFileControls,
 	...elementsApplications
+};
+const isLabirthermalWebcomponent = (tag) => {
+	return tag in elementsAll;
 };
 //#endregion
 exports.AbstractFileConsumer = AbstractFileConsumer;
@@ -18590,6 +18636,7 @@ exports.groupControllerContext = groupControllerContext;
 exports.groupObjectContext = groupObjectContext;
 exports.icons = icons;
 exports.independentElements = independentElements;
+exports.isLabirthermalWebcomponent = isLabirthermalWebcomponent;
 exports.managerAdvancedPalettesContext = managerAdvancedPalettesContext;
 exports.managerContext = managerContext;
 exports.managerControllerContext = managerControllerContext;

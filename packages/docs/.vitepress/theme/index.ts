@@ -43,7 +43,7 @@ export default {
         script.id = cjsScriptId;
         script.src = '/lib/core.esm.cjs';
         script.type = 'module';
-        document.body.appendChild(script);
+        // document.body.appendChild(script);
     }
 
   }

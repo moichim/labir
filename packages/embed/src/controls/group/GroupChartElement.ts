@@ -22,8 +22,6 @@ import { state } from 'lit/decorators.js';
 import type { ThermalFileInstance } from '@labirthermal/core';
 import { AbstractGroupConsumer } from '../../hierarchy/consumers/AbstractGroupConsumer';
 
-import '@google-web-components/google-chart';
-
 
 export class GroupChartElement extends AbstractGroupConsumer {
 

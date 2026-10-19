@@ -5,10 +5,28 @@ import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 export default defineConfig({
   title: "@labirthermal",
   description: "Work with thermal images in the browser.",
+  base: "/labir/",
   markdown: {
     config(md) {
       md.use(tabsMarkdownPlugin)
     },
+  },
+  vue: {
+    template: {
+      compilerOptions: {
+        isCustomElement: tag =>
+          tag === "thermal-file-app" ||
+          tag === "thermal-dropin-app" ||
+          tag === "manager-advanced-palette-switch" ||
+          tag === "manager-palette-buttons" ||
+          tag === "manager-palette-dropdown" ||
+          tag === "manager-provider" ||
+          tag === "registry-provider" ||
+          tag === "group-provider" ||
+          tag === "file-provider" ||
+          tag === "file-canvas"
+      }
+    }
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -18,12 +36,7 @@ export default defineConfig({
         text: 'Reference',
         items: [
           { text: '@labirthermal/core', link: "/core" },
-          { text: 'Key concepts', link: '/core/key-concepts' },
-          {
-            text: 'Standalone usage', items: [
-              { text: 'Load a single file', link: '/core/single-file' }
-            ]
-          }
+          { text: '@labirthermal/webcomponents', link: '/webcomponents' },
         ]
 
       },
@@ -59,9 +72,17 @@ export default defineConfig({
       {
         text: '@labirthermal/webcomponents',
         items: [
-          { text: 'Overview', link: '/markdown-examples' },
-          { text: 'IIFE usage', link: '/api-examples' },
-          { text: 'Extending', link: '/api-examples' },
+          { text: 'Overview', link: '/webcomponents' },
+          { text: 'Usage', link: '/webcomponents/usage' },
+          { text: "Thermal palette", link: '/webcomponents/thermal-palette' },
+          { text: "Thermal range", link: '/webcomponents/thermal-range' },
+          { text: 'Applications', 
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/webcomponents/applications' },
+              { text: 'thermal-dropin-app', link: '/webcomponents/applications/thermal-dropin-app' }
+            ]
+           },
           { text: 'Components', link: '/api-examples' }
         ]
       }

@@ -6,7 +6,7 @@ import { repeat } from "lit/directives/repeat.js";
 import type { StyleInfo } from "lit/directives/style-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import type { IBaseElement } from "../AbstractThermalElement";
-import { AbstractHierarchyController } from "./AbstractHierarchyController";
+import { AbstractHierarchyController, HostReactiveProperties } from "./AbstractHierarchyController";
 import type { FileController } from "./FileController";
 import type { GroupController } from "./GroupController";
 
@@ -56,6 +56,11 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     public get UUID(): string {
         return this._UUID;
     }
+
+    public static readonly HOST_PROPERTIES: HostReactiveProperties<IHostProperties> = {
+        orderby: {type: String, reflect: true, attribute: "group-order-by"},
+        ordering: {type: String, reflect: true, attribute: "group-ordering"}
+    };
 
     private get group(): ThermalGroup {
         return this.host.groupController.groupObject;

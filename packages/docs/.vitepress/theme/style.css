@@ -76,6 +76,7 @@
  * Component: Button
  * -------------------------------------------------------------------------- */
 
+
 :root {
   --vp-button-brand-border: transparent;
   --vp-button-brand-text: var(--vp-c-white);
@@ -143,4 +144,17 @@
   display: block;
   width: calc( 100vw - 2 * var(--labirthermal-gap));
   margin-left: calc(50% - 50vw + var(--labirthermal-gap));
+}
+
+main {
+
+  button {
+    color: black;
+    background-color: lightgray;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    display: inline-block;
+    padding: .4em 1em;
+  }
+
 }

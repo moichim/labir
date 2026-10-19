@@ -289,5 +289,6 @@ export {
 export {
     independentElements,
     elementsProviders,
-    elementsAll
+    elementsAll,
+    isLabirthermalWebcomponent
 } from "./iifeCatalog";

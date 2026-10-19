@@ -123,7 +123,7 @@ importers:
         version: 5.0.4(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.4)(jsdom@30.1.2(@noble/hashes@1.8.0))(msw@3.0.3(@types/node@26.6.5)(graphql@16.14.2)(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))
       vitest-canvas-mock:
         specifier: ^1.2.0
-        version: 1.2.0(vitest@5.0.4(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.4)(jsdom@30.1.2(@noble/hashes@1.8.0))(msw@3.0.3(@types/node@26.6.5)(graphql@16.14.2)(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))
+        version: 1.2.0(vitest@5.0.4)
 
   packages/docs:
     dependencies:
@@ -133,6 +133,9 @@ importers:
       '@labirthermal/core':
         specifier: workspace:*
         version: link:../core
+      '@labirthermal/embed':
+        specifier: workspace:*
+        version: link:../embed
       '@labirthermal/server':
         specifier: workspace:*
         version: link:../server
@@ -152,9 +155,6 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.8.0
         version: 1.8.0
-      '@google-web-components/google-chart':
-        specifier: ^5.1.0
-        version: 5.1.0
       '@labirthermal/client':
         specifier: workspace:*
         version: link:../client
@@ -358,7 +358,7 @@ importers:
     devDependencies:
       '@wordpress/scripts':
         specifier: ^36.1.0
-        version: 36.1.0(z7unhglgogqdazhm2gdehg3jh4)
+        version: 36.1.0(@opentelemetry/core@2.12.0(@opentelemetry/api@1.9.1))(@playwright/test@1.57.0)(@types/eslint@9.6.1)(@types/node@26.6.5)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(@types/webpack@5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))(@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(esbuild@0.27.1)(jiti@2.6.1)(lightningcss@1.33.0)(react-dom@19.2.1(react@19.3.1))(react@19.3.1)(type-fest@4.41.0)(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))(vitest@5.0.4)(yauzl@2.10.0)
 
   packages/vue:
     dependencies:
@@ -1728,9 +1728,6 @@ packages:
 
   '@formatjs/intl-localematcher@0.6.2':
     resolution: {integrity: sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA==}
-
-  '@google-web-components/google-chart@5.1.0':
-    resolution: {integrity: sha512-WtAemdDoDMUWvWRgFCJKVjWOACN8eZm8YPvtWSL85F4AgzrL5CU9va720jPLJjY3iKddPO771EeqdbSTHMM4oQ==}
 
   '@hapi/address@5.1.1':
     resolution: {integrity: sha512-A+po2d/dVoY7cYajycYI43ZbYMXukuopIsqCjh5QzsBCipDtdofHntljDlpccMjIfTy6UOkg+5KPriwYch2bXA==}
@@ -9382,9 +9379,6 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  safevalues@0.5.2:
-    resolution: {integrity: sha512-8MeVqP6q2UompeFEUVphKZyLzeenFrSATIAAeSE5+6aGiozwVe3mK61TCODNrBFHocBJdpGL/lCmdYWiocdMng==}
-
   sass-loader@16.0.6:
     resolution: {integrity: sha512-sglGzId5gmlfxNs4gK2U3h7HlVRfx278YK6Ono5lwzuvi1jxig80YiuHkaDBVsYIKFhx8wN7XSCI0M2IDS/3qA==}
     engines: {node: '>= 18.12.0'}
@@ -12674,11 +12668,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@google-web-components/google-chart@5.1.0':
-    dependencies:
-      lit: 3.3.3
-      safevalues: 0.5.2
-
   '@hapi/address@5.1.1':
     dependencies:
       '@hapi/hoek': 11.0.7
@@ -13593,7 +13582,7 @@ snapshots:
     dependencies:
       playwright: 1.57.0
 
-  '@pmmmwh/react-refresh-webpack-plugin@0.5.15(@types/webpack@5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1)))(react-refresh@0.14.2)(type-fest@4.41.0)(webpack-dev-server@5.2.6(webpack-cli@5.1.4)(webpack@5.111.1))(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))':
+  '@pmmmwh/react-refresh-webpack-plugin@0.5.15(@types/webpack@5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))(react-refresh@0.14.2)(type-fest@4.41.0)(webpack-dev-server@5.2.6)(webpack@5.111.1)':
     dependencies:
       ansi-html: 0.0.9
       core-js-pure: 3.38.1
@@ -13605,7 +13594,7 @@ snapshots:
       source-map: 0.7.6
       webpack: 5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)
     optionalDependencies:
-      '@types/webpack': 5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1))
+      '@types/webpack': 5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)
       type-fest: 4.41.0
       webpack-dev-server: 5.2.6(webpack-cli@5.1.4)(webpack@5.111.1)
 
@@ -14389,7 +14378,7 @@ snapshots:
 
   '@types/web-bluetooth@0.0.21': {}
 
-  '@types/webpack@5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1))':
+  '@types/webpack@5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)':
     dependencies:
       '@types/node': 20.19.26
       tapable: 2.3.3
@@ -14769,7 +14758,7 @@ snapshots:
       tinyrainbow: 3.2.0
       vitest: 5.0.4(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.4)(jsdom@30.1.2(@noble/hashes@1.8.0))(msw@3.0.3(@types/node@26.6.5)(graphql@16.14.2)(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))
 
-  '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3)(vitest@5.0.4(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.4)(jsdom@30.1.3(@noble/hashes@1.8.0))(msw@3.0.3(@types/node@26.6.5)(graphql@16.14.2)(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))':
+  '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3)(vitest@5.0.4)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.71.2
       '@typescript-eslint/utils': 8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3)
@@ -15154,17 +15143,17 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1))(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))':
+  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4)(webpack@5.111.1)':
     dependencies:
       webpack: 5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1)
 
-  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1))(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))':
+  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4)(webpack@5.111.1)':
     dependencies:
       webpack: 5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1)
 
-  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1))(webpack-dev-server@5.2.6(webpack-cli@5.1.4)(webpack@5.111.1))(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))':
+  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4)(webpack-dev-server@5.2.6)(webpack@5.111.1)':
     dependencies:
       webpack: 5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1)
@@ -15208,7 +15197,7 @@ snapshots:
       '@types/react': 18.3.27
       '@types/react-dom': 18.3.7(@types/react@18.3.27)
 
-  '@wordpress/dependency-extraction-webpack-plugin@6.57.0(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))':
+  '@wordpress/dependency-extraction-webpack-plugin@6.57.0(webpack@5.111.1)':
     dependencies:
       json2php: 0.0.9
       webpack: 5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)
@@ -15253,11 +15242,11 @@ snapshots:
 
   '@wordpress/escape-html@3.57.0': {}
 
-  '@wordpress/eslint-plugin@27.1.0(nx5zsg42gxm656pi6dupn7ouia)':
+  '@wordpress/eslint-plugin@27.1.0(@types/eslint@9.6.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(esbuild@0.27.1)(eslint@10.12.0(jiti@2.6.1))(lightningcss@1.33.0)(postcss@8.5.30)(react-dom@19.2.1(react@19.3.1))(react@19.3.1)(stylelint@17.16.0(typescript@5.9.3))(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))(vitest@5.0.4)(wp-prettier@3.9.6)':
     dependencies:
       '@eslint-community/eslint-plugin-eslint-comments': 4.8.1(eslint@10.12.0(jiti@2.6.1))
       '@eslint/compat': 2.1.1(eslint@10.12.0(jiti@2.6.1))
-      '@vitest/eslint-plugin': 1.6.27(@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3)(vitest@5.0.4(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.4)(jsdom@30.1.3(@noble/hashes@1.8.0))(msw@3.0.3(@types/node@26.6.5)(graphql@16.14.2)(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))
+      '@vitest/eslint-plugin': 1.6.27(@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3)(vitest@5.0.4)
       '@wordpress/prettier-config': 4.57.0(wp-prettier@3.9.6)
       '@wordpress/theme': 2.3.0(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(react-dom@19.2.1(react@19.3.1))(react@19.3.1)(stylelint@17.16.0(typescript@5.9.3))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))
       cosmiconfig: 7.1.0
@@ -15356,40 +15345,40 @@ snapshots:
 
   '@wordpress/private-apis@2.0.0': {}
 
-  '@wordpress/scripts@36.1.0(z7unhglgogqdazhm2gdehg3jh4)':
+  '@wordpress/scripts@36.1.0(@opentelemetry/core@2.12.0(@opentelemetry/api@1.9.1))(@playwright/test@1.57.0)(@types/eslint@9.6.1)(@types/node@26.6.5)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(@types/webpack@5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))(@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(esbuild@0.27.1)(jiti@2.6.1)(lightningcss@1.33.0)(react-dom@19.2.1(react@19.3.1))(react@19.3.1)(type-fest@4.41.0)(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))(vitest@5.0.4)(yauzl@2.10.0)':
     dependencies:
       '@babel/core': 7.28.5
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15(@types/webpack@5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1)))(react-refresh@0.14.2)(type-fest@4.41.0)(webpack-dev-server@5.2.6(webpack-cli@5.1.4)(webpack@5.111.1))(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15(@types/webpack@5.28.5(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))(react-refresh@0.14.2)(type-fest@4.41.0)(webpack-dev-server@5.2.6)(webpack@5.111.1)
       '@svgr/webpack': 8.1.0(typescript@5.9.3)
       '@wordpress/babel-preset-default': 9.0.0
       '@wordpress/browserslist-config': 6.57.0
-      '@wordpress/dependency-extraction-webpack-plugin': 6.57.0(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      '@wordpress/dependency-extraction-webpack-plugin': 6.57.0(webpack@5.111.1)
       '@wordpress/e2e-test-utils-playwright': 3.0.0(@opentelemetry/core@2.12.0(@opentelemetry/api@1.9.1))(@playwright/test@1.57.0)(@types/node@26.6.5)(yauzl@2.10.0)
-      '@wordpress/eslint-plugin': 27.1.0(nx5zsg42gxm656pi6dupn7ouia)
+      '@wordpress/eslint-plugin': 27.1.0(@types/eslint@9.6.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(esbuild@0.27.1)(eslint@10.12.0(jiti@2.6.1))(lightningcss@1.33.0)(postcss@8.5.30)(react-dom@19.2.1(react@19.3.1))(react@19.3.1)(stylelint@17.16.0(typescript@5.9.3))(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))(vitest@5.0.4)(wp-prettier@3.9.6)
       '@wordpress/npm-package-json-lint-config': 5.57.0(npm-package-json-lint@6.4.0(typescript@5.9.3))
       '@wordpress/postcss-plugins-preset': 5.57.0(postcss@8.5.30)
       '@wordpress/prettier-config': 4.57.0(wp-prettier@3.9.6)
       '@wordpress/stylelint-config': 26.1.0(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(react-dom@19.2.1(react@19.3.1))(react@19.3.1)(stylelint-scss@7.3.0(stylelint@17.16.0(typescript@5.9.3)))(stylelint@17.16.0(typescript@5.9.3))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))
       adm-zip: 0.6.1
-      babel-loader: 9.2.1(@babel/core@7.28.5)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      babel-loader: 9.2.1(@babel/core@7.28.5)(webpack@5.111.1)
       browserslist: 4.29.3
       chalk: 4.1.2
       check-node-version: 4.2.1
-      copy-webpack-plugin: 10.2.4(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      copy-webpack-plugin: 10.2.4(webpack@5.111.1)
       cross-spawn: 7.0.6
-      css-loader: 6.11.0(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      css-loader: 6.11.0(webpack@5.111.1)
       cssnano: 6.1.2(postcss@8.5.30)
       dir-glob: 3.0.1
       eslint: 10.12.0(jiti@2.6.1)
       fast-glob: 3.3.3
       json2php: 0.0.9
       markdownlint-cli: 0.49.1
-      mini-css-extract-plugin: 2.9.4(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      mini-css-extract-plugin: 2.9.4(webpack@5.111.1)
       minimist: 1.2.8
       npm-package-json-lint: 6.4.0(typescript@5.9.3)
       npm-packlist: 3.0.0
       postcss: 8.5.30
-      postcss-loader: 6.2.1(postcss@8.5.30)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      postcss-loader: 6.2.1(postcss@8.5.30)(webpack@5.111.1)
       prettier: wp-prettier@3.9.6
       react: 19.3.1
       react-dom: 19.2.1(react@19.3.1)
@@ -15398,13 +15387,13 @@ snapshots:
       resolve-bin: 1.0.1
       rtlcss: 4.3.0
       sass: 1.95.1
-      sass-loader: 16.0.6(sass@1.95.1)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      sass-loader: 16.0.6(sass@1.95.1)(webpack@5.111.1)
       schema-utils: 4.5.0
-      source-map-loader: 3.0.2(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      source-map-loader: 3.0.2(webpack@5.111.1)
       stylelint: 17.16.0(typescript@5.9.3)
       stylelint-scss: 7.3.0(stylelint@17.16.0(typescript@5.9.3))
-      terser-webpack-plugin: 5.3.15(esbuild@0.27.1)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
-      url-loader: 4.1.1(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      terser-webpack-plugin: 5.3.15(esbuild@0.27.1)(webpack@5.111.1)
+      url-loader: 4.1.1(webpack@5.111.1)
       webpack: 5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)
       webpack-bundle-analyzer: 4.10.2
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1)
@@ -15878,7 +15867,7 @@ snapshots:
 
   axobject-query@4.1.0: {}
 
-  babel-loader@9.2.1(@babel/core@7.28.5)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  babel-loader@9.2.1(@babel/core@7.28.5)(webpack@5.111.1):
     dependencies:
       '@babel/core': 7.28.5
       find-cache-dir: 4.0.0
@@ -16520,7 +16509,7 @@ snapshots:
 
   copy-anything@4.1.5: {}
 
-  copy-webpack-plugin@10.2.4(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  copy-webpack-plugin@10.2.4(webpack@5.111.1):
     dependencies:
       fast-glob: 3.3.3
       glob-parent: 6.0.2
@@ -16597,7 +16586,7 @@ snapshots:
 
   css-functions-list@3.3.3: {}
 
-  css-loader@6.11.0(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  css-loader@6.11.0(webpack@5.111.1):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.30)
       postcss: 8.5.30
@@ -17260,7 +17249,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0)(eslint@10.12.0(jiti@2.6.1)))(eslint@10.12.0(jiti@2.6.1)):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.4.4)(eslint@10.12.0(jiti@2.6.1)):
     dependencies:
       debug: 3.2.7(supports-color@8.1.1)
     optionalDependencies:
@@ -17287,7 +17276,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 10.12.0(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0)(eslint@10.12.0(jiti@2.6.1)))(eslint@10.12.0(jiti@2.6.1))
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.71.2(eslint@10.12.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.4.4)(eslint@10.12.0(jiti@2.6.1))
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -19770,7 +19759,7 @@ snapshots:
 
   min-indent@1.0.1: {}
 
-  mini-css-extract-plugin@2.9.4(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  mini-css-extract-plugin@2.9.4(webpack@5.111.1):
     dependencies:
       schema-utils: 4.5.0
       tapable: 2.3.3
@@ -19826,7 +19815,7 @@ snapshots:
 
   minimist@1.2.8: {}
 
-  minimizer-webpack-plugin@5.13.0(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  minimizer-webpack-plugin@5.13.0(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack@5.111.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
@@ -20681,7 +20670,7 @@ snapshots:
       postcss: 8.5.30
       yaml: 2.8.2
 
-  postcss-loader@6.2.1(postcss@8.5.30)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  postcss-loader@6.2.1(postcss@8.5.30)(webpack@5.111.1):
     dependencies:
       cosmiconfig: 7.1.0
       klona: 2.0.6
@@ -21431,9 +21420,7 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  safevalues@0.5.2: {}
-
-  sass-loader@16.0.6(sass@1.95.1)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  sass-loader@16.0.6(sass@1.95.1)(webpack@5.111.1):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
@@ -21738,7 +21725,7 @@ snapshots:
 
   source-map-js@1.2.2: {}
 
-  source-map-loader@3.0.2(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  source-map-loader@3.0.2(webpack@5.111.1):
     dependencies:
       abab: 2.0.6
       iconv-lite: 0.6.3
@@ -22182,7 +22169,7 @@ snapshots:
 
   temp-dir@1.0.0: {}
 
-  terser-webpack-plugin@5.3.15(esbuild@0.27.1)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  terser-webpack-plugin@5.3.15(esbuild@0.27.1)(webpack@5.111.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
@@ -22717,7 +22704,7 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  url-loader@4.1.1(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  url-loader@4.1.1(webpack@5.111.1):
     dependencies:
       loader-utils: 2.0.4
       mime-types: 2.1.35
@@ -22953,7 +22940,7 @@ snapshots:
       - typescript
       - universal-cookie
 
-  vitest-canvas-mock@1.2.0(vitest@5.0.4(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.4)(jsdom@30.1.2(@noble/hashes@1.8.0))(msw@3.0.3(@types/node@26.6.5)(graphql@16.14.2)(typescript@5.9.3)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2)))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.27.1)(jiti@2.6.1)(sass@1.95.1)(terser@5.51.2)(yaml@2.8.2))):
+  vitest-canvas-mock@1.2.0(vitest@5.0.4):
     dependencies:
       cssfontparser: 1.2.1
       moo-color: 1.0.3
@@ -23199,9 +23186,9 @@ snapshots:
   webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1):
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
-      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1))(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
-      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1))(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
-      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.6)(webpack@5.111.1))(webpack-dev-server@5.2.6(webpack-cli@5.1.4)(webpack@5.111.1))(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4)(webpack@5.111.1)
+      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4)(webpack@5.111.1)
+      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4)(webpack-dev-server@5.2.6)(webpack@5.111.1)
       colorette: 2.0.20
       commander: 10.0.1
       cross-spawn: 7.0.6
@@ -23216,7 +23203,7 @@ snapshots:
       webpack-bundle-analyzer: 4.10.2
       webpack-dev-server: 5.2.6(webpack-cli@5.1.4)(webpack@5.111.1)
 
-  webpack-dev-middleware@7.4.6(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)):
+  webpack-dev-middleware@7.4.6(webpack@5.111.1):
     dependencies:
       colorette: 2.0.20
       memfs: 4.80.0
@@ -23255,7 +23242,7 @@ snapshots:
       serve-index: 1.9.1
       sockjs: 0.3.24
       spdy: 4.0.2
-      webpack-dev-middleware: 7.4.6(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      webpack-dev-middleware: 7.4.6(webpack@5.111.1)
       ws: 8.18.3
     optionalDependencies:
       webpack: 5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4)
@@ -23288,7 +23275,7 @@ snapshots:
       events: 3.3.0
       graceful-fs: 4.2.11
       mime-db: 1.54.0
-      minimizer-webpack-plugin: 5.13.0(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack@5.111.1(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack-cli@5.1.4))
+      minimizer-webpack-plugin: 5.13.0(cssnano@6.1.2(postcss@8.5.30))(esbuild@0.27.1)(lightningcss@1.33.0)(postcss@8.5.30)(webpack@5.111.1)
       schema-utils: 4.5.0
       tapable: 2.3.3
       watchpack: 2.6.1

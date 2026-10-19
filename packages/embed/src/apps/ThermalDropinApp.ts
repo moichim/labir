@@ -1,6 +1,5 @@
-import type { AvailableThermalPalette, ThermalFileInstance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
+import type { AvailableThermalPalette, ThermalFileInstance, PlaybackSpeeds, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRangeOrUndefined, ThermalRegistry, AbstractFileResult } from "@labirthermal/core";
 import { ThermalFileReader } from "@labirthermal/core";
-import type { AbstractFileResult } from "@labirthermal/core/src/loading/workers/AbstractFileResult";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import type { PropertyValues } from "lit";
@@ -14,9 +13,9 @@ import type { IElementWithGroupController } from "../hierarchy/controllers/Group
 import { GroupController } from "../hierarchy/controllers/GroupController";
 import type { IElementWithGroupListingController } from "../hierarchy/controllers/GroupListingController";
 import { GroupListingController, GroupOrderby, GroupOrdering } from "../hierarchy/controllers/GroupListingController";
-import type { IElementWithManagerController} from "../hierarchy/controllers/ManagerController";
+import type { IElementWithManagerController } from "../hierarchy/controllers/ManagerController";
 import { ManagerController } from "../hierarchy/controllers/ManagerController";
-import type { IElementWithRegistryController} from "../hierarchy/controllers/RegistryController";
+import type { IElementWithRegistryController } from "../hierarchy/controllers/RegistryController";
 import { RegistryController } from "../hierarchy/controllers/RegistryController";
 import { T } from "../translations/Languages";
 import type { IWithlocale, Locales } from "../translations/localeContext";
@@ -43,7 +42,8 @@ export class DropinAppElement
         ...ManagerController.HOST_PROPERTIES,
         ...RegistryController.HOST_PROPERTIES,
         ...GroupController.HOST_PROPERTIES,
-        ...FileController.HOST_PROPERTIES
+        ...FileController.HOST_PROPERTIES,
+        ...GroupListingController.HOST_PROPERTIES
     }
 
 
@@ -111,7 +111,39 @@ export class DropinAppElement
 
     connectedCallback(): void {
         super.connectedCallback();
-        publicIpv4().then(ip => this.ip = ip);
+        try {
+            publicIpv4().then(ip => this.ip = ip);
+        } catch (error) {
+            console.error("Failed to get public IPv4 address:", error);
+        }
+
+        this.groupController.onInternalObject.set(
+            this.UUID,
+            group => {
+
+                group.files.addListener(
+                    this.UUID,
+                    async (value) => {
+
+                        // Clear the timeout if exists
+                        if (this.onValueChangeTimeout !== undefined) {
+                            clearTimeout(this.onValueChangeTimeout);
+                        }
+
+                        // Set the new timeout to handle the value change
+                        this.onValueChangeTimeout = setTimeout(async () => {
+                            // Set the to display array of instances
+                            this.toDisplay = value;
+
+                        }, 0);
+
+                    }
+                );
+
+
+
+            }
+        );
     }
 
     willUpdate(_changedProperties: PropertyValues<DropinAppElement>) {
@@ -142,34 +174,6 @@ export class DropinAppElement
     }
 
     private onValueChangeTimeout: ReturnType<typeof setTimeout> | undefined;
-
-
-    public firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
-
-        initLocalesInTopLevelElement(this);
-
-        if (this.groupObject !== undefined) {
-
-            this.groupObject.files.addListener(this.UUID, async (value) => {
-
-                // Clear the timeout if exists
-                if (this.onValueChangeTimeout !== undefined) {
-                    clearTimeout(this.onValueChangeTimeout);
-                }
-
-                // Set the new timeout to handle the value change
-                this.onValueChangeTimeout = setTimeout(async () => {
-                    // Set the to display array of instances
-                    this.toDisplay = value;
-
-                }, 0);
-
-            });
-
-        }
-
-    }
 
     protected handleClear() {
 
