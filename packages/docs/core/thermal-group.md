@@ -1,5 +1,9 @@
 # ThermalGroup
 
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 The <code>ThermalGroup</code> is a container of thermal files (<code>ThermalFileInstance</code>) within a <code>ThermalRegistry</code>. It represents a logical grouping of thermograms, such as a time series, a set of related camera captures, or an inspection batch.
 
 Each group belongs to exactly one <code>ThermalRegistry</code>, from which it inherits the shared thermal palette, display range, and worker pool.
@@ -49,10 +53,10 @@ registry.groups.removeGroup( "morning-series" );
         <group-provider group-slug="morning-series">
             <strong>Group: Morning Series</strong>
             <div style="display: flex; gap: 10px; margin-top: 8px;">
-                <file-provider thermal="/files/klokan.lrc">
+                <file-provider :thermal="withBase('/files/klokan.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
-                <file-provider thermal="/files/makak.lrc">
+                <file-provider :thermal="withBase('/files/makak.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
             </div>
@@ -138,10 +142,10 @@ group.files.removeFile( "/files/klokan.lrc" );
                 <group-download-dropdown></group-download-dropdown>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <file-provider thermal="/files/klokan.lrc">
+                <file-provider :thermal="withBase('/files/klokan.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
-                <file-provider thermal="/files/makak.lrc">
+                <file-provider :thermal="withBase('/files/makak.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
             </div>
@@ -215,7 +219,7 @@ group.minmax.addListener( "group-minmax-listener", value => {
                     <strong>Group A:</strong>
                     <group-range-propagator></group-range-propagator>
                 </div>
-                <file-provider thermal="/files/klokan.lrc">
+                <file-provider :thermal="withBase('/files/klokan.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
             </group-provider>
@@ -224,7 +228,7 @@ group.minmax.addListener( "group-minmax-listener", value => {
                     <strong>Group B:</strong>
                     <group-range-propagator></group-range-propagator>
                 </div>
-                <file-provider thermal="/files/soustruh.lrc">
+                <file-provider :thermal="withBase('/files/soustruh.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
             </group-provider>
@@ -305,10 +309,10 @@ group.analysisSync.addListener( "sync-listener", ( isSynced: boolean ) => {
                 <span style="font-size: 0.85em; margin-left: 8px;">Select a tool and draw on either image — the analysis synchronizes across both.</span>
             </div>
             <div style="display: flex; gap: 10px;">
-                <file-provider thermal="/files/nosorozec_01.lrc">
+                <file-provider :thermal="withBase('/files/nosorozec_01.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
-                <file-provider thermal="/files/nosorozec_02.lrc">
+                <file-provider :thermal="withBase('/files/nosorozec_02.lrc')">
                     <file-canvas></file-canvas>
                 </file-provider>
             </div>
@@ -397,7 +401,7 @@ group.playback.onPlayingStatusChange.set( "playback-listener", isPlaying => {
     <registry-provider registry-slug="demo-registry">
         <group-provider group-slug="sequence-group">
             <group-timeline></group-timeline>
-            <file-provider thermal="/files/sequence.lrc">
+            <file-provider :thermal="withBase('/files/sequence.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>

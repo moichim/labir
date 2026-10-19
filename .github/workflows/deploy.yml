@@ -39,6 +39,9 @@ jobs:
             ${{ runner.os }}-vitepress-
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true
+          token: ${{ secrets.PAGES_TOKEN || github.token }}
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build with VitePress

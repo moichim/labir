@@ -50,7 +50,7 @@ Result:
 <manager-provider advanced-palettes="true" palette="lava">
     <registry-provider>
         <group-provider>
-            <file-provider thermal="/files/makak.lrc">
+            <file-provider :thermal="withBase('/files/makak.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -86,7 +86,7 @@ These components need to be nested somewhere in a [context provider](#context-pr
     </table>
     <registry-provider>
         <group-provider>
-            <file-provider thermal="/files/makak.lrc">
+            <file-provider :thermal="withBase('/files/makak.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -127,6 +127,7 @@ User may switch the current palette using `manager-palette-dropdown` or `manager
 The current palette can also be controlled by ordinary HTML buttons placed outside the web component. The buttons below change the `palette` and `advanced-palettes` attributes using [`setAttribute`](https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute).
 
 <script setup>
+import { withBase } from 'vitepress'
 import { ref } from 'vue'
 
 const palette = ref('iron')
@@ -171,7 +172,7 @@ const setAdvancedPalettes = (value) => {
     <thermal-file-app
         id="palette-attribute-demo"
         label="Manipulating the palette"
-        thermal="/files/klokan.lrc"
+        :thermal="withBase('/files/klokan.lrc')"
         palette="{{palette}}"
         advanced-palettes="true"
     ></thermal-file-app>

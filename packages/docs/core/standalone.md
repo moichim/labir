@@ -1,5 +1,9 @@
 # Standalone usage
 
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 The <code>@labirthermal/core</code> package can be used directly from TypeScript or through <code>@labirthermal/webcomponents</code>.
 
 ## Load a single file
@@ -217,7 +221,7 @@ See the result:
 <manager-provider manager-slug="demo-manager">
     <registry-provider registry-slug="demo-registry">
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/files/makak.lrc">
+            <file-provider :thermal="withBase('/files/makak.lrc')">
                 <manager-palette-buttons></manager-palette-buttons>
                 <file-canvas></file-canvas>
             </file-provider>

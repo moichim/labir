@@ -1,5 +1,9 @@
 # Load multiple files
 
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 You can load multiple files at once into a single group. This page demonstrates, how to do it in two ways:
 - a) manually **in TypeScript**
 - b) **using webcomponents** who do the exact TypeScript work for you
@@ -91,13 +95,13 @@ In the result, you see that the files in one <code>ThermalRegistry</code> (resp.
 <manager-provider manager-slug="demo-manager">
     <registry-provider registry-slug="demo-registry">
         <group-provider group-slug="demo-group">
-            <file-provider thermal="/files/sequence.lrc">
+            <file-provider :thermal="withBase('/files/sequence.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
-            <file-provider thermal="/files/klokan.lrc">
+            <file-provider :thermal="withBase('/files/klokan.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
-            <file-provider thermal="/files/makak.lrc">
+            <file-provider :thermal="withBase('/files/makak.lrc')">
                 <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
