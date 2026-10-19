@@ -1,5 +1,5 @@
-import { ThermalManager } from "@labirthermal/core";
-import { ThermalFileElement } from "./components/single/thermalFileElement";
+import type { ThermalManager } from "@labirthermal/core";
+import type { ThermalFileElement } from "./components/single/thermalFileElement";
 
 declare global {
     interface HTMLElementTagNameMap {

@@ -1,9 +1,9 @@
-import { customElement, property } from "lit/decorators.js";
+import type { ThermalFileInstance } from "@labirthermal/core";
+import { property } from "lit/decorators.js";
 import { AbstractFileButton } from "./AbstractFileButton";
-import { Instance } from "@labirthermal/core";
 
-@customElement("file-button")
-export class FileButton extends AbstractFileButton {
+/** @deprecated Who knows what that is? */
+export class FileButtonElement extends AbstractFileButton {
 
 
     tooltip: undefined = undefined;
@@ -12,23 +12,22 @@ export class FileButton extends AbstractFileButton {
     label!: string;
 
     @property({type: Object})
-    onEnter?: (instance: Instance) => void;
+    onEnter?: (instance: ThermalFileInstance) => void;
 
     @property({type: Object})
-    onLeave?: (instance: Instance) => void;;
+    onLeave?: (instance: ThermalFileInstance) => void;;
 
     @property({type: Object})
-    onAction?: (instance: Instance) => void;;
+    onAction?: (instance: ThermalFileInstance) => void;;
 
     enter() { if (this.onEnter && this.file) this.onEnter(this.file); }
     leave() { if ( this.onLeave && this.file ) this.onLeave(this.file);  }
 
     action() {
         if ( this.onAction && this.file ) {
-
             this.onAction( this.file );
-
         }
+
     }
 
     getDefaultLabel(): string {
@@ -37,4 +36,10 @@ export class FileButton extends AbstractFileButton {
 
     
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-button": FileButtonElement;
+    }
 }

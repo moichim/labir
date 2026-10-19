@@ -1,9 +1,8 @@
 import { css, html, LitElement, nothing } from "lit";
-import { BaseElement } from "../hierarchy/BaseElement";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-@customElement("thermal-spinner")
-export class Spinner extends BaseElement {
+export class ThermalSpinnerElement extends AbstractThermalElement {
 
     @property({ type: String })
     public message?: string;
@@ -55,4 +54,10 @@ export class Spinner extends BaseElement {
 
     
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-spinner": ThermalSpinnerElement;
+    }
 }

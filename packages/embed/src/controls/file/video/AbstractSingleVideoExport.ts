@@ -1,18 +1,17 @@
-import { Instance } from "@labirthermal/core";
-import { html, nothing, PropertyValues } from "lit";
+import type { ThermalFileInstance } from "@labirthermal/core";
+import type { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { Quality, QUALITY_VERY_HIGH } from "mediabunny";
-import { ISingleVideoExportElement, RecordingPhase, SingleVideoRenderProps, VideoExportSkin } from "./ISingleVideoExportElement";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { FileProviderElement } from "../../../hierarchy/providers/FileProvider";
-import { interactiveAnalysisContext } from "../../../utils/context";
-import { provide } from "@lit/context";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef } from "lit/directives/ref.js";
+import type { Quality} from "mediabunny";
+import { QUALITY_VERY_HIGH } from "mediabunny";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
+import type { FileCopyElement } from "../../../hierarchy/providers/FileCopy";
 import { VideoRecorder } from "./internals/VideoRecorder";
-import { FileCopyElement } from "packages/embed/src/hierarchy/providers/FileCopy";
+import type { ISingleVideoExportElement, SingleVideoRenderProps} from "./ISingleVideoExportElement";
+import { RecordingPhase, VideoExportSkin } from "./ISingleVideoExportElement";
 
-export abstract class AbstractSingleVideoExport extends FileConsumer implements ISingleVideoExportElement {
+export abstract class AbstractSingleVideoExport extends AbstractFileConsumer implements ISingleVideoExportElement {
 
     public fileCopyElementRef: Ref<FileCopyElement> = createRef();
     public exportedDivRef: Ref<HTMLElement> = createRef();
@@ -25,12 +24,12 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         ].join("__")
     }
 
-    public get outerFile(): Instance | undefined {
+    public get outerFile(): ThermalFileInstance | undefined {
         return this.file;
     }
 
 
-    public get innerFile(): Instance | undefined {
+    public get innerFile(): ThermalFileInstance | undefined {
         return this.fileCopyElementRef.value?.file;
     }
 
@@ -38,18 +37,7 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         return this.exportedDivRef.value;
     }
 
-    @provide({ context: interactiveAnalysisContext })
-    private interactiveanalysis: boolean = false;
-
-    @property({ type: Boolean, reflect: true}) public parentHasAnalyses: boolean = false;
-
-    @state() public analysis1?: string;
-    @state() public analysis2?: string;
-    @state() public analysis3?: string;
-    @state() public analysis4?: string;
-    @state() public analysis5?: string;
-    @state() public analysis6?: string;
-    @state() public analysis7?: string;
+    @property({ type: Boolean, reflect: true }) public parentHasAnalyses: boolean = false;
 
     @state()
     public recordingPhase: RecordingPhase = RecordingPhase.IDLE;
@@ -57,11 +45,11 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
     @state()
     public recordingPhaseProgress: number = 0;
 
-    public setRecordingPhase( phase: RecordingPhase ): void {
+    public setRecordingPhase(phase: RecordingPhase): void {
         this.recordingPhase = phase;
     }
 
-    public setRecordingPhaseProgress( progress: number ): void {
+    public setRecordingPhaseProgress(progress: number): void {
         this.recordingPhaseProgress = progress;
     }
 
@@ -118,34 +106,9 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         this.onLayoutAffectingPropertyChanged();
     }
 
+    /** The analyses are mirrored to the copy by the `withAnalyses` property of the `file-copy` element (see the providers directive). */
     public setHasAnalysis(value: boolean): void {
         this.renderProps.hasAnalysis = value;
-
-        if ( value && this.file) {
-
-
-            this.fileCopyElementRef.value?.copyAnalysesFromParent();
-
-            this.analysis1 = this.file.slots.getSlot(0)?.serialized ?? undefined;
-            this.analysis2 = this.file.slots.getSlot(1)?.serialized ?? undefined;
-            this.analysis3 = this.file.slots.getSlot(2)?.serialized ?? undefined;
-            this.analysis4 = this.file.slots.getSlot(3)?.serialized ?? undefined;
-            this.analysis5 = this.file.slots.getSlot(4)?.serialized ?? undefined;
-            this.analysis6 = this.file.slots.getSlot(5)?.serialized ?? undefined;
-            this.analysis7 = this.file.slots.getSlot(6)?.serialized ?? undefined;
-        } else {
-
-            this.fileCopyElementRef.value?.clearAnalyses();
-
-            this.analysis1 = undefined;
-            this.analysis2 = undefined;
-            this.analysis3 = undefined;
-            this.analysis4 = undefined;
-            this.analysis5 = undefined;
-            this.analysis6 = undefined;
-            this.analysis7 = undefined;
-        }
-
         this.requestUpdate();
         this.onLayoutAffectingPropertyChanged();
     }
@@ -201,11 +164,13 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         this.requestUpdate();
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated( _changedProperties );
-        
+    updated(_changedProperties: PropertyValues): void {
+        super.updated(_changedProperties);
+
         // Nastav výchozí název souboru z .lrc souboru
         if (_changedProperties.has("file") && this.file) {
+            this.parentHasAnalyses = this.file.analysis.value.length > 0;
+
             const lrcFileName = this.file.fileName;
             // Odstraň .lrc příponu
             const baseName = lrcFileName.replace(/\.lrc$/i, "");
@@ -217,7 +182,7 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
 
     public async record(): Promise<void> {
 
-        const recorder = new VideoRecorder( this );
+        const recorder = new VideoRecorder(this);
 
         await recorder.captureVideo();
 
@@ -226,7 +191,7 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
 
     public async currentFrame(): Promise<void> {
 
-        const recorder = new VideoRecorder( this );
+        const recorder = new VideoRecorder(this);
         await recorder.captureCurrentFrameAsPng();
     }
 

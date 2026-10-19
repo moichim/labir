@@ -111,7 +111,7 @@ export const rectAnalysisData: IParserObject["rectAnalysisData"] = async (entire
 
                 const pointIndex = frameHeaderByteSize + ( ( rowOffset + x ) * pixelByteSize );
 
-                let value: number = NaN;
+                let value: number = NaN; //eslint-disable-line no-useless-assignment
 
                 if ( dataType === 1 ) {
                     value = frameView.getFloat32(pointIndex, true);

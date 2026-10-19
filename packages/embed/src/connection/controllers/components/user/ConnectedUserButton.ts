@@ -1,15 +1,14 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { Identity } from "packages/server/client/src/responseEntities";
-import { ClientConsumer } from "../../../components/ClientConsumer";
-import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
-import { ThermalDialog } from "packages/embed/src/ui/Dialog";
-import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
+import type { CSSResultGroup, TemplateResult } from "lit";
+import { css, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
+import type { ThermalDialogElement } from "../../../../ui/Dialog";
 
 @customElement("connected-user-button")
-export class UserButton extends ControlledConsumer {
+export class UserButton extends AbstractControlledConsumer {
 
     @state()
     protected message?: string;
@@ -24,7 +23,7 @@ export class UserButton extends ControlledConsumer {
         this.client.subscribeToLoadingChanges(this);
 
 
-        this.client.api.auth.onIdentity.set(this.UUID, (identity) => {
+        this.client.api.auth.onIdentity.set(this.UUID, () => {
             this.message = undefined;
         });
     }
@@ -77,7 +76,7 @@ export class UserButton extends ControlledConsumer {
         // Najdeme thermal-dialog v shadowRoot
         const dialog = this.shadowRoot?.querySelector('thermal-dialog');
         // Najdeme slot s obsahem ve shadowRoot thermal-dialogu
-        const dialogShadow = (dialog as ThermalDialog)?.shadowRoot;
+        const dialogShadow = (dialog as ThermalDialogElement)?.shadowRoot;
         const contentSlot = dialogShadow?.querySelector('slot[name="content"]') as HTMLSlotElement;
 
         if (contentSlot) {
@@ -132,7 +131,7 @@ export class UserButton extends ControlledConsumer {
         if (event.key === 'Enter') {
             event.preventDefault();
             // Najdeme thermal-dialog v shadowRoot
-            const dialog = this.shadowRoot?.querySelector('thermal-dialog') as ThermalDialog;
+            const dialog = this.shadowRoot?.querySelector('thermal-dialog') as ThermalDialogElement;
             if (dialog) {
                 // Zavoláme close metodu na dialogu
                 dialog.closeFromTheOutside();
@@ -195,7 +194,7 @@ export class UserButton extends ControlledConsumer {
 
         const userName = this.client.identity?.meta.name ?? this.client.identity?.meta.login;
 
-        if (!userName === undefined) {
+        if (userName !== undefined) {
             return nothing;
         }
 

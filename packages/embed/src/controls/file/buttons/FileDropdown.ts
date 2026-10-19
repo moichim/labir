@@ -1,9 +1,9 @@
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import { property, state } from "lit/decorators.js";
+import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 
-@customElement("file-dropdown")
-export class FileDropdown extends BaseElement {
+export class FileDropdown extends AbstractThermalElement {
 
     @property({type: String, reflect: true})
     label?: string;
@@ -15,7 +15,7 @@ export class FileDropdown extends BaseElement {
     protected expand() { this.expanded = true; }
     protected collapse() { this.expanded = false; }
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
         if ( _changedProperties.has( "expanded" ) ) {
             if ( this.expanded === true ) {
@@ -23,6 +23,7 @@ export class FileDropdown extends BaseElement {
             } else {
                 this.classList.remove( "expanded" );
             }
+
         }
     }
 
@@ -64,6 +65,7 @@ export class FileDropdown extends BaseElement {
             }
 
         }
+
 
         .backdrop {
             display: none;
@@ -123,4 +125,10 @@ export class FileDropdown extends BaseElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-dropdown-elt": FileDropdown;
+    }
 }

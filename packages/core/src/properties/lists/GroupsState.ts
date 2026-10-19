@@ -1,10 +1,6 @@
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { ThermalRegistry } from "../../hierarchy/ThermalRegistry";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
-
-export interface IWithGroups extends IBaseProperty {
-    groups: GroupsState
-}
+import { AbstractProperty } from "../abstractProperty";
 
 
 /** Handles group creation and removal */

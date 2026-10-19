@@ -400,9 +400,13 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     }
 
 
-    /** Get name for the next analysis */
+    /** Get name for the next analysis. The number is the lowest one not occupied by an existing analysis of the same type. */
     private getNextName(type: string) {
-        return `${type} ${this.all.length}`;
+        let index = this.all.length;
+        while (this.has(`${type} ${index}`)) {
+            index++;
+        }
+        return `${type} ${index}`;
     }
 
 

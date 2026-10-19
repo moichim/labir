@@ -1,12 +1,10 @@
+import type { BreadcrumbItem, FileInfo, FolderInfo } from "@labirthermal/client";
 import { html, nothing } from "lit";
 import { directive } from "lit/directive.js";
-import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
-import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
-import { BreadcrumbItem } from "@labirthermal/server";
-import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";
+import type { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { DirectiveHelpers } from "../DirectiveHelpers";
 import { slotOrNothing } from "../SlotOrNothing";
-import { FileInfo, FolderInfo } from "packages/server/client/dist";
+import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";
 
 class ConnectedFolderGridDirective extends AbstractFolderLayoutDirective {
 

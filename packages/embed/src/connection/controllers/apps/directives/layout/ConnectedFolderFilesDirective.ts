@@ -1,10 +1,8 @@
+import type { BreadcrumbItem, FileInfo } from "@labirthermal/client";
 import { html, nothing } from "lit";
-import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
-import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
-import { BreadcrumbItem } from "@labirthermal/server";
-import { slotOrNothing } from "../SlotOrNothing";
+import type { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { DirectiveHelpers } from "../DirectiveHelpers";
-import { FileInfo, FolderInfo } from "packages/server/client/dist";
+import { slotOrNothing } from "../SlotOrNothing";
 
 import { directive } from "lit/directive.js";
 import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";

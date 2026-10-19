@@ -8,7 +8,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/moichim/labir"
+    "url": "https://github.com/labirthermal/web"
   },
   "files": [
     "client/dist",
@@ -22,7 +22,7 @@
     "lint": "eslint client"
   },
   "author": "Jan Jáchim <jachim@ntc.zcu.cz>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "uuid": "^9.0.1"
   },

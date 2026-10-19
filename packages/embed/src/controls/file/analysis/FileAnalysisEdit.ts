@@ -1,12 +1,14 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
-import { AbstractAnalysis, PointAnalysis } from "@labirthermal/core";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import { property, state } from "lit/decorators.js";
+import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
+import type { AbstractAnalysis} from "@labirthermal/core";
+import { PointAnalysis } from "@labirthermal/core";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html } from "lit";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 
-@customElement("file-analysis-edit")
-export class FileAnalisisEdit extends BaseElement {
+/** Trigger the edit dialog for an analysis */
+export class FileAnalisisEditDialog extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;
@@ -17,27 +19,31 @@ export class FileAnalisisEdit extends BaseElement {
     @state()
     protected type?: string;
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
+    willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
 
-        if ( _changedProperties.has( "analysis" ) ) {
+        // Side effect of analysis changing - derive the dialog name and type before rendering.
+        if ( changedProperties.has( "analysis" ) ) {
+            this.name = this.analysis.name;
+            this.type = this.analysis.getType();
+        }
 
-            const oldAnalysis = _changedProperties.get( "analysis" ) as AbstractAnalysis;
+    }
 
+    updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+
+        // Rebind the name-change listener after rendering whenever the input analysis changes.
+        if ( changedProperties.has( "analysis" ) ) {
+            const oldAnalysis = changedProperties.get( "analysis" ) as AbstractAnalysis | undefined;
             if ( oldAnalysis ) {
                 oldAnalysis.onSetName.delete( this.UUID );
             }
 
-            const newAnalysis = this.analysis;
-            this.name = newAnalysis.name;
-            this.type = newAnalysis.getType();
 
-
-            newAnalysis.onSetName.set(this.UUID, (value) => {
+            this.analysis.onSetName.set(this.UUID, (value) => {
                 this.name = value;
             });
-
-
         }
     }
 
@@ -77,4 +83,10 @@ export class FileAnalisisEdit extends BaseElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-edit": FileAnalisisEditDialog;
+    }
 }

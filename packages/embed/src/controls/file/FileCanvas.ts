@@ -1,97 +1,82 @@
-import { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import { property } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import type { Ref } from 'lit/directives/ref.js';
+import { createRef, ref } from 'lit/directives/ref.js';
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../translations/Languages";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { is } from "date-fns/locale";
 
-@customElement("file-canvas")
-export class FileCanvas extends FileConsumer {
+/**
+ * The component rendering the file canvas through `@labirthermal/core` functionality.
+ * 
+ * Extends `AbstractFileConsumer`, therefore needs to be in a webcomponent providing the necessary contexts.
+ * 
+ * @package @labirthermal/webcomponents
+ * @author Jan Jáchim <jachim@ntc.zcu.cz>
+ */
+export class FileCanvasElement extends AbstractFileConsumer {
 
+    /** Dedicated core-owned mount target; must not contain any Lit-managed child parts. */
     public container: Ref<HTMLDivElement> = createRef();
 
+    /** Actual DOM-mounted instance, retained for cleanup even before a pending file update completes. Not reactive. */
+    private mountedInstance?: ThermalFileInstance;
+
+    /** Indicates whether the component prefers to use GPU for rendering... */
     @property({ type: Boolean, attribute: "prefers-gpu" })
     public prefersGpu: boolean = true;
 
-    @property({ converter: booleanConverter(false) })
-    public norender: boolean = false;
-
-    public onInstanceCreated(instance: Instance): void {
-
-        // Mount the incoming instance to the DOM
-        this.remountInstance(undefined, instance);
+    public onInstanceCreated(): void {
+        this.requestUpdate();
     }
 
     public onFailure(): void { }
 
-    protected updated(_changedProperties: PropertyValues): void {
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.requestUpdate();
+    }
+
+
+
+    updated(_changedProperties: PropertyValues<FileCanvasElement>): void {
 
         super.updated(_changedProperties);
+        
+        // Do nothing when the component is not connected or the container is not yet available.
+        if (!this.isConnected || !this.container.value) return;
 
-        // Whenever the file context changes in this component, unmount any previous instance and mount the new one
-        if (_changedProperties.has("file")) {
-
-            const isFirstAttempt = _changedProperties.get("file") === undefined
-                && this.file !== undefined;
-
-            if (!isFirstAttempt) {
-
-                const oldFileValue = _changedProperties.get("file") as Instance | undefined;
-
-                this.remountInstance(oldFileValue, this.file);
-
-            }
-
-        }
-
-        if (_changedProperties.has("prefers-gpu")) {
+        // Synchronize the mount after rendering, including reconnection without a file property change.
+        if (this.mountedInstance !== this.file) {
+            this.unmountInstance();
             if (this.file) {
-                this.file.setPreferWebGl( this.prefersGpu );
+                this.file.setPreferWebGl(this.prefersGpu);
+                this.file.mountToDom(this.container.value);
+                this.mountedInstance = this.file;
                 this.file.draw();
             }
+        } 
+        // Apply GPU changes after rendering without drawing twice when a new file is mounted.
+        else if (_changedProperties.has("prefersGpu") && this.mountedInstance) {
+            this.mountedInstance.setPreferWebGl(this.prefersGpu);
+            this.mountedInstance.draw();
         }
     }
 
 
-    /** Any mounting or unmounting of instances to the DOM */
-    private remountInstance(
-        previousInstance?: Instance,
-        nextInstance?: Instance
-    ) {
-
-        // Do nothing if the instances are the same
-        if (previousInstance === nextInstance) {
-            return;
-        }
-
-        // Remove the old instance of the DOM if any
-        if (previousInstance !== undefined) {
-            previousInstance.unmountFromDom();
-        }
-
-        // Mount the new instance to the DOM
-        if (nextInstance !== undefined && this.container.value) {
-            nextInstance.mountToDom(this.container.value);
-            nextInstance.setPreferWebGl( this.prefersGpu );
-            nextInstance.draw();
-        }
-
-
+    /** Releases the actual mount rather than a possibly newer file context value. */
+    private unmountInstance(): void {
+        this.mountedInstance?.unmountFromDom();
+        this.mountedInstance = undefined;
     }
 
     public disconnectedCallback(): void {
+        this.unmountInstance();
         super.disconnectedCallback();
-        if (this.file !== undefined) {
-            this.file.unmountFromDom();
-            this.parentFileProviderElement?.onSuccess.delete(this.UUID);
-            this.parentFileProviderElement?.onInstanceCreated.delete(this.UUID);
-            this.parentFileProviderElement?.onLoadingStart.delete(this.UUID);
-            this.parentFileProviderElement?.onFailure.delete(this.UUID);
-        }
     }
 
     public static readonly styles = css`
@@ -179,7 +164,7 @@ export class FileCanvas extends FileConsumer {
 
     private renderPlaceholder() {
 
-        if (this.loading === false) {
+        if (this.fileIsLoading === false) {
             return nothing;
         }
 
@@ -216,22 +201,29 @@ export class FileCanvas extends FileConsumer {
 
     protected render(): unknown {
 
-        const isError = this.loading === false && this.failure !== undefined;
+        const isError = this.fileIsLoading === false && this.failure !== undefined;
 
-        const isSuccess = this.loading === false && this.file !== undefined;
+        const isSuccess = this.fileIsLoading === false && this.file !== undefined;
 
         const classes = {
             "canvas-container": true,
-            "is-loading": this.loading,
-            "is-loaded": this.loading === false,
+            "is-loading": this.fileIsLoading,
+            "is-loaded": this.fileIsLoading === false,
             "is-success": isSuccess,
             "is-error": isError
-        }
+        } as const;
 
-        return html`<div ${ref(this.container)} class=${classMap(classes)} part="file-canvas-container">
+        return html`<div class=${classMap(classes)} part="file-canvas-container">
+    <div ${ref(this.container)}></div>
     ${this.renderPlaceholder()}
     ${this.renderError()}
 </div>`;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-canvas": FileCanvasElement;
+    }
 }

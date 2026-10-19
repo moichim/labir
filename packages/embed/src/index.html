@@ -12,7 +12,7 @@
 
 <body style="padding: 1rem; background: #ffffff">
 
-
+  <!--
 
   <connected-browser-app
     server-url="https://termogram.labir.cz" 
@@ -26,7 +26,7 @@
   >
   </connected-browser-app>
 
-  <!--
+ 
 
   <script>
 
@@ -73,20 +73,6 @@
 
 
 
-  <h1>Connected App</h1>
-
-  <p>New API integration.</p>
-
-  <connected-app server-url="https://dev2-edu.labir.cz" server-api-root="/api/" label="Název projektu" 
-  labelTooltip="Tooltip k titulku"
-  labelIcon="info"
-  labelIconStyle="solid"
-  labelVariant="primary"
-   advanced-palettes="true" show-discussion="true"
-    displaymode="table" by="year" folder-mode="table" palette="rainbow"
-></connected-app>
-
--->
 
 
   <h1>Thermal File App</h1>
@@ -116,26 +102,40 @@
     <thermal-file lrc="/nosorozec_02.lrc" label="Nosorožec 2"></thermal-file>
 </thermal-group-app>
 
-  <!--
+-->
+
+<apparent-temperature-aat></apparent-temperature-aat>
+
+<thermal-group-app label="Skupina souborů" group-files="thermal~/soustruh.lrc;thermal~/tucnaci_04.lrc;"></thermal-group-app>
+
+  <h1>Dropin App</h1>
+
+  <thermal-dropin-app tool="edit" label="Zkušební aplikace" advanced-palettes="true">
+    <thermal-dialog slot="bar-pre">
+      <thermal-btn slot="invoker">O aplikaci</thermal-btn>
+      <div slot="content">Tady je informace o našem nástroji.</div>
+    </thermal-dialog>
+    <thermal-btn-group slot="bar-pre">
+      <thermal-btn>Button 1</thermal-btn>
+      <thermal-btn>Button 2</thermal-btn>
+      <thermal-btn>Button 3</thermal-btn>
+      <thermal-btn>Button 4</thermal-btn>
+    </thermal-btn-group>
+  </thermal-dropin-app>
+
 
   <h1>Thermal File App</h1>
 
-  <thermal-file-app url="/sequence.lrc" palette="iron" layout="lesson" visible="/kitten.jpg" showshare="true"
-    showhistogram="true" from="22" to="32" label="Lekce o něčem" author="Jan Jáchim" license="CC BY-SA 4.0"
-    showlayout="true">
-
-    <notation-entry label="Popiska entry" say="toto se přečte při aktivaci" slot="notation" from="0:00:00" to="0:01:500"
-      image="/kitten.jpg"></notation-entry>
-
-    <notation-entry label="Popiska entry" say="toto se přečte při aktivaci" slot="notation" from="0:20:00" to="1:01:500"
-      image="/kitten.jpg"></notation-entry>
-
-  </thermal-file-app>
+  <thermal-file-app thermal="/sequence.lrc" palette="jet" visible="/kitten.jpg" label="Lekce o něčem"
+    author="Jan Jáchim" license="CC BY-SA 4.0" smooth-thermograms="true" manager-slug="main-manager"
+    registry-slug="registry-sample" group-slug="smrt" tool="edit" advanced-palettes="false" opacity="0.3"
+    show-fullscreen="true" analysis1="Rectangle 0;rectangle;color:Blue;top:19;left:14;width:65;height:45;min" from="25"
+    to="33" ms="5000"></thermal-file-app>
 
 
+  <!--
 
   <h1>Thermal File App - version 2</h1>
-
 
   <thermal-file-app url="/sequence.lrc" palette="iron" layout="simple" visible="/kitten.jpg" showshare="true"
     showhistogram="true" from="22" to="32"
@@ -167,25 +167,20 @@
 
   </thermal-file-app>
 
--->
+  -->
 
 
 
 
-  <h1>Dropin App</h1>
-
-  <thermal-dropin-app>
-    <thermal-btn slot="bar-pre">Jedeš</thermal-btn>
-  </thermal-dropin-app>
 
 
   <!--
+
 
   <h1>Apparent Temperature</h1>
 
   <apparent-temperature-aat skin="dark" lines="big_" corners="narrow_"></apparent-temperature-aat>
 
-  -->
 
 
   <h1>Gallery</h1>
@@ -216,8 +211,10 @@
     </thermal-group>
   </thermal-gallery-app>
 
+  -->
 
-  <script type="module" src="/index.ts"></script>
+
+  <script type="module" src="/index.iife.ts"></script>
 
 </body>
 

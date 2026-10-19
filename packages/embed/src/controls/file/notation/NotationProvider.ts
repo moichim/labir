@@ -1,12 +1,14 @@
-import { Instance } from "@labirthermal/core";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, notationCurrentContext, NotationCurrentContext, notationDurationContext, notationListContext, NotationListContext } from "./NotationContext";
-import { html, PropertyValues } from "lit";
+import type { ThermalFileInstance } from "@labirthermal/core";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
+import type { IWithNotationContext, NotationCurrentContext, NotationListContext } from "./NotationContext";
+import { getCurrentNotationsByMs, grabNotationsFromSlot, notationCurrentContext, notationDurationContext, notationListContext } from "./NotationContext";
+import type { PropertyValues } from "lit";
+import { html } from "lit";
 import { provide } from "@lit/context";
 import { customElement, queryAssignedElements, state } from "lit/decorators.js";
 
 @customElement("notation-provider")
-export class NotationProvider extends FileConsumer implements IWithNotationContext {
+export class NotationProvider extends AbstractFileConsumer implements IWithNotationContext {
 
     @state()
     @queryAssignedElements({ slot: "notation", flatten: true })
@@ -30,7 +32,7 @@ export class NotationProvider extends FileConsumer implements IWithNotationConte
     private observer: MutationObserver | null = null;
 
 
-    public onInstanceCreated(instance: Instance): void {
+    public onInstanceCreated(instance: ThermalFileInstance): void {
         this.duration = instance.timeline.duration;
 
         setTimeout( () => {

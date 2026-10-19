@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { ThermalManager } from './ThermalManager';
 import { THERMOGRAM_PATHS as THERMOGRAM_PATHS } from '../../devserver/node/mocks';
 import { getPool } from '../utils/pool';
-import { Instance } from '../file/instance';
+import { ThermalFileInstance } from '../file/ThermalFileInstance';
 
 describe("ThermalRegistry", async () => {
 
@@ -18,7 +18,7 @@ describe("ThermalRegistry", async () => {
         // const group = registry.groups.addOrGetGroup(GROUP_ID);
 
         // First load
-        const instance = await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID) as Instance;
+        const instance = await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID) as ThermalFileInstance;
 
         expect(registry.groups.value.length).toEqual(1);
         expect(instance.group.files.value.length).toEqual(1);
@@ -28,7 +28,7 @@ describe("ThermalRegistry", async () => {
 
 
         // Second load - the instance should be loaded only once
-        const instance2 = await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.CAS }, GROUP_ID) as Instance;
+        const instance2 = await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.CAS }, GROUP_ID) as ThermalFileInstance;
 
         expect(registry.groups.addOrGetGroup(GROUP_ID).id).toEqual(instance2.group.id);
         
@@ -40,7 +40,7 @@ describe("ThermalRegistry", async () => {
             [GROUP_ID]: [{ thermalUrl: THERMOGRAM_PATHS.CAS }]
         });
 
-        const instance3 = multiple[0][0] as Instance;
+        const instance3 = multiple[0][0] as ThermalFileInstance;
 
         expect(registry.groups.addOrGetGroup(GROUP_ID).id).toEqual(instance.group.id);
         expect(instance3.group.files.value.length).toEqual(1);
@@ -54,7 +54,7 @@ describe("ThermalRegistry", async () => {
             ]
         });
 
-        const instance4 = multiple2[0][0] as Instance;
+        const instance4 = multiple2[0][0] as ThermalFileInstance;
 
         expect(registry.groups.addOrGetGroup(GROUP_ID).id).toEqual(instance.group.id);
         expect(instance4.group.files.value.length).toEqual(2);

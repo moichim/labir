@@ -1,6 +1,7 @@
+import type { FolderInfo } from "@labirthermal/client";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { html, css, CSSResultGroup, nothing } from "lit";
-import { FolderInfo } from "@labirthermal/server";
 import { AbstractFolderDialog } from "./AbstractFolderDialog";
 
 @customElement("connected-folder-delete-dialog")

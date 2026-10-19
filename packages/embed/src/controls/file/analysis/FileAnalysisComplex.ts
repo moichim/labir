@@ -1,18 +1,27 @@
+import type { AbstractAnalysis, ThermalFileInstance } from "@labirthermal/core";
 import { AbstractAddTool } from "@labirthermal/core";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import { property, state } from "lit/decorators.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
-import { FileAnalysisGraph } from "./FileAnalysisGraph";
+import type { AnalysisTableMode } from "./AnalysisTableOptions";
 
+export class FileAnalysisComplexElement extends AbstractFileConsumer {
 
+    @property({ attribute: "table-mode" })
+    public tableMode: AnalysisTableMode = "full";
 
-@customElement("file-analysis-complex")
-export class FileAnalysisComplex extends FileConsumer {
+    @property({ converter: booleanConverter(false) })
+    public forceinteractiveanalysis: boolean = false;
+
+    @property({ attribute: "graph-activation-enabled", converter: booleanConverter(true) })
+    public graphActivationEnabled: boolean = true;
 
     @state()
     protected mayHaveGraph: boolean = false;
@@ -26,8 +35,7 @@ export class FileAnalysisComplex extends FileConsumer {
     @state()
     protected hasGraph: boolean = false;
 
-    @state()
-    protected graphRef: Ref<FileAnalysisGraph> = createRef();
+    protected graphRef: Ref<HTMLDivElement> = createRef();
 
     @state()
     protected graphWidth: number = 0;
@@ -35,11 +43,12 @@ export class FileAnalysisComplex extends FileConsumer {
     @state()
     protected graphHeight: number = 0;
 
-    @state()
     protected observer?: ResizeObserver;
 
-    @state()
-    protected hydrated: boolean = false;
+    private boundFile?: ThermalFileInstance;
+    private readonly watchedAnalyses = new Set<AbstractAnalysis>();
+    private listenerLayer?: HTMLElement;
+    private observedGraph?: HTMLDivElement;
 
     @property({ type: Boolean, reflect: true, converter: booleanConverter(true) })
     public showhint: boolean = true;
@@ -47,108 +56,153 @@ export class FileAnalysisComplex extends FileConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
+        this.refreshFileState();
         this.hydrate();
+        this.requestUpdate();
     }
 
     disconnectedCallback(): void {
-        super.disconnectedCallback();
         this.dehydrate();
+        this.disconnectObserver();
+        super.disconnectedCallback();
     }
 
+
     public onInstanceCreated(): void {
-        this.hydrate();
+        this.requestUpdate();
     }
     
     public onFailure(): void {}
 
 
-    protected hydrate() {
+    /** Derives render state from the current file without registering listeners. */
+    private refreshFileState(): void {
+        this.mayHaveGraph = this.file?.timeline.isSequence ?? false;
+        this.hasAnalysis = (this.file?.analysis.value.length ?? 0) > 0;
+        this.hasGraph = this.file?.analysis.value.some(analysis => {
+            const { MIN, MAX, AVG } = analysis.graph.state;
+            return MIN || MAX || AVG;
+        }) ?? false;
+        if (!this.hasAnalysis) {
+            this.isDrawingAnalysis = false;
+        }
+    }
 
+    /** Binds the current file and its existing analyses, replacing subscriptions to the previous file. */
+    protected hydrate(): void {
         const instance = this.file;
-
-        if ( !instance || this.hydrated ) {
+        if (!this.isConnected || this.boundFile === instance) {
+            return;
+        }
+        this.dehydrate();
+        this.boundFile = instance;
+        if (!instance) {
             return;
         }
 
-        this.mayHaveGraph = instance.timeline.isSequence;
-
-        if ( instance.analysis.value.length > 0 ) {
-            this.hasAnalysis = true;
-        }
-
-        instance.analysis.layers.onAdd.set(this.UUID, (analysis) => {
-            if (this.hasAnalysis === false) {
-                this.hasAnalysis = true;
-            }
-
-            const listener = () => {
-                this.isDrawingAnalysis = false;
-            }
-
-            analysis.file.dom?.listenerLayer?.getLayerRoot().addEventListener("pointerup", listener);
-
-            analysis.graph.onGraphActivation.set(this.UUID, ( min, max, avg ) => {
-
-                if ( min || max || avg ) {
-                    this.hasGraph = true;
-                } else {
-
-                    const hasAnyGraph = analysis.file.analysis.value.reduce( (state, current) => {
-                        if (state === true) { return state}
-                        return current.graph.state.MIN || current.graph.state.MAX || current.graph.state.AVG;
-                    }, false );
-
-                    this.hasGraph = hasAnyGraph;
-
-                }
-            });
-
+        instance.analysis.addListener(this.UUID, analyses => {
+            this.syncAnalyses(analyses);
+            this.refreshFileState();
         });
-
-        instance.analysis.layers.onRemove.set(this.UUID, () => {
-            if (this.hasAnalysis === true) {
-                if (instance.analysis.layers.size === 0) {
-                    this.hasAnalysis = false;
-                    this.isDrawingAnalysis = false;
-                    this.hasGraph = false;
-                }
-            }
-        });
-
-        this.hydrated = true;
+        this.syncAnalyses(instance.analysis.value);
     }
 
-    protected dehydrate() {
-
-        const instance = this.file;
-
-        if ( instance ) {
-            instance.analysis.layers.onAdd.delete(this.UUID);
-            instance.analysis.layers.onRemove.delete(this.UUID);
+    /** Keeps graph subscriptions and the pointer listener aligned with the current analysis list. */
+    private syncAnalyses(analyses: AbstractAnalysis[]): void {
+        for (const analysis of this.watchedAnalyses) {
+            if (!analyses.includes(analysis)) {
+                analysis.graph.onGraphActivation.delete(this.UUID);
+                this.watchedAnalyses.delete(analysis);
+            }
         }
+        analyses.forEach(analysis => this.watchAnalysis(analysis));
+        const layer = analyses.length > 0
+            ? this.boundFile?.dom?.listenerLayer?.getLayerRoot()
+            : undefined;
+        if (layer !== this.listenerLayer) {
+            this.listenerLayer?.removeEventListener("pointerup", this.pointerUpListener);
+            this.listenerLayer = layer;
+            this.listenerLayer?.addEventListener("pointerup", this.pointerUpListener);
+        }
+    }
+
+    /** Observes graph activation once per analysis; rendering state is refreshed by external events. */
+    protected watchAnalysis(analysis: AbstractAnalysis): void {
+        if (this.watchedAnalyses.has(analysis)) {
+            return;
+        }
+        this.watchedAnalyses.add(analysis);
+        analysis.graph.onGraphActivation.set(this.UUID, () => {
+            this.refreshFileState();
+        });
 
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
-        if ( _changedProperties.has( "hasGraph" ) ) {
-            if ( this.observer && this.graphRef.value ) {
-                this.observer.unobserve( this.graphRef.value );
-                delete this.observer;
-            }
-            if ( this.graphRef.value && this.hasGraph === true) {
-                this.observer = new ResizeObserver( entries => {
-                    const rect = entries[0];
-                    if ( rect !== undefined ) {
-                        this.graphWidth = rect.contentRect.width;
-                        this.graphHeight = rect.contentRect.height;
-                    }
+    private pointerUpListener = () => {
+        this.isDrawingAnalysis = false;
+    }
 
-                } );
-                this.observer.observe( this.graphRef.value );
-            }
-            
+    /** Removes file, analysis and pointer listeners from the actual subscribed objects. */
+    protected dehydrate(): void {
+        this.boundFile?.analysis.removeListener(this.UUID);
+        for (const analysis of this.watchedAnalyses) {
+            analysis.graph.onGraphActivation.delete(this.UUID);
         }
+        this.watchedAnalyses.clear();
+        this.listenerLayer?.removeEventListener("pointerup", this.pointerUpListener);
+        this.listenerLayer = undefined;
+        this.boundFile = undefined;
+    }
+
+    willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
+
+        // Side effect of file changing - derive analysis and graph presence before rendering the new file.
+        if (changedProperties.has("file")) {
+            this.isDrawingAnalysis = false;
+            this.refreshFileState();
+        }
+    }
+
+    updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+
+        // Rebind external listeners after rendering without scheduling another update.
+        if (changedProperties.has("file")) {
+            this.hydrate();
+        }
+        this.observeGraph();
+    }
+
+    /** Observes the rendered graph container, including after reconnecting or replacing the DOM node. */
+    private observeGraph(): void {
+        const graph = this.isConnected ? this.graphRef.value : undefined;
+        if (graph === this.observedGraph) {
+            return;
+        }
+        this.disconnectObserver();
+        if (!graph) {
+            return;
+        }
+        this.observedGraph = graph;
+        this.observer = new ResizeObserver(entries => {
+            if (this.observedGraph !== graph || !this.isConnected) {
+                return;
+            }
+            const entry = entries.find(entry => entry.target === graph);
+            if (entry) {
+                this.graphWidth = entry.contentRect.width;
+                this.graphHeight = entry.contentRect.height;
+            }
+        });
+        this.observer.observe(graph);
+    }
+
+    /** Releases the observer even when Lit has already cleared the graph reference. */
+    private disconnectObserver(): void {
+        this.observer?.disconnect();
+        this.observer = undefined;
+        this.observedGraph = undefined;
     }
 
 
@@ -189,7 +243,7 @@ export class FileAnalysisComplex extends FileConsumer {
     }
 
     protected renderCurrentTooltip() {
-        return html`${t(T[this.manager.tool.value.description as keyof typeof T] )}`;
+        return html`${t(T[this.managerObject.tool.value.description as keyof typeof T] )}`;
     }
 
     protected renderAddAnalysis() {
@@ -253,6 +307,12 @@ export class FileAnalysisComplex extends FileConsumer {
 
 
     static styles?: CSSResultGroup | undefined = css`
+
+        :host {
+            display: block;
+            min-width: 0;
+            max-width: 100%;
+        }
 
         .container {
             height: 100%;
@@ -344,7 +404,11 @@ export class FileAnalysisComplex extends FileConsumer {
             <div class="analysis">
                 ${this.hasAnalysis === false || this.isDrawingAnalysis === true
                 ? this.renderAddAnalysis()
-                : html`<file-analysis-table></file-analysis-table>`
+                : html`<file-analysis-table
+                    .tableMode=${this.tableMode}
+                    .forceinteractiveanalysis=${this.forceinteractiveanalysis}
+                    .graphActivationEnabled=${this.graphActivationEnabled}
+                ></file-analysis-table>`
             }
             </div>
             ${this.renderGraph()}
@@ -356,3 +420,8 @@ export class FileAnalysisComplex extends FileConsumer {
 
 }
 
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-complex": FileAnalysisComplexElement;
+    }
+}

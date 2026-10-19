@@ -1,9 +1,8 @@
-import { css, CSSResultGroup, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { css, html } from "lit";
+import { property } from "lit/decorators.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-@customElement("thermal-radio")
-export class ThermalRadio extends BaseElement {
+export class ThermalRadioElement extends AbstractThermalElement {
 
     @property({ type: String, reflect: true })
     public type: "radio" | "checkbox" = "radio";
@@ -51,7 +50,7 @@ export class ThermalRadio extends BaseElement {
         super.connectedCallback();
     }
 
-    public static styles?: CSSResultGroup | undefined = css`
+    public static styles = css`
     
         :host {
             display: contents;
@@ -98,5 +97,11 @@ export class ThermalRadio extends BaseElement {
                 <span><slot></slot></span>
             </label>
         `;
+    }
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-radio": ThermalRadioElement;
     }
 }

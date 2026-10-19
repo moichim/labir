@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { directive } from "lit/directive.js";
-import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
+import type { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
-import { FolderInfo } from "@labirthermal/server";
+import type { FolderInfo } from "@labirthermal/client";
 import { slotOrNothing } from "../SlotOrNothing";
 import { DirectiveHelpers } from "../DirectiveHelpers";
 
@@ -59,7 +59,7 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
 
             slotOrNothing(
                 "thermalscale",
-                html`<registry-palette-dropdown></registry-palette-dropdown>
+                html`<manager-palette-dropdown></manager-palette-dropdown>
                 <registry-range-form></registry-range-form>`
             )
 

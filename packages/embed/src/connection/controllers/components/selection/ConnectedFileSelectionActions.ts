@@ -1,15 +1,18 @@
 import { customElement, state } from "lit/decorators.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { ThermalDialog } from "packages/embed/src/ui/Dialog";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
-import { ThermalGroup, zip } from "@labirthermal/core";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
+import type { ThermalDialog } from "packages/embed/src/ui/Dialog";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import type { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
+import type { ThermalGroup} from "@labirthermal/core";
+import { zip } from "@labirthermal/core";
 import { consume } from "@lit/context";
-import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
+import { groupObjectContext } from "../../../../hierarchy/controllers/GroupController";
 
 @customElement("connected-file-selection-actions")
-export class ConnectedFileSelectionActions extends ControlledConsumer {
+export class ConnectedFileSelectionActions extends AbstractControlledConsumer {
 
     @state()
     private progress: number = 0;
@@ -22,7 +25,7 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
     private dialogClearAnalysesRef: Ref<ThermalDialog> = createRef();
     private dialogMoveRef: Ref<ConnectedLocationSelector> = createRef();
 
-    @consume( { context: groupContext, subscribe: true } )
+    @consume( { context: groupObjectContext, subscribe: true } )
     private group?: ThermalGroup;
 
 

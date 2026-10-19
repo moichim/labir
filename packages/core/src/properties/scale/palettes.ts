@@ -171,14 +171,14 @@ const RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
 
 const PALETTES = {
     iron: {
-        name: "Iron",
+        name: "IRON",
         gradient: generateGradientFromStops(IRON_STOPS),
         pixels: IRON,
         texturePixels: generateTextureArrayFromStops(IRON_STOPS),
         slug: "iron"
     },
     jet: {
-        name: "Jet",
+        name: "JET",
         gradient: generateGradientFromStops(JET_STOPS),
         pixels: JET,
         texturePixels: generateTextureArrayFromStops(JET_STOPS),

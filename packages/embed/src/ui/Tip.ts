@@ -1,9 +1,8 @@
-import { css, CSSResultGroup, html } from "lit";
-import { BaseElement } from "../hierarchy/BaseElement";
-import { customElement, property } from "lit/decorators.js";
+import { css, html } from "lit";
+import { property } from "lit/decorators.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-@customElement("thermal-tip")
-export class Tip extends BaseElement {
+export class ThermalTipElement extends AbstractThermalElement {
 
     @property({type: String})
     public icon: string = "bulb";
@@ -11,7 +10,7 @@ export class Tip extends BaseElement {
     @property({type: String})
     public iconStyle: string = "outline";
 
-    static styles?: CSSResultGroup | undefined = css`
+    static styles = css`
 :host {
 
     --color: var(--thermal-foreground);
@@ -72,4 +71,10 @@ thermal-icon {
 </div>`;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-tip": ThermalTipElement;
+    }
 }

@@ -1,7 +1,5 @@
-import { customElement } from "lit/decorators.js";
 import { AbstractFileButton } from "./AbstractFileButton";
 
-@customElement("file-download-lrc")
 export class FileLrcButton extends AbstractFileButton {
 
     tooltip: undefined = undefined;
@@ -16,6 +14,7 @@ export class FileLrcButton extends AbstractFileButton {
             link.download = this.file.fileName;
             link.click();
         }
+
     }
 
     getDefaultLabel(): string {
@@ -24,4 +23,10 @@ export class FileLrcButton extends AbstractFileButton {
 
     
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-download-lrc": FileLrcButton;
+    }
 }

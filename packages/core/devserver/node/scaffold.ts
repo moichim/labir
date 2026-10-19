@@ -13,7 +13,7 @@ export const loadFileForTests = async ( url: THERMOGRAM_PATHS ) => {
         instance.mountToDom( element );
         instance.dom?.hydrate();
 
-        instance.buildServices();
-        // instance.buildServices();
+        instance.buildInternalProperties();
+
         return instance;
 }

@@ -1,10 +1,12 @@
 import { css, html, nothing } from "lit";
 import { directive, Directive } from "lit/directive.js";
 import { classMap } from "lit/directives/class-map.js";
-import {StyleInfo, styleMap} from 'lit/directives/style-map.js';
-import { ref, Ref } from "lit/directives/ref.js";
-import { RecordingPhase, SingleVideoRenderProps } from "../ISingleVideoExportElement";
-import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
+import { ref } from "lit/directives/ref.js";
+import type { StyleInfo } from 'lit/directives/style-map.js';
+import { styleMap } from 'lit/directives/style-map.js';
+import type { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
+import type { SingleVideoRenderProps } from "../ISingleVideoExportElement";
+import { RecordingPhase } from "../ISingleVideoExportElement";
 
 export class SingleVideoExportLayoutDirective extends Directive {
 

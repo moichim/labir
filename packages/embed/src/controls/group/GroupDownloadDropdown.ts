@@ -1,13 +1,14 @@
-import { css, CSSResultGroup, html } from "lit";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
-import { t } from "i18next";
-import { T } from "../../translations/Languages";
-import { customElement, state } from "lit/decorators.js";
 import { consume } from "@lit/context";
-import { pngExportAnalysisContext, pngExportColumnsContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportGroupNameContext, pngExportScaleContext, pngExportWidthContext } from "../../utils/converters/pngExportContext";
+import { t } from "i18next";
+import type { CSSResultGroup } from "lit";
+import { css, html } from "lit";
+import { property, state } from "lit/decorators.js";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
+import type { ConfigController } from "../../hierarchy/controllers/ConfigController";
+import { configContext } from "../../hierarchy/controllers/ConfigController";
+import { T } from "../../translations/Languages";
 
-@customElement("group-download-dropdown")
-export class GroupDownloadDropdown extends GroupConsumer {
+export class GroupDownloadDropdown extends AbstractGroupConsumer {
 
     static styles?: CSSResultGroup | undefined = css`
         thermal-btn {
@@ -15,54 +16,35 @@ export class GroupDownloadDropdown extends GroupConsumer {
         }
     `;
 
-    /**  */
     @state()
-    @consume( { context: pngExportColumnsContext, subscribe: true } )
-    private pngColumns: number = 3;
+    @consume({ context: configContext, subscribe: true })
+    private configController?: ConfigController;
 
-    @state()
-    @consume( { context: pngExportGroupNameContext, subscribe: true } )
-    private pngGroupName: boolean = false;
+    @property({ type: String, reflect: true })
+    public icon?: string;
 
-    @state()
-    @consume( { context: pngExportFsContext, subscribe: true } )
-    private pngFontSize: number = 12;
+    @property({ type: String, reflect: true })
+    public iconStyle?: string;
 
-    @state()
-    @consume( { context: pngExportAnalysisContext, subscribe: true } )
-    private pngShowAnalysis: boolean = true;
-
-    @state()
-    @consume( { context: pngExportFileDateContext, subscribe: true } )
-    private pngFileDate: boolean = true;
-
-    @state()
-    @consume( { context: pngExportFileNameContext, subscribe: true } )
-    private pngFileName: boolean = false;
-
-    @state()
-    @consume( { context: pngExportWidthContext, subscribe: true } )
-    private pngWidth: number = 800;
-
-    @state()
-    @consume( { context: pngExportScaleContext, subscribe: true } )
-    private pngShowScale: boolean = true;
+    @property({ type: String, reflect: true })
+    public variant?: string;
 
     protected render(): unknown {
 
+        const png = this.configController?.settings.export.png;
+        const groupSettings = this.configController?.settings.export.group;
         const dropdownClass = this.classList.contains( "small" ) ? "small" : "";
-
 
         return html`
         
-            <thermal-dropdown class="download ${dropdownClass}">
+            <thermal-dropdown class="download ${dropdownClass}" .variant=${this.variant} .icon=${this.icon} .iconStyle=${this.iconStyle}>
             
                 <span slot="invoker">${t(T.download)}</span>
             
                 <thermal-btn 
                     slot="option" 
                     pre="LRC" 
-                    @click=${() => this.group.files.downloadAllFiles()}
+                    @click=${() => this.groupObject.files.downloadAllFiles()}
                     tooltip=${t(T.downloadoriginalfileshint)}
                     tooltip-placement="right"
                 >
@@ -72,7 +54,7 @@ export class GroupDownloadDropdown extends GroupConsumer {
                 <thermal-btn 
                     slot="option" 
                     pre="PNG" 
-                    @click=${() => this.group.forEveryInstance(instance => instance.export.downloadPng())}
+                    @click=${() => this.groupObject.forEveryInstance(instance => instance.export.downloadPng())}
                     tooltip=${t(T.pngofindividualimageshint)}
                     tooltip-placement="right"
                 >
@@ -82,15 +64,15 @@ export class GroupDownloadDropdown extends GroupConsumer {
                 <thermal-btn 
                     slot="option"
                     pre="PNG" 
-                    @click=${() => this.group.analysisSync.png.downloadPng({
-                        columns: this.pngColumns,
-                        showGroupName: this.pngGroupName,
-                        fontSize: this.pngFontSize,
-                        showAnalysis: this.pngShowAnalysis,
-                        showFileDate: this.pngFileDate,
-                        showFileName: this.pngFileName,
-                        showThermalScale: this.pngShowScale,
-                        width: this.pngWidth,
+                    @click=${() => this.groupObject.analysisSync.png.downloadPng({
+                        columns: groupSettings?.columns ?? 3,
+                        showGroupName: groupSettings?.groupName ?? false,
+                        fontSize: png?.fontSize ?? 12,
+                        showAnalysis: png?.analyses ?? true,
+                        showFileDate: png?.fileDate ?? true,
+                        showFileName: png?.fileName ?? false,
+                        showThermalScale: png?.thermalScale ?? true,
+                        width: png?.width ?? 800,
                         
                     })}
                     tooltip="${t(T.pngofentiregrouphint)}"
@@ -102,7 +84,7 @@ export class GroupDownloadDropdown extends GroupConsumer {
                 <thermal-btn 
                     slot="option" 
                     pre="CSV" 
-                    @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}
+                    @click=${() => { this.groupObject.analysisSync.csv.downloadAsCsv() }}
                     tooltip=${t(T.csvofanalysisdatahint)}
                     tooltip-placement="right"
                 >
@@ -117,4 +99,10 @@ export class GroupDownloadDropdown extends GroupConsumer {
 
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-download-dropdown": GroupDownloadDropdown;
+    }
 }

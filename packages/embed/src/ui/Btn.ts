@@ -1,18 +1,18 @@
-import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import type { Placement} from '@floating-ui/dom';
+import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { css, html, nothing } from "lit";
+import { property } from "lit/decorators.js";
 import { ref } from "lit/directives/ref.js";
-import icons from "../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { computePosition, flip, shift, offset, arrow, autoUpdate, Placement } from '@floating-ui/dom';
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { booleanConverter } from "../utils/converters/booleanConverter";
+import icons from "../utils/icons";
 
 export type BtnVariants = "primary" | "foreground" | "background" | "default" | "breadcrumb";
 
 export type BtnSizes = "sm" | "md" | "lg" | "xl";
 
-@customElement( "thermal-btn" )
-export class ThermalBtn extends BaseElement {
+export class ThermalBtnElement extends AbstractThermalElement {
 
     @property({type: String, attribute: "tooltip-placement"})
     public tooltipPlacement: Placement = "top";
@@ -112,12 +112,14 @@ export class ThermalBtn extends BaseElement {
 
     private showTooltip = async () => {
         if (!this.tooltipElement || !this.arrowElement) return;
+        this.tooltipElement.style.display = 'block';
         this.tooltipElement.style.visibility = 'visible';
         this.tooltipElement.style.opacity = '1';
         const updatePosition = async () => {
             if (!this.tooltipElement || !this.arrowElement) return;
             const { x, y, placement, middlewareData } = await computePosition(this, this.tooltipElement, {
                 placement: this.tooltipPlacement,
+                strategy: 'fixed',
                 middleware: [
                     offset(6),
                     flip(),
@@ -154,6 +156,7 @@ export class ThermalBtn extends BaseElement {
         if (!this.tooltipElement) return;
         this.tooltipElement.style.opacity = '0';
         this.tooltipElement.style.visibility = 'hidden';
+        this.tooltipElement.style.display = 'none';
         if (this.cleanupAutoUpdate) {
             this.cleanupAutoUpdate();
             this.cleanupAutoUpdate = undefined;
@@ -211,7 +214,7 @@ export class ThermalBtn extends BaseElement {
             --border-color: var( --thermal-slate );
             --border-color-hover: var( --border-color );
 
-            --radius: var(--thermal-radius);
+            --radius: var( --custom-radius, var( --thermal-radius ) );
             
             --shadow: none;
             --shadow-hover: var( --thermal-shadow );
@@ -553,7 +556,7 @@ export class ThermalBtn extends BaseElement {
             tooltipHtml = html`
                 <div
                     class="thermal-tooltip"
-                    style="position: absolute; top: 0; left: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out;"
+                    style="display: none; position: fixed; top: 0; left: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out;"
                     @mouseenter=${this.showTooltip}
                     @mouseleave=${this.hideTooltip}
                     @focus=${this.showTooltip}
@@ -572,4 +575,10 @@ export class ThermalBtn extends BaseElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-btn": ThermalBtnElement;
+    }
 }

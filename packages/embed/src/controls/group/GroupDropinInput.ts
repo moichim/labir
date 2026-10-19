@@ -1,14 +1,28 @@
-import { customElement, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 
-import { DropinElementListener, ThermalFileReader } from "@labirthermal/core";
+import type { DropinElementListener } from "@labirthermal/core";
 import { t } from "i18next";
-import { css, html, PropertyValues } from "lit";
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
+import type { PropertyValues } from "lit";
+import { css, html } from "lit";
+import { ifDefined } from "lit/directives/if-defined.js";
+import type { Ref } from 'lit/directives/ref.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 import { T } from "../../translations/Languages";
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
 
-@customElement("group-dropin-input")
-export class GroupDropin extends AbstractGroupDropin {
+export class GroupDropinInputElement extends AbstractGroupDropin {
+
+  @property({ type: String, reflect: true })
+  public icon?: string;
+
+  @property({ type: String, reflect: true })
+  public iconStyle?: string;
+
+  @property({ type: String, reflect: true })
+  public tooltip?: string;
+
+  @property({ type: String, reflect: true })
+  public variant?: string;
 
   @state()
   protected container: Ref<HTMLVideoElement> = createRef();
@@ -117,7 +131,7 @@ export class GroupDropin extends AbstractGroupDropin {
 
     if (this.container.value !== undefined) {
 
-      this.listener = this.manager.service.handleDropzone(this.container.value, false);
+      this.listener = this.managerObject.service.handleDropzone(this.container.value, true);
 
       this.listener.onMouseEnter.add(this.UUID, () => {
         this.hover = true;
@@ -134,16 +148,13 @@ export class GroupDropin extends AbstractGroupDropin {
 
       this.listener.onProcessingEnd.add(this.UUID, async (results) => {
 
-        this.group.files.removeAllInstances();
-
-        await Promise.all(results.map(async (result) => {
-          if (result instanceof ThermalFileReader) {
-            const instance = await result.createInstance(this.group);
-            this.emitUpload(instance.fileName, instance.bytesize);
-          }
-        }));
+        if ( this.onDrop !== undefined ) {
+            await this.onDrop(results);
+        }
 
         this.uploading = false;
+
+        return;
 
       });
 
@@ -163,11 +174,14 @@ export class GroupDropin extends AbstractGroupDropin {
             </div>`;
 
     return html`
-
-
-            <thermal-btn @click="${() => {
+            <thermal-btn 
+              icon="${ifDefined( this.icon )}"
+              iconStyle="${ifDefined( this.iconStyle )}"
+              tooltip="${ifDefined( this.tooltip )}"
+              variant="${ifDefined( this.variant )}"
+            @click="${() => {
         if (this.listener) {
-          this.listener.openFileDialog(false);
+          this.listener.openFileDialog(true);
         }
       }}"><slot>${title}</slot></thermal-btn>
 
@@ -182,4 +196,10 @@ export class GroupDropin extends AbstractGroupDropin {
   }
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-dropin-input": GroupDropinInputElement;
+    }
 }

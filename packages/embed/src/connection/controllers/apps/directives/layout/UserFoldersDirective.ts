@@ -1,7 +1,7 @@
 import { directive } from "lit/directive.js";
-import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
+import type { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
-import { Identity } from "@labirthermal/server";
+import type { Identity } from "@labirthermal/client";
 import { html } from "lit";
 
 class UserFoldersDirective extends AbstractLayoutDirective {
@@ -37,11 +37,13 @@ class UserFoldersDirective extends AbstractLayoutDirective {
         const list: unknown[] = [];
 
         app.content.userFolders.sort( (a, b) => a.name.localeCompare(b.name) ).forEach( folder => {
-            list.push( html`<server-folder-thumbnail
+            list.push( html`<connected-folder-thumbnail
                 .folder=${folder}
                 @click=${ () => app.display.navigateToFolderAndLoad( folder.path ) }
-            ></server-folder-thumbnail>` );
+            ></connected-folder-thumbnail>` );
         } );
+
+        console.log( list );
 
         inner.push( html`<div class="cLayout__user_folders_list">
             <h2>Máte přístup ke ${app.content.userFolders.length} složkám:</h2>

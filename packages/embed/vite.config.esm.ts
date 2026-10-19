@@ -6,40 +6,40 @@ import fs from "fs"
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
-    root: path.resolve( "./src" ),
-    publicDir: path.resolve( "../../public" ),
+
+    root: path.resolve("./"),
+
     build: {
-        
+
+        outDir: path.resolve("./dist/esm"),
+        emptyOutDir: true,
+        copyPublicDir: false,
+        minify: true,
+
         rollupOptions: {
+
             input: {
-                embed: path.resolve( "./src/index.ts" ),
+                embed: path.resolve("./src/index.export.ts"),
             },
             output: {
                 entryFileNames: '[name].esm.js',
-                assetFileNames: '[name].[ext]',
-                esModule: true
+                assetFileNames: '[name].esm.[ext]',
+                esModule: true,
             },
-        plugins: [{
-            name: "closeBundle",
-            closeBundle() {
-                fs.copyFileSync(
-                    path.resolve( "./dist/embed.esm.js" ),
-                    path.resolve( "../thermal-display/assets/embed.esm.js" )
-                );
-                fs.copyFileSync(
-                    path.resolve( "./dist/embed.css" ),
-                    path.resolve( "../thermal-display/assets/embed.css" )
-                );
+            plugins: [{
+                name: "closeBundle",
+                closeBundle() {
+                    fs.copyFileSync(
+                        path.resolve("./dist/lib/index.export.cjs"),
+                        path.resolve("../thermal-display/assets/embed.esm.js")
+                    );
 
-                console.log( "@labirthermal/webcomponents build:esm copied into @labir/wordpress" );
-            }
-        }]
+                    console.log("@labirthermal/webcomponents build:esm copied into @labir/wordpress");
+                }
+            }]
         },
-        outDir: path.resolve( "./dist" ),
-        // emptyOutDir: true,
-        copyPublicDir: false,
-        minify: true,
-    
+
+
         // Export as library
         /*
         lib: {
@@ -52,34 +52,5 @@ export default defineConfig({
     },
 
     plugins: [
-
-        viteStaticCopy({
-            targets: [
-                {
-                    src: normalizePath( path.resolve( "../../public/index.html" ) ),
-                    dest: normalizePath( path.resolve( "dist" ) )
-                },
-                {
-                    src: normalizePath( path.resolve( "../../public/sample.lrc" ) ),
-                    dest: normalizePath( path.resolve( "dist" ) )
-                }
-            ]
-        })
     ],
-
-    test: {
-        root: "./src",
-        globals: true,
-        environment: "jsdom",
-        setupFiles: [
-            "./node/setup.ts",
-            "./vitest.setup.ts"
-        ],
-        deps: {
-            inline: [ "vitest-canvas-mock" ]
-        },
-        coverage: {
-            provider: "v8"
-        }
-    }
 })

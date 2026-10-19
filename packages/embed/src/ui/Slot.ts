@@ -1,9 +1,8 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { css, html, nothing } from "lit";
+import { property, state } from "lit/decorators.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-@customElement("thermal-slot")
-export class ThermalSlot extends BaseElement {
+export class ThermalSlotElement extends AbstractThermalElement {
 
     @property()
     public label?: string;
@@ -22,7 +21,7 @@ export class ThermalSlot extends BaseElement {
         this.requestUpdate();
     }
 
-    public static styles?: CSSResultGroup | undefined = css`
+    public static styles = css`
 
         :host {
             font-size: var( --thermal-fs );
@@ -88,4 +87,10 @@ export class ThermalSlot extends BaseElement {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-slot": ThermalSlotElement;
+    }
 }

@@ -1,11 +1,12 @@
-import { FolderInfo } from "@labirthermal/server";
+import type { FolderInfo } from "@labirthermal/client";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../../translations/Languages";
 import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
-import { ThermalBtn } from "packages/embed/src/ui/Btn";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
+import type { ThermalBtnElement } from "../../../../../ui/Btn";
 
 interface PairedFiles {
     lrc: File;
@@ -22,7 +23,7 @@ interface UnmatchedPng {
 }
 
 @customElement("connected-upload-form")
-export class ConnectedUploadForm extends ControlledConsumer {
+export class ConnectedUploadForm extends AbstractControlledConsumer {
 
     @property({ type: Object })
     public folder!: FolderInfo;
@@ -447,7 +448,7 @@ export class ConnectedUploadForm extends ControlledConsumer {
         timeinms: number
     ): void {
 
-        const element = this.renderRoot.querySelector( ".stage-upload thermal-btn" ) as ThermalBtn | null | undefined;
+        const element = this.renderRoot.querySelector( ".stage-upload thermal-btn" ) as ThermalBtnElement | null | undefined;
         console.info("Highlighting upload form button", { element, timeinms });
         if ( element ) {
             element.highlight( timeinms );

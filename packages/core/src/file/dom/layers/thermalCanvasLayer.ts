@@ -1,5 +1,5 @@
-import { Instance } from "../../instance";
 import ThermalDomFactory from "../domFactories";
+import { InstanceDOM } from "../InstanceDom";
 import { AbstractLayer } from "./AbstractLayer";
 
 
@@ -31,10 +31,10 @@ export class ThermalCanvasLayer extends AbstractLayer {
     }
 
     public constructor(
-        instance: Instance
+        dom: InstanceDOM
     ) {
 
-        super(instance);
+        super(dom);
 
         this.container = ThermalDomFactory.createCanvasContainer();
 

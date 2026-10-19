@@ -1,4 +1,4 @@
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { BatchLoadingCallback } from "../../hierarchy/ThermalRegistry";
 import { CallbacksManager } from "../../properties/callbacksManager";
@@ -23,7 +23,7 @@ export class Batch {
     private _loading = false;
     public get loading() { return this._loading; }
 
-    public readonly onResolve = new CallbacksManager< ( result: (Instance|ThermalFileFailure)[] ) => void >();
+    public readonly onResolve = new CallbacksManager< ( result: (ThermalFileInstance|ThermalFileFailure)[] ) => void >();
     
 
 

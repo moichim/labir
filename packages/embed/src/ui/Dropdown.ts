@@ -1,14 +1,15 @@
 import { computePosition, flip, inline, offset, shift } from "@floating-ui/dom";
-import { LitElement, PropertyValueMap, css, html } from "lit";
-import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js';
+import type { PropertyValueMap} from "lit";
+import { LitElement, css, html } from "lit";
+import { property, queryAssignedElements } from 'lit/decorators.js';
 import { classMap } from "lit/directives/class-map.js";
-import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { BaseElement } from "../hierarchy/BaseElement";
-import { BtnSizes, BtnVariants } from "./Btn";
+import type { Ref} from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
+import type { BtnSizes, BtnVariants } from "./Btn";
 
-@customElement("thermal-dropdown")
-export class ThermalDropdown extends BaseElement {
+export class ThermalDropdownElement extends AbstractThermalElement {
 
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,
@@ -39,6 +40,12 @@ export class ThermalDropdown extends BaseElement {
 
     @property({type: String, attribute: true})
     public tooltip?: string;
+
+    @property({ type: String, reflect: true })
+    public icon?: string;
+
+    @property({ type: String, reflect: true })
+    public iconStyle?: string;
 
     setOpen() {
         this.isOpen = "open";
@@ -235,6 +242,8 @@ export class ThermalDropdown extends BaseElement {
                     @click=${this.toggle.bind(this)} 
                     variant=${ifDefined(this.variant)}
                     size=${ifDefined(this.size)}
+                    icon="${ifDefined(this.icon)}"
+                    iconStyle="${ifDefined(this.iconStyle)}"
                     ?plain=${this.plain}
                     disabled=${disabled}
                     tooltip="${this.tooltip !== undefined ? this.tooltip : ""}"
@@ -266,4 +275,10 @@ export class ThermalDropdown extends BaseElement {
 
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-dropdown": ThermalDropdownElement;
+    }
 }

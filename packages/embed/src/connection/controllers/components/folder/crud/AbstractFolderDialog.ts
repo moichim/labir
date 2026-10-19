@@ -1,39 +1,40 @@
-import { property, state } from "lit/decorators.js";
-import { FolderInfo } from "@labirthermal/server";
-import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { FolderInfo } from "@labirthermal/client";
 import { t } from "i18next";
-import { T } from "../../../../../translations/Languages";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
+import { property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref } from "lit/directives/ref.js";
-import { ThermalDialog } from "packages/embed/src/ui/Dialog";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { T } from "../../../../../translations/Languages";
+import type { BtnSizes, BtnVariants } from "../../../../../ui/Btn";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
+import type { ThermalDialogElement } from "../../../../../ui/Dialog";
 
 /** A base class for all dialogs related to folder CRUD operations. */
-export abstract class AbstractFolderDialog extends ControlledConsumer {
+export abstract class AbstractFolderDialog extends AbstractControlledConsumer {
 
     @property({ type: Object })
     public folder!: FolderInfo;
 
-    @property({ type: String, reflect: true})
+    @property({ type: String, reflect: true })
     public icon?: string;
 
-    @property({ type: String, reflect: true})
+    @property({ type: String, reflect: true })
     public iconStyle?: string;
 
-    @property({ type: String, reflect: true})
+    @property({ type: String, reflect: true })
     public variant?: BtnVariants;
 
-    @property({type: String, reflect: true})
+    @property({ type: String, reflect: true })
     public size?: BtnSizes;
 
     @property({ type: Boolean, reflect: true })
     public plain?: boolean;
 
-    @property({type: Boolean, reflect: true})
+    @property({ type: Boolean, reflect: true })
     public disabled?: boolean;
 
-    @property({type: Boolean, reflect: true})
+    @property({ type: Boolean, reflect: true })
     public interactive?: boolean;
 
     @property({ type: String })
@@ -61,7 +62,7 @@ export abstract class AbstractFolderDialog extends ControlledConsumer {
     /** Optionally render additional buttons in the dialog footer. */
     protected abstract renderButtons(): unknown;
 
-    private dialogRef = createRef<ThermalDialog>();
+    private dialogRef = createRef<ThermalDialogElement>();
 
     protected close() {
         this.dialogRef.value?.setClose();
@@ -80,7 +81,7 @@ export abstract class AbstractFolderDialog extends ControlledConsumer {
 
     protected render(): unknown {
 
-        if ( !this.shouldRenderDialog() ) {
+        if (!this.shouldRenderDialog()) {
             return nothing;
         }
 
@@ -88,18 +89,18 @@ export abstract class AbstractFolderDialog extends ControlledConsumer {
     label=${t(this.dialogLabel)}
     button=${t(this.closeLabel)}
     .beforeClose=${() => this.beforeClose()}
-    ${ref( this.dialogRef )}
+    ${ref(this.dialogRef)}
 >
     <thermal-btn
         slot="invoker"
-        .icon=${ifDefined( this.icon )}
-        .iconStyle=${ifDefined( this.iconStyle )}
-        .variant=${ifDefined( this.variant )}
-        .size=${ifDefined( this.size )}
-        .plain=${ifDefined( this.plain )}
-        disabled=${ this.disabled ? "true" : "false" }
-        .interactive=${ifDefined( this.interactive )}
-        .tooltip=${ifDefined( this.tooltip )}
+        .icon=${ifDefined(this.icon)}
+        .iconStyle=${ifDefined(this.iconStyle)}
+        .variant=${ifDefined(this.variant)}
+        .size=${ifDefined(this.size)}
+        .plain=${ifDefined(this.plain)}
+        disabled=${this.disabled ? "true" : "false"}
+        .interactive=${ifDefined(this.interactive)}
+        .tooltip=${ifDefined(this.tooltip)}
     >
         ${this.label}
     </thermal-btn>

@@ -1,6 +1,6 @@
-import { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { BufferTarget, Mp4OutputFormat, Output, VideoSample, VideoSampleSource } from "mediabunny";
-import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
+import type { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 import { RecordingPhase } from "../ISingleVideoExportElement";
 
 /**
@@ -39,7 +39,7 @@ export class VideoRecorder {
     private muxingCanvas?: OffscreenCanvas;
     private muxingContext?: OffscreenCanvasRenderingContext2D;
 
-    private readonly file: Instance;
+    private readonly file: ThermalFileInstance;
     private readonly exportedElement: HTMLElement;
 
     // === Připravené struktury pro rychlý export ===
@@ -990,9 +990,9 @@ export class VideoRecorder {
 
         try {
             // Načti jako Image s data: URL
-            let imageToDraw: HTMLImageElement;
+            // let imageToDraw: HTMLImageElement;
             
-            imageToDraw = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const imageToDraw = await new Promise<HTMLImageElement>((resolve, reject) => {
                 const img = new Image();
                 img.width = this.exportWidth;
                 img.height = this.exportHeight;

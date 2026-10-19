@@ -1,5 +1,5 @@
-import { Instance } from "@labirthermal/core";
-import { Quality } from "mediabunny";
+import type { ThermalFileInstance } from "@labirthermal/core";
+import type { Quality } from "mediabunny";
 
 export enum VideoExportSkin {
     LIGHT = "light",
@@ -44,7 +44,7 @@ export interface ISingleVideoExportElement {
     setRecordingPhase( phase: RecordingPhase ): void;
     setRecordingPhaseProgress( progress: number ): void;
 
-    get innerFile(): Instance | undefined;
+    get innerFile(): ThermalFileInstance | undefined;
     get exportedElement(): HTMLElement | undefined;
 
     renderProps: SingleVideoRenderProps;

@@ -1,8 +1,78 @@
-# @labir/embed
+# @labirthermal/webcomponents
 
-A library of webcomponents for thermal imaging in the browser.
+A Lit-based web component library for thermal images and thermal-analysis UIs in the browser.
 
 [![A showcase of the simple application](docs/images/thermal-file-analyser.png)](https://edu.labir.cz/experiment/sul-jedla-soda-a-voda/)
+
+## Build stack and package intent
+
+This package is designed as a web-component library, not as a framework-specific React package.
+
+- Runtime: Lit + custom elements (`@customElement`, `LitElement`)
+- Library build: `tsdown` from `src/index.export.ts` -> `dist/lib/index.export.{mjs,cjs}` + `.d.ts`
+- Browser bundle: Vite IIFE build from `src/index.iife.ts` -> `dist/iife/embed.iife.js`
+- Direct browser registration: `defineAllWebcomponents(...)` runs on load, so the bundle registers all included tags immediately
+- Integration style in the monorepo: `packages/thermal-display` does not import this package via npm; it loads the generated browser bundle directly and then renders custom elements such as `<thermal-dropin-app />` in the DOM
+
+This means the package is intended for two consumption modes:
+
+1. as a library for extension/custom implementation in other packages or Node-based tooling
+2. as a browser script for direct embedding into plain HTML or WordPress-style pages
+
+It is not a React/Next.js runtime package by itself. The underlying API is web components + exported TS classes/interfaces, not a React component tree.
+
+## Library consumption (extension / other packages)
+
+```ts
+import {
+  FileProviderElement,
+  RegistryProviderElement,
+  ThermalAppElement,
+  type IElementWithManagerController,
+} from "@labirthermal/webcomponents";
+```
+
+The library exports the component classes and controller abstractions from `src/index.export.ts`. This is the correct integration path when another package wants to extend or compose the library without rendering it as a global script.
+
+## Direct browser consumption (IIFE)
+
+```html
+<script src="./dist/iife/embed.iife.js"></script>
+<thermal-dropin-app locale="en"></thermal-dropin-app>
+```
+
+The IIFE bundle registers all included custom elements immediately after load, and adds the default styles. This is the mode used by the WordPress integration package in `packages/thermal-display`.
+
+## React / Next.js usage
+
+This package does not ship React wrappers or JSX bindings as a first-class API. In React/Next.js, the practical pattern is to mount the custom elements directly:
+
+```tsx
+export function ThermalDropin() {
+  return <thermal-dropin-app locale="en" />;
+}
+```
+
+For runtime values, set attributes or properties on the element via a `ref`:
+
+```tsx
+import { useEffect, useRef } from "react";
+
+export function ThermalDropin({ locale, skin }: { locale: string; skin?: string }) {
+  const ref = useRef<HTMLElement & { locale?: string; skin?: string } | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.locale = locale;
+    if (skin) el.skin = skin;
+  }, [locale, skin]);
+
+  return <thermal-dropin-app ref={ref} />;
+}
+```
+
+In TypeScript, you normally need a declaration for the custom element tag names or a small wrapper component. The exported TypeScript interfaces/classes are useful for extension, but they do not generate a React component API automatically.
 
 ## Demos
 
@@ -24,7 +94,164 @@ This frontend library is a webcomponents implementation of [@labir/core](/packag
 - export thermal recording to PNG / WEBM
 - export analyses data to CSV
 
+### Registry range slider
+
+`registry-range-slider` renders its track, palette and two accessible handles
+directly in Lit, without a third-party slider. Registry contexts supply the
+confirmed bounds and range; changes from the range form, full/automatic range
+buttons or application code update the handles without writing back to the registry.
+
+Mouse, touch and pen dragging preview the range locally and commit it on release.
+Cancelling a gesture or receiving an external range/bounds update discards the preview.
+Focused handles move left/right by 1% of the full temperature interval and commit
+immediately, updating the registry, form and thermal image. Up/Home selects the
+lowest allowed value, Down/End the highest; the mouse wheel also steps by 1%.
+Handles cannot cross, and displayed values are rounded to two decimal places
+without rounding incoming registry values. A constant temperature interval is
+displayed with disabled handles.
+
+The track defaults to **15px** in CSS. Handles are always **5px taller** than
+the track and remain vertically centred. Set the track height using an attribute,
+ordinary CSS (including inline styles), or the public CSS custom property:
+
+```html
+<registry-range-slider height="30px"></registry-range-slider>
+<registry-range-slider style="height: 30px"></registry-range-slider>
+<registry-range-slider style="--thermal-range-slider-height: 30px"></registry-range-slider>
+```
+
+Ordinary CSS `height` overrides the component's default height rule. Otherwise,
+the `height` attribute takes precedence over `--thermal-range-slider-height`,
+which falls back to 15px. The custom property can also be inherited from a parent
+or set in a stylesheet. Attribute changes are reactive; removing or emptying the
+attribute restores the CSS fallback without overwriting other inline styles.
+Invalid attribute values are logged and also restore the fallback.
+
+Use CSS lengths or expressions such as `2rem`, `calc(1rem + 5px)` or
+`var(--custom-height)`, not unitless numbers such as `height="30"`.
+Percentage heights require a containing block with a definite height.
+Intrinsic sizing keywords such as `auto` are not supported by the attribute.
+The loading placeholder follows the configured track height, and tooltips and
+the component's reserved space adjust with it. Height changes do not change
+the selected temperature range.
+
+### Drop-in file listing layouts
+
+The drop-in app's grid/table switch keeps the same file providers, canvases,
+timelines and analysis components mounted. It changes the listing's
+`data-layout` attribute; CSS Grid handles the arrangement.
+
+Grid cards show the header, canvas, analyses and timeline in that order.
+Cards use their natural height instead of stretching to the tallest neighbour,
+so the white background ends with each card's visible content.
+
+Table rows have an unpadded media column (canvas and timeline) and
+a white details column (header, analyses and active graphs). The media sets
+the row height; longer details scroll within that height. Set
+the table-view preview-width slider to choose 20% to 80% of the row width,
+in 1% steps (default 50%). Grid view instead shows the column-count slider.
+Both settings are retained when switching layouts. Width changes are not animated.
+
+Listing analyses use separate `file-analysis-table` and `file-analysis-graph`
+components. Tables size naturally. `file-analysis-graph standalone="true"`
+hides itself when no sequence graph is active and measures its own display
+size. Active standalone graphs use `--thermal-analysis-graph-height` (default
+`12rem`). The existing detail layout using `file-analysis-complex` is unchanged.
+Resize observers can still update timeline ticks and graphs when their display
+size changes; layout switching does not recreate the thermal canvas.
+
+### Preloaded group application
+
+`thermal-group-app` loads the initial `group-files` attribute and displays the
+same grid/table listing and detail controls as the drop-in app, without file
+upload or deletion controls:
+
+```html
+<thermal-group-app
+  group-files="thermal~https://example.com/first.lrc|label~First;thermal~https://example.com/second.lrc"
+></thermal-group-app>
+```
+
+Set `group-files` before connecting the element. Later attribute changes do
+not reload the group. Open a file using its heading or detail button; the back
+button returns to the listing, including for a group containing only one file.
+Opening and closing details does not replace the group's instances, preserving
+labels, analyses and playback state. Palette, range, analysis and download
+controls remain available. Loading failures are displayed alongside any files
+that loaded successfully.
+
+The shared `GroupListingController` rendering methods accept optional
+`GroupListingRenderOptions`. `allowFileChanges: false` hides file upload and
+deletion controls; `onOpenDetail` and `onCloseDetail` let the host select a
+detail without replacing the group's contents. Omitting these options preserves
+the drop-in app's existing behavior.
+With `allowFileChanges: false`, the file count and back-button tooltip also use
+neutral wording rather than referring to uploaded files or the user's files.
+
+### Analysis table
+
+`file-analysis-table` renders the analyses of its enclosing file provider. Both
+layouts use the same rows and display AVG, MIN and MAX in that order:
+
+```html
+<file-analysis-table table-mode="full" show-range-propagator="true"></file-analysis-table>
+<file-analysis-table table-mode="compact" show-range-propagator="false"></file-analysis-table>
+```
+
+| Attribute | Default | Meaning |
+| --- | --- | --- |
+| `table-mode` | `full` | `full` has size and action columns; `compact` omits size and places smaller action buttons next to the name. |
+| `show-range-propagator` | Inherited interactivity | Show the button that applies the analysis MIN/MAX to the registry range, independently of selection and editing. |
+| `selection-enabled` | Inherited interactivity | Allow individual selection and select/deselect all. |
+| `edit-enabled` | Inherited interactivity | Show editing and deletion actions. |
+| `graph-activation-enabled` | `true` | Allow graph toggles for sequences; points only support AVG. |
+
+Boolean attributes accept `"true"` and `"false"` (an empty attribute enables
+the option). Omitting or removing the optional overrides restores inherited
+interactivity. Selection, editing, and range propagation default to the
+inherited `interactiveanalysis` context or the `forceinteractiveanalysis`
+override; `selection-enabled`, `edit-enabled`, and `show-range-propagator` can
+override those individually. `table-mode` only changes layout: `full` does not
+make the table interactive, and `compact` does not disable interactions.
+Graph activation is separately controlled by `graph-activation-enabled`
+(enabled by default), and only applies to sequences and supported analysis
+types. Range propagation is unavailable for points and disabled until the
+analysis has finite, ordered MIN/MAX values.
+Hovering or focusing a row highlights its current range in either layout.
+Inactive value buttons have transparent backgrounds. Active value buttons use
+the analysis color, with black or white text chosen for the higher WCAG contrast;
+the same colors apply on hover and focus.
+The table fills its container when the content fits. Wider content retains its
+natural column widths and scrolls horizontally inside the table's focusable
+container, without widening the surrounding grid or flex layout.
+
+`file-analysis-overview` and `file-analysis-overview-row` remain deprecated
+compact-layout aliases without a range button by default. The original
+misspelled `file-analysis-oveerview` tag remains supported as well.
+`file-analysis-display`, used by video export, is unchanged.
+
 ## How to use
+
+### Group analysis attribute binding
+
+Custom group hosts can opt into `GroupAnalysisSyncController`. Merge its
+`HOST_PROPERTIES` into the element's Lit properties, provide a `groupController`,
+initialize `groupAnalysisSyncOn` to `false`, and forward `updated(changed)` to
+`hostUpdatedWatcher(changed)`. Construct it after the group controller.
+
+When enabled, `analysis1` through `analysis7` reflect the active file's slot
+changes, and host property/attribute changes update the corresponding slots in
+all mounted group files. New or remounted files receive the latest host snapshot
+on mount. Empty values delete slots; analyses without slots are preserved.
+On initial activation, nonempty host analyses take precedence, otherwise the
+current pointer (or a file with slots) supplies the snapshot.
+
+The exported `groupAnalysisSyncContext` publishes the enabled state. The host
+flag and core group sync switch are synchronized in both directions. Disabling
+retains the host snapshot and file analyses but stops the binding; disconnecting
+removes listeners without switching off a shared group's core synchronization.
+File attribute binding is not automatically disabled: do not give both bindings
+ownership of the same host's `analysis1` through `analysis7`.
 
 ### 1. Include the library
 

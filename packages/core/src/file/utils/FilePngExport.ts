@@ -2,7 +2,7 @@ import { AbstractAreaAnalysis } from "../../properties/analysis/analysis/interna
 import { PointAnalysis } from "../../properties/analysis/analysis/internals/point/PointAnalysis";
 import { AbstractExportProps, AbstractExportTypeMandatory, AbstractPngExport } from "../../utils/AbstractPngExport";
 import { TimeFormat } from "../../utils/time/formatting";
-import { Instance } from "../instance";
+import { ThermalFileInstance } from "../ThermalFileInstance";
 
 type FileExportPngParams = AbstractExportProps;
 
@@ -23,14 +23,10 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
         showThermalScale: true,
     }
 
-    protected localInstance?: Instance;
-
-    public get canvas() {
-        return this.file.canvasLayer.canvas;
-    }
+    protected localInstance?: ThermalFileInstance;
 
     public constructor(
-        public readonly file: Instance
+        public readonly file: ThermalFileInstance
     ) {
         super();
     }

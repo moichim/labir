@@ -1,10 +1,11 @@
 import { TimeFormat } from "@labirthermal/core";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-file-header")
-export class ConnectedFileHeader extends ControlledConsumer {
+export class ConnectedFileHeader extends AbstractControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();

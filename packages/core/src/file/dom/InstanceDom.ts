@@ -1,4 +1,4 @@
-import { AbstractFile } from "../AbstractFile";
+import { AbstractThermalFile } from "../AbstractThermalFile";
 import { ThermalCanvasLayer } from "./layers/thermalCanvasLayer";
 import ThermalCursorLayer from "./layers/thermalCursorLayer";
 import { ThermalListenerLayer } from "./layers/thermalListenerLayer";
@@ -28,6 +28,8 @@ export class InstanceDOM {
             this.root.style.position = "relative";
             this.root.style.lineHeight = "0";
 
+            this.parent.onMount.call();
+
         } else {
 
             // Identification
@@ -39,6 +41,8 @@ export class InstanceDOM {
             this.root.style.removeProperty("zIndex");
             this.root.style.removeProperty("position");
             this.root.style.removeProperty("lineHeight");
+
+            this.parent.onUnmount.call();
 
         }
 
@@ -91,7 +95,7 @@ export class InstanceDOM {
 
 
     public constructor(
-        public readonly parent: AbstractFile,
+        public readonly parent: AbstractThermalFile,
         public readonly root: HTMLDivElement
     ) {
 
@@ -113,13 +117,10 @@ export class InstanceDOM {
 
 
         // Build the DOM
-        const dom = this.parent.createInnerDom();
-
-        // Assign DOM
-        this._canvasLayer = dom.canvasLayer;
-        this._visibleLayer = dom.visibleLayer;
-        this._cursorLayer = dom.cursorLayer;
-        this._listenerLayer = dom.listenerLayer;
+        this._canvasLayer = new ThermalCanvasLayer(this);
+        this._visibleLayer = new VisibleLayer(this, this.parent.visibleUrl);
+        this._cursorLayer = new ThermalCursorLayer(this);
+        this._listenerLayer = new ThermalListenerLayer(this);
         
 
         // Mounting layers internals

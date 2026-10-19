@@ -1,14 +1,14 @@
-import { css, CSSResultGroup, html } from "lit";
+import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 
 @customElement("thermal-group")
-export class ThermalGroup extends BaseElement {
+export class ThermalGroup extends AbstractThermalElement {
 
     @property()
     name?: string;
 
-    static styles?: CSSResultGroup | undefined = css`
+    static styles = css`
         :host {
             display: none;
         }

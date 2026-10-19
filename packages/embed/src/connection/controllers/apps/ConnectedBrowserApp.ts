@@ -1,10 +1,9 @@
-import { ThermalManager } from "@labirthermal/core";
-import { Identity } from "@labirthermal/server";
+import type { Identity } from "@labirthermal/client";
+import type { ThermalManager } from "@labirthermal/core";
 import { html, nothing } from "lit";
-import { customElement } from "lit/decorators.js";
 import { createRef } from "lit/directives/ref.js";
-import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
-import { AbstractConnectedApp } from "../abstraction/ConnectedAppBase";
+import type { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
+import { AbstractConnectedApp } from "../abstraction/AbstractConnectedApp";
 import { DisplayState, FolderListDisplayMode } from "../DisplayController";
 import { connectedFileDetail } from "./directives/layout/ConnectedFileDetailDirective";
 import { connectedFolderFiles } from "./directives/layout/ConnectedFolderFilesDirective";
@@ -12,7 +11,6 @@ import { connectedFolderGrid } from "./directives/layout/ConnectedFolderGridDire
 import { connectedFolderSubfolders } from "./directives/layout/ConnectedFolderSubfoldersDirective";
 import { userFolders } from "./directives/layout/UserFoldersDirective";
 
-@customElement("connected-browser-app")
 export class ControllerApp extends AbstractConnectedApp {
 
     private managerProviderRef = createRef<ManagerProviderElement>();
@@ -27,7 +25,7 @@ export class ControllerApp extends AbstractConnectedApp {
         if (!this.managerProviderRef.value) {
             throw new Error("Method not implemented.");
         }
-        return this.managerProviderRef.value.manager;
+        return this.managerProviderRef.value.managerObject;
     }
 
 
@@ -101,7 +99,7 @@ export class ControllerApp extends AbstractConnectedApp {
     // File displays
 
     protected renderStateFile(): unknown {
-        const dir = connectedFileDetail( this );
+        const dir = connectedFileDetail(this);
         return this.renderAppWithInternals(dir);
     }
 
@@ -135,7 +133,7 @@ export class ControllerApp extends AbstractConnectedApp {
 
         let content: unknown = nothing;
 
-        if ( this.client.isLoggedIn ) {
+        if (this.client.isLoggedIn) {
             content = html`<thermal-btn
                 @click=${() => this.display.navigateToUserFoldersAndLoad()}
                 icon="right"

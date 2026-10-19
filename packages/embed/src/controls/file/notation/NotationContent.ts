@@ -1,16 +1,17 @@
 import { consume } from "@lit/context";
 import { format } from "date-fns";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { notationCurrentContext } from "./NotationContext";
-import { NotationEntry } from "./NotationEntry";
+import type { NotationEntry } from "./NotationEntry";
 
 /** @deprecated */
 @customElement("notation-content")
-export class NotationContent extends BaseElement {
+export class NotationContent extends AbstractThermalElement {
 
 
     @state()

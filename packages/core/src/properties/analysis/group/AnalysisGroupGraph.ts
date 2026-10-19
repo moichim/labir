@@ -29,8 +29,8 @@ export class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataOr
     protected calculateData() {
 
 
-        let colors: string[] = [];
-        let header: string[] = [];
+        const colors: string[] = [];
+        const header: string[] = [];
         const data: [Date, ...number[]][] = [];
 
 
@@ -38,10 +38,9 @@ export class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataOr
         const orderedFiles = this.parent.files.value.sort( (a,b) => a.timestamp - b.timestamp );
 
         const firstRow = orderedFiles[0].analysisData.value.values[0];
-        header = firstRow;
+        header.push(...firstRow);
 
-        colors = orderedFiles[0].analysisData.value.colors;
-
+        colors.push(...orderedFiles[0].analysisData.value.colors);
 
 
         this.parent.files.forEveryInstance( instance => {

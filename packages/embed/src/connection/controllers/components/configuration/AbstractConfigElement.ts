@@ -1,8 +1,9 @@
-import { css, CSSResultGroup, html } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
-export abstract class AbstractConfigElement extends ControlledConsumer {
+export abstract class AbstractConfigElement extends AbstractControlledConsumer {
 
     public static styles?: CSSResultGroup | undefined = css`
     

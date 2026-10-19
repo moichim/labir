@@ -1,53 +1,60 @@
+import { GridGrouping } from "@labirthermal/client";
 import { TimeFormat } from "@labirthermal/core";
-import { css, nothing } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { format } from "date-fns";
-import { ApiTimeGrouping } from "@labirthermal/server-simple";
+import { css, nothing } from "lit";
+import { property } from "lit/decorators.js";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 
-@customElement("file-label")
-export class FileCanvas extends FileConsumer {
+export class FileLabelElement extends AbstractFileConsumer {
 
-    @property({type: String})
-    public grouping?: ApiTimeGrouping;
+    @property({ type: String })
+    public grouping?: GridGrouping;
 
-    @property({type: String})
+    @property({ type: String })
     public label?: string;
 
-    public onInstanceCreated(): void {}
+    public onInstanceCreated(): void { }
 
-    public onFailure(): void {}
+    public onFailure(): void { }
 
     static styles = css`
         :host {
             display: contents;
         }
+
     `;
 
     protected render(): unknown {
 
-        if ( this.file === undefined ) {
+        if (this.file === undefined) {
             return nothing;
-        } else if ( this.label !== undefined ) {
+        } else if (this.label !== undefined) {
             return this.label;
-        } else if ( this.grouping !== undefined ) {
+        } else if (this.grouping !== undefined) {
 
-            switch ( this.grouping ) {
-                case "hours":
-                case "days":
-                    return format( this.file.timestamp, "HH:mm" );
-                case "weeks":
-                case "months":
-                case "years":
-                    return TimeFormat.human( this.file.timestamp );
+            switch (this.grouping) {
+                case GridGrouping.HOUR:
+                case GridGrouping.DAY:
+                    return format(this.file.timestamp, "HH:mm");
+                case GridGrouping.WEEK:
+                case GridGrouping.MONTH:
+                case GridGrouping.YEAR:
+                    return TimeFormat.human(this.file.timestamp);
                 default:
-                    return TimeFormat.human( this.file.timestamp );
+                    return TimeFormat.human(this.file.timestamp);
             }
 
         }
+
 
         return this.file.fileName;
 
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-label": FileLabelElement;
+    }
 }

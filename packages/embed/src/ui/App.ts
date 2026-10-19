@@ -1,34 +1,44 @@
 import i18next, { t } from "i18next";
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import { property, state } from "lit/decorators.js";
+import { cache } from "lit/directives/cache.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { map } from "lit/directives/map.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { languagesObject, T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { classMap } from "lit/directives/class-map.js";
-import { map } from "lit/directives/map.js";
-import { cache } from "lit/directives/cache.js";
 
-@customElement("thermal-app")
-export class ThermalAppUiElement extends BaseElement {
+// @customElement("thermal-app")
+export class ThermalAppElement extends AbstractThermalElement {
 
     @state()
     language: string = i18next.language;
 
-    @queryAssignedElements({ slot: "bar", flatten: true })
-    barElements!: Array<HTMLElement>;
+    @state()
+    private _overflowCount: number = 0;
 
-    @queryAssignedElements({ slot: "pre", flatten: true })
-    preElements!: Array<HTMLElement>;
+    @state()
+    private _overflowOpen: boolean = false;
 
-    @queryAssignedElements({ slot: "content", flatten: true })
-    contentElements!: Array<HTMLElement>;
+    @state()
+    private _hasPre: boolean = false;
+
+    @state()
+    private _hasContent: boolean = false;
+
+    @state()
+    private _hasPreBar: boolean = false;
+
+    @state()
+    private _hasBarHeader: boolean = false;
 
     @property({ type: String, reflect: true })
     fullscreen: string = "off";
 
-    @property({ type: String, reflect: true, attribute: true, converter: booleanConverter(false) })
+    @property({ type: String, reflect: true, converter: booleanConverter(false), attribute: "show-fullscreen" })
     showfullscreen: boolean = false;
 
     @property( {type: String, reflect: true, attribute: true} )
@@ -70,30 +80,207 @@ export class ThermalAppUiElement extends BaseElement {
 
     protected contentRef: Ref<HTMLDivElement> = createRef();
 
-    protected observer!: ResizeObserver;
+    protected barItemsRef: Ref<HTMLDivElement> = createRef();
+
+    /** Owns host resize observation; not reactive and released when disconnected. */
+    protected observer?: ResizeObserver;
+
+    /** Owns toolbar resize observation; recreated after the component reconnects. */
+    private _overflowObserver: ResizeObserver | null = null;
+
+    /** Pending overflow measurement, coalesced and cancelled when disconnected. */
+    private _rafId: number | null = null;
+
+    /** Final slot assignments from our last measurement, used to ignore self-induced slotchange events. */
+    private readonly _barSlotAssignments = new Map<string, Element[]>();
+
+    /** Stable callback so language changes do not accumulate subscriptions on reconnect. */
+    private readonly _handleLanguageChange = (language: string): void => {
+        this.language = language;
+    };
 
     private _handleFullscreenChange = (): void => {
-        if (!document.fullscreenElement) {
-            this.fullscreen = "off";
-        }
+        this.fullscreen = document.fullscreenElement === this ? "on" : "off";
     };
 
     connectedCallback(): void {
         super.connectedCallback();
 
-        window.addEventListener("fullscreenchange", this._handleFullscreenChange);
-
-
-        i18next.on("languageChanged", () => {
-            // this.log( "languageChanged", this.language, i18next.language );
+        document.addEventListener("fullscreenchange", this._handleFullscreenChange);
+        if (i18next.language !== undefined) {
             this.language = i18next.language;
-        });
+        }
+        i18next.on("languageChanged", this._handleLanguageChange);
+        this.requestUpdate();
 
     }
 
     disconnectedCallback(): void {
+        document.removeEventListener("fullscreenchange", this._handleFullscreenChange);
+        i18next.off("languageChanged", this._handleLanguageChange);
+        this.observer?.disconnect();
+        this.observer = undefined;
+        if (this._overflowObserver) {
+            this._overflowObserver.disconnect();
+            this._overflowObserver = null;
+        }
+        if (this._rafId !== null) {
+            cancelAnimationFrame(this._rafId);
+            this._rafId = null;
+        }
+        this._barSlotAssignments.clear();
         super.disconnectedCallback();
-        window.removeEventListener("fullscreenchange", this._handleFullscreenChange);
+    }
+
+    private _toggleOverflow(): void {
+        this._overflowOpen = !this._overflowOpen;
+    }
+
+    private _setSlotFlag(name: string, has: boolean): void {
+        switch (name) {
+            case "pre":
+                this._hasPre = has;
+                break;
+            case "content":
+                this._hasContent = has;
+                break;
+            case "pre-bar":
+                this._hasPreBar = has;
+                break;
+            case "bar-header":
+                this._hasBarHeader = has;
+                break;
+        }
+    }
+
+    private _onSlotChange = (event: Event): void => {
+        const slot = event.target as HTMLSlotElement;
+        this._setSlotFlag(slot.name, slot.assignedElements({ flatten: true }).length > 0);
+    };
+
+    private _syncSlotFlags(): void {
+        const shadow = this.shadowRoot;
+        if (!shadow) return;
+
+        for (const name of ["pre", "content", "pre-bar", "bar-header"]) {
+            const slot = shadow.querySelector<HTMLSlotElement>(`slot[name="${name}"]`);
+            const has = slot
+                ? slot.assignedElements({ flatten: true }).length > 0
+                : Array.from(this.children).some(child => {
+                    if (child.slot !== name) return false;
+                    return !(child instanceof HTMLSlotElement)
+                        || child.assignedElements({ flatten: true }).length > 0;
+                });
+            this._setSlotFlag(name, has);
+        }
+    }
+
+    protected willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
+        this._syncSlotFlags();
+    }
+
+    /** Ignores our own slot redistribution but measures externally changed toolbar contents. */
+    private _onBarSlotChange = (): void => {
+        for (const name of ["bar-pre", "bar-post", "bar-overflow"]) {
+            const current = this.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)
+                ?.assignedElements() ?? [];
+            const previous = this._barSlotAssignments.get(name);
+            if (!previous || previous.length !== current.length
+                || current.some((item, index) => item !== previous[index])) {
+                this._scheduleOverflowUpdate();
+                return;
+            }
+        }
+    };
+
+    private _scheduleOverflowUpdate(): void {
+        if (!this.isConnected || this._rafId !== null) return;
+        this._rafId = requestAnimationFrame(() => {
+            this._rafId = null;
+            if (!this.isConnected) return;
+            this._doOverflowUpdate();
+            for (const name of ["bar-pre", "bar-post", "bar-overflow"]) {
+                const items = this.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)
+                    ?.assignedElements() ?? [];
+                this._barSlotAssignments.set(name, items);
+            }
+        });
+    }
+
+    private _doOverflowUpdate(): void {
+        const shadow = this.shadowRoot;
+        if (!shadow) return;
+
+        // Step 1: Restore all overflow items to their original slots
+        const overflowSlot = shadow.querySelector('slot[name="bar-overflow"]') as HTMLSlotElement | null;
+        if (overflowSlot) {
+            const items = [...overflowSlot.assignedElements()] as HTMLElement[];
+            for (const item of items) {
+                item.slot = item.dataset.originalSlot ?? "bar-pre";
+                delete item.dataset.originalSlot;
+            }
+        }
+
+        // Step 2: Measure all items (forces synchronous layout reflow)
+        const barItems = this.barItemsRef.value;
+        if (!barItems) return;
+
+        const preSlot = shadow.querySelector('slot[name="bar-pre"]') as HTMLSlotElement | null;
+        const postSlot = shadow.querySelector('slot[name="bar-post"]') as HTMLSlotElement | null;
+        const allItems = [
+            ...(preSlot?.assignedElements({ flatten: true }) ?? []),
+            ...(postSlot?.assignedElements({ flatten: true }) ?? []),
+        ] as HTMLElement[];
+
+        if (allItems.length === 0) {
+            this._overflowCount = 0;
+            this._overflowOpen = false;
+            return;
+        }
+
+        const GAP = 5;
+        const HAMBURGER_W = 44; // width of overflow toggle button + gap
+
+        // Calculate total width of all items
+        const totalItemsWidth = allItems.reduce(
+            (sum, el, i) => sum + el.offsetWidth + (i > 0 ? GAP : 0), 0
+        );
+        const containerWidth = barItems.offsetWidth;
+
+        if (totalItemsWidth <= containerWidth) {
+            // Everything fits
+            this._overflowCount = 0;
+            this._overflowOpen = false;
+            return;
+        }
+
+        // Find which items overflow (available = container - hamburger button)
+        const availableWidth = containerWidth - HAMBURGER_W;
+        let used = 0;
+        let firstOverflow = allItems.length;
+
+        for (let i = 0; i < allItems.length; i++) {
+            const itemWidth = allItems[i].offsetWidth + (i > 0 ? GAP : 0);
+            if (used + itemWidth > availableWidth) {
+                firstOverflow = i;
+                break;
+            }
+            used += itemWidth;
+        }
+
+        // Assign overflow items
+        for (let i = firstOverflow; i < allItems.length; i++) {
+            const item = allItems[i];
+            item.dataset.originalSlot = item.slot;
+            item.slot = "bar-overflow";
+        }
+
+        const newCount = allItems.length - firstOverflow;
+        this._overflowCount = newCount;
+        if (newCount === 0) {
+            this._overflowOpen = false;
+        }
     }
 
     toggleFullscreen() {
@@ -104,63 +291,32 @@ export class ThermalAppUiElement extends BaseElement {
         }
     }
 
-    protected update(changedProperties: PropertyValues): void {
-        super.update(changedProperties);
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+        if (!this.isConnected) return;
 
         if (
             this.observer === undefined
             && this.contentRef.value !== undefined
         ) {
 
-            this.observer = new ResizeObserver((entries) => {
-                const entry = entries[0];
-
-                if (this.fullscreen === "on" && this.contentRef.value) {
-
-                    const offsetHeight = 175;
-                    const offsetWidth = 0;
-
-                    const windowHeight = entry.contentRect.height;
-                    const windowWidth = entry.contentRect.width;
-
-                    const availableHeight = windowHeight - offsetHeight;
-                    const availableWidth = windowWidth - offsetWidth;
-
-
-                    const contentHeight = this.contentRef.value.offsetHeight;
-
-                    const aspect = 4 / 3;
-
-                    let width: number = 0;
-                    let height: number = 0;
-
-
-                    // If define by width only
-                    if (contentHeight < availableHeight) {
-                        console.log("priorita šířky");
-                        width = availableWidth;
-                        height = width / aspect;
-                    } else {
-                        console.log("priorita výšky");
-                        height = availableHeight;
-                        width = height * aspect;
-                    }
-
-                }
-
-                else if (this.fullscreen === "off" && this.contentRef.value) {
-
+            this.observer = new ResizeObserver(() => {
+                if (this.isConnected && this.fullscreen === "off" && this.contentRef.value) {
                     this.contentRef.value.removeAttribute( "style" );
-
                 }
-
-
             });
             this.observer.observe(this);
 
         }
 
-
+        // Set up overflow ResizeObserver once barItemsRef is available
+        if (!this._overflowObserver && this.barItemsRef.value) {
+            this._overflowObserver = new ResizeObserver(() => {
+                this._scheduleOverflowUpdate();
+            });
+            this._overflowObserver.observe(this.barItemsRef.value);
+            this._scheduleOverflowUpdate();
+        }
 
     }
 
@@ -168,15 +324,25 @@ export class ThermalAppUiElement extends BaseElement {
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
         super.attributeChangedCallback(name, _old, value);
 
-        if (name === "fullscreen") {
+        if (name === "fullscreen" && _old !== value) {
             if (value === "on") {
-
-                this.requestFullscreen();
-                // ...
+                if (document.fullscreenElement === this) return;
+                if (typeof this.requestFullscreen !== "function") {
+                    this.log("Fullscreen API is unavailable");
+                    this.fullscreen = "off";
+                    return;
+                }
+                void this.requestFullscreen().catch(error => {
+                    this.log("Unable to enter fullscreen", error);
+                    this._handleFullscreenChange();
+                });
             } else if (value === "off" && _old !== null) {
-                // Only exit fullscreen if this is a real transition (not initial creation)
-                if (document.fullscreenElement)
-                    document.exitFullscreen();
+                if (document.fullscreenElement === this) {
+                    void document.exitFullscreen().catch(error => {
+                        this.log("Unable to exit fullscreen", error);
+                        this._handleFullscreenChange();
+                    });
+                }
             }
         }
 
@@ -205,51 +371,111 @@ export class ThermalAppUiElement extends BaseElement {
             background-color: var( --thermal-slate ) !important;
         }
 
-        .container {
-
-            padding: calc( var( --thermal-gap ) / 3 );
-            background-color: var( --thermal-slate-light );
-            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            border-radius: var( --thermal-radius );    
-            position: relative;        
-
-        }
-
         .bar {
             padding-bottom: calc( var( --thermal-gap ) * 0.5 );
             display: flex;
             gap: 5px;
             align-items: center;
+        }
 
-            .bar-content {
-                flex-grow: 1;
+        .bar-label {
+            flex: 0 1 auto;
+            min-width: 50px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .bar-header,
+        .pre-bar {
+            display: flex;
+            gap: 5px;
+            align-items: flex-start;
+        }
+
+        .pre-bar {
+            width: 100%;
+        }
+
+        .bar-header[hidden],
+        .pre-bar[hidden],
+        .pre[hidden] {
+            display: none;
+        }
+
+        .bar-items {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            --thermal-direction: row;
+        }
+
+        .bar-items ::slotted([slot="bar-pre"]),
+        .bar-items ::slotted([slot="bar-post"]) {
+            flex-shrink: 0;
+        }
+
+        .bar-spacer {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+
+        .bar-overflow-toggle {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            color: var(--thermal-foreground);
+            cursor: pointer;
+            padding: 0.3em 0.5em;
+            line-height: 0;
+        }
+
+        .bar-overflow-toggle:hover {
+            background-color: var(--thermal-slate-light);
+        }
+
+        .bar-overflow-panel {
+            
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+            padding: calc( var(--thermal-gap) * 0.4 ) 0;
+            
+            border-top: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+            --thermal-direction: row;
+
+            padding: .3em;
+            
+            background: var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            
+            margin-bottom: .5em;
+
+            > slot > * {
+                width: 100%; 
             }
-
-            .bar-separator {
-                flex-grow: 100;
-                content: "";
-            }
-
 
         }
 
-        :host([fullscreen="on"]) .container {
+        .bar-overflow-panel[hidden] {
+            display: none;
+        }
+
+        :host([fullscreen="on"]) {
+            box-sizing: border-box;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            padding: calc( var( --thermal-gap ) / 3 );
             border: 0;
             border-radius: 0;
-            box-sizing: border-box;
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-top: 0px;
-
-            .app-header {
-                padding-top: calc( var( --thermal-gap ) / 3 );
-            }
-
-            header,
-            .content {
-                width: 100%;
-            }
         }
 
 
@@ -364,7 +590,7 @@ export class ThermalAppUiElement extends BaseElement {
 
         return html`<thermal-dropdown>
     <span slot="invoker">${this.language.toUpperCase()}</span>
-    ${cache( map( ThermalAppUiElement.languages, lang => html`<div slot="option">
+    ${cache( map( ThermalAppElement.languages, lang => html`<div slot="option">
         <thermal-btn
             @click=${() => {
                 i18next.changeLanguage( lang );
@@ -392,28 +618,57 @@ export class ThermalAppUiElement extends BaseElement {
 
     }
 
+    private renderOverflowToggle(): unknown {
+
+        if ( this._overflowCount === 0 ) {
+            return nothing;
+        }
+
+        let icon = "adjustment";
+        let iconStyle = "outline";
+        let variant = "default";
+
+        if ( this._overflowOpen ) {
+            icon = "close";
+            iconStyle = "outline";
+            variant = "bg";
+        }
+
+        return html`<thermal-btn 
+    @click=${this._toggleOverflow} 
+    tooltip="${this.t("moreoptions")}}" 
+    icon=${icon} 
+    iconStyle=${iconStyle} 
+    variant=${variant}
+></thermal-btn>`;
+
+
+    }
+
 
 
     protected render(): unknown {
 
         return html`<header ${ref(this.headerRef)} class="app-header">
 
-        <div class="bar ${this.barElements.length > 0 ? "has-bar" : "no-bar"}">
+        <div class="bar">
 
-            ${ this.renderLabel() }
+            <div class="bar-label">
+                ${ this.renderLabel() }
+            </div>
 
-            <slot name="bar-persistent"></slot>
+            <div class="bar-header" ?hidden=${!this._hasBarHeader}>
+                <slot name="bar-header" @slotchange=${this._onSlotChange}></slot>
+            </div>
 
-            <div class="bar-content">
+            <div class="bar-items" ${ref(this.barItemsRef)}>
 
-                <thermal-bar>
+                <slot name="bar-pre" @slotchange=${this._onBarSlotChange}></slot>
+                <div class="bar-spacer"></div>
+                <slot name="bar-post" @slotchange=${this._onBarSlotChange}></slot>
 
-                    <slot name="bar-pre"></slot>
-                    <div class="bar-separator"></div>
-                    <slot name="bar-post"></slot>
+                ${this.renderOverflowToggle()}
 
-                </thermal-bar>
-                
             </div>
 
             <slot name="close"></slot>
@@ -424,9 +679,17 @@ export class ThermalAppUiElement extends BaseElement {
 
         </div>
 
-        ${this.preElements.length >= 0 ? html`<div class="pre" class="pre">
-            <slot name="pre"></slot>
-        </div>` : ""}
+        <div class="bar-overflow-panel" ?hidden=${this._overflowCount === 0 || !this._overflowOpen}>
+            <slot name="bar-overflow" @slotchange=${this._onBarSlotChange}></slot>
+        </div>
+
+        <div class="pre" ?hidden=${!this._hasPre}>
+            <slot name="pre" @slotchange=${this._onSlotChange}></slot>
+        </div>
+
+        <div class="pre-bar" ?hidden=${!this._hasPreBar}>
+            <slot name="pre-bar" @slotchange=${this._onSlotChange}></slot>
+        </div>
 
     </header>
 
@@ -440,10 +703,16 @@ export class ThermalAppUiElement extends BaseElement {
 
     ${this.renderCredits()}
 
-    <div class="content ${this.contentElements.length > 0 ? "has-content" : ""}">
-        <slot name="content"></slot>
+    <div class="content ${this._hasContent ? "has-content" : ""}">
+        <slot name="content" @slotchange=${this._onSlotChange}></slot>
     </div>
 `
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-app": ThermalAppElement;
+    }
 }

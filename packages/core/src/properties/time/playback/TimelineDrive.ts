@@ -1,16 +1,10 @@
 
 import { format } from "date-fns";
-import { Instance } from "../../../file/instance";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
 import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../../loading/workers/parsers/structure";
-import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { FrameBuffer } from "./internals/FrameBuffer";
-
-export interface IWithTimeline extends IBaseProperty {
-    timeline: TimelineDrive
-}
-
-
 
 type FramesMap = Map<number, ParsedTimelineFrame>
 
@@ -38,9 +32,9 @@ export const playbackSpeed = {
 export type PlaybackSpeeds = keyof typeof playbackSpeed;
 
 /** Stores the frames and the time pointer which is in the miliseconds */
-export class TimelineDrive extends AbstractProperty<number, Instance> {
+export class TimelineDrive extends AbstractProperty<number, ThermalFileInstance> {
 
-    declare public readonly parent: Instance;
+    declare public readonly parent: ThermalFileInstance;
 
 
     protected _playbackSpeed: PlaybackSpeeds = 1;
@@ -111,18 +105,18 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
     }
 
     public constructor(
-        parent: Instance,
+        parent: ThermalFileInstance,
         initial: number,
         public readonly steps: ParsedFileBaseInfo["timeline"],
         initialFrameData: ParsedFileFrame
     ) {
         super(parent, Math.max(Math.min(initial, steps.length), 0));
 
-        this._currentStep = this.steps[this._initial];
+        this._currentStep = this.steps[this.valueInitial];
         this.startTimestampRelative = 0;
         this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
 
-        this.isSequence = this.parent.timelineData.length > 1;
+        this.isSequence = this.parent.meta.current.timeline.length > 1;
 
         this.steps.forEach(step => {
             this.stepsByIndex.set(step.index, step);

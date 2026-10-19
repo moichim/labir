@@ -1,10 +1,7 @@
+import type { BreadcrumbItem, FolderInfo } from "@labirthermal/client";
 import { html, nothing } from "lit";
-import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
-import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
-import { BreadcrumbItem } from "@labirthermal/server";
+import type { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { slotOrNothing } from "../SlotOrNothing";
-import { DirectiveHelpers } from "../DirectiveHelpers";
-import { FileInfo, FolderInfo } from "packages/server/client/dist";
 
 import { directive } from "lit/directive.js";
 import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";
@@ -12,7 +9,20 @@ import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";
 class ConnectedFolderSubfoldersDirective extends AbstractFolderLayoutDirective {
 
     
+    private renderSelectionSlot(
+        app: AbstractConnectedApp
+    ): unknown {
 
+        if ( app.folderSelection.array.length === 0 ) {
+            return nothing;
+        }
+
+        return slotOrNothing(
+            "edit",
+            html`<connected-folder-selection-actions></connected-folder-selection-actions>`
+        );
+
+    }
 
 
     private renderFolderHeader(
@@ -26,7 +36,8 @@ class ConnectedFolderSubfoldersDirective extends AbstractFolderLayoutDirective {
         const slots = [
             this.renderFolderContentStatsSlot(app),
             this.renderHeaderFolderSlot( app ),
-            this.renderDisplaySlot( app )
+            this.renderDisplaySlot( app ),
+            this.renderSelectionSlot( app )
         ];
 
         const content: unknown[] =  [

@@ -1,13 +1,7 @@
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { AbstractProperty } from "../abstractProperty";
+import { ThermalRegistry } from "../../hierarchy/ThermalRegistry";
 
-export interface IWithLoading extends IBaseProperty {
-
-    /** Stores the loading state and executes all the listeners. */
-    loading: LoadingState
-
-}
-
-export class LoadingState extends AbstractProperty<boolean, IWithLoading> {
+export class LoadingState extends AbstractProperty<boolean, ThermalRegistry> {
 
     protected validate(value: boolean): boolean {
         return value;

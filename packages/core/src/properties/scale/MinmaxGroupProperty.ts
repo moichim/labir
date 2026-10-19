@@ -1,10 +1,6 @@
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractMinmaxProperty, ThermalMinmaxOrUndefined, ThermalMinmaxType } from "./abstractMinmaxProperty";
-import { IBaseProperty } from "../abstractProperty";
 
-export interface IWithMinmaxGroup extends IBaseProperty {
-    minmax: MinmaxGroupProperty
-}
 
 export class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
 

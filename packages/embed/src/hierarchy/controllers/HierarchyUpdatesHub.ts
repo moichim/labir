@@ -1,0 +1,30 @@
+import type { PropertyValues } from "lit";
+import type { AbstractHierarchyController } from "./AbstractHierarchyController";
+
+/** Perform updates in the hierarchy for all registered controllers */
+export class HierarchyUpdatesHub {
+
+    private _controllers: AbstractHierarchyController<any>[] = [];
+
+    /** Zaregistruje controller do hubu */
+    public register<C extends AbstractHierarchyController<any>>(controller: C): C {
+        this._controllers.push(controller);
+        return controller;
+    }
+
+    /** Zavolá willUpdate na všech zaregistrovaných controllerech */
+    public willUpdate(changedProperties: PropertyValues): void {
+        for (const controller of this._controllers) {
+            controller.hostWillUpdateWatcher?.(changedProperties);
+        }
+    }
+
+    /** Zavolá updated na všech zaregistrovaných controllerech */
+    public updated(changedProperties: PropertyValues): void {
+        for (const controller of this._controllers) {
+            controller.hostUpdatedWatcher?.(changedProperties);
+        }
+    }
+
+
+}

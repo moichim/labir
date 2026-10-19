@@ -1,16 +1,12 @@
-"use client";
-
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalRegistry, ThermalStatistics } from "../../hierarchy/ThermalRegistry";
-import { Instance } from "../../file/instance";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { LrcParser } from "../../loading/workers/parsers/lrc/LrcParser";
+import { AbstractProperty } from "../abstractProperty";
 import { CallbacksManager } from "../callbacksManager";
+import { histogramResultCache } from "./HistogramResultCache";
 
-export interface IWithHistogram extends IBaseProperty {
-    histogram: HistogramState
-}
-
-/** Handles the histogram creation and subscription.
+/** 
+ * Handles the histogram creation and subscription.
  * - should be used only in registries
  */
 export class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
@@ -54,93 +50,20 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
     }
 
     protected afterSetEffect() {
-
+        this.parent.range.recalculateAutoValue();
     }
 
 
-    /** 
-     * Recalculate the histogram buffer using web workers.
-     * This is an async operation using `workerpool`
+    /**
+     * Keep the legacy entry point while recalculating the displayed histogram
+     * through the shared result cache.
      */
     public recalculateHistogramBufferInWorker() {
-
-        // Start async operation
-        if (this.parent.minmax.value !== undefined
-            && this.parent.groups.value.length !== 0
-            && this.parent.minmax.distanceInCelsius !== undefined
-        ) {
-
-            // Get all pixels of all images
-            const pixels = this.parent.groups.value.map(group => {
-                return group.files.value.map(instance => instance.getPixelsForHistogram());
-            });
-
-            // REcalculate the buffer in a worker
-            this.parent.pool.exec((
-                instancesPixels: number[][][],
-                min: number,
-                max: number,
-                distance: number,
-                resolution: number
-            ) => {
-
-                const mergedPixels = instancesPixels.reduce((state, current) => {
-
-                    const inner = current.reduce((state, current) => {
-                        return [...state, ...current]
-                    }, [] as number[]);
-
-                    return [...state, ...inner];
-
-                }, [] as number[]);
-
-                let sortedPixels = mergedPixels.sort((a, b) => a - b);
-
-                const step = distance / resolution;
-
-                let nextStep: number | false = min + step;
-
-                const result: Map<number,number> = new Map();
-                let resultCount: number = 0;
-
-                while ( nextStep !== false ) {
-                    const nextIndex = sortedPixels.findIndex( num => num > ( nextStep as number ) );
-                    const pixelCount = sortedPixels.slice( 0, nextIndex ).length;
-                    result.set( nextStep - step / 2, pixelCount );
-                    resultCount += pixelCount;
-
-                    sortedPixels = sortedPixels.slice( nextIndex );
-                    const nextStepTemporary: number = nextStep + step;
-                    nextStep = nextStepTemporary < max
-                        ? nextStepTemporary
-                        : false
-                }
-
-                return {
-                    result,
-                    resultCount
-                }
-            }, [
-                pixels,
-                this.parent.minmax.value.min,
-                this.parent.minmax.value.max,
-                this.parent.minmax.distanceInCelsius,
-                this._bufferResolution
-            ]).then(result => {
-                this.buffer = result.result;
-                this.bufferPixelsCount = result.resultCount;
-                this.recalculateHistogram();
-            });
-
-        } // End async operation
+        this.recalculateHistogram();
 
     }
 
     protected async recalculateHistogram() {
-
-        this.onCalculationStart.call();
-
-        this.loading = true;
 
         // All living instances
         const allFiles = this.parent.groups.value.map( group => group.files.value ).reduce( (state, current) => {
@@ -149,21 +72,35 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
             return state;
 
-        }, [] as Instance[] );
+        }, [] as ThermalFileInstance[] );
 
-        const allBuffers = allFiles.map( reader => reader.reader.buffer );
+        if (
+            allFiles.length === 0
+            || this.parent.minmax.value === undefined
+            || this.parent.minmax.distanceInCelsius === undefined
+        ) {
+            return;
+        }
+
+        this.onCalculationStart.call();
+        this.loading = true;
+
         try {
-            const result = await this.parent.pool.exec( LrcParser.registryHistogram, [allBuffers] );
+            const result = await histogramResultCache.getOrCalculate(
+                allFiles.map(instance => instance.reader),
+                () => this.parent.pool.exec(
+                    LrcParser.registryHistogram,
+                    [allFiles.map(instance => instance.reader.buffer)]
+                )
+            );
             this.value = result;
             this.loading = false;
             this.onCalculationEnd.call(true);
         } catch (error) {
             this.loading = false;
             this.onCalculationEnd.call(false);
+            console.error("Error calculating histogram", error);
         }
-        
-
-        
 
     }
 

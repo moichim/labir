@@ -159,6 +159,8 @@ describe( "BatchLoader", () => {
                     instanceCounter = instanceCounter + 1;
                 }
             ));
+
+            loader.closeBatch();
             
         }
 
@@ -172,8 +174,8 @@ describe( "BatchLoader", () => {
         );
 
         expect( loader.numberOfBatches ).toEqual(1);
-        expect( loader.numLoadingBatches ).toEqual(0);
-        expect( loader.currentOpenBatch ).not.toBeUndefined();
+        expect( loader.numLoadingBatches ).toEqual(1);
+        expect( loader.currentOpenBatch ).toBeUndefined();
 
         expect( registry.loading.value ).toEqual( true );
 
@@ -193,21 +195,20 @@ describe( "BatchLoader", () => {
         );
 
         expect( loader.numberOfBatches ).toEqual(2);
-        expect( loader.numLoadingBatches ).toEqual(1);
-        expect( loader.currentOpenBatch?.size).toEqual(2);
+        expect( loader.numLoadingBatches ).toEqual(2);
 
         expect( loadingCounter ).toEqual(1);
 
         // After another tick
         await sleep(0);
 
-        expect( loader.numberOfBatches ).toEqual(2);
-        expect( loader.numLoadingBatches ).toEqual(2);
+        expect( loader.numberOfBatches ).toEqual(1);
+        expect( loader.numLoadingBatches ).toEqual(1);
         expect( loader.currentOpenBatch ).toBeUndefined();
 
-        expect( registry.loading.value ).toEqual( true );
+        expect( registry.loading.value ).toEqual( false );
 
-        expect( loadingCounter ).toEqual(1);
+        expect( loadingCounter ).toEqual(2);
 
         // Wait for all batches to load
 

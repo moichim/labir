@@ -10,6 +10,7 @@ export class GlRenderer extends AbstractRenderer {
 
     private pixelsBuffer!: Float32Array;
     private pixelsTexture!: WebGLTexture;
+    private uploadedPixelsVersion?: number;
 
     private paletteBuffer!: Float32Array;
     private paletteTexture!: WebGLTexture;
@@ -71,13 +72,6 @@ export class GlRenderer extends AbstractRenderer {
             this.writeRangeUniform(from, to);
         });
 
-        // NAstav listener na změnu pixelů
-        this.file.timeline.addListener( this.listenerIdPixels, () => {
-            const novePixely = this.file.pixels;
-            this.writePixelsTexture(novePixely);
-        });
-
-
         // Vytvoř obecné věci ve WebGL kontextu
         this.initGl();
 
@@ -90,9 +84,6 @@ export class GlRenderer extends AbstractRenderer {
         // NAstav pořáteční paletu
         const initialPalette = this.registry.palette.currentPalette.texturePixels;
         this.writePaletteTexture(initialPalette);
-
-        // Nastav aktuální pixely
-        this.writePixelsTexture(this.file.pixels);
 
         this.context.viewport(0, 0, this.canvas.width, this.canvas.height);
 
@@ -252,6 +243,7 @@ export class GlRenderer extends AbstractRenderer {
             this.pixelsBuffer.set(pixels, 0);
         }
         // Nahráj buffer do textury
+        this.context.activeTexture(this.context.TEXTURE0);
         this.context.bindTexture(this.context.TEXTURE_2D, this.pixelsTexture);
         this.context.texSubImage2D(
             this.context.TEXTURE_2D,
@@ -336,6 +328,11 @@ export class GlRenderer extends AbstractRenderer {
 
     protected async executeRender(): Promise<void> {
         const gl = this.context;
+        // Temporarily upload on every render to diagnose playback updates.
+        // if (this.uploadedPixelsVersion !== this.file.pixelsVersion) {
+        this.writePixelsTexture(this.file.pixels);
+        this.uploadedPixelsVersion = this.file.pixelsVersion;
+        // }
         gl.useProgram(this.program);
 
         // Bind vertex buffer

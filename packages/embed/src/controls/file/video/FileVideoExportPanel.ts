@@ -1,16 +1,16 @@
-import { Instance, ThermalFileFailure } from "@labirthermal/core";
+import type { ThermalFileInstance, ThermalFileFailure } from "@labirthermal/core";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import { state } from "lit/decorators.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import { T } from "../../../translations/Languages";
 import { AbstractSingleVideoExport } from "./AbstractSingleVideoExport";
-import { customElement, state } from "lit/decorators.js";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { exportConfigDirective, SingleVideoExportConfigDirective } from "./directives/SingleVideoExportConfigDirective";
 import { exportLayoutDirective, SingleVideoExportLayoutDirective } from "./directives/SingleVideoExportLayoutDirective";
 import { singleVideoProviders } from "./directives/SingleVideoExportProvidersDirective";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { RecordingPhase } from "./ISingleVideoExportElement";
-import {nothing} from "lit";
-import { T } from "../../../translations/Languages";
 
-@customElement("file-video-export-panel")
 export class FileVideoExportPanel extends AbstractSingleVideoExport {
 
     /** Reference na preview sekci pro měření výšky */
@@ -28,12 +28,11 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
     /** Reálná výška exportu v pixelech */
     @state() private exportRealHeight: number = 0;
 
-    public onInstanceCreated(instance: Instance): void {
+    public onInstanceCreated(instance: ThermalFileInstance): void {
         this.parentHasAnalyses = instance.analysis.value.length > 0;
     }
-    public onFailure(error: ThermalFileFailure): void {
-        // throw new Error("Method not implemented.");
-    }
+
+    public onFailure(): void {}
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -46,7 +45,7 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
         this.exportSizeObserver?.disconnect();
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
         // Zajisti, že observer je nastaven po renderování
         this.setupResizeObserver();
@@ -231,8 +230,9 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
                             display: inline-block;
                         }
                     }
-                
+
                 }
+
 
 
 
@@ -323,9 +323,6 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
                             }}
                         >Automatické přiblížení</thermal-radio>
                         
-                        
-                        
-                        
                     </div>
                 </div>
             ` : html``}
@@ -378,4 +375,10 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
         ] );
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-video-export-panel": FileVideoExportPanel;
+    }
 }

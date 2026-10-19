@@ -1,4 +1,4 @@
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { BatchLoadingCallback, ThermalRegistry } from "../../hierarchy/ThermalRegistry";
 import { CallbacksManager } from "../../properties/callbacksManager";
@@ -15,7 +15,7 @@ export class BatchLoader {
 
     public readonly onBatchStart = new CallbacksManager< () => void >();
 
-    public readonly onBatchComplete = new CallbacksManager< ( result: (Instance|ThermalFileFailure)[] ) => void >();
+    public readonly onBatchComplete = new CallbacksManager< ( result: (ThermalFileInstance|ThermalFileFailure)[] ) => void >();
 
     private set: Set<Batch> = new Set;
 
@@ -46,6 +46,10 @@ export class BatchLoader {
         if ( found ) {
             return found;
         }
+        return this.createBatch( id );
+    }
+
+    public createBatch( id?: string ): Batch {
         const item = Batch.init( this, id );
         this.set.add( item );
         return item;
@@ -68,7 +72,7 @@ export class BatchLoader {
         group: ThermalGroup,
         callback: BatchLoadingCallback,
         id?: string
-    ) {
+    ): Batch {
 
         let openBatch = id 
             ? this.getBatchById( id ) 

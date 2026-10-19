@@ -60,7 +60,7 @@ describe("LrcParser", async () => {
         expect(baseInfo.averageEmissivity).toEqual(0.97998046875);
         expect(baseInfo.averageReflectedKelvins).toEqual(295.1499938964844);
         expect(baseInfo.min).toEqual(21.170000076293945);
-        // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+        // eslint-disable-next-line no-loss-of-precision
         expect(baseInfo.max).toEqual(126.83999633789062);
         expect(baseInfo.duration).toEqual(61085);
 

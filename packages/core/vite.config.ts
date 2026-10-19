@@ -2,24 +2,34 @@
 
 import { defineConfig } from "vite"
 import path from "path"
+import fs from "fs"
 
 export default defineConfig({
     root: "./devserver/www",
-    publicDir: path.resolve( "../../public" ),
-    test: {
-        root: "./src",
-        globals: true,
-        environment: "jsdom",
-        setupFiles: [
-            "./devserver/node/setup.ts",
-            "./vitest.setup.ts",
-        ],
-        deps: {
-            inline: [ "vitest-canvas-mock" ]
-        },
-        coverage: {
-            provider: "v8"
-        },
-        slowTestThreshold: 0,
-    }
+    publicDir: path.resolve("../../public"),
+    build: {
+        sourcemap: false,
+
+        rollupOptions: {
+
+            plugins: [
+
+                {
+                    name: "closeBundle",
+                    closeBundle() {
+
+                        fs.copyFileSync(
+                            path.resolve("./dist/index.cjs"),
+                            path.resolve("../docs/public/lib/core.esm.cjs")
+                        );
+
+                        console.log("@labirthermal/core build copied into @labir/docs");
+
+                    }
+                }
+
+            ]
+
+        }
+    },
 })

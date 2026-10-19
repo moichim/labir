@@ -1,32 +1,32 @@
-import { customElement, property } from "lit/decorators.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
-import { css, CSSResultGroup, html } from "lit";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { t } from "i18next";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
+import { property } from "lit/decorators.js";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { T } from "../../translations/Languages";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
-@customElement("group-analysis-sync-button")
-export class GroupAnalysisSyncButton extends GroupConsumer {
+export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
 
-    @property({type: Boolean, reflect: true, converter: booleanConverter(false)})
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
     public on!: boolean;
 
     connectedCallback(): void {
         super.connectedCallback();
 
-        if ( this.on ) {
+        if (this.on) {
             const id = this.UUID + "__initial";
-            this.group.files.addListener( id, value => {
-                if ( value.length > 0 ) {
-                    this.group.analysisSync.turnOn(value[0]);
-                    this.group.files.removeListener(id);
+            this.groupObject.files.addListener(id, value => {
+                if (value.length > 0) {
+                    this.groupObject.analysisSync.turnOn(value[0]);
+                    this.groupObject.files.removeListener(id);
                 }
-            } );
+            });
         } else {
-            this.on = this.group.analysisSync.value;
+            this.on = this.groupObject.analysisSync.value;
         }
 
-        this.group.analysisSync.addListener(this.UUID, value => {
+        this.groupObject.analysisSync.addListener(this.UUID, value => {
             this.on = value;
         });
 
@@ -36,17 +36,21 @@ export class GroupAnalysisSyncButton extends GroupConsumer {
     }
 
     public turnOn() {
-        if ( this.group.files.value.length > 0 ) {
-            this.group.analysisSync.turnOn(this.group.files.value[0]);
+        if (this.groupObject.files.value.length > 0) {
+            this.groupObject.analysisSync.turnOn(this.groupObject.files.value[0]);
         }
     }
 
     public turnOff() {
-        this.group.analysisSync.turnOff();
+        this.groupObject.analysisSync.turnOff();
     }
 
     public toggle() {
-        this.on ? this.turnOff() : this.turnOn();
+        if (this.on) {
+            this.turnOff();
+        } else {
+            this.turnOn();
+        }
     }
 
     public static styles?: CSSResultGroup | undefined = css`
@@ -58,8 +62,9 @@ export class GroupAnalysisSyncButton extends GroupConsumer {
 
         :host(:hover) {
             span {
-                
+
             }
+
         }
 
         :host([on=true]) {
@@ -115,4 +120,10 @@ export class GroupAnalysisSyncButton extends GroupConsumer {
         `;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-analysis-sync-button": GroupAnalysisSyncButton;
+    }
 }

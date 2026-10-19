@@ -1,4 +1,5 @@
-import { ThermalGroup, ThermalManager, ThermalManagerOptions, ThermalRegistry } from "@labirthermal/core";
+import type { ThermalGroup, ThermalManagerOptions, ThermalRegistry } from "@labirthermal/core";
+import { ThermalManager } from "@labirthermal/core";
 
 export const defaultManager = new ThermalManager;
 

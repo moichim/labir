@@ -10,7 +10,7 @@ export { CallbacksManager } from "./properties/callbacksManager";
 export { getPool } from "./utils/pool";
 
 // Reexporting external libraries
-export  * as zip from "zip-slim"
+// export  * as zip from "zip-slim"
 
 // Core hierarchy classes
 
@@ -35,7 +35,7 @@ export type { ThermalCursorPositionOrUndefined } from "./properties/cursor/Curso
 export { AbstractFileResult } from "./loading/workers/AbstractFileResult";
 export { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
 export { ThermalFileReader } from "./loading/workers/ThermalFileReader";
-export { Instance } from "./file/instance";
+export { ThermalFileInstance } from "./file/ThermalFileInstance";
 
 
 // Playback related exports

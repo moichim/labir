@@ -10,7 +10,14 @@ export class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
     protected afterSetEffect(value: boolean): void {
 
         this.parent.forEveryRegistry( registry => registry.forEveryInstance( instance => {
-            instance.canvasLayer.canvas.style.imageRendering = value === true ? "auto" : "pixelated";
+
+            const canvasLayer = instance.dom?.canvasLayer;
+            if ( canvasLayer ) {
+                canvasLayer.canvas.style.imageRendering = value === true ? "auto" : "pixelated";
+            } else {
+                console.warn("Canvas layer not found when trying to set image smooth rendering", instance);
+            }
+
         } ) );
 
     }

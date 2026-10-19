@@ -1,4 +1,4 @@
-import { AppWithClientController } from "./ClientController";
+import type { AppWithClientController } from "./ClientController";
 
 export abstract class AbstractConnectedController {
 

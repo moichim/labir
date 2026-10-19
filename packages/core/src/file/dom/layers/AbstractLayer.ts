@@ -1,9 +1,11 @@
-import { Instance } from "../../instance";
+import { InstanceDOM } from "../InstanceDom";
 
 export abstract class AbstractLayer {
 
+    public get instance() { return this.dom.parent; }
+
     public constructor(
-        public readonly instance: Instance
+        public readonly dom: InstanceDOM
     ) {}
 
     public abstract getLayerRoot(): HTMLElement;
@@ -13,17 +15,17 @@ export abstract class AbstractLayer {
 
     public mount() {
         if ( !this._mounted )
-        if ( this.instance.root !== null ) {
+        if ( this.dom.root !== null ) {
             this._mounted = true;
-            this.instance.root.appendChild( this.getLayerRoot() );
+            this.dom.root.appendChild( this.getLayerRoot() );
         }
     }
 
     public unmount() {
         if ( this._mounted )
-        if ( this.instance.dom?.root !== null ) {
+        if ( this.dom.root !== null ) {
             this._mounted = false;
-            this.instance.dom?.root.removeChild( this.getLayerRoot() );
+            this.dom.root.removeChild( this.getLayerRoot() );
         }
     }
 

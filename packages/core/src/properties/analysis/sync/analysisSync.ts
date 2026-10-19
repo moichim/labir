@@ -1,15 +1,10 @@
-import { Instance } from "../../../file/instance";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../../hierarchy/ThermalGroup";
-import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisSlot } from "../slots/AnalysisSlot";
 import { GroupExportCSV } from "./utils/GroupExportCSV";
 import { GroupExportPNG } from "./utils/GroupExportPNG";
-
-export interface IWithAnalysisSync extends IBaseProperty {
-    analysisSync: AnalysisSyncDrive
-}
-
 
 export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
@@ -21,7 +16,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
     public readonly onSlotSync = new CallbacksManager<(serialized: string | undefined, slot: number) => void>;
 
 
-    protected _currentPointer?: Instance;
+    protected _currentPointer?: ThermalFileInstance;
     /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
     public get currentPointer() { return this._currentPointer; }
 
@@ -57,7 +52,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
      * Enable analysis synchronisation for the group
      */
     public turnOn(
-        instance: Instance
+        instance: ThermalFileInstance
     ) {
         this.value = true;
         this.setCurrentPointer(instance);
@@ -87,7 +82,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
      * Set a given instance as the current ponter for synchronisation
      */
     public setCurrentPointer(
-        instance?: Instance
+        instance?: ThermalFileInstance
     ) {
 
         if (instance === undefined && this._currentPointer) {
@@ -138,7 +133,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
     }
 
-    private getSlotListeners(instance: Instance, slotNumber: number) {
+    private getSlotListeners(instance: ThermalFileInstance, slotNumber: number) {
 
 
         const slot = instance.slots.getSlot(slotNumber);
@@ -194,7 +189,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
     /**
      * Interrnal method to start synchronisation of a given slot number on the given instance
      */
-    private startSyncingSlot(instance: Instance, slotNumber: number) {
+    private startSyncingSlot(instance: ThermalFileInstance, slotNumber: number) {
 
         const { serialise } = this.getSlotListeners(instance, slotNumber)!;
 
@@ -204,6 +199,10 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
                 // Abort when synchronisation is off
                 if (f.group.analysisSync.value === false) {
+                    return;
+                }
+
+                if (!f.dom?.built) {
                     return;
                 }
 
@@ -232,22 +231,19 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
     /**
      * Internal method to end synchronisation of a given slot number on the given instance
      */
-    private endSyncingSlot(instance: Instance, slotNumber: number) {
+    private endSyncingSlot(instance: ThermalFileInstance, slotNumber: number) {
 
-        this.forEveryOtherSlot(instance, slotNumber, () => {
-            const { assign, serialise } = this.getSlotListeners(instance, slotNumber)!;
+        const { assign, serialise } = this.getSlotListeners(instance, slotNumber)!;
 
-            assign.delete(AnalysisSyncDrive.LISTENER_KEY);
-            serialise.delete(AnalysisSyncDrive.LISTENER_KEY);
-
-        })
+        assign.delete(AnalysisSyncDrive.LISTENER_KEY);
+        serialise.delete(AnalysisSyncDrive.LISTENER_KEY);
 
     }
 
     /**
      * Deletes a slot and analysis from all instances in the group except the provided one
      */
-    public deleteSlot(instance: Instance, slotNumber: number) {
+    public deleteSlot(instance: ThermalFileInstance, slotNumber: number) {
         this.forEveryOtherSlot(instance, slotNumber, slot => {
             slot?.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
         });
@@ -256,7 +252,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
     /**
      * A method for synchronising selection state across all instances of the group 
      */
-    public setSlotSelected(instance: Instance, slotNumber: number) {
+    public setSlotSelected(instance: ThermalFileInstance, slotNumber: number) {
         this.forEveryOtherSlot(instance, slotNumber, slot => {
             slot?.analysis.setSelected(false);
         });
@@ -266,7 +262,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
     /**
      * A method for synchronising selection state across all instances of the group 
      */
-    public setSlotDeselected(instance: Instance, slotNumber: number) {
+    public setSlotDeselected(instance: ThermalFileInstance, slotNumber: number) {
         this.forEveryOtherSlot(instance, slotNumber, slot => {
             slot?.analysis.setDeselected();
         });
@@ -277,9 +273,9 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
      * Execute a given function on all files slot 
      */
     private forEveryOtherSlot(
-        instance: Instance,
+        instance: ThermalFileInstance,
         slotNumber: number,
-        fn: (slot: AnalysisSlot | undefined, file: Instance) => void
+        fn: (slot: AnalysisSlot | undefined, file: ThermalFileInstance) => void
     ) {
 
         this.parent.files.forEveryInstance( file => {
@@ -341,7 +337,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
      * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
      */
     public copyOneSlotToAllInstances(
-        instance: Instance,
+        instance: ThermalFileInstance,
         slotNumber: number
     ): void {
 
@@ -352,14 +348,11 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         const slot = instance.slots.getSlot(slotNumber);
         const serialized = slot?.serialized ?? slot?.analysis.toSerialized();
 
-        console.log( "Propagating", slot?.serialized, "from", instance.id, "to other instances in the group" );
-
         // Iterate all instances of the group
         this.parent.files.forEveryInstance(otherInstance => {
 
             // Skip the source instance
             if (otherInstance === instance) {
-                console.log( "Skipping source instance", otherInstance );
                 return;
             }
 
@@ -376,8 +369,6 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
             // Create a new analysis from the serialised data
             const analysis = otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
 
-            console.log( "Created analysis from serialized data", analysis, "in", otherInstance.id );
-
             // Mark this as selected
             analysis?.setSelected();
 
@@ -392,7 +383,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
      * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
      */
     public copyAllSlotsToAllInstances(
-        instance: Instance
+        instance: ThermalFileInstance
     ): void {
 
         [1, 2, 3, 4, 5, 6, 7].forEach(slotNumber => {

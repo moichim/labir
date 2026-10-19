@@ -5,6 +5,8 @@
  */
 export enum T {
 
+    moreoptions = "moreoptions",
+
     loading = "loading",
     config = "config",
     temperature = "temperature",

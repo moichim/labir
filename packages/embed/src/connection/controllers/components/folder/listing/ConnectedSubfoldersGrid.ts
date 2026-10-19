@@ -1,15 +1,17 @@
+import type { FileInfo, FolderInfo, GetGridDataType } from "@labirthermal/client";
+import type { ThermalRegistry} from "@labirthermal/core";
 import { TimeFormat } from "@labirthermal/core";
-import { FileInfo, FolderInfo, GetGridDataType } from "@labirthermal/server";
 import { consume } from "@lit/context";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { ThermalRegistry } from "packages/core/dist";
-import { registryContext, setRegistryHighlightContext } from "../../../../../hierarchy/providers/context/RegistryContext";
-import { editTagsContext, showDiscussionContext } from "../../../../ClientContext";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import type { RegistryController } from "../../../../../hierarchy/controllers/RegistryController";
+import { registryControllerContext } from "../../../../../hierarchy/controllers/RegistryController";
+import { registryObjectContext } from "../../../../../hierarchy/controllers/RegistryController";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-subfolders-grid")
-export class SubfoldersGrid extends ControlledConsumer {
+export class SubfoldersGrid extends AbstractControlledConsumer {
 
     @property({ type: String })
     public slug: string = "default_group";
@@ -23,16 +25,8 @@ export class SubfoldersGrid extends ControlledConsumer {
     @property({ type: Function })
     public onFileEdit?: (file: FileInfo) => void;
 
-    @consume({ context: setRegistryHighlightContext, subscribe: true })
-    protected setHighlight?: (value: unknown) => void;
-
-    @property({ type: String, reflect: true })
-    @consume({ context: showDiscussionContext, subscribe: true })
-    protected showDiscussion: boolean = false;
-
-    @property({ type: Boolean, reflect: true })
-    @consume({ context: editTagsContext, subscribe: true })
-    public editableTags: boolean = false;
+    @consume({ context: registryControllerContext, subscribe: true })
+    protected registryController!: RegistryController;
 
     @state()
     private columnCount: number = 0;
@@ -44,7 +38,7 @@ export class SubfoldersGrid extends ControlledConsumer {
     public onSelectionChange: (selected: string[]) => void = () => { };
 
     @state()
-    @consume({ context: registryContext, subscribe: true })
+    @consume({ context: registryObjectContext, subscribe: true })
     protected registry!: ThermalRegistry;
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
@@ -54,15 +48,9 @@ export class SubfoldersGrid extends ControlledConsumer {
             this.content.grid?.header ?? {}
         ).length;
 
-        this.registry.minmax.addListener( this.UUID, value => {
-            this.log( value );
-        } );
-
 
         // Add listener for processing end to refresh the component
         this.registry.onProcessingEnd.set(this.UUID, () => {
-            this.log( "Processing ended", this.registry.minmax.value, this.registry.range.value );
-            // this.registry.range.applyMinmax();
             this.requestUpdate();
         });
     }
@@ -205,17 +193,19 @@ export class SubfoldersGrid extends ControlledConsumer {
         }
 
         const mouseenter = () => {
-            if (this.setHighlight && minmax) {
-                this.setHighlight({
+
+            if (this.registryController && minmax) {
+                this.registryController.setHighlight({
                     from: minmax.min,
                     to: minmax.max
                 });
             }
+
         }
 
         const mouseleave = () => {
-            if (this.setHighlight) {
-                this.setHighlight(undefined);
+            if (this.registryController) {
+                this.registryController.setHighlight(undefined);
             }
         }
 
@@ -279,17 +269,17 @@ export class SubfoldersGrid extends ControlledConsumer {
 
                     <div class="file-entry-buttons">
 
-                        <file-tags
+                        <connected-file-tags
                             .inline=${true}
                             .file=${file}
                             .folder=${folder}
-                            .editable=${this.editableTags}
+                            .editable=${this.display.editTags}
                             .onChange=${(file: FileInfo) => {
                 this.log("tags changed");
                 this.onFileEdit?.(file);
             }}
                             size="sm"
-                        ></file-tags>
+                        ></connected-file-tags>
 
                         <file-range-propagator
                             plain="true"
@@ -305,8 +295,8 @@ export class SubfoldersGrid extends ControlledConsumer {
                             size="md"
                             plain="true"
                             .onDelete=${() => {
-                                this.display.reloadCurrentState();
-                            }}
+                this.display.reloadCurrentState();
+            }}
                         ></connected-file-delete-dialog>
                         
                         <thermal-btn
@@ -326,14 +316,14 @@ export class SubfoldersGrid extends ControlledConsumer {
                 
                 <file-canvas style="display: block;"></file-canvas>
 
-                ${this.showDiscussion ? html`<div class="comments">
+                ${this.display.displayComments ? html`<div class="comments">
                     <file-comments
                     .file=${file}
                     .folder=${folder}
                     .onChange=${(file: FileInfo) => {
-                        this.log("comments changed");
-                        this.onFileEdit?.(file);
-                    }}
+                    this.log("comments changed");
+                    this.onFileEdit?.(file);
+                }}
                     ></file-comments>
                 </div>` : nothing}
 
@@ -597,7 +587,7 @@ export class SubfoldersGrid extends ControlledConsumer {
     protected render(): unknown {
 
 
-        if ( this.content.grid === undefined ) {
+        if (this.content.grid === undefined) {
             return html`<thermal-poster message="Načítám mřížku"></thermal-poster>`;
         }
 

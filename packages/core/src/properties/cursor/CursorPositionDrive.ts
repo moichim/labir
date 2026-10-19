@@ -1,5 +1,5 @@
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { AbstractProperty } from "../abstractProperty";
 
 /** The cursor position coordinates */
 export type ThermalCursorPosition = {
@@ -9,11 +9,6 @@ export type ThermalCursorPosition = {
 
 /** The cursor position coordinates or undefined */
 export type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
-
-/** An object that has CursorPositionDrive should implement it in one particular way. */
-export interface IWithCursorPosition extends IBaseProperty {
-    cursorPosition: CursorPositionDrive;
-}
 
 /** Handles cursor position */
 export class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup>{

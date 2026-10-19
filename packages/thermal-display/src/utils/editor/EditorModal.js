@@ -115,7 +115,7 @@ export const EditorModal = ({
 
             }
 
-            node.onInstanceCreated.set(getId("instance_created__2"), closure);
+            node.fileController.onSuccess.set(getId("instance_created__2"), closure);
 
         }
 
@@ -128,7 +128,7 @@ export const EditorModal = ({
             title: 'Analyses',
             className: 'tab-one',
             children: <><PanelRow>
-                <group-tool-buttons />
+                <manager-tool-bar />
             </PanelRow>
                 <PanelRow style={{ width: "100%" }}>
                     <file-analysis-table style={{ width: "100%" }} />
@@ -162,7 +162,7 @@ export const EditorModal = ({
             children: <>
 
                 <PanelRow>
-                    <registry-palette-buttons />
+                    <manager-palette-dropdown />
                 </PanelRow>
 
                 <PanelRow>
@@ -297,6 +297,8 @@ export const EditorModal = ({
         return result;
     }, [attributes, setAttributes, duration]);
 
+    console.log(attributes);
+
     return <Modal
         title='File editor'
         onRequestClose={onClose}
@@ -306,18 +308,18 @@ export const EditorModal = ({
         {formatTimestamp(ms)}
 
         <manager-provider
-            slug="notations-editor"
+            // manager-slug="notations-editor"
             palette={attributes.palette}
             autoclear={true}
         >
             <registry-provider
-                slug="notations-editor"
+                // registry-slug="notations-editor"
                 autoclear={true}
                 from={from}
                 to={to}
             >
                 <group-provider
-                    slug="notations-editor"
+                    // group-slug="notations-editor"
                     autoclear={true}
                 >
                     <file-provider
@@ -334,8 +336,6 @@ export const EditorModal = ({
                         autoclear={true}
                         batch={true}
                     >
-
-                        <notation-provider>
 
                             {Object.values(notations).length > 0 && Object.values(notations).map(notation => <notation-entry 
                                 label={notation.label} 
@@ -385,9 +385,6 @@ export const EditorModal = ({
                                 </section>
 
                             </main>
-
-
-                        </notation-provider>
 
                     </file-provider>
                 </group-provider>

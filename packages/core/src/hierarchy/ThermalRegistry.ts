@@ -1,7 +1,5 @@
-"use client";
-
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { Instance } from "../file/instance";
+import { ThermalFileInstance } from "../file/ThermalFileInstance";
 import { FilterContainer } from "../filters/FilterContainer";
 import { BatchLoader } from "../loading/batch/BatchLoader";
 import { ThermalFileRequest } from "../loading/ThermalRequest";
@@ -9,12 +7,11 @@ import { ThermalFileFailure } from "../loading/workers/ThermalFileFailure";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { CallbacksManager } from "../properties/callbacksManager";
 import { OpacityDrive } from "../properties/display/OpacityDrive";
-import { RangeDriver } from "../properties/scale/RangeDriver";
 import { GroupsState } from "../properties/lists/GroupsState";
+import { MinmaxRegistryProperty } from "../properties/scale/MinmaxRegistryState";
+import { RangeDriver } from "../properties/scale/RangeDriver";
 import { HistogramState } from "../properties/states/HistogramState";
 import { LoadingState } from "../properties/states/LoadingState";
-import { MinmaxRegistryProperty } from "../properties/scale/MinmaxRegistryState";
-import { IThermalRegistry } from "../properties/structure";
 import { ThermalGroup } from "./ThermalGroup";
 import { ThermalManager } from "./ThermalManager";
 
@@ -23,14 +20,14 @@ export type ThermalRegistryOptions = {
 }
 
 export type BatchLoadingCallback = ( 
-    result: ThermalFileFailure|Instance 
+    result: ThermalFileFailure|ThermalFileInstance 
 ) => Promise< void >;
 
 /**
  * The global thermal registry
  * @todo implementing EventTarget
  */
-export class ThermalRegistry extends BaseStructureObject implements IThermalRegistry {
+export class ThermalRegistry extends BaseStructureObject {
 
     public readonly hash = Math.random();
 
@@ -70,7 +67,7 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         this.groups.value.forEach(fn);
     }
 
-    public forEveryInstance(fn: (instance: Instance) => void) {
+    public forEveryInstance(fn: (instance: ThermalFileInstance) => void) {
         this.forEveryGroup(group => group.files.forEveryInstance(fn));
     }
 
@@ -214,7 +211,7 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
                 }
             }
 
-        // Recalculate the histogram
+        // Reuse a cached histogram when the same source readers were already processed.
         this.histogram.recalculateHistogramBufferInWorker();
 
         this.loading.markAsLoaded();
@@ -292,7 +289,7 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
     public readonly filters = new FilterContainer( this );
 
     public getInstances() {
-        let instances: Instance[] = [];
+        let instances: ThermalFileInstance[] = [];
 
         this.groups.value.forEach( group => {
             instances = [ 

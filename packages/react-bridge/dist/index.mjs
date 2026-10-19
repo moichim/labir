@@ -125,7 +125,7 @@ var ThermalInstance = (_a) => {
 };
 
 // src/components/dropin/useThermalDropin.ts
-import { ThermalFileReader } from "@labir/core";
+import { ThermalFileReader } from "@labirthermal/core";
 import { useDropzone } from "react-dropzone";
 
 // src/properties/lists/useThermalGroupInstancesState.ts
@@ -147,7 +147,7 @@ var useThermalGroupInstancesState = (group, purpose) => {
 };
 
 // src/context/useThermalObjectPurpose.ts
-import { ThermalRegistry, ThermalGroup, ThermalManager, Instance } from "@labir/core";
+import { ThermalRegistry, ThermalGroup, ThermalManager, Instance } from "@labirthermal/core";
 import { useMemo as useMemo3 } from "react";
 import { v4 as uuidv4 } from "uuid";
 var useThermalObjectPurpose = (object, purpose, individual = false) => {
@@ -180,9 +180,9 @@ var useThermalDropin = (registry, groupId) => {
   const ID = useThermalObjectPurpose(registry, "useThermalDropin", true);
   const group = registry.groups.addOrGetGroup(groupId);
   const dropzone = useDropzone({
-    onDrop: (acceptedFiles) => __async(void 0, null, function* () {
+    onDrop: (acceptedFiles) => __async(null, null, function* () {
       yield Promise.all(
-        acceptedFiles.map((file) => __async(void 0, null, function* () {
+        acceptedFiles.map((file) => __async(null, null, function* () {
           const result = yield registry.service.loadUploadedFile(file);
           if (result instanceof ThermalFileReader) {
             return yield result.createInstance(group);
@@ -555,14 +555,14 @@ import { useRanger } from "@tanstack/react-ranger";
 import React13, { useRef as useRef2 } from "react";
 
 // src/properties/drives/useThermalRegistryPaletteDrive.ts
-import { ThermalPalettes } from "@labir/core";
+import { ThermalPalettes } from "@labirthermal/core";
 import { useEffect as useEffect9, useMemo as useMemo9, useState as useState8 } from "react";
 
 // src/context/thermalManagerContext.tsx
 import React7, { createContext, useContext } from "react";
 
 // src/context/useThermalManagerInternal.ts
-import { ThermalManager as ThermalManager2 } from "@labir/core";
+import { ThermalManager as ThermalManager2 } from "@labirthermal/core";
 import { useMemo as useMemo8 } from "react";
 var useThermalManagerInternal = (pool, options, externalInstance) => {
   return useMemo8(() => {

@@ -1,68 +1,91 @@
-import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
+import type { AbstractAnalysis, ThermalFileInstance, ThermalFileFailure } from "@labirthermal/core";
 import { t } from "i18next";
+import type { PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import { state } from "lit/decorators.js";
+import type { Ref} from 'lit/directives/ref.js';
+import { createRef, ref } from 'lit/directives/ref.js';
+import type { StyleInfo} from "lit/directives/style-map.js";
+import { styleMap } from "lit/directives/style-map.js";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../../translations/Languages";
-import { consume } from "@lit/context";
-import { interactiveAnalysisContext } from "../../../utils/context";
-import { booleanConverter } from "../../../utils/converters/booleanConverter";
-import { StyleInfo, styleMap } from "lit/directives/style-map.js";
 
-@customElement("file-analysis-display")
-export class FileAnalysisDisplay extends FileConsumer {
+/** Display the analysis state for the purpose of exporting. */
+export class FileAnalysisDisplayElement extends AbstractFileConsumer {
 
     protected container: Ref<HTMLDivElement> = createRef();
 
     @state()
     protected analysis: AbstractAnalysis[] = [];
 
-    public onFailure(error: ThermalFileFailure): void {
-    }
+    private boundFile?: ThermalFileInstance;
 
-    public onInstanceCreated(instance: Instance): void {
+    public onFailure(): void {}
 
-        this.hydrate(instance);
-
+    public onInstanceCreated(): void {
+        this.requestUpdate();
     }
 
     connectedCallback(): void {
         super.connectedCallback();
+        // Refresh the snapshot because analyses may have changed while disconnected.
         if (this.file) {
-            this.hydrate(this.file);
+            this.analysis = this.file.analysis.value;
+        }
+
+        this.bindFile();
+    }
+
+    disconnectedCallback(): void {
+        this.unbindFile();
+        super.disconnectedCallback();
+    }
+
+    willUpdate(changedProperties: PropertyValues): void {
+        super.willUpdate(changedProperties);
+
+        // Side effect of file changing - mirror the analysis list before rendering, or clear it if no file is available.
+        if (changedProperties.has("file")) {
+            this.analysis = this.file?.analysis.value ?? [];
         }
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
+    updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
 
-        if (_changedProperties.has("file")) {
-            if (this.file) {
-                this.hydrate(this.file);
-            }
+        // Rebind external listeners after rendering without changing reactive state in this hook.
+        if (changedProperties.has("file")) {
+            this.bindFile();
         }
     }
 
-
-    protected hydrate(file: Instance) {
-
-        // Mirror all analysis to local state
+    /**
+     * Observes analysis-list and frame changes on the current file while connected.
+     * Removes previous subscriptions and avoids registering twice for the same file.
+     */
+    private bindFile(): void {
+        if (!this.isConnected || this.boundFile === this.file) {
+            return;
+        }
+        this.unbindFile();
+        this.boundFile = this.file;
+        const file = this.boundFile;
+        if (!file) {
+            return;
+        }
         file.analysis.addListener(this.UUID, analysis => {
             this.analysis = analysis;
         });
-
-        // Set initial allSelected
-        this.analysis = file.analysis.value;
-
-        this.file?.timeline.onFrame.add(this.UUID, () => {
+        file.timeline.onFrame.add(this.UUID, () => {
             this.requestUpdate();
         });
+    }
 
-        this.file?.analysisData.addListener( this.UUID, () => {
-            // this.requestUpdate();
-        } );
+    /** Removes both listeners from the actual subscribed file when replacing it or disconnecting. */
+    private unbindFile(): void {
+        this.boundFile?.analysis.removeListener(this.UUID);
+        this.boundFile?.timeline.onFrame.delete(this.UUID);
+        this.boundFile = undefined;
     }
 
     public static styles = css`
@@ -204,8 +227,8 @@ export class FileAnalysisDisplay extends FileConsumer {
                 <tbody>
 
                     ${this.analysis.map(
-                analysis => this.renderAnalysisRow(analysis)
-            )}
+            analysis => this.renderAnalysisRow(analysis)
+        )}
                 
                 </tbody>
 
@@ -247,7 +270,7 @@ export class FileAnalysisDisplay extends FileConsumer {
             padding: "4px 0px"
         };
 
-        if ( inGraph ) {
+        if (inGraph) {
             style.borderColor = color;
             style.borderStyle = "solid";
             style.borderWidth = "2px";
@@ -256,7 +279,7 @@ export class FileAnalysisDisplay extends FileConsumer {
 
         let valueDisplay: string = "-";
 
-        if ( value !== undefined ) {
+        if (value !== undefined) {
             valueDisplay = value.toFixed(2) + " °C";
         }
 
@@ -271,4 +294,10 @@ export class FileAnalysisDisplay extends FileConsumer {
 
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-analysis-display": FileAnalysisDisplayElement;
+    }
 }

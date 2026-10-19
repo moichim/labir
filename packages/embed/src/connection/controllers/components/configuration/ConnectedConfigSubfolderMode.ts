@@ -1,6 +1,6 @@
 import { css, CSSResultGroup, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 import { FolderListDisplayMode } from "../../DisplayController";
 import { AbstractConfigElement } from "./AbstractConfigElement";
 

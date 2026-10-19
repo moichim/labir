@@ -1,16 +1,17 @@
-import { Instance, ThermalFileFailure } from "@labirthermal/core";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
-import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
+import type { ThermalFileInstance } from "@labirthermal/core";
+import { ThermalFileFailure } from "@labirthermal/core";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
+import { state } from "lit/decorators.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
+import type { Tick } from "../../utils/timelineTicks";
+import { calculateTicks, renderTicks, ticksCss } from "../../utils/timelineTicks";
 
 
 
-
-
-@customElement("group-timeline")
-export class GroupTimeline extends GroupConsumer {
+export class GroupTimelineElement extends AbstractGroupConsumer {
 
     public static TICK_WIDTH = 50;
     public static TICK_POINTER_HEIGHT = 3;
@@ -28,7 +29,7 @@ export class GroupTimeline extends GroupConsumer {
     playing: boolean = false;
 
     @state()
-    instances: Instance[] = [];
+    instances: ThermalFileInstance[] = [];
 
     @state()
     has: boolean = false;
@@ -47,12 +48,12 @@ export class GroupTimeline extends GroupConsumer {
 
         super.connectedCallback();
 
-        this.group.registry.batch.onBatchComplete.set(
+        this.groupObject.registry.batch.onBatchComplete.set(
             this.UUID,
             this.onRegistryBatchEnded.bind(this)
         );
 
-        this.group.files.addListener(this.UUID, (value) => {
+        this.groupObject.files.addListener(this.UUID, (value) => {
             if ( this.listener !== undefined ) {
                 clearTimeout( this.listener );
             }
@@ -61,15 +62,15 @@ export class GroupTimeline extends GroupConsumer {
             }, 0 );
         });
 
-        this.group.playback.addListener(this.UUID, value => this.ms = value);
+        this.groupObject.playback.addListener(this.UUID, value => this.ms = value);
 
-        this.group.playback.onPlayingStatusChange.set(this.UUID, value => this.playing = value);
+        this.groupObject.playback.onPlayingStatusChange.set(this.UUID, value => this.playing = value);
 
-        this.group.playback.onHasAnyCallback.set(this.UUID, value => this.has = value);
+        this.groupObject.playback.onHasAnyCallback.set(this.UUID, value => this.has = value);
 
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
 
@@ -77,8 +78,8 @@ export class GroupTimeline extends GroupConsumer {
         if (_changedProperties.has("ms")) {
             if (this.ms !== undefined) {
 
-                if (this.ms !== this.group.playback.value)
-                    this.group.playback.setValueByRelativeMs(this.ms);
+                if (this.ms !== this.groupObject.playback.value)
+                    this.groupObject.playback.setValueByRelativeMs(this.ms);
 
                 if (this.indicatorRef.value) {
                     this.indicatorRef.value.style.width = this.msToPercent(this.ms) + "%";
@@ -91,7 +92,7 @@ export class GroupTimeline extends GroupConsumer {
 
 
     protected onRegistryBatchEnded(
-        results: (Instance | ThermalFileFailure)[]
+        results: (ThermalFileInstance | ThermalFileFailure)[]
     ): void {
 
         let length = 0;
@@ -102,8 +103,8 @@ export class GroupTimeline extends GroupConsumer {
             .filter(result => {
                 if (result instanceof ThermalFileFailure)
                     return false;
-                return result.group.id === this.group.id
-            }) as Instance[];
+                return result.group.id === this.groupObject.id
+            }) as ThermalFileInstance[];
 
         this.instances.forEach(result => {
 
@@ -152,7 +153,7 @@ export class GroupTimeline extends GroupConsumer {
         this.ticks = calculateTicks( width, duration );
     }
 
-    protected forEveryAffectedInstance(fn: (instance: Instance) => void) {
+    protected forEveryAffectedInstance(fn: (instance: ThermalFileInstance) => void) {
         this.instances.forEach(fn);
     }
 
@@ -198,9 +199,11 @@ export class GroupTimeline extends GroupConsumer {
     }
 
     protected handlePlayButtonClick() {
-        this.group.playback.playing
-            ? this.group.playback.stop()
-            : this.group.playback.play();
+        if (this.groupObject.playback.playing) {
+            this.groupObject.playback.stop();
+        } else {
+            this.groupObject.playback.play();
+        }
     }
 
     protected handleTimelineClick(event: MouseEvent) {
@@ -316,4 +319,10 @@ export class GroupTimeline extends GroupConsumer {
         </div>`;
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "group-timeline": GroupTimelineElement;
+    }
 }

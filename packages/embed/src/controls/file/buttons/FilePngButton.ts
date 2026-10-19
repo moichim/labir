@@ -1,51 +1,33 @@
-import { customElement, state } from "lit/decorators.js";
-import { AbstractFileButton } from "./AbstractFileButton";
 import { consume } from "@lit/context";
-import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportScaleContext, pngExportWidthContext } from "../../../utils/converters/pngExportContext";
+import { state } from "lit/decorators.js";
+import type { ConfigController } from "../../../hierarchy/controllers/ConfigController";
+import { configContext } from "../../../hierarchy/controllers/ConfigController";
+import { AbstractFileButton } from "./AbstractFileButton";
 
-@customElement("file-download-png")
 export class FilePngButton extends AbstractFileButton {
 
     tooltip: undefined = undefined;
 
     @state()
-    @consume({ context: pngExportWidthContext, subscribe: true })
-    protected pngWidth!: number;
-
-    @state()
-    @consume({ context: pngExportFsContext, subscribe: true })
-    protected pngFs!: number;
-
-    @state()
-    @consume({context: pngExportAnalysisContext, subscribe: true})
-    protected pngAnalyses!: boolean;
-
-    @state()
-    @consume({context: pngExportScaleContext, subscribe: true})
-    protected pngExportScale!: boolean;
-
-    @state()
-    @consume({context: pngExportFileNameContext, subscribe: true})
-    protected pngFileName!: boolean;
-
-    @state()
-    @consume({context: pngExportFileDateContext, subscribe: true})
-    protected pngFileDate!: boolean;
+    @consume({ context: configContext, subscribe: true })
+    protected configController?: ConfigController;
 
     enter() { }
     leave() { }
 
     action() {
         if (this.file) {
+            const png = this.configController?.settings.export.png;
             this.file.export.downloadPng({
-                width: this.pngWidth,
-                fontSize: this.pngFs,
-                showAnalysis: this.pngAnalyses,
-                showThermalScale: this.pngExportScale,
-                showFileName: this.pngFileName,
-                showFileDate: this.pngFileDate
+                width: png?.width,
+                fontSize: png?.fontSize,
+                showAnalysis: png?.analyses,
+                showThermalScale: png?.thermalScale,
+                showFileName: png?.fileName,
+                showFileDate: png?.fileDate
             });
         }
+
     }
 
     getDefaultLabel(): string {
@@ -54,4 +36,10 @@ export class FilePngButton extends AbstractFileButton {
 
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-download-png": FilePngButton;
+    }
 }

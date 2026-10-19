@@ -1,13 +1,9 @@
 import { download, generateCsv, mkConfig } from "export-to-csv";
-import { Instance } from "../../../file/instance";
-import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
+import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisGraphsStorage } from "./graphs/AnalysisGraphsStorage";
 import { PointAnalysis } from "../analysis/internals/point/PointAnalysis";
-
-export interface IWithAnalysisDataState extends IBaseProperty {
-    analysisDataState: AnalysisDataState
-}
 
 type HeaderRow = string[];
 export type ValueRow = [Date, ...number[]];
@@ -35,7 +31,7 @@ type AnalysisExtractDefinition = [
 ]
 
 /** Stores the data of all analysis. Purpose: store data for the purpose of graph. The graph data format is constructed for Google Charts webcomponent. */
-export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
+export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, ThermalFileInstance> {
 
     protected _hasActiveGraphs: boolean = false;
     public get hasActiveGraphs() {
@@ -48,7 +44,7 @@ export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, 
 
     public readonly listeners = new AnalysisGraphsStorage(this)
 
-    public constructor(parent: Instance) {
+    public constructor(parent: ThermalFileInstance) {
         super(parent, { values: [[]], colors: [] });
 
         this.listeners.onOutput.set("__mirror_output_to_local_state", async (output) => {
@@ -170,9 +166,11 @@ export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, 
 
                             const bufferValue = buffer[index];
 
-                            const [type, id, top, left, w, h] = a;
-
-                            id;
+                            const type = a[0];
+                            const top = a[2];
+                            const left = a[3];
+                            const w = a[4];
+                            const h = a[5];
 
                             // Point
                             if (type === "point") {

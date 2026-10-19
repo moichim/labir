@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-import {html, css, LitElement} from 'lit';
-import {customElement, property} from 'lit/decorators.js';
+import { css, html, LitElement } from 'lit';
+import { property } from 'lit/decorators.js';
 
-import {createChartWrapper, dataTable, DataTableLike} from './loader.js';
 import { CallbacksManager } from '@labirthermal/core';
-import { createRef, ref, Ref } from 'lit/directives/ref.js';
+import type { Ref } from 'lit/directives/ref.js';
+import { createRef, ref } from 'lit/directives/ref.js';
+import type { DataTableLike } from './loader.js';
+import { createChartWrapper, dataTable } from './loader.js';
 
 const DEFAULT_EVENTS = ['ready', 'select'];
 
@@ -120,8 +122,7 @@ const CHART_TYPES: Record<string, string|undefined> = {
  *
  * @demo demo/index.html
  */
-@customElement("thermal-chart")
-export class ThermalChart extends LitElement {
+export class ThermalChartElement extends LitElement {
   /** @nocollapse */
   static override styles = css`
     :host {
@@ -331,6 +332,12 @@ export class ThermalChart extends LitElement {
   @property({type: Array})
   selection: google.visualization.ChartSelection[]|undefined = undefined;
 
+  @property({attribute: false})
+  onGraphClick?: (relativeTimeMs: number) => void;
+
+  @property({attribute: false})
+  onGraphHover?: (percentage: number | undefined) => void;
+
   /**
    * Whether the chart is currently rendered.
    * @export
@@ -356,8 +363,119 @@ export class ThermalChart extends LitElement {
   protected override render() {
     return html`
       <div id="styles"></div>
-      <div ${ref(this.chartRef)} id="chartdiv"></div>
+      <div
+        ${ref(this.chartRef)}
+        id="chartdiv"
+        @pointermove=${this.handleGraphPointerMove}
+        @pointerleave=${this.handleGraphPointerLeave}
+        @click=${this.handleGraphClickEvent}
+      ></div>
     `;
+  }
+
+  private getGraphLayout(): {
+    getChartAreaBoundingBox: () => { left: number, top: number, width: number, height: number };
+    getBoundingBox?: (id: string) => { left: number, top: number, width: number, height: number };
+    getHAxisValue?: (position: number) => unknown;
+  } | undefined {
+    const chart = this.chartWrapper?.getChart() as (google.visualization.ChartBase & {
+      getChartLayoutInterface?: () => {
+        getChartAreaBoundingBox: () => { left: number, top: number, width: number, height: number };
+        getBoundingBox?: (id: string) => { left: number, top: number, width: number, height: number };
+        getHAxisValue?: (position: number) => unknown;
+      }
+    }) | undefined;
+
+    return chart?.getChartLayoutInterface?.();
+  }
+
+  private isGraphVisualizationPoint(
+    x: number,
+    y: number,
+    layout: NonNullable<ReturnType<ThermalChartElement["getGraphLayout"]>>
+  ): boolean {
+    const chartArea = layout.getChartAreaBoundingBox();
+    const inChartArea =
+      chartArea.width > 0 &&
+      chartArea.height > 0 &&
+      x >= chartArea.left &&
+      x <= chartArea.left + chartArea.width &&
+      y >= chartArea.top &&
+      y <= chartArea.top + chartArea.height;
+
+    const axisLabels = layout.getBoundingBox?.("hAxis#0#labels");
+    const axisBottom = Math.max(
+      chartArea.top + chartArea.height,
+      axisLabels ? axisLabels.top + axisLabels.height : 0
+    );
+    const inHorizontalAxis =
+      x >= chartArea.left &&
+      x <= chartArea.left + chartArea.width &&
+      y >= chartArea.top &&
+      y <= axisBottom;
+
+    return inChartArea || inHorizontalAxis;
+  }
+
+  private handleGraphPointerMove = (event: PointerEvent): void => {
+    const container = this.chartRef.value;
+    const layout = this.onGraphClick || this.onGraphHover
+      ? this.getGraphLayout()
+      : undefined;
+    const chartArea = layout?.getChartAreaBoundingBox();
+
+    if (!container || !layout || !chartArea) {
+      if (container) {
+        container.style.cursor = "";
+      }
+      this.onGraphHover?.(undefined);
+      return;
+    }
+
+    const bounds = container.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    const inVisualization = this.isGraphVisualizationPoint(x, y, layout);
+
+    container.style.cursor = inVisualization && this.onGraphClick ? "pointer" : "";
+    this.onGraphHover?.(inVisualization
+      ? Math.max(0, Math.min(100, (x - chartArea.left) / chartArea.width * 100))
+      : undefined);
+  }
+
+  private handleGraphClickEvent = (event: MouseEvent): void => {
+    const container = this.chartRef.value;
+    const layout = this.getGraphLayout();
+
+    if (!container || !layout || !this.onGraphClick) {
+      return;
+    }
+
+    const bounds = container.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    const chartArea = layout.getChartAreaBoundingBox();
+
+    if (
+      chartArea.width <= 0 ||
+      !this.isGraphVisualizationPoint(x, y, layout) ||
+      x < chartArea.left ||
+      x > chartArea.left + chartArea.width
+    ) {
+      return;
+    }
+
+    const relativeTimeMs = layout.getHAxisValue?.(x);
+    if (typeof relativeTimeMs === "number" && Number.isFinite(relativeTimeMs)) {
+      this.onGraphClick(relativeTimeMs);
+    }
+  }
+
+  private handleGraphPointerLeave = (): void => {
+    if (this.chartRef.value) {
+      this.chartRef.value.style.cursor = "";
+    }
+    this.onGraphHover?.(undefined);
   }
 
   public getRef() {
@@ -394,7 +512,9 @@ export class ThermalChart extends LitElement {
           });
           google.visualization.events.addListener(
               chartWrapper, 'select', () => {
-                this.selection = chartWrapper.getChart()!.getSelection();
+                const chart = chartWrapper.getChart();
+                const selection = chart?.getSelection() ?? [];
+                this.selection = selection;
               });
           this.propagateEvents(DEFAULT_EVENTS, chartWrapper);
         });
@@ -590,10 +710,8 @@ export class ThermalChart extends LitElement {
   }
 }
 
-// customElements.define('thermal-chart', ThermalChart);
-
 declare global {
   interface HTMLElementTagNameMap {
-    'thermal-chart': ThermalChart;
+    'thermal-chart': ThermalChartElement;
   }
 }

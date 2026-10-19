@@ -1,9 +1,9 @@
-import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
-import { css, CSSResultGroup, html } from "lit";
+import type { CSSResultGroup} from "lit";
+import { css, html } from "lit";
+import { property } from "lit/decorators.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
-@customElement( "thermal-dropin" )
-export class Dropin extends BaseElement {
+export class ThermalDropinElement extends AbstractThermalElement {
 
     @property({type: String})
     public prompt?: string;
@@ -92,4 +92,10 @@ export class Dropin extends BaseElement {
     }
 
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-dropin": ThermalDropinElement;
+    }
 }

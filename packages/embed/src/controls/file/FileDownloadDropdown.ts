@@ -1,54 +1,50 @@
-import { Instance } from "@labirthermal/core";
+import type { ThermalFileInstance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
-import { css, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { html, nothing } from "lit";
+import { property, state } from "lit/decorators.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
+import { configContext } from "../../hierarchy/controllers/ConfigController";
+import type { ConfigController } from "../../hierarchy/controllers/ConfigController";
 import { T } from "../../translations/Languages";
-import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportScaleContext, pngExportWidthContext } from "../../utils/converters/pngExportContext";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ThermalDialog } from "../../ui/Dialog";
-import { ThermalDropdown } from "../../ui/Dropdown";
+import type { ThermalDialogElement } from "../../ui/Dialog";
+import type { ThermalDropdownElement } from "../../ui/Dropdown";
+import { ifDefined } from "lit/directives/if-defined.js";
 
-@customElement("file-download-dropdown")
-export class FileDownloadButton extends FileConsumer {
-
-    @consume({ context: pngExportWidthContext, subscribe: true })
-    protected pngWidth: number = 1350;
-
-    @consume({ context: pngExportFsContext, subscribe: true })
-    protected pngFs!: number;
+export class FileDownloadButton extends AbstractFileConsumer {
 
     @state()
-    @consume({ context: pngExportAnalysisContext, subscribe: true })
-    protected pngAnalyses!: boolean;
-
-    @state()
-    @consume({ context: pngExportScaleContext, subscribe: true })
-    protected pngExportScale!: boolean;
-
-    @state()
-    @consume({ context: pngExportFileNameContext, subscribe: true })
-    protected pngFileName!: boolean;
-
-    @state()
-    @consume({ context: pngExportFileDateContext, subscribe: true })
-    protected pngFileDate!: boolean;
+    @consume({ context: configContext, subscribe: true })
+    protected configController?: ConfigController;
 
     @state()
     protected hasGraphs: boolean = false;
 
-    protected recordingGraphRef: Ref<ThermalDialog> = createRef();
-    protected dropdownRef: Ref<ThermalDropdown> = createRef();
+    @property({ type: String, reflect: true })
+    public variant?: string;
 
-    public onInstanceCreated(instance: Instance): void {
+    @property({ type: String, reflect: true })
+    public icon?: string;
+
+    @property({ type: String, reflect: true })
+    public iconStyle?: string;
+
+    protected recordingGraphRef: Ref<ThermalDialogElement> = createRef();
+    protected dropdownRef: Ref<ThermalDropdownElement> = createRef();
+
+    public onInstanceCreated(instance: ThermalFileInstance): void {
         instance.analysisData.onGraphsPresence.set(this.UUID, value => {
             this.hasGraphs = value;
         });
+        this.hasGraphs = instance.analysisData.hasActiveGraphs;
     }
+
     public onFailure(): void {
         // throw new Error("Method not implemented.");
     }
+
 
     protected render(): unknown {
 
@@ -58,7 +54,11 @@ export class FileDownloadButton extends FileConsumer {
 
         return html`
 
-            <thermal-dropdown ${ref(this.dropdownRef)} class="download">
+            <thermal-dropdown ${ref(this.dropdownRef)} class="download"
+                icon=${ifDefined( this.icon )}
+                iconStyle=${ifDefined( this.iconStyle )}
+                variant=${ifDefined( this.variant )}
+            >
 
                 <slot name="invoker" slot="invoker">
                     <div class="button">
@@ -81,12 +81,12 @@ export class FileDownloadButton extends FileConsumer {
                 <thermal-btn 
                     slot="option"
                     @click=${() => this.file!.export.downloadPng({
-                        width: this.pngWidth,
-                        fontSize: this.pngFs,
-                        showAnalysis: this.pngAnalyses,
-                        showThermalScale: this.pngExportScale,
-                        showFileDate: this.pngFileDate,
-                        showFileName: this.pngFileName
+                        width: this.configController?.settings.export.png.width ?? 1350,
+                        fontSize: this.configController?.settings.export.png.fontSize,
+                        showAnalysis: this.configController?.settings.export.png.analyses,
+                        showThermalScale: this.configController?.settings.export.png.thermalScale,
+                        showFileDate: this.configController?.settings.export.png.fileDate,
+                        showFileName: this.configController?.settings.export.png.fileName
                     })}
                     pre="PNG"
                     align="left"
@@ -140,7 +140,7 @@ export class FileDownloadButton extends FileConsumer {
                         <tr>
                             <td>Barevná paleta</td>
                             <td>
-                                <registry-palette-dropdown></registry-palette-dropdown>
+                                <manager-palette-dropdown></manager-palette-dropdown>
                             </td>
                         </tr>
 
@@ -175,4 +175,10 @@ export class FileDownloadButton extends FileConsumer {
         `
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "file-download-dropdown": FileDownloadButton;
+    }
 }

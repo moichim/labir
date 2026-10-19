@@ -1,12 +1,12 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { booleanConverter } from "../utils/converters/booleanConverter";
-import { BtnSizes, BtnVariants } from "./Btn";
+import type { CSSResultGroup} from "lit";
+import { css, html, nothing } from "lit";
+import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
+import { booleanConverter } from "../utils/converters/booleanConverter";
+import type { BtnSizes, BtnVariants } from "./Btn";
 
-@customElement("thermal-expandable")
-export class Expandable extends BaseElement {
+export class ThermalExpandableElement extends AbstractThermalElement {
 
     @property({ type: String})
     public label?: string;
@@ -118,4 +118,10 @@ thermal-icon {
 
     }
 
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "thermal-expandable": ThermalExpandableElement;
+    }
 }

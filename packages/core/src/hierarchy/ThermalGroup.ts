@@ -1,24 +1,20 @@
-"use client";
-
-
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { Instance } from "../file/instance";
+import { ThermalFileInstance } from "../file/ThermalFileInstance";
 import { FilterContainer } from "../filters/FilterContainer";
 import { Batch } from "../loading/batch/Batch";
+import { AnalysisGroupGraph } from "../properties/analysis/group/AnalysisGroupGraph";
 import { AnalysisSyncDrive } from "../properties/analysis/sync/analysisSync";
+import { ToolDrive } from "../properties/analysis/tool/ToolDrive";
 import { CursorPositionDrive } from "../properties/cursor/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
 import { MinmaxGroupProperty } from "../properties/scale/MinmaxGroupProperty";
-import { IThermalGroup } from "../properties/structure";
 import { GroupPlayback } from "../properties/time/group/GroupPlayback";
-import { ToolDrive } from "../properties/analysis/tool/ToolDrive";
 import { ThermalRegistry } from "./ThermalRegistry";
-import { AnalysisGroupGraph } from "../properties/analysis/group/AnalysisGroupGraph";
 
 /**
  * Group of thermal images
  */
-export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
+export class ThermalGroup extends BaseStructureObject {
 
 
     public readonly hash = Math.random();
@@ -68,7 +64,7 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
 
     /** Iteration */
-    public forEveryInstance = ( fn: ( (instance: Instance) => void ) ) => {
+    public forEveryInstance = ( fn: ( (instance: ThermalFileInstance) => void ) ) => {
         this.files.value.forEach( instance => fn( instance ) );
     }
 

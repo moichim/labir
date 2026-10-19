@@ -1,4 +1,4 @@
-import { Instance } from "../../src/file/instance";
+import { ThermalFileInstance } from "../../src/file/ThermalFileInstance";
 import { ThermalManager } from "../../src/hierarchy/ThermalManager";
 import { AbstractFileResult } from "../../src/loading/workers/AbstractFileResult";
 import { ThermalFileFailure } from "../../src/loading/workers/ThermalFileFailure";
@@ -99,7 +99,7 @@ registry.palette.setPalette( "iron" );
 
 array.map( file => {
     registry.batch.request( file, undefined, group, async ( result ) => {
-        if ( result instanceof Instance ) {
+        if ( result instanceof ThermalFileInstance ) {
             const container = document.createElement( "div" );
             document.body.appendChild( container );
             result.mountToDom( container );

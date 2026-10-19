@@ -1,14 +1,10 @@
-import { Instance } from "../../../file/instance";
-import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { ThermalFileInstance } from "../../../file/ThermalFileInstance";
+import { AbstractProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 
-export interface IWithRedording extends IBaseProperty {
-    recording: RecordingDrive
-}
+export class RecordingDrive extends AbstractProperty<boolean, ThermalFileInstance> {
 
-export class RecordingDrive extends AbstractProperty<boolean, Instance> {
-
-    declare parent: Instance;
+    declare parent: ThermalFileInstance;
 
     protected stream?: MediaStream;
     protected recorder?: MediaRecorder;
@@ -139,7 +135,13 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
             throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
         }
 
-        const stream = this.parent.canvasLayer.canvas.captureStream(25);
+        const canvasLayer = this.parent.dom?.canvasLayer;
+
+        if ( ! canvasLayer ) {
+            throw new Error("Canvas layer not found - can not initialise recording.");
+        }
+
+        const stream = canvasLayer.canvas.captureStream(25);
 
         const output = this.getOutputMimeType();
 

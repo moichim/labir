@@ -35,10 +35,10 @@ final class DisplayPresenter extends BasePresenter
             "folder-path",
             "file-name",
             "palette",
-            "display-mode",
-            "folder-mode",
+            "files-display",
+            "folder-display",
             "grid-grouping",
-            "compact",
+            "files-compact",
             "from",
             "to",
         ];

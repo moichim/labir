@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../../../../devserver/node/scaffold';
 import { AbstractAreaAnalysis } from "./AbstractAreaAnalysis";
-import { Instance } from '../../../../../file/instance';
+import { ThermalFileInstance } from '../../../../../file/ThermalFileInstance';
 
 
 const left = 10;
@@ -19,11 +19,11 @@ describe("AreaAnalysis", async () => {
 
     const getId = () => (Math.random() * 1000000).toFixed(0);
 
-    const getRectAnalysis = (instance: Instance) => {
+    const getRectAnalysis = (instance: ThermalFileInstance) => {
         return instance.analysis.layers.placeRectAt(getId(), top, left, right, bottom);
     }
 
-    const getEllipsisAnalysis = (instance: Instance) => {
+    const getEllipsisAnalysis = (instance: ThermalFileInstance) => {
         return instance.analysis.layers.placeEllipsisAt(getId(), top, left, right, bottom);
     }
 

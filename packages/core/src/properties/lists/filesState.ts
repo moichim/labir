@@ -1,26 +1,22 @@
-import { Instance } from "../../file/instance";
+import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
+import { AbstractProperty } from "../abstractProperty";
 
-import { zip } from "zip-slim"
-
-
-export interface IWithFiles extends IBaseProperty {
-    files: FilesState
-}
+import { downloadZip } from "client-zip";
 
 export type InstanceFetchCallback = (
-    instance?: Instance,
+    instance?: ThermalFileInstance,
     errors?: string
 ) => void;
 
-export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
+export class FilesState extends AbstractProperty<ThermalFileInstance[], ThermalGroup> {
 
-    protected _map: Map<string, Instance> = new Map<string, Instance>();
+    protected _map: Map<string, ThermalFileInstance> = new Map<string, ThermalFileInstance>();
 
     public get map() { return this._map; }
 
-    protected validate(value: Instance[]): Instance[] {
+    protected validate(value: ThermalFileInstance[]): ThermalFileInstance[] {
         return value.sort( (a,b) => a.timestamp - b.timestamp );
     }
 
@@ -32,7 +28,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     /**
      * Whenever the instances change, recreate the index
      */
-    protected afterSetEffect(value: Instance[]) {
+    protected afterSetEffect(value: ThermalFileInstance[]) {
 
         // Clear the index
         this.map.clear();
@@ -41,7 +37,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         value.forEach(instance => this._map.set(instance.thermalUrl, instance));
     }
 
-    public addFile(file: Instance) {
+    public addFile(file: ThermalFileInstance) {
 
         if (!this._map.has(file.thermalUrl)) {
             this.value = [...this.value, file];
@@ -52,8 +48,8 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         
     }
 
-    public removeFile(file: string | Instance) {
-        const entry = file instanceof Instance
+    public removeFile(file: string | ThermalFileInstance) {
+        const entry = file instanceof ThermalFileInstance
             ? file
             : this.map.get(file);
         if (entry) {
@@ -77,7 +73,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     /** 
      * Iteration through all instances
      */
-    public forEveryInstance(fn: ((instance: Instance) => void
+    public forEveryInstance(fn: ((instance: ThermalFileInstance) => void
     )) {
         this.value.forEach(instance => fn(instance));
     }
@@ -101,19 +97,34 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
 
         } );
 
+        downloadZip(files).blob().then( blob => {
 
-        zip( files, true ).then( (result) => {
-
-            const link = document.createElement( "a" );
+            const link = document.createElement("a");
             link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
-            link.href = URL.createObjectURL( result );
-            document.body.appendChild( link );
+            link.href = URL.createObjectURL(blob);
+            document.body.appendChild(link);
             link.click();
-            document.body.removeChild( link );
+            document.body.removeChild(link);
             link.remove();
 
         } );
 
+
+    }
+
+    public async batchCreateInstances(
+        readers: ThermalFileReader[],
+        doReplaceExisting: boolean = false
+    ) {
+
+        const instances = await Promise.all( readers.map( async (reader) => await reader.createInstance(this.parent, false) ) );
+
+        if ( doReplaceExisting ) {
+            this.forEveryInstance(instance => instance.destroySelfAndBelow());
+            this.value = instances;
+        } else {
+            this.value = [...this.value, ...instances];
+        }
 
     }
 
