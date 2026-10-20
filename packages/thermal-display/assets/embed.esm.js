@@ -3988,9 +3988,9 @@ var GroupListingController = class extends AbstractHierarchyController {
 	backupReaders(readers) {
 		this.backup.clear();
 		readers.forEach((reader) => this.backup.add(reader));
+		this.log("backup", this.backup);
 	}
 	async restoreTheEntireBackup() {
-		this.host.fileController.removeInstance();
 		return this.group.files.batchCreateInstances(Array.from(this.backup), true);
 	}
 	async showOneAndBackup(instance) {
@@ -4146,7 +4146,7 @@ var GroupListingController = class extends AbstractHierarchyController {
                 tooltip=${(0, lit_directives_if_defined_js.ifDefined)(active ? void 0 : tooltip)}
                 variant=${active ? "background" : "default"}
                 @click=${onClick}
-                slot=${slot}
+                slot=${(0, lit_directives_if_defined_js.ifDefined)(slot)}
             >
             </thermal-btn>
         `;
@@ -4210,7 +4210,7 @@ var GroupListingController = class extends AbstractHierarchyController {
 		await this.group.files.batchCreateInstances(fileReaders, false);
 	}
 	renderListHeader(slot, options = {}) {
-		return lit.html`<div slot="${slot}" style=${(0, lit_directives_style_map_js.styleMap)({
+		return lit.html`<div slot="${(0, lit_directives_if_defined_js.ifDefined)(slot)}" style=${(0, lit_directives_style_map_js.styleMap)({
 			display: "flex",
 			flexDirection: "row",
 			justifyContent: "flex-start",
@@ -4220,7 +4220,7 @@ var GroupListingController = class extends AbstractHierarchyController {
 		})}>
 
             <thermal-btn 
-                variant="text" 
+                variant="default" 
                 style="cursor: default; font-size: .9em;"
                 icon="folder"
                 iconStyle="micro"
@@ -4329,10 +4329,10 @@ var GroupListingController = class extends AbstractHierarchyController {
                     <div class="file-analysis">
                         <file-analysis-table
                             table-mode="compact"
-                            forceinteractiveanalysis="true"
-                            graph-activation-enabled="true"
+                            ?forceinteractiveanalysis=${true}
+                            ?graph-activation-enabled=${true}
                         ></file-analysis-table>
-                        <file-analysis-graph standalone="true"></file-analysis-graph>
+                        <file-analysis-graph ?standalone=${true}></file-analysis-graph>
                     </div>
                 </div>
             </div>
@@ -4353,10 +4353,10 @@ var GroupListingController = class extends AbstractHierarchyController {
 		const backTooltip = options.allowFileChanges === false ? "Zpět na seznam souborů" : isSingular ? "Zavřít soubor a nahrát nový/é" : `Zpět na Vašich ${fileCount} souborů`;
 		const backIcon = isSingular ? "close" : "back";
 		const backIconStyle = isSingular ? "micro" : "micro";
-		return lit.html`<div style=${(0, lit_directives_style_map_js.styleMap)(divStyles)} slot=${slot}>
+		return lit.html`<div style=${(0, lit_directives_style_map_js.styleMap)(divStyles)} slot=${(0, lit_directives_if_defined_js.ifDefined)(slot)}>
 
             <thermal-btn 
-                variant="text" 
+                variant="foreground" 
                 tooltip="Název souboru" 
                 style="cursor: default; font-size: .9em;"
                 icon="image"
@@ -4364,7 +4364,7 @@ var GroupListingController = class extends AbstractHierarchyController {
             >${instance.fileName}</thermal-btn>
 
             <thermal-btn 
-                variant="text" 
+                variant="foreground" 
                 tooltip="Čas pořízení snímku" 
                 style="cursor: default; font-size: .9em;"
                 icon="clock"
@@ -4416,8 +4416,8 @@ var GroupListingController = class extends AbstractHierarchyController {
             </div>
             <file-analysis-complex
                 table-mode="full"
-                forceinteractiveanalysis="true"
-                graph-activation-enabled="true"
+                ?forceinteractiveanalysis=${true}
+                ?graph-activation-enabled=${true}
             ></file-analysis-complex>
         </div>`;
 	}
@@ -5247,9 +5247,7 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 		this._hasBarHeader = false;
 		this.fullscreen = "off";
 		this.showfullscreen = false;
-		this.dark = false;
 		this.labelVariant = "foreground";
-		this.chromiumwarning = false;
 		this.headerRef = (0, lit_directives_ref_js.createRef)();
 		this.contentRef = (0, lit_directives_ref_js.createRef)();
 		this.barItemsRef = (0, lit_directives_ref_js.createRef)();
@@ -5470,10 +5468,6 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
             position: relative; 
         }
 
-        .dark {
-            background-color: var( --thermal-slate ) !important;
-        }
-
         .bar {
             padding-bottom: calc( var( --thermal-gap ) * 0.5 );
             display: flex;
@@ -5638,7 +5632,7 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
     icon=${(0, lit_directives_if_defined_js.ifDefined)(this.labelIcon)}
     iconStyle=${(0, lit_directives_if_defined_js.ifDefined)(this.labelIconStyle)}
     tooltip=${(0, lit_directives_if_defined_js.ifDefined)(this.labelTooltip)}
-    @click=${(0, lit_directives_if_defined_js.ifDefined)(this.onlabel)}
+    @click=${this.onlabel}
 >${this.label}</thermal-btn>` : lit.nothing;
 		return lit.html`
     <slot name="label">
@@ -5700,11 +5694,11 @@ var ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 		if (this._overflowOpen) {
 			icon = "close";
 			iconStyle = "outline";
-			variant = "bg";
+			variant = "background";
 		}
 		return lit.html`<thermal-btn 
     @click=${this._toggleOverflow} 
-    tooltip="${this.t("moreoptions")}}" 
+    tooltip="${this.t("moreoptions")}" 
     icon=${icon} 
     iconStyle=${iconStyle} 
     variant=${variant}
@@ -5783,16 +5777,11 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true
 }), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "fullscreen", void 0);
 __decorate([(0, lit_decorators_js.property)({
-	type: String,
+	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false),
 	attribute: "show-fullscreen"
 }), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "showfullscreen", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "dark", void 0);
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "author", void 0);
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "recorded", void 0);
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "license", void 0);
@@ -5800,9 +5789,8 @@ __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type",
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "labelIcon", void 0);
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "labelIconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "labelTooltip", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppElement.prototype, "labelVariant", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Object)], ThermalAppElement.prototype, "labelVariant", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalAppElement.prototype, "onlabel", void 0);
-__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], ThermalAppElement.prototype, "chromiumwarning", void 0);
 //#endregion
 //#region src/ui/Bar.ts
 var ThermalBarElement = class extends lit.LitElement {
@@ -6172,7 +6160,7 @@ var ThermalBtnElement = class extends AbstractThermalElement {
         :host([disabled="true"]:hover),
         :host([disabled="true"]:focus) {
 
-            
+            cursor: not-allowed;
             color: color-mix(in srgb, var(--color) 50%, transparent);
             background: color-mix(in srgb, var(--bg) 50%, transparent);
             border-color: color-mix(in srgb, var(--border-color) 50%, transparent);
@@ -6446,11 +6434,11 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ThermalBtnElement.prototype, "disabled", void 0);
+}), __decorateMetadata("design:type", String)], ThermalBtnElement.prototype, "disabled", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ThermalBtnElement.prototype, "interactive", void 0);
+}), __decorateMetadata("design:type", String)], ThermalBtnElement.prototype, "interactive", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: true
@@ -7226,6 +7214,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], ThermalIconElement.prototype, "css", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ThermalIconElement.prototype, "element", void 0);
 //#endregion
 //#region src/ui/Loading.ts
 var ThermalPosterElement = class extends AbstractThermalElement {
@@ -12848,10 +12837,10 @@ var FileAnalysisComplexElement = class extends AbstractFileConsumer {
 	}
 };
 __decorate([(0, lit_decorators_js.property)({ attribute: "table-mode" }), __decorateMetadata("design:type", Object)], FileAnalysisComplexElement.prototype, "tableMode", void 0);
-__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "forceinteractiveanalysis", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "forceinteractiveanalysis", void 0);
 __decorate([(0, lit_decorators_js.property)({
-	attribute: "graph-activation-enabled",
-	converter: booleanConverter(true)
+	type: Boolean,
+	attribute: "graph-activation-enabled"
 }), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "graphActivationEnabled", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "mayHaveGraph", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplexElement.prototype, "hasAnalysis", void 0);
@@ -15433,13 +15422,16 @@ var DropinAppElement = class extends AbstractApp {
 		} catch (error) {
 			console.error("Failed to get public IPv4 address:", error);
 		}
+		const listener = async (files) => {
+			this.log("Files received in listener:", files);
+			if (this.onValueChangeTimeout !== void 0) clearTimeout(this.onValueChangeTimeout);
+			this.onValueChangeTimeout = setTimeout(async () => {
+				this.toDisplay = files;
+			}, 0);
+		};
+		this.groupObject?.files.addListener(this.UUID, listener.bind(this));
 		this.groupController.onInternalObject.set(this.UUID, (group) => {
-			group.files.addListener(this.UUID, async (value) => {
-				if (this.onValueChangeTimeout !== void 0) clearTimeout(this.onValueChangeTimeout);
-				this.onValueChangeTimeout = setTimeout(async () => {
-					this.toDisplay = value;
-				}, 0);
-			});
+			group.files.addListener(this.UUID, listener.bind(this));
 		});
 	}
 	willUpdate(_changedProperties) {
@@ -15502,6 +15494,7 @@ var DropinAppElement = class extends AbstractApp {
     `;
 	}
 	async handleDropAndClear(results) {
+		this.log(results);
 		const readers = results.filter((result) => result instanceof _labirthermal_core.ThermalFileReader);
 		this.groupListingController.backupReaders(readers);
 		this.groupListingController.restoreTheEntireBackup();
@@ -15549,7 +15542,7 @@ var DropinAppElement = class extends AbstractApp {
             </thermal-dialog>`);
 			elements.push(lit.html`
                 <div slot="pre-bar" style="flex-grow: 1; padding-left: 1em;">
-            <registry-histogram height="15px" expandable="true"></registry-histogram>
+            <registry-histogram height="15px" .expandable=${true}></registry-histogram>
             <registry-range-slider height="10px"></registry-range-slider>
             <registry-ticks-bar></registry-ticks-bar>
                 </div>
@@ -15577,7 +15570,7 @@ var DropinAppElement = class extends AbstractApp {
 			const label = this.label ?? "LabIR Web Analyser";
 			return lit.html`<thermal-app 
                 label="${label}"
-                show-fullscreen="true"
+                ?show-fullscreen=${true}
             >
 
                 ${this.renderHeader()}
@@ -18480,10 +18473,10 @@ const independentElements = {};
 * List of provider components
 */
 const elementsProviders = {
-	"file-provider": FileProviderElement,
-	"group-provider": GroupProviderElement,
-	"registry-provider": RegistryProviderElement,
 	"manager-provider": ManagerProviderElement,
+	"registry-provider": RegistryProviderElement,
+	"group-provider": GroupProviderElement,
+	"file-provider": FileProviderElement,
 	"file-copy": FileCopyElement
 };
 const elementsManagerControls = {

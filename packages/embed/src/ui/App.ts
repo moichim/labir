@@ -10,6 +10,7 @@ import { createRef, ref } from "lit/directives/ref.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { languagesObject, T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
+import type { BtnVariants } from "./Btn";
 
 // @customElement("thermal-app")
 export class ThermalAppElement extends AbstractThermalElement {
@@ -38,11 +39,8 @@ export class ThermalAppElement extends AbstractThermalElement {
     @property({ type: String, reflect: true })
     fullscreen: string = "off";
 
-    @property({ type: String, reflect: true, converter: booleanConverter(false), attribute: "show-fullscreen" })
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(false), attribute: "show-fullscreen" })
     showfullscreen: boolean = false;
-
-    @property( {type: String, reflect: true, attribute: true} )
-    dark: boolean = false;
 
     @property()
     author?: string;
@@ -66,13 +64,10 @@ export class ThermalAppElement extends AbstractThermalElement {
     labelTooltip?: string;
 
     @property()
-    labelVariant: string = "foreground";
+    labelVariant: BtnVariants = "foreground";
 
     @property({type: Object})
     onlabel?: () => void;
-
-    @property({converter: booleanConverter(false)})
-    chromiumwarning: boolean = false;
 
 
 
@@ -175,7 +170,7 @@ export class ThermalAppElement extends AbstractThermalElement {
         }
     }
 
-    protected willUpdate(changedProperties: PropertyValues): void {
+    willUpdate(changedProperties: PropertyValues): void {
         super.willUpdate(changedProperties);
         this._syncSlotFlags();
     }
@@ -291,7 +286,7 @@ export class ThermalAppElement extends AbstractThermalElement {
         }
     }
 
-    protected updated(changedProperties: PropertyValues): void {
+    updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
         if (!this.isConnected) return;
 
@@ -365,10 +360,6 @@ export class ThermalAppElement extends AbstractThermalElement {
             border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );    
             position: relative; 
-        }
-
-        .dark {
-            background-color: var( --thermal-slate ) !important;
         }
 
         .bar {
@@ -542,7 +533,7 @@ export class ThermalAppElement extends AbstractThermalElement {
     icon=${ifDefined(this.labelIcon)}
     iconStyle=${ifDefined(this.labelIconStyle)}
     tooltip=${ifDefined(this.labelTooltip)}
-    @click=${ifDefined(this.onlabel)}
+    @click=${this.onlabel}
 >${this.label}</thermal-btn>`
             : nothing;
 
@@ -626,17 +617,17 @@ export class ThermalAppElement extends AbstractThermalElement {
 
         let icon = "adjustment";
         let iconStyle = "outline";
-        let variant = "default";
+        let variant: BtnVariants = "default";
 
         if ( this._overflowOpen ) {
             icon = "close";
             iconStyle = "outline";
-            variant = "bg";
+            variant = "background";
         }
 
         return html`<thermal-btn 
     @click=${this._toggleOverflow} 
-    tooltip="${this.t("moreoptions")}}" 
+    tooltip="${this.t("moreoptions")}" 
     icon=${icon} 
     iconStyle=${iconStyle} 
     variant=${variant}

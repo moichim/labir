@@ -117,30 +117,41 @@ export class DropinAppElement
             console.error("Failed to get public IPv4 address:", error);
         }
 
+        const listener = async (
+            files: ThermalFileInstance[]
+        ) => {
+
+            this.log("Files received in listener:", files);
+
+            // Clear the timeout if exists
+            if (this.onValueChangeTimeout !== undefined) {
+                clearTimeout(this.onValueChangeTimeout);
+            }
+
+            // Set the new timeout to handle the value change
+            this.onValueChangeTimeout = setTimeout(async () => {
+                // Set the to display array of instances
+                this.toDisplay = files;
+
+            }, 0);
+
+        }
+
+        // Add the listener directly
+        this.groupObject?.files.addListener(
+            this.UUID,
+            listener.bind(this)
+        );
+
+        // Enqueue the listener for later usage
         this.groupController.onInternalObject.set(
             this.UUID,
             group => {
 
                 group.files.addListener(
                     this.UUID,
-                    async (value) => {
-
-                        // Clear the timeout if exists
-                        if (this.onValueChangeTimeout !== undefined) {
-                            clearTimeout(this.onValueChangeTimeout);
-                        }
-
-                        // Set the new timeout to handle the value change
-                        this.onValueChangeTimeout = setTimeout(async () => {
-                            // Set the to display array of instances
-                            this.toDisplay = value;
-
-                        }, 0);
-
-                    }
+                    listener.bind(this)
                 );
-
-
 
             }
         );
@@ -226,6 +237,8 @@ export class DropinAppElement
         results: AbstractFileResult[]
     ) {
 
+        this.log(results);
+
         // this.fileController.removeInstance();
 
         // this.groupListingController.clearBackup();
@@ -310,7 +323,7 @@ export class DropinAppElement
 
             elements.push(html`
                 <div slot="pre-bar" style="flex-grow: 1; padding-left: 1em;">
-            <registry-histogram height="15px" expandable="true"></registry-histogram>
+            <registry-histogram height="15px" .expandable=${true}></registry-histogram>
             <registry-range-slider height="10px"></registry-range-slider>
             <registry-ticks-bar></registry-ticks-bar>
                 </div>
@@ -369,7 +382,7 @@ export class DropinAppElement
 
             return html`<thermal-app 
                 label="${label}"
-                show-fullscreen="true"
+                ?show-fullscreen=${true}
             >
 
                 ${this.renderHeader()}

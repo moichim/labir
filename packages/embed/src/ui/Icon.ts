@@ -1,6 +1,6 @@
 import type { PropertyValues } from "lit";
 import { html, nothing } from "lit";
-import { property } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import icons from "../utils/icons";
@@ -23,7 +23,7 @@ export class ThermalIconElement extends AbstractThermalElement {
     @property({ type: String, reflect: true })
     public css?: string;
 
-
+    @state()
     protected element?: string;
 
     connectedCallback(): void {
@@ -32,7 +32,7 @@ export class ThermalIconElement extends AbstractThermalElement {
         this.updateIcon();
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
+    updated(_changedProperties: PropertyValues): void {
 
         super.updated(_changedProperties);
         this.updateIcon();

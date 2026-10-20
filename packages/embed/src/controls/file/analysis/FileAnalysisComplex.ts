@@ -17,10 +17,10 @@ export class FileAnalysisComplexElement extends AbstractFileConsumer {
     @property({ attribute: "table-mode" })
     public tableMode: AnalysisTableMode = "full";
 
-    @property({ converter: booleanConverter(false) })
+    @property({ type: Boolean })
     public forceinteractiveanalysis: boolean = false;
 
-    @property({ attribute: "graph-activation-enabled", converter: booleanConverter(true) })
+    @property({ type: Boolean,attribute: "graph-activation-enabled" })
     public graphActivationEnabled: boolean = true;
 
     @state()

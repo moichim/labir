@@ -101,11 +101,14 @@ export const independentElements = {
  * List of provider components
  */
 export const elementsProviders = {
-    "file-provider": FileProviderElement,
-    "group-provider": GroupProviderElement,
-    "registry-provider": RegistryProviderElement,
+    // This needs to go first
     "manager-provider": ManagerProviderElement,
-
+    // This needs to go second
+    "registry-provider": RegistryProviderElement,
+    // This needs to go third
+    "group-provider": GroupProviderElement,
+    // This needs to go last
+    "file-provider": FileProviderElement,
     "file-copy": FileCopyElement,
 
 } as const;

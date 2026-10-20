@@ -1467,6 +1467,51 @@ export declare class ConfigController extends AbstractReactiveController<IBaseEl
   private _publish;
 }
 //#endregion
+//#region src/ui/Btn.d.ts
+type BtnVariants = "primary" | "foreground" | "background" | "default" | "breadcrumb";
+type BtnSizes = "sm" | "md" | "lg" | "xl";
+export declare class ThermalBtnElement extends AbstractThermalElement {
+  tooltipPlacement: Placement;
+  pre?: string;
+  variant?: BtnVariants;
+  size?: BtnSizes;
+  icon?: string;
+  iconStyle: string;
+  disabled?: string;
+  interactive?: string;
+  plain?: boolean;
+  tooltip?: string;
+  tabindex: number;
+  badge?: string;
+  align: string;
+  private tooltipElement?;
+  private arrowElement?;
+  private cleanupAutoUpdate?;
+  private highlightTimeout?;
+  firstUpdated(): void;
+  updated(changedProperties: Map<string | number | symbol, unknown>): void;
+  private removeTooltip;
+  private showTooltip;
+  private hideTooltip;
+  private handleClick;
+  private handleKeydown;
+  disconnectedCallback(): void;
+  static styles: import("lit").CSSResult;
+  private renderBadge;
+  /**
+   * Apply a temporary highlight animation to the button. The animation
+   * will pulse the element with a gentle scale up/down effect for the
+   * specified duration (milliseconds).
+   */
+  highlight(durationMs: number): void;
+  protected render(): unknown;
+}
+declare global {
+  interface HTMLElementTagNameMap {
+    "thermal-btn": ThermalBtnElement;
+  }
+}
+//#endregion
 //#region src/ui/App.d.ts
 export declare class ThermalAppElement extends AbstractThermalElement {
   language: string;
@@ -1478,7 +1523,6 @@ export declare class ThermalAppElement extends AbstractThermalElement {
   private _hasBarHeader;
   fullscreen: string;
   showfullscreen: boolean;
-  dark: boolean;
   author?: string;
   recorded?: string;
   license?: string;
@@ -1486,9 +1530,8 @@ export declare class ThermalAppElement extends AbstractThermalElement {
   labelIcon?: string;
   labelIconStyle?: string;
   labelTooltip?: string;
-  labelVariant: string;
+  labelVariant: BtnVariants;
   onlabel?: () => void;
-  chromiumwarning: boolean;
   protected headerRef: Ref<HTMLDivElement>;
   protected contentRef: Ref<HTMLDivElement>;
   protected barItemsRef: Ref<HTMLDivElement>;
@@ -1509,13 +1552,13 @@ export declare class ThermalAppElement extends AbstractThermalElement {
   private _setSlotFlag;
   private _onSlotChange;
   private _syncSlotFlags;
-  protected willUpdate(changedProperties: PropertyValues): void;
+  willUpdate(changedProperties: PropertyValues): void;
   /** Ignores our own slot redistribution but measures externally changed toolbar contents. */
   private _onBarSlotChange;
   private _scheduleOverflowUpdate;
   private _doOverflowUpdate;
   toggleFullscreen(): void;
-  protected updated(changedProperties: PropertyValues): void;
+  updated(changedProperties: PropertyValues): void;
   attributeChangedCallback(name: string, _old: string | null, value: string | null): void;
   static styles: import("lit").CSSResult;
   private renderLabel;
@@ -1551,51 +1594,6 @@ export declare class ThermalBarElement extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "thermal-bar": ThermalBarElement;
-  }
-}
-//#endregion
-//#region src/ui/Btn.d.ts
-type BtnVariants = "primary" | "foreground" | "background" | "default" | "breadcrumb";
-type BtnSizes = "sm" | "md" | "lg" | "xl";
-export declare class ThermalBtnElement extends AbstractThermalElement {
-  tooltipPlacement: Placement;
-  pre?: string;
-  variant?: BtnVariants;
-  size?: BtnSizes;
-  icon?: string;
-  iconStyle: string;
-  disabled?: boolean;
-  interactive?: boolean;
-  plain?: boolean;
-  tooltip?: string;
-  tabindex: number;
-  badge?: string;
-  align: string;
-  private tooltipElement?;
-  private arrowElement?;
-  private cleanupAutoUpdate?;
-  private highlightTimeout?;
-  protected firstUpdated(): void;
-  protected updated(changedProperties: Map<string | number | symbol, unknown>): void;
-  private removeTooltip;
-  private showTooltip;
-  private hideTooltip;
-  private handleClick;
-  private handleKeydown;
-  disconnectedCallback(): void;
-  static styles: import("lit").CSSResult;
-  private renderBadge;
-  /**
-   * Apply a temporary highlight animation to the button. The animation
-   * will pulse the element with a gentle scale up/down effect for the
-   * specified duration (milliseconds).
-   */
-  highlight(durationMs: number): void;
-  protected render(): unknown;
-}
-declare global {
-  interface HTMLElementTagNameMap {
-    "thermal-btn": ThermalBtnElement;
   }
 }
 //#endregion
@@ -1715,7 +1713,7 @@ export declare class ThermalIconElement extends AbstractThermalElement {
   css?: string;
   protected element?: string;
   connectedCallback(): void;
-  protected updated(_changedProperties: PropertyValues): void;
+  updated(_changedProperties: PropertyValues): void;
   protected updateIcon(): void;
   protected render(): unknown;
 }
@@ -4515,10 +4513,10 @@ export declare const independentElements: {};
  * List of provider components
  */
 export declare const elementsProviders: {
-  readonly "file-provider": typeof FileProviderElement;
-  readonly "group-provider": typeof GroupProviderElement;
-  readonly "registry-provider": typeof RegistryProviderElement;
   readonly "manager-provider": typeof ManagerProviderElement;
+  readonly "registry-provider": typeof RegistryProviderElement;
+  readonly "group-provider": typeof GroupProviderElement;
+  readonly "file-provider": typeof FileProviderElement;
   readonly "file-copy": typeof FileCopyElement;
 };
 /**
@@ -4580,10 +4578,10 @@ export declare const elementsAll: {
   readonly "manager-tool-bar": typeof ManagerToolBar;
   /** @deprecated This sort of export should never be used. Please, do export thermal images only through the LIT components instead of the `@labirthermal/core` export. */
   readonly "manager-export-panel": typeof ManagerExportPanel;
-  readonly "file-provider": typeof FileProviderElement;
-  readonly "group-provider": typeof GroupProviderElement;
-  readonly "registry-provider": typeof RegistryProviderElement;
   readonly "manager-provider": typeof ManagerProviderElement;
+  readonly "registry-provider": typeof RegistryProviderElement;
+  readonly "group-provider": typeof GroupProviderElement;
+  readonly "file-provider": typeof FileProviderElement;
   readonly "file-copy": typeof FileCopyElement;
   readonly "thermal-app": typeof ThermalAppElement;
   readonly "thermal-bar": typeof ThermalBarElement;

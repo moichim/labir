@@ -33,10 +33,10 @@ export class ThermalBtnElement extends AbstractThermalElement {
     public iconStyle:string = "outline";
 
     @property({type: String, converter: booleanConverter(false)})
-    public disabled?: boolean;
+    public disabled?: string;
 
     @property({type: String, converter: booleanConverter(false)})
-    public interactive?: boolean;
+    public interactive?: string;
 
     @property({type: Boolean, attribute: true})
     public plain?: boolean;
@@ -60,7 +60,7 @@ export class ThermalBtnElement extends AbstractThermalElement {
     // timeout id for active highlight animation
     private highlightTimeout?: number;
 
-    protected firstUpdated() {
+    firstUpdated() {
         // Ensure element is focusable
         if (!this.hasAttribute('tabindex')) {
             this.setAttribute('tabindex', '0');
@@ -78,7 +78,7 @@ export class ThermalBtnElement extends AbstractThermalElement {
         }
     }
 
-    protected updated(changedProperties: Map<string | number | symbol, unknown>) {
+    updated(changedProperties: Map<string | number | symbol, unknown>) {
         // Tooltip rendering is handled in render()
         if (changedProperties.has('tooltip')) {
             if (this.tooltip) {
@@ -308,7 +308,7 @@ export class ThermalBtnElement extends AbstractThermalElement {
         :host([disabled="true"]:hover),
         :host([disabled="true"]:focus) {
 
-            
+            cursor: not-allowed;
             color: color-mix(in srgb, var(--color) 50%, transparent);
             background: color-mix(in srgb, var(--bg) 50%, transparent);
             border-color: color-mix(in srgb, var(--border-color) 50%, transparent);

@@ -84,7 +84,7 @@ export default defineConfig({
 
                         fs.copyFileSync(
                             path.resolve("./dist/iife/embed.iife.js"),
-                            path.resolve("../docs/public/lib/embed.iife.js")
+                            path.resolve("../docs/public/lib/labirthermal.iife.js")
                         );
 
                         console.log("IIFE build: @labirthermal/webcomponents build copied into @labirthermal/docs");

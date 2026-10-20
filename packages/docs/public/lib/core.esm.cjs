@@ -6894,6 +6894,7 @@ var FilesState = class extends AbstractProperty {
 	afterSetEffect(value) {
 		this.map.clear();
 		value.forEach((instance) => this._map.set(instance.thermalUrl, instance));
+		console.log("afterSetEffect", this._map);
 	}
 	addFile(file) {
 		if (!this._map.has(file.thermalUrl)) {

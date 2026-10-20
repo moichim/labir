@@ -59,7 +59,8 @@ export default defineConfig({
               { text: 'Controls', link: '/core/controls' }
             ]
           },
-          { text: "Core classes", 
+          {
+            text: "Core classes",
             collapsed: true,
             items: [
               { text: 'ThermalManager', link: '/core/thermal-manager' },
@@ -73,16 +74,25 @@ export default defineConfig({
         text: '@labirthermal/webcomponents',
         items: [
           { text: 'Overview', link: '/webcomponents' },
-          { text: 'Usage', link: '/webcomponents/usage' },
-          { text: "Thermal palette", link: '/webcomponents/thermal-palette' },
-          { text: "Thermal range", link: '/webcomponents/thermal-range' },
-          { text: 'Applications', 
+          { text: 'Usage in the browser', link: '/webcomponents/usage' },
+          {
+            text: 'Guide', 
+            collapsed: true,
+            items: [
+              { text: 'Hierarchy of components', link: '/webcomponents/hierarchy' },
+              { text: 'UI elements', link: '/webcomponents/ui-elements' },
+              { text: "Thermal palette", link: '/webcomponents/thermal-palette' },
+              { text: "Thermal range", link: '/webcomponents/thermal-range' },
+            ]
+          },
+          {
+            text: 'Applications',
             collapsed: true,
             items: [
               { text: 'Overview', link: '/webcomponents/applications' },
               { text: 'thermal-dropin-app', link: '/webcomponents/applications/thermal-dropin-app' }
             ]
-           },
+          },
           { text: 'Components', link: '/api-examples' }
         ]
       }

@@ -148,7 +148,7 @@
 
 main {
 
-  button {
+  .button {
     color: black;
     background-color: lightgray;
     border: 1px solid darkgray;
@@ -161,17 +161,6 @@ main {
 
 :root {
   --showcase-button: var(--vp-button-brand-bg);
-}
-
-.showcase {
-
-  & > div {
-
-
-
-
-  }
-
 }
 
 .hierarchy {
@@ -223,6 +212,17 @@ main {
     }
   }
 
+  &.bare {
+    manager-provider,
+    registry-provider,
+    group-provider,
+    file-provider {
+      &::before {
+        content: var(--hierarchy-content) var(--hierarchy-content-post);
+      }
+    }
+  }
+
   manager-provider {
 
     --hierarchy-color: red;
@@ -262,6 +262,39 @@ main {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1em;
+  }
+
+}
+
+.split {
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1em;
+  align-items: start;
+
+  .vp-adaptive-theme {
+    margin: 0 !important;
+  }
+
+}
+
+.components-table {
+
+  code {
+    text-wrap: nowrap;
+  }
+
+  tr td:first-child code {
+    text-wrap: nowrap;
+  }
+
+  tr td:nth-child(3){
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5em;
+    height: 100%;
   }
 
 }

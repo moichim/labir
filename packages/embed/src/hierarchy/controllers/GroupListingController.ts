@@ -93,13 +93,15 @@ export class GroupListingController extends AbstractHierarchyController<IElement
     ): void {
         this.backup.clear();
         readers.forEach(reader => this.backup.add(reader));
+
+        this.log( "backup", this.backup );
     }
 
 
 
     public async restoreTheEntireBackup(): Promise<void> {
 
-        this.host.fileController.removeInstance();
+        // this.host.fileController.removeInstance();
 
         return this.group.files.batchCreateInstances(Array.from(this.backup), true);
 
@@ -278,7 +280,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                 tooltip=${ifDefined( active ? undefined : tooltip )}
                 variant=${active ? "background" : "default"}
                 @click=${onClick}
-                slot=${slot}
+                slot=${ifDefined(slot)}
             >
             </thermal-btn>
         `;
@@ -427,10 +429,10 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             gap: "0.5em"
         };
 
-        return html`<div slot="${slot}" style=${styleMap(divStyles)}>
+        return html`<div slot="${ifDefined( slot )}" style=${styleMap(divStyles)}>
 
             <thermal-btn 
-                variant="text" 
+                variant="default" 
                 style="cursor: default; font-size: .9em;"
                 icon="folder"
                 iconStyle="micro"
@@ -556,10 +558,10 @@ export class GroupListingController extends AbstractHierarchyController<IElement
                     <div class="file-analysis">
                         <file-analysis-table
                             table-mode="compact"
-                            forceinteractiveanalysis="true"
-                            graph-activation-enabled="true"
+                            ?forceinteractiveanalysis=${true}
+                            ?graph-activation-enabled=${true}
                         ></file-analysis-table>
-                        <file-analysis-graph standalone="true"></file-analysis-graph>
+                        <file-analysis-graph ?standalone=${true}></file-analysis-graph>
                     </div>
                 </div>
             </div>
@@ -595,10 +597,10 @@ export class GroupListingController extends AbstractHierarchyController<IElement
         const backIcon = isSingular ? "close" : "back";
         const backIconStyle = isSingular ? "micro" : "micro";
 
-        return html`<div style=${styleMap(divStyles)} slot=${slot}>
+        return html`<div style=${styleMap(divStyles)} slot=${ifDefined(slot)}>
 
             <thermal-btn 
-                variant="text" 
+                variant="foreground" 
                 tooltip="Název souboru" 
                 style="cursor: default; font-size: .9em;"
                 icon="image"
@@ -606,7 +608,7 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             >${instance.fileName}</thermal-btn>
 
             <thermal-btn 
-                variant="text" 
+                variant="foreground" 
                 tooltip="Čas pořízení snímku" 
                 style="cursor: default; font-size: .9em;"
                 icon="clock"
@@ -666,8 +668,8 @@ export class GroupListingController extends AbstractHierarchyController<IElement
             </div>
             <file-analysis-complex
                 table-mode="full"
-                forceinteractiveanalysis="true"
-                graph-activation-enabled="true"
+                ?forceinteractiveanalysis=${true}
+                ?graph-activation-enabled=${true}
             ></file-analysis-complex>
         </div>`;
     }

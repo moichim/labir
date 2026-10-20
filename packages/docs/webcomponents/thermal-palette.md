@@ -74,7 +74,7 @@ Thermal range is bound to `ThermalManager` provider and its value is synchronise
 
 ## Constraints
 
-In sake of simplicity, the thermal palettes shown by default are only the most used:
+In sake of simplicity, the thermal palettes shown by default are only the most used ones:
 
 - `iron`
 - `jet`
