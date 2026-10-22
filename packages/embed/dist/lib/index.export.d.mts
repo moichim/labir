@@ -4163,6 +4163,13 @@ declare class ThermalFileAppElement extends AbstractApp implements IElementWithM
   fileLoadController: FileLoadController;
   thermal: string | undefined;
   visible: string | undefined;
+  /** Observes the interactive layout's content width; released on disconnect. */
+  private layoutObserver?;
+  connectedCallback(): void;
+  firstUpdated(changedProperties: PropertyValues): void;
+  disconnectedCallback(): void;
+  /** Applies responsive classes to the rendered layout without recreating its interactive children. */
+  private observeLayout;
   static styles: import("lit").CSSResult;
   render(): import("lit").TemplateResult<1>;
 }

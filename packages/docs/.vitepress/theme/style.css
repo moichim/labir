@@ -165,34 +165,39 @@ main {
 
 .hierarchy {
 
-  --hierarchy-content: "Hierarchy";
-  --hierarchy-content-post: "";
   --hierarchy-color: red;
-  --hierarchy-padding: 1.5em;
+  --hierarchy-padding: 1.5rem;
 
   padding: 1em 0;
 
   manager-provider,
   registry-provider,
   group-provider,
-  file-provider {
-    padding: var(--hierarchy-padding) calc( var(--hierarchy-padding) / 2 );
+  file-provider,
+  .hierarchy-app {
+    padding: 0 calc( var(--hierarchy-padding) / 2 ) var(--hierarchy-padding);
     display: block !important;
 
     border: 1px solid var(--hierarchy-color);
 
     position: relative;
 
-    &::before {
-      content: "<" var(--hierarchy-content) var(--hierarchy-content-post) ">";
+    > .hierarchy-label {
       display: block;
+      width: fit-content;
+      max-width: calc(100% + var(--hierarchy-padding) / 2 + 2px);
+      margin: -0.6rem 0 0.9rem calc( var(--hierarchy-padding) / -2 - 1px );
       color: white;
       background: var(--hierarchy-color);
-      position: absolute;
-      top: -1em;
-      left: -1px;
+      position: relative;
       font-size: small;
+      line-height: 1.5;
       padding: 0 1em;
+      z-index: 1;
+    }
+
+    > .hierarchy-label:empty {
+      display: none;
     }
 
     table,
@@ -212,21 +217,9 @@ main {
     }
   }
 
-  &.bare {
-    manager-provider,
-    registry-provider,
-    group-provider,
-    file-provider {
-      &::before {
-        content: var(--hierarchy-content) var(--hierarchy-content-post);
-      }
-    }
-  }
-
   manager-provider {
 
     --hierarchy-color: red;
-    --hierarchy-content: "manager-provider";
     --vp-c-divider: var(--hierarchy-color);
 
     background: rgb(255, 214, 214);
@@ -235,27 +228,69 @@ main {
 
   registry-provider {
     --hierarchy-color: blue;
-    --hierarchy-content: "registry-provider";
     --vp-c-divider: var(--hierarchy-color);
     background: rgb(225, 225, 255);
   }
 
   group-provider {
     --hierarchy-color: green;
-    --hierarchy-content: "group-provider";
     --vp-c-divider: var(--hierarchy-color);
     background: rgb(196, 255, 196);
   }
 
   file-provider {
     --hierarchy-color: purple;
-    --hierarchy-content: "file-provider";
     --vp-c-divider: var(--hierarchy-color);
     background: rgb(221, 196, 255);
   }
 
+  .hierarchy-app {
+    --hierarchy-color: var(--vp-c-brand-1);
+    background: var(--vp-c-bg-soft);
+    min-width: 0;
+
+    > :not(.hierarchy-label) {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+  }
+
   table {
     width: 100% !important;
+  }
+
+  .hierarchy-label__attribute {
+    display: block;
+    padding-left: 2ch;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:focus-within {
+      white-space: normal;
+      word-break: break-all;
+    }
+  }
+
+  .hierarchy-label__value {
+    cursor: text;
+    border-bottom: 1px dotted transparent;
+
+    &:hover {
+      border-bottom-color: currentColor;
+    }
+
+    &:focus {
+      outline: none;
+      color: var(--hierarchy-color);
+      background: white;
+    }
+  }
+
+  .hierarchy-label__value--default {
+    font-style: italic;
+    opacity: 0.75;
   }
 
   .stack {

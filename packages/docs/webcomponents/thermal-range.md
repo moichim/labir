@@ -10,9 +10,9 @@ Thermal range is bound to `ThermalRegistry` provider and its value is synchronis
 
 ## Overview of related elements
 
-<div class="hierarchy">
-    <manager-provider>
-        <registry-provider>
+<Hierarchy>
+    <HierarchyManager>
+        <HierarchyRegistry :watch="{from: null, to: null}">
             <p>The thermal scale is controlled on the level of <code>ThermalRegistry</code>.</p>
             <table>
                 <tbody>
@@ -43,7 +43,7 @@ Thermal range is bound to `ThermalRegistry` provider and its value is synchronis
                 </tbody>
             </table>
             <div class="stack">
-            <group-provider>
+            <HierarchyGroup>
                 <table>
                     <tbody>
                         <tr>
@@ -52,9 +52,8 @@ Thermal range is bound to `ThermalRegistry` provider and its value is synchronis
                         </tr>
                     </tbody>
                 </table>
-                    <file-provider
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/makak.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/makak.lrc'"
                     >
                         <table>
                             <tbody>
@@ -65,10 +64,9 @@ Thermal range is bound to `ThermalRegistry` provider and its value is synchronis
                             </tbody>
                         </table>
                         <file-canvas></file-canvas>
-                    </file-provider>
-                    <file-provider
+                    </HierarchyFile>
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/klokan.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/klokan.lrc'"
                     >
                         <table>
                             <tbody>
@@ -79,9 +77,9 @@ Thermal range is bound to `ThermalRegistry` provider and its value is synchronis
                             </tbody>
                         </table>
                         <file-canvas></file-canvas>
-                    </file-provider>
-            </group-provider>
-            <group-provider>
+                    </HierarchyFile>
+            </HierarchyGroup>
+            <HierarchyGroup>
                 <table>
                     <tbody>
                         <tr>
@@ -91,9 +89,8 @@ Thermal range is bound to `ThermalRegistry` provider and its value is synchronis
                     </tbody>
                 </table>
                 <div class="stack">
-                    <file-provider
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/husy.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/husy.lrc'"
                     >
                         <table>
                             <tbody>
@@ -104,10 +101,9 @@ Thermal range is bound to `ThermalRegistry` provider and its value is synchronis
                             </tbody>
                         </table>
                         <file-canvas></file-canvas>
-                    </file-provider>
-                    <file-provider
+                    </HierarchyFile>
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/kudlanka.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/mantis.lrc'"
                     >
                         <table>
                             <tbody>
@@ -118,13 +114,13 @@ Thermal range is bound to `ThermalRegistry` provider and its value is synchronis
                             </tbody>
                         </table>
                         <file-canvas></file-canvas>
-                    </file-provider>
+                    </HierarchyFile>
                 </div>
-            </group-provider>
+            </HierarchyGroup>
             </div>
-        </registry-provider>
-    </manager-provider>
-</div>
+        </HierarchyRegistry>
+    </HierarchyManager>
+</Hierarchy>
 
 ## Constraints
 

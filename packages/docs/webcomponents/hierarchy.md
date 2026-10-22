@@ -20,37 +20,37 @@ When building an interface from scratch, you will need to use **all the followin
 - `group-provider`
 - `file-provider`
 
+See the [manager-provider](./providers/manager-provider), [registry-provider](./providers/registry-provider), [group-provider](./providers/group-provider), and [file-provider](./providers/file-provider) references for details about each provider.
+
 The following schema explains their roles:
 
-<div class="hierarchy">
-    <manager-provider>
+<Hierarchy>
+    <HierarchyManager>
         <p>The <code>manager-provider</code> handles the global cache and also some display properties such as the <a href="./thermal-palette">palette property</a>.</p>
-        <registry-provider>
+        <HierarchyRegistry>
             <p>The <code>registry-provider</code> handles file loading, <a href="./thermal-range">thermal range</a> and histogram.</p>
-            <group-provider>
+            <HierarchyGroup>
                 <p>The <code>group-provider</code> synchronises the cursor position between the nested files.</p>
                 <div class="stack">
-                    <file-provider
+                    <HierarchyFile watch="thermal"
                             :thermal="withBase('/files/husy.lrc')"
-                            style="--hierarchy-content-post:' thermal=/files/husy.lrc'"
                     >
                         <p>The <code>file-provider</code>executes the file load and exposes its properties in as context.</p>
-                    </file-provider>
-                    <file-provider
+                    </HierarchyFile>
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/kudlanka.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/mantis.lrc'"
                     >
                         <p>The <code>file-provider</code>executes the file load and exposes its properties in as context.</p>
-                    </file-provider>
+                    </HierarchyFile>
                 </div>
-            </group-provider>
-        </registry-provider>
-    </manager-provider>
-</div>
+            </HierarchyGroup>
+        </HierarchyRegistry>
+    </HierarchyManager>
+</Hierarchy>
 
 If the context providers are missing or composed incorrectly, the context consumers won't work.
 
-## Internal hierarchy
+### Internal hierarchy
 
 Every context provider is bound internally to an object within the hierarchy of `@labirthermal/core`:
 
@@ -109,7 +109,7 @@ What do the context providers do with their internal control objects?
 and translate internal properties into HTML attributes. 
 
 
-## Identity of internal objects
+### Identity of internal objects
 
 Every internal object is identified by a unique identificator. **By default, identificators are random hashes.** But you can optionally specify the internal names using `*-slug` attributes:
 
@@ -133,7 +133,7 @@ ThermalManager #default
     ⮑ ThermalGroup #first-group-id
 ```
 
-## Sharing internal objects
+### Sharing internal objects
 
 If you use the same identificator for multiple context providers, they will share one internal object.
 
@@ -171,31 +171,30 @@ By sharing the `registry-slug` attribute, both branches in the DOM tree share on
 :::tabs
 == Interactive demo
 
-<div class="hierarchy">
-<manager-provider>
-    <registry-provider registry-slug="default" style="--hierarchy-content-post: ' registry-slug=some-id'">
-        <group-provider style="--hierarchy-content-post: ''">
+<Hierarchy>
+<HierarchyManager>
+    <HierarchyRegistry watch="registry-slug" registry-slug="default">
+        <HierarchyGroup>
                 <div class="stack">
-                    <file-provider
+                    <HierarchyFile watch="thermal"
                             :thermal="withBase('/files/husy.lrc')"
-                            style="--hierarchy-content-post:' thermal=/files/husy.lrc'"
                     >
                         <file-canvas></file-canvas>
-                    </file-provider>
+                    </HierarchyFile>
                 </div>
-            </group-provider>
-    </registry-provider>
+            </HierarchyGroup>
+    </HierarchyRegistry>
     <br />
-    <registry-provider registry-slug="default" style="--hierarchy-content-post: ' registry-slug=some-id'">
+    <HierarchyRegistry watch="registry-slug" registry-slug="default">
         <p>Try to play with the controls below - they will modify the thermal range also in the DOM tree above.</p>
         <registry-range-form></registry-range-form>
         <br />
         <registry-histogram></registry-histogram>
         <registry-range-slider></registry-range-slider>
         <registry-ticks-bar></registry-ticks-bar>
-    </registry-provider>
-</manager-provider>
-</div>
+    </HierarchyRegistry>
+</HierarchyManager>
+</Hierarchy>
 
 == HTML source
 
@@ -238,34 +237,32 @@ The **context consumer elements** inherit the control objects from their ancesto
 
 == Interactive demo
 
-<div class="hierarchy">
-    <manager-provider>
+<Hierarchy>
+    <HierarchyManager watch="palette">
         <manager-palette-dropdown></manager-palette-dropdown>
         <br />
-        <registry-provider>
+        <HierarchyRegistry watch="from,to">
             <registry-range-form></registry-range-form>
             <registry-histogram></registry-histogram>
             <registry-range-slider></registry-range-slider>
             <registry-ticks-bar></registry-ticks-bar>
-            <group-provider>
+            <HierarchyGroup>
                 <div class="stack">
-                    <file-provider
+                    <HierarchyFile watch="thermal"
                             :thermal="withBase('/files/husy.lrc')"
-                            style="--hierarchy-content-post:' thermal=/files/husy.lrc'"
                     >
                         <file-canvas></file-canvas>
-                    </file-provider>
-                    <file-provider
+                    </HierarchyFile>
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/kudlanka.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/mantis.lrc'"
                     >
                         <file-canvas></file-canvas>
-                    </file-provider>
+                    </HierarchyFile>
                 </div>
-            </group-provider>
-        </registry-provider>
-    </manager-provider>
-</div>
+            </HierarchyGroup>
+        </HierarchyRegistry>
+    </HierarchyManager>
+</Hierarchy>
 
 == HTML source
 
@@ -304,58 +301,146 @@ The **context consumer elements** inherit the control objects from their ancesto
 
 The context consumers may be nested anywhere in the DOM tree, but they still share the same context. The following example shows that multiple `manager-palette-dropdown` elements can be placed anywhere in the DOM tree while still controlling the same context;
 
-<div class="hierarchy">
-    <manager-provider>
+<Hierarchy>
+    <HierarchyManager watch="palette">
         <manager-palette-dropdown></manager-palette-dropdown>
         <br />
-        <registry-provider>
+        <HierarchyRegistry>
             <manager-palette-dropdown></manager-palette-dropdown>
             <br />
-            <group-provider>
+            <HierarchyGroup>
                 <manager-palette-dropdown></manager-palette-dropdown>
                 <br />
                 <div class="stack">
-                <file-provider
+                <HierarchyFile watch="thermal"
                     :thermal="withBase('/files/husy.lrc')"
-                    style="--hierarchy-content-post:' thermal=/files/husy.lrc'"
                 >
                     <manager-palette-dropdown></manager-palette-dropdown>
                     <br />
                     <file-canvas></file-canvas>
-                </file-provider>
-                <file-provider
+                </HierarchyFile>
+                <HierarchyFile watch="thermal"
                     :thermal="withBase('/files/kudlanka.lrc')"
-                    style="--hierarchy-content-post:' thermal=/files/mantis.lrc'"
                 >
                     <manager-palette-dropdown></manager-palette-dropdown>
                     <br />
                     <file-canvas></file-canvas>
-                </file-provider>
+                </HierarchyFile>
                 </div>
-            </group-provider>
+            </HierarchyGroup>
             <br />
-            <group-provider>
+            <HierarchyGroup>
                 <manager-palette-dropdown></manager-palette-dropdown>
                 <br />
                 <div class="stack">
-                <file-provider
+                <HierarchyFile watch="thermal"
                     :thermal="withBase('/files/husy.lrc')"
-                    style="--hierarchy-content-post:' thermal=/files/husy.lrc'"
                 >
                     <manager-palette-dropdown></manager-palette-dropdown>
                     <br />
                     <file-canvas></file-canvas>
-                </file-provider>
-                <file-provider
+                </HierarchyFile>
+                <HierarchyFile watch="thermal"
                     :thermal="withBase('/files/kudlanka.lrc')"
-                    style="--hierarchy-content-post:' thermal=/files/mantis.lrc'"
                 >
                     <manager-palette-dropdown></manager-palette-dropdown>
                     <br />
                     <file-canvas></file-canvas>
-                </file-provider>
+                </HierarchyFile>
                 </div>
-            </group-provider>
-        </registry-provider>
-    </manager-provider>
+            </HierarchyGroup>
+        </HierarchyRegistry>
+    </HierarchyManager>
+</Hierarchy>
+
+## Applications
+
+Applications such as [thermal-file-app](./applications/thermal-file-app.md) create their own manager, registry, group and file context. You do not need to wrap them in provider elements.
+
+The example below loads the **same thermal file and visible image** in two independent viewers with the same initial settings:
+
+- **Left:** each provider exposes the attributes belonging to its own context.
+- **Right:** one application exposes those attributes together, on the **same HTML element**. The internal objects still follow the manager → registry → group → file hierarchy; only the HTML API is flat.
+
+Click an attribute value in either HTML label to edit it, or use the controls and watch the values update. The viewers are independent, so changes in one do not affect the other. `thermal` loads the file together with `visible`; changing only `visible` does not reload it.
+
+<Hierarchy>
+<div class="split">
+<div>
+<h3>Separate providers</h3>
+
+Create context hierarchically.
+
+<HierarchyManager watch="palette,advanced-palettes,tool" palette="iron">
+    <manager-palette-dropdown></manager-palette-dropdown>
+    <HierarchyRegistry watch="from,to,opacity" from="-10" to="5" opacity="1">
+        <registry-range-form></registry-range-form>
+        <registry-opacity-slider></registry-opacity-slider>
+        <registry-histogram></registry-histogram>
+        <registry-range-slider></registry-range-slider>
+        <registry-ticks-bar></registry-ticks-bar>
+        <HierarchyGroup>
+            <HierarchyFile
+                watch="thermal,visible"
+                :visible="withBase('/files/les_visual.png')"
+                :thermal="withBase('/files/les_thermal.lrc')"
+            >
+                <file-canvas></file-canvas>
+            </HierarchyFile>
+        </HierarchyGroup>
+    </HierarchyRegistry>
+</HierarchyManager>
 </div>
+<div>
+<h3>All providers in one application</h3>
+
+`*-app` webcomponents do not use context providers. Instead, they expose the entire context on their own. These webcomponents also comes with a fully-featured UI.
+
+<HierarchyApp
+    watch="palette,advanced-palettes,tool,from,to,opacity,thermal,visible"
+    palette="iron"
+    label="App"
+    from="-10"
+    to="5"
+    opacity="1"
+    show-fullscreen="true"
+    :visible="withBase('/files/les_visual.png')"
+    :thermal="withBase('/files/les_thermal.lrc')"
+/>
+</div>
+</div>
+</Hierarchy>
+
+The essential HTML difference is:
+
+<div class="split">
+
+```html
+<manager-provider palette="iron">
+    <registry-provider from="-10" to="5" opacity="0.6">
+        <group-provider>
+            <file-provider
+                visible="/labir/files/les_visual.png"
+                thermal="/labir/files/les_thermal.lrc"
+            >
+                <file-canvas></file-canvas>
+            </file-provider>
+        </group-provider>
+    </registry-provider>
+</manager-provider>
+```
+
+```html
+<thermal-file-app
+    palette="iron"
+    from="-10"
+    to="5"
+    opacity="0.6"
+    visible="/labir/files/les_visual.png"
+    thermal="/labir/files/les_thermal.lrc"
+></thermal-file-app>
+```
+
+</div>
+
+The application also supplies its own controls, canvas and analysis interface. See the [application reference](./applications/thermal-file-app.md#attributes) for all public attributes.

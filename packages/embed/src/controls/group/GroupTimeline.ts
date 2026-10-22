@@ -97,8 +97,6 @@ export class GroupTimelineElement extends AbstractGroupConsumer {
 
         let length = 0;
 
-        this.forEveryAffectedInstance(instance => instance.unmountFromDom());
-
         this.instances = results
             .filter(result => {
                 if (result instanceof ThermalFileFailure)

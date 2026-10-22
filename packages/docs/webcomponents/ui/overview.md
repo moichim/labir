@@ -1,4 +1,4 @@
-# UI elements
+# Overview
 
 <script setup>
 import { withBase } from 'vitepress'
@@ -7,6 +7,10 @@ import { withBase } from 'vitepress'
 The `@labirthermal/webcomponents` comes with a set of standardised UI elements. These elements are independent of [the hierarchy](./hierarchy.md) and can be used anywhere in the DOM tree.
 
 These UI elements are mostly used internally - in [context consumer elements](./hierarchy.md#context-consumers), but you can use them for your own purposes.
+
+See [Icons](./icons.md) for the built-in icon catalog and icon presentation attributes, and [Styling and CSS variables](./styling.md) for theming.
+
+For a complete HTML document showing script loading and click listener registration, see the [standalone button example](./ui/thermal-btn.md#complete-html-document).
 
 ## Overview
 
@@ -46,7 +50,7 @@ These UI elements are mostly used internally - in [context consumer elements](./
             </td>
         </tr>
         <tr>
-            <td><code text-wrap="nowrap">thermal-dropdown</code></td>
+            <td><a :href="withBase('/webcomponents/ui/thermal-dropdown')"><code text-wrap="nowrap">thermal-dropdown</code></a></td>
             <td>
                 <thermal-dropdown>
                     <thermal-btn slot="option">An option</thermal-btn>
@@ -95,7 +99,7 @@ These UI elements are mostly used internally - in [context consumer elements](./
             </td>
         </tr>
         <tr>
-            <td><code>thermal-app</code></td>
+            <td><a :href="withBase('/webcomponents/ui/thermal-app')"><code>thermal-app</code></a></td>
             <td colspan="2">
                 <thermal-app 
                     label="A label"

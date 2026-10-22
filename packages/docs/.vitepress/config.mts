@@ -6,6 +6,9 @@ export default defineConfig({
   title: "@labirthermal",
   description: "Work with thermal images in the browser.",
   base: "/labir/",
+  sitemap: {
+    hostname: 'https://your-site-domain.com'
+  },
   markdown: {
     config(md) {
       md.use(tabsMarkdownPlugin)
@@ -15,6 +18,12 @@ export default defineConfig({
     template: {
       compilerOptions: {
         isCustomElement: tag =>
+          tag === "thermal-btn" ||
+          tag === "thermal-btn-group" ||
+          tag === "thermal-dialog" ||
+          tag === "thermal-dropdown" ||
+          tag === "thermal-icon" ||
+          tag === "thermal-app" ||
           tag === "thermal-file-app" ||
           tag === "thermal-dropin-app" ||
           tag === "manager-advanced-palette-switch" ||
@@ -30,6 +39,7 @@ export default defineConfig({
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    outline: [2, 3],
     nav: [
       { text: 'Home', link: '/' },
       {
@@ -40,7 +50,7 @@ export default defineConfig({
         ]
 
       },
-      { text: 'Webcomponents', link: '/markdown-examples' },
+      { text: 'Webcomponents', link: '/webcomponents/all' },
       { text: 'Integration', link: '/markdown-examples' },
       { text: 'Usage guide', link: '/markdown-examples' }
     ],
@@ -76,26 +86,49 @@ export default defineConfig({
           { text: 'Overview', link: '/webcomponents' },
           { text: 'Usage in the browser', link: '/webcomponents/usage' },
           {
-            text: 'Guide', 
+            text: 'Guide',
             collapsed: true,
             items: [
-              { text: 'Hierarchy of components', link: '/webcomponents/hierarchy' },
-              { text: 'UI elements', link: '/webcomponents/ui-elements' },
+              { text: 'Context providers and consumers', link: '/webcomponents/hierarchy' },
               { text: "Thermal palette", link: '/webcomponents/thermal-palette' },
               { text: "Thermal range", link: '/webcomponents/thermal-range' },
+              { text: 'Styling and CSS variables', link: '/webcomponents/styling' },
             ]
           },
           {
-            text: 'Applications',
+            text: 'App components',
             collapsed: true,
             items: [
-              { text: 'Overview', link: '/webcomponents/applications' },
+              { text: 'Overview of app components', link: '/webcomponents/applications' },
               { text: 'thermal-dropin-app', link: '/webcomponents/applications/thermal-dropin-app' }
             ]
           },
-          { text: 'Components', link: '/api-examples' }
+          {
+            text: 'UI components',
+            collapsed: true,
+            items: [
+              { text: 'Overview of UI components', link: '/webcomponents/ui/overview' },
+              { text: 'Icons', link: '/webcomponents/icons' },
+              { text: 'thermal-btn', link: '/webcomponents/ui/thermal-btn' },
+              { text: 'thermal-btn-group', link: '/webcomponents/ui/thermal-btn-group' },
+              { text: 'thermal-dialog', link: '/webcomponents/ui/thermal-dialog' },
+              { text: 'thermal-dropdown', link: '/webcomponents/ui/thermal-dropdown' },
+              { text: 'thermal-app', link: '/webcomponents/ui/thermal-app' }
+            ]
+          },
+          {
+            text: 'Context providers',
+            collapsed: true,
+            items: [
+              { text: 'Overview of context providers', link: '/webcomponents/providers/overview' },
+              { text: 'manager-provider', link: '/webcomponents/providers/manager-provider' },
+              { text: 'registry-provider', link: '/webcomponents/providers/registry-provider' },
+              { text: 'group-provider', link: '/webcomponents/providers/group-provider' },
+              { text: 'file-provider', link: '/webcomponents/providers/file-provider' }
+            ]
+          }
         ]
-      }
+      },
     ],
 
     socialLinks: [
@@ -104,6 +137,8 @@ export default defineConfig({
 
     search: {
       provider: 'local'
-    }
+    },
+
   }
+
 })

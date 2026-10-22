@@ -94,6 +94,17 @@ This frontend library is a webcomponents implementation of [@labir/core](/packag
 - export thermal recording to PNG / WEBM
 - export analyses data to CSV
 
+### Responsive file application
+
+The interactive layout in `thermal-file-app` responds to its own content width,
+not the viewport. At 700px and above, the toolbar, image/timeline and analyses
+are side by side. Below 700px, the image, timeline and analyses are stacked in
+that order, with the toolbar on the left. Below 500px, the toolbar moves above
+the image and wraps horizontally when necessary.
+
+The layout element receives `layout--stacked` and `layout--compact` classes.
+Resizing preserves the existing canvas, playback and analysis controls.
+
 ### Registry range slider
 
 `registry-range-slider` renders its track, palette and two accessible handles

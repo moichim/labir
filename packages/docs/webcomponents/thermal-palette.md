@@ -10,8 +10,8 @@ Thermal range is bound to `ThermalManager` provider and its value is synchronise
 
 ## Overview of related elements
 
-<div class="hierarchy">
-    <manager-provider>
+<Hierarchy>
+    <HierarchyManager :watch="{palette: null, ['advanced-palettes']:null}">
         <p>The thermal palette is controlled on the level of <code>ThermalManager</code>.</p>
             <table>
                 <tbody>
@@ -29,48 +29,44 @@ Thermal range is bound to `ThermalManager` provider and its value is synchronise
                     </tr>
                 </tbody>
             </table>
-        <registry-provider>
+        <HierarchyRegistry>
             <div class="stack">
-            <group-provider>
-                    <file-provider
+            <HierarchyGroup>
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/makak.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/makak.lrc'"
                     >
                         <file-canvas></file-canvas>
-                    </file-provider>
-                    <file-provider
+                    </HierarchyFile>
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/klokan.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/klokan.lrc'"
                     >
                         <file-canvas></file-canvas>
-                    </file-provider>
-            </group-provider>
+                    </HierarchyFile>
+            </HierarchyGroup>
             <div style="display: flex; flex-direction: column; gap: 2em;">
-            <group-provider>
+            <HierarchyGroup>
                 <div class="stack">
-                    <file-provider
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/husy.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/husy.lrc'"
                     >
                         <file-canvas></file-canvas>
-                    </file-provider>
+                    </HierarchyFile>
                 </div>
-            </group-provider>
-            <group-provider>
+            </HierarchyGroup>
+            <HierarchyGroup>
                 <div class="stack">
-                    <file-provider
+                    <HierarchyFile watch="thermal"
                         :thermal="withBase('/files/kudlanka.lrc')"
-                        style="--hierarchy-content-post:' thermal=/files/mantis.lrc'"
                     >
                         <file-canvas></file-canvas>
-                    </file-provider>
+                    </HierarchyFile>
                 </div>
-            </group-provider>
+            </HierarchyGroup>
             </div>
             </div>
-        </registry-provider>
-    </manager-provider>
-</div>
+        </HierarchyRegistry>
+    </HierarchyManager>
+</Hierarchy>
 
 ## Constraints
 

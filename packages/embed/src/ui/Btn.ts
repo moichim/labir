@@ -349,7 +349,7 @@ export class ThermalBtnElement extends AbstractThermalElement {
 
         :host([size="lg"]),
         :host([size=lg]) {
-            --padding: .5em .7em;
+            --padding: .7em .9em;
             line-height: 1.2;
             font-size: 1em;
         }

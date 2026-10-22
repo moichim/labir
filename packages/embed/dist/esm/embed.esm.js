@@ -972,7 +972,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
         :host([size="lg"]),
         :host([size=lg]) {
-            --padding: .5em .7em;
+            --padding: .7em .9em;
             line-height: 1.2;
             font-size: 1em;
         }
@@ -3488,7 +3488,7 @@ slot {
 
     
 
-`,Hd=class extends zu{constructor(...e){super(...e),this.ms=0,this.playing=!1,this.instances=[],this.has=!1,this.ticks=[],this.timelineRef=U(),this.indicatorRef=U()}static{this.TICK_WIDTH=50}static{this.TICK_POINTER_HEIGHT=3}connectedCallback(){super.connectedCallback(),this.groupObject.registry.batch.onBatchComplete.set(this.UUID,this.onRegistryBatchEnded.bind(this)),this.groupObject.files.addListener(this.UUID,e=>{this.listener!==void 0&&clearTimeout(this.listener),this.listener=setTimeout(async()=>{this.onRegistryBatchEnded(e)},0)}),this.groupObject.playback.addListener(this.UUID,e=>this.ms=e),this.groupObject.playback.onPlayingStatusChange.set(this.UUID,e=>this.playing=e),this.groupObject.playback.onHasAnyCallback.set(this.UUID,e=>this.has=e)}updated(e){super.updated(e),e.has(`ms`)&&this.ms!==void 0&&(this.ms!==this.groupObject.playback.value&&this.groupObject.playback.setValueByRelativeMs(this.ms),this.indicatorRef.value&&(this.indicatorRef.value.style.width=this.msToPercent(this.ms)+`%`))}onRegistryBatchEnded(e){let t=0;this.forEveryAffectedInstance(e=>e.unmountFromDom()),this.instances=e.filter(e=>e instanceof pn?!1:e.group.id===this.groupObject.id),this.instances.forEach(e=>{e.timeline.duration>t&&(t=e.timeline.duration)}),this.longestDurationInMs=t,setTimeout(()=>{let e=this.getTimelineElement();e&&this.longestDurationInMs!==void 0&&(this.calculateTicks(e.clientWidth,this.longestDurationInMs),new ResizeObserver(e=>{let t=e[0];this.longestDurationInMs&&this.calculateTicks(t.contentRect.width,this.longestDurationInMs)}).observe(e))},0)}calculateTicks(e,t){this.ticks=Ld(e,t)}forEveryAffectedInstance(e){this.instances.forEach(e)}percentToMs(e){if(this.longestDurationInMs!==void 0)return Math.floor(this.longestDurationInMs*(e/100))}msToPercent(e){if(this.longestDurationInMs!==void 0)return e/this.longestDurationInMs*100}getValueFromEvent(e){let t=e.layerX/e.target.clientWidth*100;return{percent:t,ms:this.percentToMs(t)}}handlePlayButtonClick(){this.groupObject.playback.playing?this.groupObject.playback.stop():this.groupObject.playback.play()}handleTimelineClick(e){let t=e.layerX/e.target.clientWidth*100,n=this.percentToMs(t);n&&(this.ms=n)}handleTimelineEnter(e){let{ms:t}=this.getValueFromEvent(e);this.pointerMs=t}handleTimelineMove(e){let{ms:t}=this.getValueFromEvent(e);this.pointerMs=t}handleTimelineLeave(){this.pointerMs=void 0}static{this.styles=O`
+`,Hd=class extends zu{constructor(...e){super(...e),this.ms=0,this.playing=!1,this.instances=[],this.has=!1,this.ticks=[],this.timelineRef=U(),this.indicatorRef=U()}static{this.TICK_WIDTH=50}static{this.TICK_POINTER_HEIGHT=3}connectedCallback(){super.connectedCallback(),this.groupObject.registry.batch.onBatchComplete.set(this.UUID,this.onRegistryBatchEnded.bind(this)),this.groupObject.files.addListener(this.UUID,e=>{this.listener!==void 0&&clearTimeout(this.listener),this.listener=setTimeout(async()=>{this.onRegistryBatchEnded(e)},0)}),this.groupObject.playback.addListener(this.UUID,e=>this.ms=e),this.groupObject.playback.onPlayingStatusChange.set(this.UUID,e=>this.playing=e),this.groupObject.playback.onHasAnyCallback.set(this.UUID,e=>this.has=e)}updated(e){super.updated(e),e.has(`ms`)&&this.ms!==void 0&&(this.ms!==this.groupObject.playback.value&&this.groupObject.playback.setValueByRelativeMs(this.ms),this.indicatorRef.value&&(this.indicatorRef.value.style.width=this.msToPercent(this.ms)+`%`))}onRegistryBatchEnded(e){let t=0;this.instances=e.filter(e=>e instanceof pn?!1:e.group.id===this.groupObject.id),this.instances.forEach(e=>{e.timeline.duration>t&&(t=e.timeline.duration)}),this.longestDurationInMs=t,setTimeout(()=>{let e=this.getTimelineElement();e&&this.longestDurationInMs!==void 0&&(this.calculateTicks(e.clientWidth,this.longestDurationInMs),new ResizeObserver(e=>{let t=e[0];this.longestDurationInMs&&this.calculateTicks(t.contentRect.width,this.longestDurationInMs)}).observe(e))},0)}calculateTicks(e,t){this.ticks=Ld(e,t)}forEveryAffectedInstance(e){this.instances.forEach(e)}percentToMs(e){if(this.longestDurationInMs!==void 0)return Math.floor(this.longestDurationInMs*(e/100))}msToPercent(e){if(this.longestDurationInMs!==void 0)return e/this.longestDurationInMs*100}getValueFromEvent(e){let t=e.layerX/e.target.clientWidth*100;return{percent:t,ms:this.percentToMs(t)}}handlePlayButtonClick(){this.groupObject.playback.playing?this.groupObject.playback.stop():this.groupObject.playback.play()}handleTimelineClick(e){let t=e.layerX/e.target.clientWidth*100,n=this.percentToMs(t);n&&(this.ms=n)}handleTimelineEnter(e){let{ms:t}=this.getValueFromEvent(e);this.pointerMs=t}handleTimelineMove(e){let{ms:t}=this.getValueFromEvent(e);this.pointerMs=t}handleTimelineLeave(){this.pointerMs=void 0}static{this.styles=O`
 
 
         :host {
@@ -5034,13 +5034,51 @@ slot {
 
             </thermal-app>
 
-        `}catch{return k`Stala se chyba`}}};R([V({type:String,reflect:!0})],Cf.prototype,`displayMode`,void 0),R([H()],Cf.prototype,`ip`,void 0),R([H()],Cf.prototype,`toDisplay`,void 0),R([Na({context:Ro}),V({reflect:!0,converter:Vo})],Cf.prototype,`locale`,void 0);var wf=class extends Sf{constructor(...e){super(...e),this.interactiveanalysis=!0,this.managerController=new dc(this),this.palette=`jet`,this.advancedPalettes=!1,this.smoothThermograms=!1,this.smoothGraph=!1,this.tool=`inspect`,this.registryController=new $s(this),this.opacity=1,this.loading=!1,this.groupController=new ys(this),this.autoclearGroup=!0,this.fileController=new hs(this),this.ms=0,this.playbackSpeed=1,this.autoHighlight=!1,this.fileLoadController=new gs(this)}static{this.properties={...Sf.properties,...dc.HOST_PROPERTIES,...$s.HOST_PROPERTIES,...ys.HOST_PROPERTIES,...hs.HOST_PROPERTIES,...gs.HOST_PROPERTIES}}static{this.styles=O`
+        `}catch{return k`Stala se chyba`}}};R([V({type:String,reflect:!0})],Cf.prototype,`displayMode`,void 0),R([H()],Cf.prototype,`ip`,void 0),R([H()],Cf.prototype,`toDisplay`,void 0),R([Na({context:Ro}),V({reflect:!0,converter:Vo})],Cf.prototype,`locale`,void 0);var wf=class extends Sf{constructor(...e){super(...e),this.interactiveanalysis=!0,this.managerController=new dc(this),this.palette=`jet`,this.advancedPalettes=!1,this.smoothThermograms=!1,this.smoothGraph=!1,this.tool=`inspect`,this.registryController=new $s(this),this.opacity=1,this.loading=!1,this.groupController=new ys(this),this.autoclearGroup=!0,this.fileController=new hs(this),this.ms=0,this.playbackSpeed=1,this.autoHighlight=!1,this.fileLoadController=new gs(this)}static{this.properties={...Sf.properties,...dc.HOST_PROPERTIES,...$s.HOST_PROPERTIES,...ys.HOST_PROPERTIES,...hs.HOST_PROPERTIES,...gs.HOST_PROPERTIES}}connectedCallback(){super.connectedCallback(),this.hasUpdated&&this.observeLayout()}firstUpdated(e){super.firstUpdated(e),this.observeLayout()}disconnectedCallback(){this.layoutObserver?.disconnect(),this.layoutObserver=void 0,super.disconnectedCallback()}observeLayout(){let e=this.shadowRoot?.querySelector(`.layout`);if(!e||this.layoutObserver)return;let t=new ResizeObserver(n=>{if(!this.isConnected||this.layoutObserver!==t)return;let r=n.find(t=>t.target===e);r&&(e.classList.toggle(`layout--stacked`,r.contentRect.width<700),e.classList.toggle(`layout--compact`,r.contentRect.width<500))});this.layoutObserver=t,t.observe(e)}static{this.styles=O`
     
         .layout {
             display: grid;
-            grid-template-columns: min-content 1fr 1fr;
+            grid-template-columns: min-content minmax(0, 1fr) minmax(0, 1fr);
+            grid-template-areas: "tools viewer analysis";
             gap: 1em;
             margin-top: 1em;
+        }
+
+        .layout > * {
+            min-width: 0;
+        }
+
+        manager-tool-bar {
+            grid-area: tools;
+            align-self: start;
+        }
+
+        .viewer {
+            grid-area: viewer;
+        }
+
+        file-analysis-complex {
+            grid-area: analysis;
+        }
+
+        .layout--stacked {
+            grid-template-columns: min-content minmax(0, 1fr);
+            grid-template-areas:
+                "tools viewer"
+                "tools analysis";
+        }
+
+        .layout--compact {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas:
+                "tools"
+                "viewer"
+                "analysis";
+        }
+
+        .layout--compact manager-tool-bar {
+            flex-direction: row;
+            flex-wrap: wrap;
         }
     
     `}render(){return k`<thermal-app 
@@ -5057,14 +5095,14 @@ slot {
             <registry-range-form slot="bar-pre"></registry-range-form>
             <registry-opacity-slider slot="bar-pre"></registry-opacity-slider>
 
-            <registry-histogram slot="pre" expandable="true"></registry-histogram>
+            <registry-histogram slot="pre" ?expandable=${!0}></registry-histogram>
             <registry-range-slider slot="pre"></registry-range-slider>
             <registry-ticks-bar slot="pre"></registry-ticks-bar>
 
             
             <div class="layout">
                 <manager-tool-bar></manager-tool-bar>
-                <div>
+                <div class="viewer">
                     <file-canvas></file-canvas>
                     <file-timeline></file-timeline>
                 </div>
