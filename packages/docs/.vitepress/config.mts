@@ -1,6 +1,83 @@
 import { defineConfig } from 'vitepress'
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 
+// Keep in sync with the registrations in packages/embed/src/iifeCatalog.ts.
+const customElements = new Set([
+  'thermal-app',
+  'thermal-bar',
+  'thermal-btn',
+  'thermal-btn-group',
+  'thermal-dialog',
+  'thermal-dropdown',
+  'thermal-dropin',
+  'thermal-expandable',
+  'thermal-field',
+  'thermal-icon',
+  'thermal-loading',
+  'thermal-radio',
+  'thermal-slot',
+  'thermal-spinner',
+  'thermal-tip',
+  'manager-provider',
+  'registry-provider',
+  'group-provider',
+  'file-provider',
+  'file-copy',
+  'manager-image-smooth-switch',
+  'manager-graph-smooth-switch',
+  'manager-advanced-palette-switch',
+  'manager-palette-dropdown',
+  'manager-palette-buttons',
+  'manager-tool-bar',
+  'manager-export-panel',
+  'registry-histogram',
+  'registry-opacity-slider',
+  'registry-range-auto-button',
+  'registry-range-full-button',
+  'registry-range-display',
+  'registry-range-form',
+  'registry-range-slider',
+  'registry-ticks-bar',
+  'group-analysis-sync-button',
+  'group-chart',
+  'group-download-buttons',
+  'group-download-dropdown',
+  'group-dropin-element',
+  'group-dropin-input',
+  'group-range-propagator',
+  'group-timeline',
+  'file-canvas',
+  'file-download-dropdown',
+  'file-info-button',
+  'file-playback-speed-dropdown',
+  'file-timeline',
+  'file-video-export-button',
+  'file-video-export-panel',
+  'file-label',
+  'file-button',
+  'file-dropdown-elt',
+  'file-download-lrc',
+  'file-download-png',
+  'file-range-propagator',
+  'file-analysis-complex',
+  'file-analysis-display',
+  'file-analysis-edit',
+  'file-analysis-graph',
+  'file-analysis-table-row',
+  'file-analysis-table',
+  'analysis-color',
+  'analysis-name',
+  'edit-area',
+  'edit-point',
+  'thermal-chart',
+  'file-detail',
+  'file-thumbnail',
+  'apparent-temperature-aat',
+  'thermal-dropin-app',
+  'thermal-file-app',
+  'thermal-group-app',
+])
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "@labirthermal",
@@ -17,23 +94,7 @@ export default defineConfig({
   vue: {
     template: {
       compilerOptions: {
-        isCustomElement: tag =>
-          tag === "thermal-btn" ||
-          tag === "thermal-btn-group" ||
-          tag === "thermal-dialog" ||
-          tag === "thermal-dropdown" ||
-          tag === "thermal-icon" ||
-          tag === "thermal-app" ||
-          tag === "thermal-file-app" ||
-          tag === "thermal-dropin-app" ||
-          tag === "manager-advanced-palette-switch" ||
-          tag === "manager-palette-buttons" ||
-          tag === "manager-palette-dropdown" ||
-          tag === "manager-provider" ||
-          tag === "registry-provider" ||
-          tag === "group-provider" ||
-          tag === "file-provider" ||
-          tag === "file-canvas"
+        isCustomElement: tag => customElements.has(tag)
       }
     }
   },
@@ -51,8 +112,6 @@ export default defineConfig({
 
       },
       { text: 'Webcomponents', link: '/webcomponents/all' },
-      { text: 'Integration', link: '/markdown-examples' },
-      { text: 'Usage guide', link: '/markdown-examples' }
     ],
 
     sidebar: [
@@ -120,7 +179,6 @@ export default defineConfig({
             text: 'Context providers',
             collapsed: true,
             items: [
-              { text: 'Overview of context providers', link: '/webcomponents/providers/overview' },
               { text: 'manager-provider', link: '/webcomponents/providers/manager-provider' },
               { text: 'registry-provider', link: '/webcomponents/providers/registry-provider' },
               { text: 'group-provider', link: '/webcomponents/providers/group-provider' },
